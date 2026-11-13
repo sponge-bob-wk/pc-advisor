@@ -149,7 +149,7 @@ tools/agent/
 ├─ agent.py           槽位解析 / 措辞 / 出口审计 / 字段卡 / 社交层
 ├─ server.py          HTTP 服务（7860）
 ├─ index.html         单页前端（无框架、无构建）
-├─ test_*.py          827 项判定型测试
+├─ test_*.py          886 项判定型测试（含社交层 59）
 └─ lora_data/         训练样本池（不入库）
 data/                 数据源（只读）
 docs/                 PRD、部署协作、数据口径
