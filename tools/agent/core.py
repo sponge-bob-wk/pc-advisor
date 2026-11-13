@@ -771,9 +771,117 @@ def _upgrade_of_pool(m):
     return None
 
 
+# ==== 重量：单一来源（2026-11-13）============================================
+# 🔴 真实事故，不是假想。2026-11-13 公网实跑「5000块写代码，轻一点」，
+#    同一份回答里出现两句互相打脸的话：
+#       正文：  「虽然它只有 62.5% sRGB 色域，且 1.48kg 的重量在 14 寸里偏重」
+#       字段卡：「重量  库里没记实测重量」
+#       内核：  weightKg = null
+#    两句都来自库、都没编造 —— 但同一份回答对同一个事实说了两种话。
+#    用户不知道该信哪句，这比"少说一句"严重。
+#
+# 根因：**同一个事实在库里有两个存放处**
+#    ① 自由文本 cons/pros —— 「1.48kg 在 14 寸里偏重」
+#    ② 结构化字段 weightKg —— 空
+#    模型读得到 ①、读不到 ②（② 被 `if not w` 判成"没记"）。
+#    叠加因素：这台机器在池里有两条记录（thin-zhan66 有人工评价无重量 /
+#    spec-hp-66g8-amd 有重量无评价），去重键对不上（"锐龙版" vs "14 英寸"），
+#    于是不管挑中哪条，都只有一半的事实。
+#
+# 🔴 为什么**不**把两条合并：合并是把 A 的价格/评价安到 B 头上（见 _dedup_key
+#    注释「合错比留重复严重」）。而"名称里用不同维度描述同一台"（锐龙版 vs
+#    14 英寸）无法用字符串判定 —— 硬合一定会在别的机型上合错。
+#    ⇒ 正确做法是让**重量这一个事实**在两条记录上一致，而不是让两条记录变成一条。
+#
+# 🔴 抽取必须带分辨力（宪法第 4 条）。下面这几种**不许**抽：
+#      「比 1.4kg 的竞品重」        → 那是别家的重量
+#      「同价位有 1.3kg 的机器更轻」  → 那是别家的重量
+#      「比上一代轻了 0.2kg」       → 是差值，不是绝对重量
+#      「背包承重 5kg」            → 不是本机重量
+#      「1.4-1.6kg 视配置」        → 两个数，不猜
+#    判据：**一句话里只能有一个 kg 数，且句子不能带"比/对比/同级/竞品/代"这类
+#    指向别处的词。** 两者任一不满足就弃权 —— 弃权只是"没记"，抽错是给错数字。
+
+# 出现这些词，说明句里的 kg 数可能指的是**别的机器**而不是本机
+_KG_ELSEWHERE = re.compile(
+    r"比|对比|相较|竞品|同级|同价位|同类|同尺寸|上代|上一代|前代|别的|其他|其余|"
+    r"友商|对手|其他品牌|竞对|同级产品|背包|适配器|电源|充电器|扩展坞|承重|限重"
+)
+
+# 一个 kg 数：前面不能紧贴数字（避免 1.4-1.6 只抓到后半段）
+_KG_ONE = re.compile(r"(?<![\d.])(\d{1,2}(?:\.\d{1,2})?)\s*(?:kg|KG|Kg|公斤|千克)")
+
+# 区间写法：1.4-1.6kg / 1.4~1.6kg / 1.4 到 1.6kg
+# 🔴 这是**两个**重量，代表"视配置而定"—— 任取一个都是把区间说成确定值。
+_KG_RANGE = re.compile(
+    r"\d{1,2}(?:\.\d{1,2})?\s*(?:-|–|—|~|～|到|至)\s*\d{1,2}(?:\.\d{1,2})?\s*kg",
+    re.I
+)
+
+
+def weight_from_review_text(o):
+    """从 pros/cons 里抽这台机器**自己**的重量（kg）。抽不到返回 None。
+
+    判据（有分辨力，见上面那段反例清单）：
+      ① 整个 pros+cons 里，能匹配到的 kg 数必须**恰好只有一个**
+         —— 多个就弃权，因为分不清哪个是本机的
+      ② 那个数所在的那一句，不能带指向别处的比较词
+      ③ 数值必须在 0.5–5.0 kg 之间（笔记本/整机的物理区间，超出必是别的语义）
+    """
+    if not isinstance(o, dict):
+        return None
+    texts = []
+    for k in ("cons", "pros"):
+        v = o.get(k)
+        if isinstance(v, list):
+            texts.extend(x for x in v if isinstance(x, str))
+        elif isinstance(v, str):
+            texts.append(v)
+    if not texts:
+        return None
+
+    hits = []          # [(值, 句子)]
+    for t in texts:
+        # 🔴 区间写法先排除：一句话里出现 "1.4-1.6kg" 就是两个重量，
+        #    代表"视配置而定"。抽其中任何一个都是把区间说成确定值。
+        if _KG_RANGE.search(t):
+            continue
+        for m in _KG_ONE.finditer(t):
+            try:
+                hits.append((float(m.group(1)), t))
+            except ValueError:
+                continue
+    # ① 只能有一个候选
+    if len(hits) != 1:
+        return None
+    val, sent = hits[0]
+    # ② 句子不能指向别处
+    if _KG_ELSEWHERE.search(sent):
+        return None
+    # ③ 物理区间
+    if not (0.5 <= val <= 5.0):
+        return None
+    return val
+
+
+def effective_weight(o):
+    """这台机器的重量（kg）：**结构化字段优先，文本兜底**。
+
+    🔴 优先级不能反。weightKg 是人核对过的结构化数据；cons 里的数字是
+    写评价时顺手记的。两者冲突时（理论上不该有），以结构化字段为准，
+    并且**不覆盖原字段** —— 只在读取侧兜底，数据文件保持原样。
+    """
+    if not isinstance(o, dict):
+        return None
+    w = o.get("weightKg")
+    if w is not None:
+        return w
+    return weight_from_review_text(o)
+
+
 def _portable_of_pool(m):
     """便携性 0-3 分，判据只有重量（kg）。分档边界是人定的，写死在这里便于复核。"""
-    w = m.get("weightKg")
+    w = effective_weight(m)
     if w is None:
         return None
     if w <= 1.4:
@@ -861,7 +969,9 @@ def _pool_to_offer(m, bench):
         "gpuKind": (m.get("gpu") or {}).get("type"),
         # 实测重量（kg）。采集池 78/80 有，人工层没有（那边只有 1-3 档 portable 分）。
         # ⚠️ 两套单位不能混：portable=2 不是"2kg"，绝不能拿来比重量。
-        "weightKg": m.get("weightKg"),
+        # 🔴 用 effective_weight：人工层的结构化字段常为空，但 cons 里写着
+        #    「1.48kg 在 14 寸里偏重」—— 不兜底的话同一事实会两处说法打架。
+        "weightKg": effective_weight(m),
         # 价格推导链原样带上，供「这个价怎么来的」追溯用
         "priceBasis": (m.get("price") or {}).get("basisNote"),
         "origin": "jd-pool",
@@ -1366,6 +1476,11 @@ def brief(o, purpose=None):
         "fit": notes,
         "perf": o.get("perf"), "upgrade": o.get("upgrade"),
         "portable": o.get("portable"),
+        # 🔴 2026-11-13 补：这条路径原来**完全不带重量**，于是追问「这台多重」时
+        #    右栏拿到的是"查不到"，而正文那边可能正说着「1.48kg 偏重」。
+        #    同一事实在三条出口（brief / build_recommendation / answer_card）
+        #    必须同源，否则就是四个地方各写一遍判据的老毛病。
+        "weightKg": effective_weight(o),
         # 这三项为 null 时，上层要说明「查不到」，不能沉默 —— 沉默会让用户
         # 以为这台跑分低，实际上是没有数据（2026-11-11 淘宝入库暴露的同类问题）。
         "noPerfData": o.get("perf") is None,
@@ -1659,7 +1774,9 @@ def build_recommendation(slots, data=None, exclude=None):
             # 不能只夸优点 —— 见 purpose_blockers 的注释。
             "blockers": o.get("_blockers") or [],
             # 实测重量（kg），采集池才有；None 表示库里没记，不是"很轻"
-            "weightKg": o.get("weightKg"),
+            # 🔴 effective_weight：结构化字段优先，pros/cons 里的数字兜底 ——
+            #    否则字段卡说"没记"、正文说"1.48kg 偏重"，同一回答两种话。
+            "weightKg": effective_weight(o),
             # 内存容量（GB），用来对照专业要求表里的 ramMin / ramRec
             "ram": ram_of(o),
             "origin": o.get("origin", "jd"),

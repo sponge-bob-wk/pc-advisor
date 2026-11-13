@@ -47,3 +47,9 @@ desktop.ini
 web/_*.png
 *.tmp
 index.broken.html
+
+# 测试输出快照：每跑必变，是运行结果不是源码（2026-11-13）
+tools/agent/attack_result.json
+tools/agent/e2e_results.json
+tools/eval/results.json
+tools/eval/run.log

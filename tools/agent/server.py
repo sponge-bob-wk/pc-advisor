@@ -9,6 +9,7 @@ from urllib.parse import urlparse, parse_qs
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import agent
+import core
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 
@@ -90,7 +91,12 @@ def slim_result(r):
                 #   hasReview=False 的机器只能报参数，卡片上必须有"仅参数"标识，
                 #   否则用户会把它当成"推荐度最高的好机器"（库里 97 台里 75 台是这种）。
                 "hasReview": bool(x.get("hasReview")),
-                "weightKg": x.get("weightKg"),
+                # 🔴 2026-11-13：这里原来写 `x.get("weightKg")` —— 而 core 那边
+                #    已经改成 effective_weight 了。于是**前端拿到的仍是 null**，
+                #    右栏和前端卡片会说"没记"，跟正文的「1.48kg 偏重」打架。
+                #    这是「同一条判据在多处各写一遍」的第 8 次复现 —— 投影层
+                #    必须跟着源头走，不能自己再判一遍。
+                "weightKg": core.effective_weight(x),
                 "ram": x.get("ram"),
             } for x in res.get("ranked", [])],
         }

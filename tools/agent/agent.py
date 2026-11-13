@@ -2822,8 +2822,8 @@ def _compare_text(rows):
         bits = ["到手 ¥%s" % _money(r.get("price"))]
         bits.append("%sG 内存" % r["ram"] if r.get("ram") else "内存未记")
         bits.append("跑分 %s" % r["perf"] if r.get("perf") is not None else "跑分库里没有")
-        bits.append("重量 %s" % (("%s kg" % r["weightKg"]) if r.get("weightKg")
-                                else "库里没记"))
+        bits.append("重量 %s" % (("%s kg" % core.effective_weight(r))
+                                if core.effective_weight(r) else "库里没记"))
         u = r.get("upgrade")
         bits.append("内存焊死" if not u else "可加装 %s/3 档" % u)
         if r.get("hasReview") is False:
@@ -2841,13 +2841,14 @@ def _compare_text(rows):
             L.append("这三台的跑分都是 %s，性能这一项没有差别。" % top["perf"])
         else:
             L.append("跑分最高的是 %s（%s）。" % (top["name"], top["perf"]))
-    wt = [r for r in rows if r.get("weightKg")]
+    wt = [r for r in rows if core.effective_weight(r)]
     if len(wt) >= 2:
-        light = min(wt, key=lambda x: x["weightKg"])
-        L.append("有重量记录的两台里，%s 最轻（%s kg）。" % (light["name"], light["weightKg"]))
+        light = min(wt, key=lambda x: core.effective_weight(x))
+        L.append("有重量记录的两台里，%s 最轻（%s kg）。"
+                 % (light["name"], core.effective_weight(light)))
     elif len(wt) == 1:
         L.append("只有 %s 记了重量（%s kg），其余库里没记 —— 不拿没记的当轻。"
-                 % (wt[0]["name"], wt[0]["weightKg"]))
+                 % (wt[0]["name"], core.effective_weight(wt[0])))
     return "\n".join(L)
 
 
@@ -2945,7 +2946,10 @@ def _carry_note(slots, result):
     if not ranked:
         return ""
     first = ranked[0]
-    w = first.get("weightKg")
+    # 🔴 2026-11-13：必须用 effective_weight —— 结构化字段优先，文本兜底。
+    #   原来只有 `first.get("weightKg")`，于是 cons 里明明写着「1.48kg 在 14 寸
+    #   里偏重」，这里却判成"没记"，正文和字段卡对同一事实说了两种话。
+    w = core.effective_weight(first)
     if not w:
         return ("\n\n带出门这件事：库里没记 %s 的实测重量，商品页「净重」那一行能查到。"
                 % first["name"])
@@ -2954,20 +2958,21 @@ def _carry_note(slots, result):
     # 只在**同预算**里比：拿 12999 的 1.46kg 机器去比 7000 的预算，
     # 数字是真的，但对用户没有用 —— 那是他买不到的参照物。
     peers = [o for o in core.merged_offers()
-             if o.get("cat") == cat and o.get("weightKg")
+             if o.get("cat") == cat and core.effective_weight(o)
              and (o.get("price") or 0) <= budget * 1.05]
     scope = "同品类同预算"
     if len(peers) < 3:
         peers = [o for o in core.merged_offers()
-                 if o.get("cat") == cat and o.get("weightKg")]
+                 if o.get("cat") == cat and core.effective_weight(o)]
         scope = "同品类"
     if len(peers) < 3:
         return "\n\n带出门这件事：这台 %s kg。" % _kg(w)
-    lo = min(peers, key=lambda o: o["weightKg"])
-    hi = max(peers, key=lambda o: o["weightKg"])
+    lo = min(peers, key=lambda o: core.effective_weight(o))
+    hi = max(peers, key=lambda o: core.effective_weight(o))
     s = "\n\n带出门这件事：这台 %s kg；%s里记了实测重量的 %d 台，最轻 %s kg、最重 %s kg。" % (
-        _kg(w), scope, len(peers), _kg(lo["weightKg"]), _kg(hi["weightKg"]))
-    if abs(float(w) - float(lo["weightKg"])) < 1e-9:
+        _kg(w), scope, len(peers),
+        _kg(core.effective_weight(lo)), _kg(core.effective_weight(hi)))
+    if abs(float(w) - float(core.effective_weight(lo))) < 1e-9:
         s += "这台就是里面最轻的。"
     return s
 
@@ -3087,8 +3092,8 @@ def answer_card(result, slots=None, note="", carry="", mnote=""):
     if top.get("ram") is not None:
         up_txt = "可加装" if (top.get("upgrade") or 0) > 0 else "焊死，不可加装"
         rows.append({"k": "内存", "v": "%dG（%s）" % (top["ram"], up_txt)})
-    if top.get("weightKg") is not None:
-        rows.append({"k": "重量", "v": "%s kg（实测）" % top["weightKg"]})
+    if core.effective_weight(top) is not None:
+        rows.append({"k": "重量", "v": "%s kg（实测）" % core.effective_weight(top)})
     else:
         rows.append({"k": "重量", "v": "库里没记实测重量"})
 
