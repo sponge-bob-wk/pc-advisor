@@ -53,3 +53,7 @@ tools/agent/attack_result.json
 tools/agent/e2e_results.json
 tools/eval/results.json
 tools/eval/run.log
+
+# 启动器运行时产物
+测试链接.txt
+.tmp/

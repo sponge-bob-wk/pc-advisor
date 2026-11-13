@@ -1,0 +1,17 @@
+# 换行符（2026-11-13）
+# 🔴 .bat 必须是 CRLF：cmd.exe 对 LF-only 的批处理会在某些位置解析出错，
+#    报出完全对不上的语法错误。这是 Windows 上最经典的坑之一。
+*.bat           text eol=crlf
+*.cmd           text eol=crlf
+
+# Python / Markdown 用 LF（跨平台一致，diff 也干净）
+*.py            text eol=lf
+*.md            text eol=lf
+*.json          text eol=lf
+*.yml           text eol=lf
+*.yaml          text eol=lf
+.gitignore      text eol=lf
+.gitattributes  text eol=lf
+
+# 数据文件不要被 git 重写换行（字节级比对会失真）
+*.jsonld        -text

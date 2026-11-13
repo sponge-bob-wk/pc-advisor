@@ -22,19 +22,45 @@
 
 ---
 
-## 一、本地跑起来（需要本机有 Ollama）
+## 一、跑起来（Windows 双击即可）
 
-```bash
-# 1. 装模型（只做转述，4B 够用；越强的模型越想自由发挥）
-ollama pull qwen3.5-4b        # 或任何你本地已有的模型，见下方 MODEL 环境变量
+**双击项目根目录的 `启动助手.bat`**，从菜单里选一种模式就行：
 
-# 2. 起服务
-cd tools/agent
-python server.py
-# 浏览器打开 http://127.0.0.1:7860
+```
+1  本机自用      http://127.0.0.1:7860
+2  局域网共享    同 WiFi 的设备都能连
+3  公网测试链接  生成 https 链接，发给测试同学
 ```
 
-依赖：Python 3.10+，标准库即可（**不用 pip install**）。模型走 Ollama HTTP 接口。
+不想看菜单，直接用：
+
+| 双击这个 | 效果 |
+|---|---|
+| `一键公网链接.bat` | 直接生成公网链接 + 复制到剪贴板 |
+| `停止服务.bat` | 停服务 + 隧道，释放端口 |
+| `环境检查.bat` | 只检查 Ollama / 端口 / 隧道，不启动 |
+
+想要桌面图标：双击 `scripts\make-desktop-shortcut.bat`（**不会自动执行**，
+往桌面写东西由你决定）。
+
+启动前它会自动检查四件事，都过了才启动：
+
+```
+✓ 程序文件在位   ✓ Ollama 在线   ✓ 端口空闲   ✓ cloudflared 在位
+```
+
+**先决条件**：装好 Ollama 并 `ollama pull qwen3.5-4b`。
+依赖只有 Python 3.10+ 标准库，**不用 pip install**。
+
+> 详细说明（三种模式的区别、故障排查、换端口）：[`docs/启动与部署.md`](docs/启动与部署.md)
+
+### 不想用启动器 / 其他系统
+
+```bash
+cd tools/agent
+python server.py              # 只本机
+python server.py --lan        # 允许局域网
+```
 
 ### 环境变量
 
@@ -56,6 +82,8 @@ ACCESS_CODE=mycode123 python server.py --lan
 ## 二、让别人用起来（三种方式，按场景选）
 
 > 目标场景：**组内同学和测试同学都不装模型，直接连发起人这台机器。**
+
+三种方式启动器里都有一键入口，下面是它们背后做的事。
 
 ### 方式 A：同一局域网（最快，零配置）
 
@@ -152,6 +180,7 @@ tools/agent/
 ├─ test_*.py          886 项判定型测试（含社交层 59）
 └─ lora_data/         训练样本池（不入库）
 data/                 数据源（只读）
-docs/                 PRD、部署协作、数据口径
-scripts/              启动脚本
+docs/                 PRD、部署协作、数据口径、启动说明
+scripts/              launcher.bat（壳）+ 桌面快捷方式生成器
+tools/launcher.py     启动器本体（3 种模式 + 停止 + 检查）
 ```
