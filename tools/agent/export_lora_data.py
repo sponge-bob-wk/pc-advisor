@@ -11,6 +11,10 @@
 """
 import json, os, re, glob, sys, hashlib
 
+# GitHub Actions 的 Windows 机器控制台是 cp1252，打印 ①②③ 会 UnicodeEncodeError
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT_DIR = os.path.join(HERE, "lora_data")
 

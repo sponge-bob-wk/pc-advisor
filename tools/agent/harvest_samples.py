@@ -31,6 +31,10 @@ import json
 import os
 import re
 import sys
+
+# Windows CI 控制台默认 cp1252，打印中文/符号会崩
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
