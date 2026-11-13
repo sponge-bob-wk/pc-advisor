@@ -1,0 +1,110 @@
+{
+  "meta": {
+    "version": "0.1",
+    "updated": "2026-11-07",
+    "purpose": "官网抓取源清单（作战地图）：哪个品牌的哪类页面能抓、能抓到什么、抓不到什么。",
+    "conclusion": "官网是「规格」的最佳来源，不是「价格」和「全量 SKU」的来源。全量 SKU 与到手价必须来自电商。",
+    "rule": "抓不到就记 null 并写明原因，绝不用估算值填补。这条和 prices.json 的纪律一致。",
+    "testedAt": "2026-11-07 20:05 GMT+8",
+    "userAgent": "WorkBuddy WebFetch（默认 UA）"
+  },
+
+  "coverage": {
+    "categories": [
+      "轻薄本", "创作本 / 全能本", "游戏本", "台式整机", "一体机",
+      "迷你主机", "移动工作站", "显示器", "平板"
+    ],
+    "why": "准大学生真正会买的品类不只轻薄本和游戏本：设计类会看创作本，宿舍党会看台式与迷你主机，工科会看移动工作站。品类不全，专业门槛就落不到具体机型上。"
+  },
+
+  "fieldsToCapture": [
+    { "key": "brand", "note": "品牌，必须和 majors.json / prices.json 用同一个写法" },
+    { "key": "series", "note": "系列名（小新 / 星Book / MateBook D）" },
+    { "key": "model", "note": "型号全称，用于主数据归一" },
+    { "key": "category", "note": "品类，取值见 coverage.categories" },
+    { "key": "screen", "note": "尺寸（英寸）+ 分辨率 + 刷新率 + 面板类型" },
+    { "key": "colorGamut", "note": "sRGB / DCI-P3 / Adobe RGB 覆盖率与 ΔE —— 平面组的关键指标，参数表常有而电商标题没有" },
+    { "key": "cpuOptions", "note": "该型号支持的全部 CPU 选项（不是单个 SKU 的 CPU）" },
+    { "key": "gpuOptions", "note": "核显或独显型号 + 显存" },
+    { "key": "ramOptions", "note": "可选容量 + 是否板载（LPDDR5X = 焊死，DDR5 SO-DIMM = 有插槽）" },
+    { "key": "storageOptions", "note": "可选容量 + 硬盘位数量" },
+    { "key": "battery", "note": "额定容量 Wh" },
+    { "key": "weight", "note": "整机重量 kg —— 便携维度的唯一硬指标" },
+    { "key": "ports", "note": "雷电 / USB-C 全功能 / HDMI / SD 读卡器" },
+    { "key": "tdp", "note": "TDP 与瞬时释放功率 —— 同 CPU 不同机型差异巨大，是「峰值 vs 持续」的线索" },
+    { "key": "efficiency", "note": "能效等级 —— 国补家电线要求 1 级，没有这个字段就算不出补贴资格" },
+    { "key": "officialPrice", "note": "官方指导价，通常抓不到，抓到也要标明是「未叠券」口径" }
+  ],
+
+  "tested": [
+    {
+      "brand": "华为",
+      "url": "https://consumer.huawei.com/cn/laptops/",
+      "detailUrlExample": "https://consumer.huawei.com/cn/laptops/matebook-gt-14/",
+      "status": "ok",
+      "render": "static",
+      "got": ["型号", "屏幕尺寸与分辨率", "CPU 选项", "内存/存储上限", "电池容量", "色域与 ΔE", "TDP 与瞬时功率", "接口"],
+      "no": ["官方价格", "具体在售 SKU 组合"],
+      "note": "实测最理想的官网源。列表页给系列，详情页给到色域、ΔE<1、TDP 75W/瞬时 115W 这种电商标题里根本没有的参数。"
+    },
+    {
+      "brand": "惠普",
+      "url": "https://www.hp.com/cn-zh/laptops-and-2-in-1s.html",
+      "status": "partial",
+      "render": "static",
+      "got": ["系列名", "规格区间（至高 64GB / 至高 2TB）", "适用人群描述"],
+      "no": ["单个型号", "具体 SKU", "价格"],
+      "note": "只有系列级信息。适合建立品牌—系列骨架，无法直接产出主数据条目。"
+    },
+    {
+      "brand": "华硕",
+      "url": "https://www.asus.com.cn/laptops/",
+      "status": "shell",
+      "render": "js",
+      "got": [],
+      "no": ["全部产品数据"],
+      "note": "返回的是商城（ASUSMALL）JS 外壳，只有导航与页脚。需要浏览器渲染或走商城接口。"
+    },
+    {
+      "brand": "联想",
+      "url": "https://www.lenovo.com.cn/laptops",
+      "status": "blocked",
+      "render": "redirect",
+      "got": [],
+      "no": ["全部产品数据"],
+      "note": "返回「8 秒后返回上一页」的跳转页，属于风控/反爬。需要放慢频率、带 Cookie 或用渲染内核。"
+    },
+    {
+      "brand": "小米 / Redmi",
+      "url": "https://www.mi.com/redmibook",
+      "status": "404",
+      "render": "n/a",
+      "got": [],
+      "no": ["全部产品数据"],
+      "note": "该路径已失效，需改用 mi.com 站内搜索或商城的品类页。"
+    }
+  ],
+
+  "pending": [
+    { "brand": "戴尔", "hint": "dell.com/zh-cn/shop 全 JS，需渲染内核；灵越/游匣/外星人分属不同页面" },
+    { "brand": "联想小新 / ThinkPad", "hint": "think.lenovo.com.cn 与 lenovo.com.cn 是两套站点，反爬策略不同，分开试" },
+    { "brand": "宏碁", "hint": "acer.com.cn 静态页较多，成功率可能较高" },
+    { "brand": "机械革命 / 神舟", "hint": "官网信息较薄，规格常只在电商详情页，需电商侧兜底" },
+    { "brand": "荣耀", "hint": "honor.com/cn/laptops 结构与华为接近，可复用同一套解析" },
+    { "brand": "苹果", "hint": "暂不抓。Mac 定价逻辑与 Windows 阵营不同，硬套会误导（见 meta.notCovered）" }
+  ],
+
+  "division": {
+    "official": {
+      "role": "规格事实源",
+      "gives": ["型号与系列", "屏幕与色域", "CPU 选项", "内存是否板载", "重量", "接口", "TDP", "能效等级"],
+      "doesNotGive": ["到手价", "全量在售 SKU", "库存"]
+    },
+    "ecommerce": {
+      "role": "SKU 与价格源",
+      "gives": ["具体配置组合", "到手价", "券与补贴", "库存", "销量"],
+      "doesNotGive": ["可信的完整规格（标题常省略色域、TDP、内存类型）"]
+    },
+    "joinKey": "master SKU（品牌 + 系列 + 代次 + CPU + 内存 + 存储 + 屏幕），两端靠它对齐"
+  }
+}

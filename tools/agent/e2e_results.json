@@ -1,0 +1,208 @@
+{
+  "rows": [
+    {
+      "id": "E01",
+      "q": "5000 的轻薄本，就上课写作业",
+      "stage": "recommend",
+      "want": "recommend",
+      "ok_stage": true,
+      "reply": "星Book Pro Air 14，Ultra 5 225H · 16G + 512G · 14 寸 2880×1800 OLED 120Hz 100% DCI-P3，到手 ¥5099.15。这台的评价库里还没有 —— 上面这些是配置和价格，好不好用得你看实机或第三方评测。\n\n带出门这件事：这台 1.09 kg；同品类同预算里记了实测重量的 9 台，最轻 1.07 kg、最重 1.69 kg。",
+      "picked": "星Book Pro Air 14",
+      "kernel_top1": "星Book Pro Air 14",
+      "untraceable": [],
+      "outside": [],
+      "date_shown": false,
+      "margin_note": "(本次回答未要求复述数据日期，仅记录)"
+    },
+    {
+      "id": "E02",
+      "q": "想买个游戏本，8000 左右，主要打游戏",
+      "stage": "recommend",
+      "want": "recommend",
+      "ok_stage": true,
+      "reply": "极光X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz），i7-14650HX · 32G + 1T · RTX 5060 16 寸 2560×1600 IPS 300Hz，到手 ¥6159.2。这台的评价库里还没有 —— 上面这些是配置和价格，好不好用得你看实机或第三方评测。\n\n按你的专业要求（库里那份专业配置表）：游戏艺术设计（游戏与数字媒体技术组）：内存 32 起、32 推荐；要独立显卡（8G 显存起）。这",
+      "picked": "极光X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz）",
+      "kernel_top1": "极光X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz）",
+      "untraceable": [],
+      "outside": [],
+      "date_shown": false,
+      "margin_note": "(本次回答未要求复述数据日期，仅记录)"
+    },
+    {
+      "id": "E03",
+      "q": "预算 3500，能办公就行",
+      "stage": "clarify",
+      "want": "clarify",
+      "ok_stage": true,
+      "reply": "是笔记本还是台式？大概想放在宿舍用，还是要能带着走？"
+    },
+    {
+      "id": "E04",
+      "q": "学计算机的，6000 块，要能跑虚拟机",
+      "stage": "clarify",
+      "want": "clarify",
+      "ok_stage": true,
+      "reply": "是笔记本还是台式？大概想放在宿舍用，还是要能带着走？"
+    },
+    {
+      "id": "E05",
+      "q": "学设计的，五千，要用四年，平时背去教室",
+      "stage": "recommend",
+      "want": "clarify",
+      "ok_stage": true,
+      "reply": "这台是联想小新 16，屏幕素质在同价位不算突出，做设计调色够用但不精细。它拥有 16 寸大屏和多窗口效率高的优势，键盘口碑也不错。不过机身偏大，14 寸包可能放不下，且内存形态需要按具体 SKU 确认。\n\n带出门这件事：库里没记 联想小新 16 的实测重量，商品页「净重」那一行能查到。",
+      "picked": "联想小新 16",
+      "kernel_top1": "联想小新 16",
+      "untraceable": [],
+      "outside": [],
+      "date_shown": false,
+      "margin_note": "(本次回答未要求复述数据日期，仅记录)"
+    },
+    {
+      "id": "E06",
+      "q": "9000 游戏本，要能打永劫无间",
+      "stage": "recommend",
+      "want": "recommend",
+      "ok_stage": true,
+      "reply": "这台是极光 X 潮玩版，配置是 i7-14650HX、32G 内存、RTX 5060 显卡和 300Hz 屏幕，到手价 6159.2 元。这台的评价我库里还没有，我按配置说，好不好用得你去看实机或第三方评测。售后网点覆盖不算广，二手折价也较快。\n\n按你的专业要求（库里那份专业配置表）：游戏艺术设计（游戏与数字媒体技术组）：内存 32 起、32 推荐；要独立显卡（8G 显存起）。这台 32G，够推荐档。内存可加装，以后能补。",
+      "picked": "极光X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz）",
+      "kernel_top1": "极光X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz）",
+      "untraceable": [],
+      "outside": [],
+      "date_shown": false,
+      "margin_note": "(本次回答未要求复述数据日期，仅记录)"
+    },
+    {
+      "id": "E07",
+      "q": "组个台式，7000",
+      "stage": "clarify",
+      "want": "clarify",
+      "ok_stage": true,
+      "reply": "主要拿来干什么？上课写作业、打游戏、剪视频，还是写代码？"
+    },
+    {
+      "id": "E08",
+      "q": "只想加个内存条，DDR5 的",
+      "stage": "clarify",
+      "want": "clarify",
+      "ok_stage": true,
+      "reply": "预算大概多少？给个上限就行，不用太精确。"
+    },
+    {
+      "id": "E09",
+      "q": "1万以内游戏本，要能跑 3D 建模，宿舍限电 800W",
+      "stage": "recommend",
+      "want": "recommend",
+      "ok_stage": true,
+      "reply": "这台极光 X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz）到手价 6159.2 元，配置是 i7-14650HX 处理器、32G 内存、RTX5060 显卡和 16 寸 2560×1600 屏幕。\n\n这台的评价我库里还没有，我按配置说，好不好用得你去看实机或第三方评测。\n\n有一点得先知道：品牌备注里提到该机型网点少且二手折价快。\n\n按你的专业要求（库里那份专业配置表）：游戏艺术设计（游戏与数字媒体技术组）：内",
+      "picked": "极光X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz）",
+      "kernel_top1": "极光X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz）",
+      "untraceable": [],
+      "outside": [],
+      "date_shown": false,
+      "margin_note": "(本次回答未要求复述数据日期，仅记录)"
+    },
+    {
+      "id": "E10",
+      "q": "给爸妈买，看视频就行，4000 以内的轻薄本",
+      "stage": "recommend",
+      "want": "recommend",
+      "ok_stage": true,
+      "reply": "这台戴尔灵越 15 2026 适合看视频，核心是 Ultra 5 处理器配 16G 内存，接口齐全且售后网点覆盖还算广。不过模具比较老，屏幕素质在同价位里不算突出，整机也偏重不太适合通勤。有一点得先知道：虽然灵越线支持扩展，但同价位的戴尔 XPS 全系都是板载内存，别把品牌当结论。",
+      "picked": "戴尔灵越 15 2026",
+      "kernel_top1": "戴尔灵越 15 2026",
+      "untraceable": [],
+      "outside": [],
+      "date_shown": false,
+      "margin_note": "(本次回答未要求复述数据日期，仅记录)"
+    },
+    {
+      "id": "E11",
+      "q": "想买个电脑",
+      "stage": "clarify",
+      "want": "clarify",
+      "ok_stage": true,
+      "reply": "是笔记本还是台式？大概想放在宿舍用，还是要能带着走？"
+    },
+    {
+      "id": "E12",
+      "q": "多少钱合适",
+      "stage": "clarify",
+      "want": "clarify",
+      "ok_stage": true,
+      "reply": "是笔记本还是台式？大概想放在宿舍用，还是要能带着走？"
+    },
+    {
+      "id": "E13",
+      "q": "有什么好机器推荐",
+      "stage": "clarify",
+      "want": "clarify",
+      "ok_stage": true,
+      "reply": "是笔记本还是台式？大概想放在宿舍用，还是要能带着走？"
+    },
+    {
+      "id": "E14",
+      "q": "笔记本电脑",
+      "stage": "clarify",
+      "want": "clarify",
+      "ok_stage": true,
+      "reply": "预算大概多少？给个上限就行，不用太精确。"
+    },
+    {
+      "id": "E15",
+      "q": "5000 左右吧，主要是学习用",
+      "stage": "clarify",
+      "want": "clarify",
+      "ok_stage": true,
+      "reply": "是笔记本还是台式？大概想放在宿舍用，还是要能带着走？"
+    },
+    {
+      "id": "E16",
+      "q": "MacBook Air M4 值得买吗",
+      "stage": "refuse",
+      "want": "refuse",
+      "ok_stage": true,
+      "reply": "我只做 Windows 笔记本、台式整机和内存固态，macbook 这类不在覆盖范围内。如果你有 Windows 机器的需求，我可以帮你看。"
+    },
+    {
+      "id": "E17",
+      "q": "红米 K90 这款手机怎么样",
+      "stage": "refuse",
+      "want": "refuse",
+      "ok_stage": true,
+      "reply": "我只做 Windows 笔记本、台式整机和内存固态，手机 这类不在覆盖范围内。如果你有 Windows 机器的需求，我可以帮你看。"
+    },
+    {
+      "id": "E18",
+      "q": "我想买台 iPad 记笔记",
+      "stage": "refuse",
+      "want": "refuse",
+      "ok_stage": true,
+      "reply": "我只做 Windows 笔记本、台式整机和内存固态，ipad 这类不在覆盖范围内。如果你有 Windows 机器的需求，我可以帮你看。"
+    },
+    {
+      "id": "E19",
+      "q": "6000 的游戏本，宿舍限电 500W，主要打游戏",
+      "stage": "recommend",
+      "want": "recommend",
+      "ok_stage": true,
+      "reply": "这台极光 X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz）到手价 6159.2 元，配置是 i7-14650HX 处理器、32G 内存、RTX5060 显卡和 16 寸 2560×1600 300Hz 屏幕。\n\n库里目前没有人工写过的优缺点，只能按这些客观参数告诉你它属于什么档次，好不好用得去看实机或第三方评测。\n\n有一点得先知道：宿舍限电 500W，这台游戏本满载时可能跳闸。\n\n按你的专业要求（库里那份专业",
+      "picked": "极光X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz）",
+      "kernel_top1": "极光X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz）",
+      "untraceable": [],
+      "outside": [],
+      "date_shown": false,
+      "margin_note": "(本次回答未要求复述数据日期，仅记录)"
+    },
+    {
+      "id": "E20",
+      "q": "轻薄本，4500，要能带去图书馆",
+      "stage": "clarify",
+      "want": "clarify",
+      "ok_stage": true,
+      "reply": "主要拿来干什么？上课写作业、打游戏、剪视频，还是写代码？"
+    }
+  ],
+  "A": "惠普战 66 八代锐龙版",
+  "B": null
+}

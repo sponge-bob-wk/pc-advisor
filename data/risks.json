@@ -1,0 +1,532 @@
+{
+  "meta": {
+    "version": "0.1",
+    "updated": "2026-11-07",
+    "scope": "仅 Windows 笔记本 / 台式整机。不含 Mac、平板、手机。",
+    "purpose": "把「会不会坏」和「坏了麻烦不麻烦」拆成两套互不相干的数据，再各自接决策。",
+    "whySplit": "设计缺陷、品控概率、售后成本是三件事，对应三种完全不同的动作：避开型号 / 赌概率并留退路 / 选渠道。混在一起说，只能得出「XX 品牌不行」这种没法执行的结论。",
+    "evidenceTiers": {
+      "A": "有一手来源（官方公告、召回、集中投诉帖、拆机报告）",
+      "B": "多方评测与用户反馈交叉印证，但无官方确认",
+      "C": "经验判断，未经系统核实 —— 使用前必须补证"
+    },
+    "rule": "标 C 的条目不得单独作为推荐依据，只能作为「提醒去看一眼」的线索。"
+  },
+  "taxonomy": {
+    "design": {
+      "name": "设计缺陷",
+      "scope": "型号或系列级，同一批次的机器都有",
+      "nature": "结构性，不是运气问题",
+      "decision": "一票否决 —— 避开这个型号，不谈价格",
+      "typical": [
+        "BGA 低温锡虚焊",
+        "显卡供电用料不足",
+        "屏轴结构刚性不够",
+        "专有内存模组"
+      ]
+    },
+    "qc": {
+      "name": "品控波动",
+      "scope": "同型号不同个体 / 不同批次",
+      "nature": "概率问题，买之前无法确定",
+      "decision": "留退路 —— 到手即验、用好 7 天无理由、必要时买延保",
+      "typical": [
+        "屏幕漏光与坏点",
+        "同型号换料（SSD / 内存颗粒 / 网卡）",
+        "外壳接缝与异响",
+        "续航虚标"
+      ]
+    },
+    "aftersales": {
+      "name": "售后成本",
+      "scope": "品牌 × 渠道 × 地区",
+      "nature": "出问题之后的事，跟产品本身无关",
+      "decision": "选渠道 —— 看网点、看是上门还是寄修、看备件周期",
+      "typical": [
+        "网点密度",
+        "响应方式",
+        "保修范围",
+        "人为损坏判定",
+        "备件停供"
+      ]
+    },
+    "maturity": {
+      "name": "首发成熟度",
+      "scope": "新平台 / 新模具的头三个月",
+      "nature": "时间和批次能解决，不是永久缺陷",
+      "decision": "等三个月再买，或接受折腾",
+      "typical": [
+        "驱动不稳",
+        "BIOS 修 bug",
+        "充电协议兼容性"
+      ]
+    }
+  },
+  "brandTiers": [
+    {
+      "id": "tier1-intl",
+      "name": "一线国际",
+      "brands": [
+        "联想",
+        "惠普",
+        "戴尔",
+        "华硕",
+        "宏碁"
+      ],
+      "aftersales": "网点最密，一二三线城市基本都有授权站；备件体系成熟",
+      "qc": "高端线稳定，入门线（三四千档）与二线品牌差距不大",
+      "trap": "同品牌内部差距大于跨品牌差距。联想 ThinkPad 与 ideapad 是两套品控标准，不能按品牌统一判断。",
+      "fitFor": "不想折腾、家长出钱、希望坏了就近能修"
+    },
+    {
+      "id": "tier2-cn",
+      "name": "国产主力",
+      "brands": [
+        "华为",
+        "荣耀",
+        "红米",
+        "小米"
+      ],
+      "aftersales": "网点少于一线，但增长快；寄修为主，部分城市有直营服务点",
+      "qc": "整体稳定，早期机型有过批次问题；生态联动（多屏协同）是隐性优势",
+      "trap": "机身材质与散热规格常按价位分档，同名系列跨代差异大。",
+      "fitFor": "用同品牌手机、看重生态联动与轻薄"
+    },
+    {
+      "id": "tier3-value",
+      "name": "二线性价比",
+      "brands": [
+        "机械革命",
+        "神舟",
+        "雷神",
+        "机械师"
+      ],
+      "aftersales": "网点最稀，基本靠寄修；周期长、跨省运费自理的情况常见",
+      "qc": "同价位给到的配置最高，但公模方案的供电与散热用料是主要风险点",
+      "trap": "「同配置便宜两千」的钱，一部分是从售后网络和用料里省出来的。买它等于用时间换钱。",
+      "fitFor": "预算极紧、能自己动手（重装系统/换硅脂/排查故障）、能接受寄修"
+    },
+    {
+      "id": "tier-workstation",
+      "name": "专业工作站线",
+      "brands": [
+        "ThinkPad T/P 系列",
+        "戴尔 Precision",
+        "惠普 ZBook"
+      ],
+      "aftersales": "上门服务可买，备件周期长（按企业级标准供货）",
+      "qc": "稳定性优先于性能，认证驱动齐全",
+      "trap": "同价位性能明显弱于消费级，溢价买的是稳定性与认证，不是跑分。",
+      "fitFor": "机械/建筑类跑 SOLIDWORKS、Revit，认证显卡比显存更重要",
+      "modelingNote": "ThinkPad T/P、Precision、ZBook 都是母品牌的子线，不单独作为售后条目建模，售后随母品牌（联想 / 戴尔 / 惠普）。所以 afterSales 里这一档为 0 家是设计如此，不是缺口。"
+    }
+  ],
+  "designDefects": [
+    {
+      "id": "def-low-temp-solder",
+      "name": "低温锡虚焊（CPU / 显卡 BGA 焊点）",
+      "tier": "A",
+      "scope": "series",
+      "affected": [
+        "联想 小新 Pro13 ARE",
+        "联想 小新 Air15 锐龙版",
+        "华硕 天选系列"
+      ],
+      "symptom": "开机正常，用一会儿花屏、雪花屏、死机、自动关机；冷机又能开",
+      "cause": "出厂用低温锡膏焊接 BGA，长期冷热循环后焊球疲劳开裂。属工艺缺陷，清灰换硅脂重装系统均无效。",
+      "repair": "BGA 重植或换主板，过保后上千元",
+      "verify": "搜「型号 + 虚焊 / 花屏」，看是否有集中投诉；拆机报告里焊点工艺可查",
+      "decision": "避开该批次，不进入候选池",
+      "groups": [
+        "video",
+        "threeD",
+        "engine",
+        "code"
+      ]
+    },
+    {
+      "id": "def-vrm-burn",
+      "name": "显卡供电模块烧毁",
+      "tier": "B",
+      "scope": "series",
+      "affected": [
+        "神舟 战神 T9 等公模游戏本"
+      ],
+      "symptom": "高负载后黑屏、死机、显卡无法识别、反复重启",
+      "cause": "公模方案在供电用料上压缩成本，供电芯片长期高温工作后失效",
+      "repair": "官方常要求整体换主板，报价接近半台新机",
+      "verify": "搜「型号 + 供电 / 烧 / 黑屏」；看拆机视频里的供电相数与散热覆盖",
+      "decision": "要么买延保，要么别买",
+      "groups": [
+        "video",
+        "threeD",
+        "engine"
+      ]
+    },
+    {
+      "id": "def-hinge",
+      "name": "屏轴与外壳刚性不足",
+      "tier": "B",
+      "scope": "series",
+      "affected": [
+        "公模游戏本",
+        "部分轻薄本"
+      ],
+      "symptom": "单手开合屏幕明显晃动、屏轴松动、长期使用后一边翘起",
+      "cause": "屏轴阻尼与外壳刚性是省成本的重灾区",
+      "repair": "换屏轴总成或整个 A/B 面，属结构件更换",
+      "verify": "到手当场单手开合；搜「型号 + 屏轴 / 松动」",
+      "decision": "不影响购买，但到手必须验，用 7 天无理由",
+      "groups": [
+        "thin",
+        "video"
+      ]
+    },
+    {
+      "id": "def-lpcamm2",
+      "name": "专有内存模组（以为能加，其实买不到）",
+      "tier": "A",
+      "scope": "model",
+      "affected": [
+        "ThinkPad T14p 2026",
+        "ThinkPad T14 Gen7 酷睿版"
+      ],
+      "symptom": "以为有插槽能自己升级，拆开发现是 LPCAMM2，市面货少且贵",
+      "cause": "厂方为做薄采用压缩式模组，可换但生态未成熟",
+      "repair": "能换，但成本远高于标准 SO-DIMM",
+      "verify": "规格页搜「内存」，写 LPDDR5 / LPDDR5X 即焊死；写 LPCAMM2 为专有模组",
+      "decision": "对「以后加内存」有预期的用户，按焊死处理",
+      "groups": [
+        "code",
+        "video",
+        "threeD"
+      ]
+    },
+    {
+      "id": "def-soldered-16g",
+      "name": "板载 16G 且不可扩展",
+      "tier": "A",
+      "scope": "model",
+      "affected": [
+        "小新 Air14 板载款",
+        "XPS 全系",
+        "X1C / X13 板载款"
+      ],
+      "symptom": "买时够用，第三年开几个重应用就吃满，且无解",
+      "cause": "为做薄把内存焊在主板；在内存涨价年份这是成本与体积的双重选择",
+      "repair": "无法升级，只能换机",
+      "verify": "规格页看内存类型；LPDDR5X = 焊死",
+      "decision": "编程 / 设计 / 视频组直接排除；办公组可接受",
+      "groups": [
+        "code",
+        "video",
+        "threeD",
+        "graphic"
+      ]
+    }
+  ],
+  "qcIssues": [
+    {
+      "id": "qc-panel-uniformity",
+      "name": "屏幕漏光 / 泛白 / 坏点",
+      "tier": "B",
+      "symptom": "全黑背景四角漏光、右下角泛白、某个像素常亮或常暗",
+      "nature": "面板均匀性属个体与批次波动，不是设计缺陷；同型号好机坏机差很多",
+      "buyerCheck": "到手当晚全黑背景看漏光、全白看色斑、纯色看坏点；7 天内可无理由退",
+      "mitigate": "买前确认平台是否支持 7 天无理由；不要撕膜后再退",
+      "groups": [
+        "graphic",
+        "video",
+        "threeD"
+      ]
+    },
+    {
+      "id": "qc-part-swap",
+      "name": "同型号换料（SSD / 内存颗粒 / 网卡）",
+      "tier": "A",
+      "symptom": "参数表没变，但不同批次的实际物料不同，跑分与续航有落差",
+      "nature": "供应链降本，属批次差异。参数表无法体现，最容易吃亏",
+      "buyerCheck": "看同型号近期开箱帖的 CrystalDiskInfo / 台风 / 网卡型号；关注是否有「换料」讨论",
+      "mitigate": "优先买上市早期批次；或选明确标注物料型号的渠道",
+      "groups": [
+        "code",
+        "video",
+        "threeD",
+        "engine"
+      ]
+    },
+    {
+      "id": "qc-battery-claim",
+      "name": "续航宣传与实际差距",
+      "tier": "B",
+      "symptom": "宣传 10 小时，实际办公 5~6 小时",
+      "nature": "测试条件差异（亮度、负载、刷新率），加上电池容量按典型值标注",
+      "buyerCheck": "看第三方实测的「办公续航」而不是厂商标称；注意刷新率是否可降到 60Hz",
+      "mitigate": "把续航当参考值，不要当承诺",
+      "groups": [
+        "office",
+        "code"
+      ]
+    },
+    {
+      "id": "qc-coil-whine",
+      "name": "电感啸叫 / 风扇异响",
+      "tier": "C",
+      "symptom": "安静环境下有高频电流声；风扇低速时咔哒声",
+      "nature": "电感与风扇属个体差异，多数在可接受范围，少数明显",
+      "buyerCheck": "到手在安静房间听；轻载与满载各听一次",
+      "mitigate": "明显异响属质量问题，可换机",
+      "groups": [
+        "office",
+        "thin"
+      ]
+    },
+    {
+      "id": "qc-thermal-paste",
+      "name": "出厂硅脂与散热规模缩水",
+      "tier": "B",
+      "symptom": "同 CPU 跑分明显低于同型号其他机器；长时间负载降频严重",
+      "nature": "散热模组规格与硅脂质量按价位分档；同型号不同配置也可能不同",
+      "buyerCheck": "看拆机评测里的热管数量 / 风扇尺寸 / 均热板；对比同 CPU 其他机型的跑分",
+      "mitigate": "这正好是 throttle 字段要抓的东西（见 bench.json）",
+      "groups": [
+        "video",
+        "threeD",
+        "engine"
+      ]
+    },
+    {
+      "id": "qc-keyboard-flex",
+      "name": "键盘手感与键帽松动",
+      "tier": "C",
+      "symptom": "按键塌陷感不一致、个别键帽松动、背光漏光",
+      "nature": "个体差异，且高度主观",
+      "buyerCheck": "到手全键敲一遍；重点试空格与方向键",
+      "mitigate": "无法作为退货理由，属于先看评测再买的项",
+      "groups": [
+        "office",
+        "code"
+      ]
+    },
+    {
+      "id": "qc-usbc-power",
+      "name": "USB-C 充电兼容性",
+      "tier": "B",
+      "symptom": "旧充电头插上没反应，或只能关机充",
+      "nature": "PD 策略门槛高（需高于 60W），杂牌线材虚标就触发不了",
+      "buyerCheck": "查官方说明的最低 PD 功率；评测里常有实测",
+      "mitigate": "买之前确认最低 PD 功率，别指望旧充电头通用",
+      "groups": [
+        "office",
+        "thin",
+        "code"
+      ]
+    },
+    {
+      "id": "qc-first-batch-driver",
+      "name": "首发批次驱动不稳",
+      "tier": "A",
+      "symptom": "开两个 Word 就卡死、0x10E 黑屏、外接硬盘掉盘",
+      "nature": "属首发成熟度问题，不是永久缺陷；头三个月靠 BIOS 与驱动更新收敛",
+      "buyerCheck": "看上市时间；新平台头三个月的投诉帖密度明显更高",
+      "mitigate": "完全不想折腾的人，等上市三个月后再买同款",
+      "groups": [
+        "all"
+      ]
+    },
+    {
+      "id": "qc-warranty-scope",
+      "name": "保修范围理解偏差（整机 vs 主要部件）",
+      "tier": "A",
+      "symptom": "以为保修两年，结果屏幕 / 电池 / 适配器各自不同",
+      "nature": "不是产品问题，是条款问题；不同品牌差异很大",
+      "buyerCheck": "查品牌官网的保修政策页，重点看屏幕、电池、适配器的年限",
+      "mitigate": "下单前截图保存保修条款",
+      "groups": [
+        "all"
+      ]
+    }
+  ],
+  "afterSales": [
+    {
+      "brand": "联想",
+      "tier": "tier1-intl",
+      "network": 5,
+      "channel": "到店 + 上门（部分机型）+ 寄修",
+      "warrantyNote": "整机与主要部件年限需按系列查；ThinkPad 与 ideapad 政策不同",
+      "spareParts": "备件体系最成熟，老机型供应期较长",
+      "resale": 5,
+      "studentChannel": "教育优惠渠道成熟，学生认证后可叠加",
+      "note": "网点最密，三四线城市也能找到授权站；但同为联想，ThinkPad 与消费线的服务体验差别明显。",
+      "tierEvidence": "B"
+    },
+    {
+      "brand": "惠普",
+      "tier": "tier1-intl",
+      "network": 5,
+      "channel": "到店 + 寄修",
+      "warrantyNote": "消费线与商用线（ProBook / ZBook）政策不同",
+      "spareParts": "备件供应稳定",
+      "resale": 4,
+      "studentChannel": "有教育优惠",
+      "note": "商务线（战 66 等）售后口碑好于消费线，这是同品牌内部的差异。",
+      "tierEvidence": "B"
+    },
+    {
+      "brand": "戴尔",
+      "tier": "tier1-intl",
+      "network": 4,
+      "channel": "上门（商用线可买）+ 寄修",
+      "warrantyNote": "Premium Support 可加购，含上门与意外保障",
+      "spareParts": "商用线备件周期长",
+      "resale": 4,
+      "studentChannel": "有教育商店",
+      "note": "上门服务是它的差异点，但要额外买；默认保修多为寄修。",
+      "tierEvidence": "B"
+    },
+    {
+      "brand": "华硕",
+      "tier": "tier1-intl",
+      "network": 4,
+      "channel": "到店 + 寄修",
+      "warrantyNote": "游戏本与轻薄本政策分开",
+      "spareParts": "主流机型备件充足",
+      "resale": 4,
+      "studentChannel": "有教育优惠",
+      "note": "天选系列在虚焊问题上有集中反馈，选型时要查具体型号。",
+      "tierEvidence": "B"
+    },
+    {
+      "brand": "宏碁",
+      "tier": "tier1-intl",
+      "network": 3,
+      "channel": "寄修为主",
+      "warrantyNote": "需按系列查",
+      "spareParts": "一般",
+      "resale": 3,
+      "studentChannel": "有教育优惠，力度一般",
+      "note": "网点少于前四家，三四线城市需寄修。",
+      "tierEvidence": "C"
+    },
+    {
+      "brand": "华为",
+      "tier": "tier2-cn",
+      "network": 4,
+      "channel": "直营服务店 + 寄修",
+      "warrantyNote": "官网有明确的服务政策页",
+      "spareParts": "自有体系，供应稳定",
+      "resale": 3,
+      "studentChannel": "有教育优惠",
+      "note": "服务店体验好但数量少于一线；生态联动是隐性加分。",
+      "tierEvidence": "B"
+    },
+    {
+      "brand": "荣耀",
+      "tier": "tier2-cn",
+      "network": 3,
+      "channel": "寄修为主",
+      "warrantyNote": "需按系列查",
+      "spareParts": "一般",
+      "resale": 2,
+      "studentChannel": "有教育优惠",
+      "note": "PC 产品线相对年轻，服务网络仍在铺。二手残值偏低。",
+      "tierEvidence": "C"
+    },
+    {
+      "brand": "红米",
+      "tier": "tier2-cn",
+      "network": 3,
+      "channel": "寄修 + 小米之家",
+      "warrantyNote": "走小米体系",
+      "spareParts": "一般",
+      "resale": 3,
+      "studentChannel": "小米之家学生优惠",
+      "note": "依托小米之家，但笔记本的专业维修能力分布不均。",
+      "tierEvidence": "C"
+    },
+    {
+      "brand": "机械革命",
+      "tier": "tier3-value",
+      "network": 2,
+      "channel": "寄修为主",
+      "warrantyNote": "需仔细看条款，部分机型为店铺保修",
+      "spareParts": "偏弱，老机型备件获取困难",
+      "resale": 2,
+      "studentChannel": "无专门政策",
+      "note": "同配置最便宜一档，代价是售后网络与用料。适合能自己动手的人。",
+      "tierEvidence": "B"
+    },
+    {
+      "brand": "神舟",
+      "tier": "tier3-value",
+      "network": 2,
+      "channel": "寄修为主",
+      "warrantyNote": "需仔细看条款",
+      "spareParts": "偏弱",
+      "resale": 2,
+      "studentChannel": "无专门政策",
+      "note": "公模游戏本价格极低，供电与散热是主要风险点；未进现有榜单。",
+      "tierEvidence": "C",
+      "notInOffers": true
+    }
+  ],
+  "conceptWarnings": [
+    {
+      "id": "warn-service-not-quality",
+      "title": "现品牌表的 service 分数只是「网点密度」，不是「售后质量」",
+      "detail": "现有 brands[].service 取 1-5，实际衡量的是能不能就近找到授权站。但「修得好不好」是另外两个维度：响应与判定（是否推诿、人为损坏怎么判）、备件与周期（等多久）。把三者合成一个数，会出现「网点多但推诿」的品牌拿高分。",
+      "suggestion": "拆成 network / responsiveness / repair 三个子分，权重按场景不同（急用机看响应，偏远地区看网点）。"
+    },
+    {
+      "id": "warn-tier-not-quality",
+      "title": "品牌档次预测的是「出事后方便不方便」，不是「会不会坏」",
+      "detail": "一线品牌入门线的品控未必优于二线性价比品牌，但它的网点一定更密。这两件事必须分开表达，否则用户会以为贵的那台不容易坏。",
+      "suggestion": "报告里分两栏：可靠性（设计缺陷 + 品控线索）与维修便利性（售后）。"
+    },
+    {
+      "id": "warn-defect-vs-qc",
+      "title": "设计缺陷与品控波动不能混说",
+      "detail": "设计缺陷是「这个型号都这样」，品控是「这台可能碰巧不好」。前者一票否决，后者靠退换与延保。混说会让用户要么过度恐慌，要么错失 7 天无理由的窗口。",
+      "suggestion": "输出时明确标注「全批次问题」还是「个体概率」，并给出对应动作。"
+    }
+  ],
+  "decisionRules": [
+    {
+      "id": "rule-defect-veto",
+      "when": "机型命中 designDefects 且 scope=series/model",
+      "then": "不进入候选池，直接告知原因；不参与价格比较",
+      "why": "价格能比，缺陷不能退货"
+    },
+    {
+      "id": "rule-group-stress",
+      "when": "专业组 ∈ {video, threeD, engine} 且机型有供电/散热类缺陷记录",
+      "then": "无论价格多合适都不推荐；若用户坚持，必须提示买延保",
+      "why": "长期满载会放大供电与散热缺陷"
+    },
+    {
+      "id": "rule-remote-aftersales",
+      "when": "品牌 network ≤ 2 且用户所在区域为三四线",
+      "then": "提示寄修周期与运费，并建议确认本地是否有授权点",
+      "why": "售后成本不体现在价格里，但会体现在时间里"
+    },
+    {
+      "id": "rule-qc-window",
+      "when": "推荐机型存在品控类问题（漏光 / 换料）",
+      "then": "固定附一条「到手 7 天内验屏、留好包装」",
+      "why": "品控靠概率，唯一可操作的是退换窗口"
+    },
+    {
+      "id": "rule-soldered-by-group",
+      "when": "专业组 ∈ {code, video, threeD, graphic} 且机型内存板载且 ≤16G",
+      "then": "排除",
+      "why": "四年周期内必然不够，且无法补救"
+    }
+  ],
+  "toVerify": [
+    "各品牌官方保修条款（整机/主要部件/屏幕/电池年限）——必须以官网政策页为准，逐品牌核实",
+    "各品牌授权服务网点数量与分布 —— 官网服务页可查，按省份统计",
+    "二线品牌的返修率 —— 无公开数据，只能靠投诉平台样本量做相对判断",
+    "同型号换料的具体批次 —— 需要持续跟踪开箱帖",
+    "现有 defects 表 6 条中「返修率接近 15%」这一数字的原始出处 —— 未找到，暂标 B"
+  ]
+}

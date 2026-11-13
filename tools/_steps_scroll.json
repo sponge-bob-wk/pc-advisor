@@ -1,0 +1,8 @@
+{
+  "steps": [
+    {"tool": "get_app_state", "args": {"pid": 14672, "disableScreenshot": true, "disableDiff": true}, "grep": "document \"", "max": 300},
+    {"tool": "scroll", "args": {"pid": 14672, "element_id": "33", "direction": "down", "pages": 4}, "max": 200, "sleep": 4},
+    {"tool": "scroll", "args": {"pid": 14672, "element_id": "33", "direction": "down", "pages": 4}, "max": 200, "sleep": 4},
+    {"tool": "get_app_state", "args": {"pid": 14672, "disableScreenshot": false}, "grep": "[image", "max": 400}
+  ]
+}

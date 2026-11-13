@@ -1,0 +1,176 @@
+{
+  "meta": {
+    "updated": "2026-11-09",
+    "scope": "machine_pool.json（规格可追溯 + 平台实采价格合并后的机型池）",
+    "rule": "按 field_matrix R 级判定；核显遇显存要求=事实不满足；throttle 缺失=降级；efficiency 为 P 级不进门槛；hardGates 参与判定",
+    "legend": {
+      "OK": "R 级齐全且无违反",
+      "DEGRADED": "R 级齐全但关键 H 缺，结论需标注",
+      "VIOLATE": "已确定不满足",
+      "UNKNOWN": "R 级字段缺失"
+    }
+  },
+  "totals": {
+    "pairs": 800,
+    "ok": 351,
+    "degraded": 98,
+    "violate": 348,
+    "unknown": 3,
+    "usable": 797,
+    "recommendable": 449,
+    "usableRate": 0.9962,
+    "recommendRate": 0.5613
+  },
+  "byGroup": [
+    {
+      "id": "office",
+      "name": "通识办公",
+      "rFields": [
+        "ramGB"
+      ],
+      "ok": 79,
+      "degraded": 0,
+      "violate": 1,
+      "unknown": 0,
+      "blockedBy": {}
+    },
+    {
+      "id": "code",
+      "name": "编程数据",
+      "rFields": [
+        "ramGB",
+        "ramType"
+      ],
+      "ok": 48,
+      "degraded": 0,
+      "violate": 31,
+      "unknown": 1,
+      "blockedBy": {
+        "ramType": 1
+      }
+    },
+    {
+      "id": "graphic",
+      "name": "平面视觉",
+      "rFields": [
+        "ramGB",
+        "ramType",
+        "resolution",
+        "colorGamut"
+      ],
+      "ok": 15,
+      "degraded": 26,
+      "violate": 39,
+      "unknown": 0,
+      "blockedBy": {}
+    },
+    {
+      "id": "video",
+      "name": "视频影视",
+      "rFields": [
+        "cpu",
+        "cores",
+        "ramGB",
+        "storageGB",
+        "gpuModel",
+        "vramGB",
+        "tgpW",
+        "throttle"
+      ],
+      "ok": 5,
+      "degraded": 13,
+      "violate": 62,
+      "unknown": 0,
+      "blockedBy": {}
+    },
+    {
+      "id": "threeD",
+      "name": "三维建筑工业",
+      "rFields": [
+        "cpu",
+        "ramGB",
+        "gpuModel",
+        "vramGB"
+      ],
+      "ok": 5,
+      "degraded": 13,
+      "violate": 62,
+      "unknown": 0,
+      "blockedBy": {}
+    },
+    {
+      "id": "audio",
+      "name": "音乐音频",
+      "rFields": [
+        "storageGB",
+        "ports"
+      ],
+      "ok": 54,
+      "degraded": 5,
+      "violate": 21,
+      "unknown": 0,
+      "blockedBy": {}
+    },
+    {
+      "id": "engine",
+      "name": "游戏与数字媒体技术",
+      "rFields": [
+        "cpu",
+        "cores",
+        "ramGB",
+        "storageGB",
+        "gpuModel",
+        "vramGB",
+        "tgpW",
+        "refreshHz",
+        "throttle"
+      ],
+      "ok": 5,
+      "degraded": 13,
+      "violate": 62,
+      "unknown": 0,
+      "blockedBy": {}
+    },
+    {
+      "id": "electric",
+      "name": "电气与自动化",
+      "rFields": [
+        "ports"
+      ],
+      "ok": 67,
+      "degraded": 7,
+      "violate": 4,
+      "unknown": 2,
+      "blockedBy": {
+        "ports": 2
+      }
+    },
+    {
+      "id": "science",
+      "name": "理工实验",
+      "rFields": [
+        "cores"
+      ],
+      "ok": 69,
+      "degraded": 7,
+      "violate": 4,
+      "unknown": 0,
+      "blockedBy": {}
+    },
+    {
+      "id": "geo",
+      "name": "测绘与空间信息",
+      "rFields": [
+        "ramGB",
+        "storageGB",
+        "gpuModel",
+        "vramGB"
+      ],
+      "ok": 4,
+      "degraded": 14,
+      "violate": 62,
+      "unknown": 0,
+      "blockedBy": {}
+    }
+  ]
+}

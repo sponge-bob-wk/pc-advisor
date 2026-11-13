@@ -1,0 +1,90 @@
+{
+  "meta": {
+    "created": "2026-11-11T20:05:00+08:00",
+    "purpose": "屏幕类缺口批次（colorGamut/refreshHz/resolution）+ 顺手补到的电池。合并方式同 20261111-ports-patch.json。",
+    "channel": "WebSearch 多源交叉（京东商品参数 + 品牌官网 + 新闻稿），未动京东页面",
+    "howToMerge": "python tools/merge_patch.py --patch data/incoming/20261111-screen-patch.json --apply"
+  },
+  "patch": [
+    {
+      "id": "add-yaoshi16-ultra",
+      "name": "机械革命 耀世16 Ultra",
+      "screen": {
+        "colorGamut": { "dciP3": 100 }
+      },
+      "batteryWh": 99,
+      "confidence": "medium",
+      "dataGaps": [
+        "throttle",
+        "色域为 100% DCI-P3：京东自营（5090 版）、1号会员店（5070Ti 版）、机械革命官方商城三处一致；官方新闻稿还写 miniLED/HDR1000/300Hz 为早期 275HX 版规格，现售 290HX Plus 版为 240Hz"
+      ],
+      "evidence": {
+        "screenSpec": "京东自营旗舰店（U9-290HX Plus/32G/2T/RTX5090）+ 1号会员店（U9-290HX Plus/32G/1T/RTX5070Ti）+ 机械革命官方商城 mall.mechrevo.com/products/89",
+        "screenSpecQuote": "三处均为：屏幕分辨率 2560*1600；屏幕刷新率 240Hz；屏幕色域 100% DCI-P3；电池容量 99Wh；USB-A 3个/USB-C 2个/HDMI 2.1/RJ45 2.5G/雷电 1个",
+        "screenSpecNote": "电池 99Wh 两来源一致（1号店参数未列但官方商城列 99Wh）。energyModel 06049C133 与库内一致，无需改"
+      }
+    },
+    {
+      "id": "add-thunde-renjian16-13650",
+      "name": "雷神 猎刃16",
+      "screen": {
+        "colorGamut": { "srgb": 100 }
+      },
+      "batteryWh": 63,
+      "confidence": "medium",
+      "dataGaps": [
+        "throttle",
+        "官网写高配屏为 sRGB 100% + DCI-P3 100% 双认证（NZL 认证），本记录取 sRGB 100%（京东参数口径）；官网另有 180Hz 版本，库内为 300Hz 版"
+      ],
+      "evidence": {
+        "screenSpec": "雷神官网 thunderobot.com/new_detail?article_id=581 + 京东 item.jd.com/10233892839971.html（i7-13650HX/RTX5070/300Hz/32G 版）",
+        "screenSpecQuote": "官网猎刃16 全系：16.0' 16:10 雾面IPS 2560×1600；300Hz 版色域 NZL:sRGB 100% / DCI-P3 100%，180Hz 版 100%sRGB；亮度 500nit；对比度 1200:1；电池容量全系 63Wh；适配器 230W/330W。京东参数：300Hz、100%sRGB、2560*1600",
+        "screenSpecNote": "官网与京东一致确认 sRGB 100%。官网说 300Hz 版同时有 DCI-P3 100% 认证，如判定引擎支持多键可补 {\"srgb\":100,\"dciP3\":100}"
+      }
+    },
+    {
+      "id": "jd-mechrevo-kuangshix-i514450hx-rtx5050-32g-1t-20261109",
+      "name": "旷世X 2026（i5-14450HX/RTX5050/32G/1T）",
+      "screen": {
+        "widthPx": 2560,
+        "heightPx": 1600,
+        "refreshHz": 240,
+        "colorGamut": { "srgb": 100 }
+      },
+      "batteryWh": 80,
+      "confidence": "low",
+      "dataGaps": [
+        "efficiency",
+        "throttle",
+        "weightKg 三个 SKU 分别写 2.45 / 2.3 / 2.2 kg，冲突待核",
+        "刷新率与色域存在批次分歧：IT之家 2026-07 报道写 180Hz/100%sRGB/500nit，京东现售 3 个 SKU 均写 240Hz（色域自营写 100% DCI-P3、两家官方旗舰店写 100%sRGB）。本记录取 240Hz + sRGB 100（3:1 多数），若实机为 180Hz 批次需回滚",
+        "⚠️ CPU/GPU 配置存疑：库内记 i5-14450HX/RTX5050，但 2026 款在售全部为 C7-245HX + RTX5060/5070（IT之家 2026-07-14），未找到 5050 版在售 SKU"
+      ],
+      "evidence": {
+        "screenSpec": "京东机械革命游戏电脑旗舰店 + 机械革命官方旗舰店（3 个 SKU）+ IT之家 m.ithome.com/html/976738.htm",
+        "screenSpecQuote": "京东自营参数（C7-245HX/5060/240Hz 版）：2560*1600、240Hz、100% DCI-P3、电池 80Wh、净重 2.45kg。官方旗舰店两 SKU：240Hz、100%sRGB。IT之家（2026-07-14 新品稿）：16 英寸 2560x1600 180Hz、500nit、100% sRGB",
+        "screenSpecNote": "分辨率三来源一致可定。刷新率/色域按在售多数取。i5-14450HX/RTX5050 配置与在售不符，建议单独核实该 SKU 是否为 2025 款遗留记录"
+      }
+    },
+    {
+      "id": "jd-huawei-matebookd16-i513420h-16g-1t-20261109",
+      "name": "华为 MateBook D 16（i5-13420H/16G/1T，店铺预装 Win 未激活）",
+      "screen": {
+        "widthPx": 1920,
+        "heightPx": 1200,
+        "refreshHz": 60
+      },
+      "confidence": "medium",
+      "dataGaps": [
+        "efficiency",
+        "weightKg",
+        "色域已有 {ntsc:45}（Linux 版口径）。注意：Windows 预装版自营 SKU 写 72%NTSC（≈100%sRGB），两者面板可能不同；本机为 Linux 版改装 Windows，按 45%NTSC 保留。平面视觉组会被判不够——这是真实结论（低色域屏不适合设计），不要为好看改成 72%"
+      ],
+      "evidence": {
+        "screenSpec": "京东自营 Linux 版 + 三方 Linux 版 + 华为办公设备自营专区（Windows 版）+ 腾讯新闻发布稿",
+        "screenSpecQuote": "Linux 版两 SKU 均为：1920*1200、60Hz、IPS、45%NTSC。Windows 版自营 SKU：1920*1200、60Hz、IPS、72%NTSC。腾讯新闻（2023-12 发布稿）：高色域版 100% sRGB",
+        "screenSpecNote": "分辨率/刷新率三来源一致。色域 45%NTSC 与 72%NTSC 是两种面板批次，库内记录为 Linux 版（45%NTSC），保留并在 dataGaps 说明"
+      }
+    }
+  ]
+}

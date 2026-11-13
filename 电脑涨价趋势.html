@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="description" content="用公开数据看清最近电脑价格上涨了多少，哪台最值，以及现在该不该买。离线可用，不登录。">
+<title>最近电脑涨价了吗</title>
+<style>
+:root{
+  --bg:#f7f6f3; --card:#fff; --ink:#1c1c1a; --ink2:#5f5e5a; --ink3:#8f8d86;
+  --line:rgba(0,0,0,.09); --line2:rgba(0,0,0,.17);
+  --up:#bf392b; --upbg:#fdeeec; --upink:#9c2d21;
+  --down:#17795e; --downbg:#e8f6f0;
+  --amber:#8a5a0b; --amberbg:#fdf4e3;
+  --blue:#1a5f9e; --bluebg:#eaf2fa;
+  --r:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{
+  background:var(--bg); color:var(--ink); font-size:15px; line-height:1.66;
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:620px;margin:0 auto;padding:26px 18px 72px}
+/* ---------- home ---------- */
+.kicker{font-size:12.5px;letter-spacing:.08em;color:var(--ink3);margin:0 0 10px}
+h1{font-size:29px;line-height:1.28;font-weight:600;margin:0 0 12px;letter-spacing:-.01em}
+.lede{margin:0 0 26px;color:var(--ink2);font-size:15px}
+.ask{
+  display:flex;gap:6px;align-items:center;background:var(--card);
+  border:1px solid var(--line2);border-radius:16px;padding:5px 5px 5px 15px;
+  transition:box-shadow .15s,border-color .15s;
+}
+.ask:focus-within{border-color:#b9b6ae;box-shadow:0 0 0 4px rgba(0,0,0,.045)}
+.ask input{
+  flex:1;min-width:0;border:0;outline:0;background:transparent;
+  font-size:16px;color:var(--ink);padding:10px 0;font-family:inherit;
+}
+.ask input::placeholder{color:#b3b0a8}
+.ask button{
+  flex:none;border:0;background:var(--ink);color:#fff;font-size:14.5px;font-weight:500;
+  font-family:inherit;padding:11px 17px;border-radius:12px;cursor:pointer;
+}
+.ask button:active{opacity:.82}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{
+  border:1px solid var(--line2);background:var(--card);border-radius:999px;
+  padding:7px 14px;font-size:13.5px;color:var(--ink);cursor:pointer;
+  font-family:inherit;line-height:1.4;
+}
+.chip:active{background:#f0efeb}
+.meta{font-size:12.5px;color:var(--ink3);margin:22px 0 0;line-height:1.75}
+.saved{
+  background:var(--bluebg);border-left:3px solid var(--blue);border-radius:10px;
+  padding:11px 13px;font-size:13.5px;color:#164e80;margin:0 0 20px;cursor:pointer;
+}
+.saved b{font-weight:500}
+/* ---------- result ---------- */
+.back{font-size:13.5px;color:var(--ink2);cursor:pointer;margin:0 0 16px;display:inline-block}
+.back:active{opacity:.6}
+.vcard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 20px 20px}
+.pill{
+  display:inline-block;font-size:12.5px;font-weight:500;padding:4px 11px;
+  border-radius:999px;line-height:1.4;
+}
+.t-stop{background:var(--upbg);color:var(--upink)}
+.t-mixed{background:var(--amberbg);color:var(--amber)}
+.t-think{background:var(--bluebg);color:var(--blue)}
+.t-now{background:var(--downbg);color:var(--down)}
+.vhead{font-size:20.5px;line-height:1.5;font-weight:600;margin:14px 0 0;letter-spacing:-.005em}
+.vsub{font-size:13px;color:var(--ink3);margin:10px 0 0}
+.quote{
+  border-left:2px solid var(--line2);padding:2px 0 2px 13px;
+  font-size:14.5px;color:var(--ink2);margin:20px 0 0;
+}
+.blk{margin-top:34px}
+.blk h2{font-size:16.5px;font-weight:600;margin:0 0 6px;letter-spacing:-.005em}
+.blk .cap{font-size:13px;color:var(--ink3);margin:0 0 16px;line-height:1.65}
+/* bars */
+.row{padding:9px 0}
+.row .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:7px}
+.row .lab{font-size:13.5px;line-height:1.45}
+.row .val{font-size:13.5px;font-variant-numeric:tabular-nums;color:var(--ink2);white-space:nowrap}
+.row.dim .lab,.row.dim .val{color:var(--ink3)}
+.track{height:9px;background:#eeede8;border-radius:5px;overflow:hidden;display:flex}
+.fill{height:100%;border-radius:5px;background:var(--up)}
+.fill.soft{background:#f0a49b;border-radius:0 5px 5px 0}
+.fill.gray{background:#c9c6be}
+.downrow{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:11px 0 2px;border-top:1px solid var(--line);margin-top:8px;font-size:13.5px;
+}
+.downrow .dv{color:var(--down);font-variant-numeric:tabular-nums;white-space:nowrap}
+/* quarter chart */
+.qchart{display:flex;align-items:flex-end;gap:9px;height:198px;margin:6px 0 0}
+.qcol{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;min-width:0}
+.qval{font-size:12px;color:var(--ink2);margin-bottom:6px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.qbar{width:100%;max-width:46px;border-radius:6px 6px 3px 3px;background:var(--up)}
+.qcol.fc .qbar{background:#f7d9d3;border:1px dashed #c98276;border-radius:6px 6px 3px 3px}
+.qlab{font-size:12px;color:var(--ink3);margin-top:9px;white-space:nowrap}
+.qcol.fc .qlab{color:var(--amber)}
+/* same model */
+.mrow{
+  display:grid;grid-template-columns:1fr auto;column-gap:14px;align-items:center;
+  padding:12px 0;border-bottom:1px solid var(--line);
+}
+.mrow:last-child{border-bottom:0}
+.mrow .mn{grid-column:1;grid-row:1;font-size:13.8px;line-height:1.45}
+.mrow .mp{grid-column:1;grid-row:2;font-size:12.8px;color:var(--ink3);font-variant-numeric:tabular-nums;margin-top:3px}
+.mrow .md{grid-column:2;grid-row:1 / span 2;font-size:14px;color:var(--upink);font-variant-numeric:tabular-nums;white-space:nowrap}
+/* reasons + action */
+.olist{margin:0;padding:0;list-style:none}
+.olist li{position:relative;padding:0 0 14px 18px;font-size:14.2px;color:var(--ink);line-height:1.68}
+.olist li::before{
+  content:"";position:absolute;left:2px;top:9px;width:5px;height:5px;
+  border-radius:50%;background:#c9c6be;
+}
+.actcard{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:16px 17px;margin-top:6px;
+}
+.actcard .al{font-size:12.5px;color:var(--ink3);margin:0 0 7px;letter-spacing:.04em}
+.actcard p{margin:0;font-size:14.2px;line-height:1.7}
+/* decision */
+.dlist{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px 16px;margin-top:6px}
+.drow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.drow:last-child{border-bottom:0}
+.drow .dl{font-size:14px}
+.drow.now .dl{font-weight:500}
+/* save */
+.savebtn{
+  width:100%;margin-top:30px;padding:14px;border-radius:13px;
+  border:1px solid var(--line2);background:var(--card);color:var(--ink);
+  font-size:15px;font-weight:500;font-family:inherit;cursor:pointer;
+}
+.savebtn:active{background:#f0efeb}
+.savebtn.done{background:var(--downbg);border-color:#b7ddd0;color:var(--down)}
+.note{font-size:13.3px;border-radius:10px;padding:11px 13px;margin-top:11px;line-height:1.6}
+.note.bad{background:var(--upbg);color:var(--upink)}
+.srcin{font-size:12.3px;color:var(--ink3);margin:14px 0 0;line-height:1.7}
+.srcin a{color:var(--ink2)}
+/* ---------- 排序 / 榜单 ---------- */
+.weigh{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 18px}
+.wbtn{
+  border:1px solid var(--line2);background:var(--card);border-radius:999px;
+  padding:7px 13px;font-size:13px;color:var(--ink2);cursor:pointer;
+  font-family:inherit;line-height:1.4;transition:all .12s;
+}
+.wbtn.on{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:500}
+.wbtn:active{opacity:.8}
+.wcap{font-size:12.5px;color:var(--ink3);margin:0 0 10px;line-height:1.6}
+/* 榜单表头：说明那个大数字是什么，否则读者分不清是跑分还是加权分 */
+.colhead{
+  display:grid;grid-template-columns:26px minmax(0,1fr) auto;column-gap:11px;
+  padding:0 16px 6px;font-size:11.5px;color:var(--ink3);
+}
+.colhead .ch-l{grid-column:1}
+.colhead .ch-m{grid-column:2}
+.colhead .ch-r{grid-column:3;text-align:right;white-space:nowrap}
+.rank{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;min-width:0}
+.rk{
+  display:grid;grid-template-columns:26px minmax(0,1fr) auto;
+  column-gap:11px;row-gap:2px;align-items:start;
+  padding:15px 16px;border-bottom:1px solid var(--line);cursor:pointer;
+}
+.rk:last-child{border-bottom:0}
+.rk:active{background:#faf9f6}
+.rk.top{background:#fdfaf7}
+.rk .num{
+  grid-column:1;grid-row:1 / span 3;font-size:13px;color:var(--ink3);
+  font-variant-numeric:tabular-nums;padding-top:1px;
+}
+.rk.top .num{color:var(--upink);font-weight:600}
+.rk .nm{grid-column:2;grid-row:1;font-size:14.5px;font-weight:500;line-height:1.45;min-width:0;word-break:break-word;overflow-wrap:anywhere}
+.rk .sp{grid-column:2;grid-row:2;font-size:12.5px;color:var(--ink3);font-variant-numeric:tabular-nums}
+.rk .sc{
+  grid-column:3;grid-row:1;font-size:15px;font-weight:500;
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+/* 单位（mAh / 分）用小字挂在数字后面，避免「6800」被当成分数 */
+.rk .sc em{font-style:normal;font-size:10.5px;font-weight:400;color:var(--ink3);margin-left:2px}
+/* 档位类维度（可加装 / 便携）显示的是文字，字号要收一点，不然比机型名还抢眼 */
+.rk .sc.txt{font-size:13px;font-weight:500;color:var(--ink2)}
+.rk .pr{grid-column:3;grid-row:2;font-size:13px;color:var(--ink2);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rk .why{
+  /* 跨到 auto 列会被 span 元素的 min-content 撑开那一列，导致右侧差几像素溢出。
+     直接跨满整行（1/-1）再靠 padding 对齐到内容列起点，就没有这个风险。 */
+  grid-column:1 / -1;grid-row:3;font-size:12.8px;color:var(--ink2);
+  line-height:1.6;margin-top:5px;padding-left:37px;
+  min-width:0;word-break:break-word;overflow-wrap:anywhere;
+}
+.rk .why b{font-weight:500;color:var(--ink)}
+.badge{
+  display:inline-block;font-size:11.5px;padding:2px 7px;border-radius:5px;
+  margin-left:6px;vertical-align:1px;font-weight:500;
+}
+.b-tag{background:var(--upbg);color:var(--upink)}
+/* 维度条 */
+.dims{display:flex;gap:3px;margin-top:6px;grid-column:1 / -1;grid-row:4;padding-left:37px;min-width:0}
+.dm{flex:1;height:4px;background:#eeede8;border-radius:2px;overflow:hidden}
+.dm i{display:block;height:100%;background:#a8a49a;border-radius:2px}
+.dm i.hi{background:var(--ink2)}
+/* 榜单里的优缺点速览 */
+.pq{margin-top:7px;grid-column:1 / -1;grid-row:5;padding-left:37px;display:flex;flex-direction:column;gap:3px;font-size:12.3px;line-height:1.55;min-width:0;word-break:break-word;overflow-wrap:anywhere}
+.pq .qg{color:var(--down)}
+.pq .qb{color:var(--upink)}
+.rk .num{grid-row:1 / span 4}
+/* 品牌表 */
+.bt{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:2px 16px;margin-top:6px}
+.brow{padding:14px 0;border-bottom:1px solid var(--line)}
+.brow:last-child{border-bottom:0}
+.brow .bh{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:5px}
+.brow .bn{font-size:14.5px;font-weight:500}
+.brow .bv{font-size:12.5px;white-space:nowrap}
+.brow .bw{font-size:12.8px;color:var(--ink2);line-height:1.6}
+.brow .bx{font-size:12.5px;color:var(--ink3);line-height:1.6;margin-top:5px}
+.upgood{background:var(--downbg);color:var(--down)}
+.upmixed{background:var(--amberbg);color:var(--amber)}
+.upbad{background:var(--upbg);color:var(--upink)}
+/* 陷阱 */
+.trap{background:var(--card);border:1px solid var(--line);border-left:3px solid #d9a441;border-radius:12px;padding:13px 15px;margin-bottom:10px}
+.trap .tt{font-size:14px;font-weight:500;margin:0 0 4px}
+.trap p{margin:0;font-size:13.3px;color:var(--ink2);line-height:1.65}
+/* 详情页 */
+.detail{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+.spec{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:13.5px;margin:16px 0 0}
+.spec dt{color:var(--ink3);white-space:nowrap}
+.spec dd{margin:0;font-variant-numeric:tabular-nums}
+/* 括号里的补充说明要弱化，否则和主数字一样重会抢读 */
+.spec .ddim{color:var(--ink3);font-size:12px}
+/* 折叠区：把次要内容收起来，首屏只留结论和榜单 */
+details.fold{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  margin-top:12px;overflow:hidden;
+}
+details.fold > summary{
+  list-style:none;cursor:pointer;padding:14px 16px;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+}
+details.fold > summary::-webkit-details-marker{display:none}
+details.fold > summary .ft{font-size:14.5px;font-weight:500}
+details.fold > summary .fs{font-size:12.5px;color:var(--ink3);margin-top:2px}
+details.fold > summary .fi{
+  flex:none;font-size:12px;color:var(--ink3);transition:transform .18s;
+}
+details.fold[open] > summary .fi{transform:rotate(90deg)}
+details.fold > .fbody{padding:0 16px 6px}
+details.fold > .fbody .blk{margin-top:22px}
+details.fold > .fbody .blk:first-child{margin-top:4px}
+.foldwrap{margin-top:34px}
+.foldwrap > h2{font-size:16.5px;font-weight:600;margin:0 0 6px}
+.foldwrap > .cap{font-size:13px;color:var(--ink3);margin:0 0 4px;line-height:1.65}
+/* ---------- 优缺点 ---------- */
+.pc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:2px 16px;margin-top:12px}
+.pc .prow{padding:13px 0;border-bottom:1px solid var(--line)}
+.pc .prow:last-child{border-bottom:0}
+.pc .ph{font-size:12.5px;letter-spacing:.06em;margin:0 0 8px}
+.pc .ph.g{color:var(--down)}
+.pc .ph.b{color:var(--upink)}
+.pc ul{margin:0;padding:0;list-style:none}
+.pc li{position:relative;padding:0 0 7px 15px;font-size:13.3px;line-height:1.6;color:var(--ink)}
+.pc li:last-child{padding-bottom:0}
+.pc li::before{content:"";position:absolute;left:2px;top:8px;width:4px;height:4px;border-radius:50%;background:#c9c6be}
+.pc.con li::before{background:#e0b3ab}
+/* 详情页里的优缺点 */
+.problock{margin-top:16px}
+.problock .ph{font-size:12.5px;letter-spacing:.06em;margin:0 0 8px}
+.problock .ph.g{color:var(--down)}
+.problock .ph.b{color:var(--upink)}
+.problock ul{margin:0 0 14px;padding:0;list-style:none}
+.problock li{position:relative;padding:0 0 8px 16px;font-size:13.5px;line-height:1.65}
+.problock li::before{content:"";position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:50%;background:#b7ddd0}
+.problock.cons li::before{background:#e6b3aa}
+/* ---------- 国补 ---------- */
+.subgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.subcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 15px 14px}
+.subcard .sh{font-size:14px;font-weight:500;margin:0 0 3px}
+.subcard .sb{font-size:11.8px;color:var(--ink3);margin:0 0 11px}
+.subcard .sr{display:flex;justify-content:space-between;gap:8px;font-size:12.8px;padding:4px 0;color:var(--ink2)}
+.subcard .sr b{font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.subcard .sn{font-size:11.5px;color:var(--ink3);margin:9px 0 0;line-height:1.55}
+.subcard.hot{border-color:#d9c9a8;background:#fffdf7}
+.calc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:12px}
+.calc .cl{font-size:12.5px;color:var(--ink3);margin:0 0 9px}
+.calcrow{display:flex;gap:8px;align-items:center}
+.calcrow input{
+  flex:1;min-width:0;border:1px solid var(--line2);border-radius:10px;background:#fbfaf8;
+  font-size:16px;font-family:inherit;color:var(--ink);padding:10px 12px;outline:0;
+  -webkit-appearance:none;font-variant-numeric:tabular-nums;
+}
+.calcrow input:focus{border-color:#b9b6ae;background:#fff}
+.calcrow .unit{font-size:14px;color:var(--ink3)}
+.calcres{margin-top:12px;font-size:13.5px;line-height:1.75}
+.calcres .big{font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
+.calcres .big.save{color:var(--down)}
+.calcres .big.none{color:var(--upink)}
+.calcres .ln{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-top:1px solid var(--line);color:var(--ink2)}
+.calcres .ln b{font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.calcwarn{margin-top:10px;font-size:12.8px;padding:9px 11px;border-radius:9px;line-height:1.6}
+.calcwarn.bad{background:var(--upbg);color:var(--upink)}
+.calcwarn.tip{background:var(--downbg);color:var(--down)}
+/* 缺陷表 */
+.df{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:2px 16px;margin-top:12px}
+.dfi{padding:15px 0;border-bottom:1px solid var(--line)}
+.dfi:last-child{border-bottom:0}
+.dfi .dh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px}
+.dfi .dn{font-size:14.5px;font-weight:500;line-height:1.45}
+.dfi .dl{font-size:12.5px;color:var(--ink2);line-height:1.65;margin:5px 0 0}
+.dfi .dl b{font-weight:500;color:var(--ink)}
+.dfi .dw{font-size:12.3px;color:var(--ink3);line-height:1.6;margin:7px 0 0;padding-top:7px;border-top:1px dashed var(--line)}
+/* footer */
+.foot{margin-top:52px;border-top:1px solid var(--line);padding-top:20px}
+.foot p{margin:0 0 12px;font-size:12.8px;color:var(--ink3);line-height:1.75}
+details{font-size:13px;color:var(--ink2)}
+summary{cursor:pointer;font-size:13px;color:var(--ink2);padding:4px 0}
+#srclist{margin:12px 0 0;padding-left:20px;font-size:12.5px;line-height:1.8;color:var(--ink2)}
+#srclist li{margin-bottom:11px}
+#srclist a{color:var(--blue);text-decoration:none;word-break:break-all}
+#srclist .pm{color:var(--ink3)}
+.cand{margin-top:4px}
+.cand button{
+  display:block;width:100%;text-align:left;margin-top:9px;padding:13px 15px;
+  border:1px solid var(--line2);background:var(--card);border-radius:12px;
+  font-size:14.5px;font-family:inherit;color:var(--ink);cursor:pointer;
+}
+.cand button:active{background:#f0efeb}
+@media (prefers-reduced-motion:no-preference){
+  .fade{animation:f .28s ease-out both}
+  @keyframes f{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <section id="home">
+    <p class="kicker">三分钟看清，不用注册</p>
+    <h1>最近电脑和手机涨价了吗</h1>
+    <p class="lede">同款机器贵了多少、<b>按你的侧重该买哪台</b>、优缺点和设计缺陷在哪，还有国补到底能省多少。</p>
+
+    <div id="saved" class="saved" hidden></div>
+
+    <div class="ask">
+      <input id="q" type="text" autofocus autocomplete="off" placeholder="例：5000 的轻薄本 / 3000 的手机">
+      <button id="go" type="button">看趋势</button>
+    </div>
+
+    <div class="chips" id="chips"></div>
+
+    <p class="meta">数据截至 <span id="asof"></span> · 逐条标注来源 · 断网可用 · 结果只存本机</p>
+  </section>
+
+  <section id="result" hidden></section>
+
+  <footer class="foot">
+    <p>不卖货、不带推广链接、不猜价格。所有数字来自公开报道，口径冲突时给区间而不是取一个好看的值。</p>
+    <details>
+      <summary>数据来源（<span id="srccount"></span> 条）</summary>
+      <ol id="srclist"></ol>
+    </details>
+  </footer>
+</main>
+
+<script>
+const DATA = {"meta":{"version":"2.1","updated":"2026-11-02","scope":"中国大陆市场：Windows 整机、DIY 配件、手机","priceBasis":"到手价（已含国补与常见平台券）；标注「页面价」的为未叠加优惠的标价","perfBasis":"性能分 0-100，一律由实测跑分换算，不凭印象打分。手机用 Geekbench 6：perf = 100 ×（0.5×单核/4000 + 0.5×多核/12000）；电脑用 Cinebench R23：perf = 100 ×（0.5×单核/2400 + 0.5×多核/40000）。两把尺子的锚点都取「当季消费级上限」，所以手机 48 分和电脑 50 分在同一张表里可比，都表示「约为旗舰的一半」。单核管打开 App 与滑动，多核管多任务与渲染，各占一半。这是账面算力，不含系统调度、散热和降频的差异。内存条与固态没有 CPU，此项存 null、显示「不涉及」，并从加权里摘除后按比例重新归一，不判 0 分。","disclaimer":"所有数字均来自公开报道，逐条标注来源。不同来源口径不同，冲突时保留区间而不是取单一值。品牌分是「售后网点 × 保值率」的主观综合，来源有限，权重可自行调整。","subsidyNote":"到手价含 2026 年以旧换新补贴。电脑归「家电类」：实付 15% 立减、单台最高 1500 元、无价格门槛；手机归「数码类」：实付 15%、仅 ≤6000 元机型可补、封顶 500 元。补贴退出后同款回升约 15%，这是目前价格的最大变量。","generatedBy":"tools/build.py","batteryBasis":"续航项直接存额定容量（mAh），排序时在池内归一；不换算成虚构的 0-100。","cameraBasis":"影像分 0-100 为主观综合：按主摄传感器尺寸、长焦规格、以及极客湾/腾讯新闻等实测样张的口碑折算，没有统一跑分可比。这一项请当成「同一档内的相对排序」看，不要当成绝对值。"},"sources":[{"id":"sina-impact","title":"内存和存储价格上涨对PC售价影响有多大?","publisher":"新浪财经","date":"2026-10","url":"https://www.sina.cn/gc/article/niviksc7965739.html","usedFor":["DRAM/NAND 现货累计涨幅","拯救者 Y9000P 9000→14000","3000 元档办公电脑绝迹","小新 Pro14 4138→6557","2026Q3 全球 PC 出货 -20.1%"]},{"id":"stcn-memory","title":"内存条价格持续「狂飙」，华强北一年涨超 300%","publisher":"证券时报","date":"2026-09","url":"https://stcn.com/article/detail/4207734.html","usedFor":["Gartner 预测 2026 年底 PC 均价 +17%","惠普笔记本内存成本占比 15%~18% → 约 35%","厂商年内调价幅度最高 20%","Counterpoint 判断周期持续至 2027 年底"]},{"id":"sina-howmuch","title":"现在买电脑比之前贵了多少?","publisher":"新浪财经","date":"2026-10","url":"https://www.sina.cn/gc/article/nivksmm7019399.html","usedFor":["国家统计局：2026 年 9 月计算机价格同比 +21.8%","DIY 整机 8000→10000","国补 15% 单台最高 1500 元","内存 12GB+256GB 组合 500→2200"]},{"id":"techtimes-dram","title":"DRAM Prices Surge 17% as AI Gobbles Wafer Supply","publisher":"Tech Times","date":"2026-10-12","url":"https://www.techtimes.com/articles/328932/20261012/dram-prices-surge-17-ai-gobbles-wafer-supply-nanya-posts-record-857-margin.htm","usedFor":["Gartner：2026 年底 DRAM/SSD 涨约 130%","2026 全球 PC 出货 -10.4%","Q4 常规 DRAM 环比 +10%~15%（TrendForce）"]},{"id":"startupfortune","title":"The AI Boom Just Made Your Next Laptop Up to 45 Percent Pricier","publisher":"Startup Fortune","date":"2026-08","url":"https://startupfortune.com/the-ai-boom-just-made-your-next-laptop-up-to-45-percent-pricier","usedFor":["TrendForce：26Q1 DRAM +90%~95%、NAND +55%~60%","26Q2 DRAM +58%~63%、NAND +70%~75%","内存占笔记本 BOM 超 30%"]},{"id":"smzdm-double11","title":"双 11 别的都在打折，只有内存和硬盘在涨：2026 年装机，该不该现在下手","publisher":"什么值得买","date":"2026-11","url":"https://post.smzdm.com/p/aomvnp29/","usedFor":["华强北 DDR5 一年 +300%","柜台价 16G 1400~1600、32G 2000~3000 多","1TB 固态 800~1000 多","SK 海力士称 DRAM/HBM 到 2029 年产能售罄"]},{"id":"sohu-3x","title":"内存条一年涨 3 倍：双 11 装台电脑，比去年多花 2000 块","publisher":"搜狐","date":"2026-11","url":"https://m.sohu.com/a/1091439011_123020490","usedFor":["32G DDR5 900→4000","1T 固态 410→950","16G DDR5 200 多→1400","苹果接受三星 2027Q1 报价较 Q3 涨 30%~40%"]},{"id":"smzdm-config","title":"内存和固态吞了装机预算三分之一后，2026 双 11 的老配置单全失效了","publisher":"什么值得买","date":"2026-11","url":"https://post.smzdm.com/p/a03x3xw0/","usedFor":["长城 DDR4 3200 16G：93.81→664 元","三星 T7 2TB：1149→2387","7500F 跌至 600 元接近历史最低","花旗：拐点最快 2027Q4"]},{"id":"vgover","title":"32G 内存卖三千五，9700X 才一千二！双十一只换板 U","publisher":"电玩帮","date":"2026-11","url":"https://www.vgover.com/zh-tw/news/242384","usedFor":["32G DDR5 套条 3300~3900","RTX 5060 8G 3599 元","9800X3D + B850M 板 U 套装 3699 元","显卡全线溢价 25%~50%"]},{"id":"netease-monthly","title":"【2026 年 11 月】11 月装机走向与推荐（市场分析部分 / 总第 125 期）","publisher":"网易 · 电脑吧评测室","date":"2026-10-31","url":"https://www.163.com/dy/article/LAJP2AQ70512MJDN.html","usedFor":["10 月酷睿 i 系跌价约 10%","显卡整体大涨、高端缺货停产","DDR4 小跌、DDR5 小涨","SSD 总体平稳部分小跌"]},{"id":"smzdm-5060","title":"同样是 5060：笔记本八千多，台式装机六千多，今年双 11 怎么选","publisher":"什么值得买","date":"2026-11","url":"https://post.smzdm.com/p/axko67z2/","usedFor":["天选7 RTX5050 6799 元","隐星P16Pro RTX5060 8237 元","暗影精灵Pro15 8698 元","i5-14600KF+RTX5060+32G 整机 6720 元","桌面版 5060 CUDA 核心比移动版多约 15%","荣耀 X14 Plus 3199→5099"]},{"id":"smzdm-dell","title":"「950 亿订单压在手里发不出」撞上「整机普涨 20%、出货跌 25%」","publisher":"什么值得买","date":"2026-11","url":"https://post.smzdm.com/p/am9306zz","usedFor":["华硕全系涨 15%~25%、戴尔涨 20%~25%、宏碁涨 10%~20%","联想部分机型涨 1000 元","Counterpoint 三季度 PC 出货 -21%，戴尔 -25%","天选7 RTX5050 6799 元","戴尔 XPS 13 国补后六千多"]},{"id":"smzdm-panther","title":"内存涨价撞上双十一：Panther Lake 轻薄本到底值不值得买","publisher":"什么值得买","date":"2026-11","url":"https://post.m.smzdm.com/p/awwol7rg","usedFor":["ThinkBook 14+ 首发 8299 → 现在 11489（+3200）","32GB DDR5 900→4000","X9 与 X7 差价千元以上、实测只差 3%"]},{"id":"smzdm-asus","title":"涨价 5% 话刚放完，华硕产线已搬回中国：双 11 换机先看这两条消息","publisher":"什么值得买","date":"2026-11","url":"https://post.smzdm.com/p/aomql209","usedFor":["华硕商用笔记本上半年涨约三成、下半年再涨一成","华硕预计明年上半年再涨 5% 以上","Omdia：7-9 月 PC 出货 -21%，Q4 或 -24%","天选/无畏/ROG 定价未给承诺"]},{"id":"toutiao-6x","title":"等等党输麻了？内存飙涨 6 倍，2026 年双十一笔记本还能按老套路买吗","publisher":"今日头条","date":"2026-11","url":"https://m.toutiao.com/article/7695217723760034367","usedFor":["联想中高端机型普涨 500~1500 元","厂商削减低配：512GB 固态改 256GB","小新Air14、机械革命无界14 已用封装内存","4000~5000 元甜点区三难","MacBook Air M5 9499 元未涨价"]},{"id":"toutiao-soldered","title":"焊死 LPDDR5X 的笔记本买不买：内存涨 10 倍","publisher":"今日头条","date":"2026-11","url":"https://www.toutiao.com/a7696865766490063360","usedFor":["判断规则：写 LPDDR5/LPDDR5X 即焊死，写 DDR5 SO-DIMM 才有插槽","游戏本多数仍留 SO-DIMM 插槽","超轻薄本轮焊死比例各方口径不一（六成/七成）","按「这一次买够」倒推容量"]},{"id":"laptopcompat","title":"SO-DIMM vs Soldered RAM: Is Laptop RAM Soldered?","publisher":"Laptop Compat","date":"2026","url":"https://laptopcompat.com/guides/so-dimm-vs-soldered-ram","usedFor":["325 款机型样本：145 款板载、179 款仅插槽、1 款混合","ROG Zephyrus G14 2026 为 LPDDR5X 板载","HP Omen Max 16 双槽可到 64GB"]},{"id":"smzdm-thinkpad","title":"「去年四百多的 16G 内存条，现在一千八」撞上「X1C 内存焊死，买定没有回头路」","publisher":"什么值得买","date":"2026-11","url":"https://post.m.smzdm.com/p/agg523n6","usedFor":["16GB DDR5 去年 400 多→现在 1800","ThinkPad E14/E16 双插槽、X1C/X13 板载","T14p 2026 用 LPCAMM2 可换但属专有模组","X1 Carbon 2026 定价 17999、国补 16499"]},{"id":"wangbei-guide","title":"学生笔记本电脑怎么选？不同专业、预算和用途的购机指南","publisher":"网贝","date":"2026-11","url":"https://www.wangbei.net/articles/college-laptop-buying-guide","usedFor":["3000~5000 档七款机型国补后参考价","惠普战66 八代锐龙版双内存槽+双SSD位","REDMI Book Pro 14 32G+1TB 首销 7999→6799.15"]},{"id":"zol-air14","title":"双十一大学生入门笔记本推荐 联想小新 Air14 柔光版","publisher":"中关村在线","date":"2026-11","url":"https://pad.zol.com.cn/1268/12683642.html","usedFor":["小新 Air14 柔光版 16G+512G 原价 6799 → 补贴后约 5100","16G+1TB 原价 7999 → 约 6800"]},{"id":"zol-xiaoxin16","title":"联想小新 16 轻薄本促销到手低至 5192 元","publisher":"中关村在线","date":"2026-11","url":"https://nb.zol.com.cn/1267/12672808.html","usedFor":["小新 16 R7 H255 16G+512G 页面 6689 → 到手 5192.5"]},{"id":"zol-canglong","title":"机械革命苍龙 18 Pro 游戏本叠享多重优惠","publisher":"中关村在线","date":"2026-11","url":"https://nb.zol.com.cn/1267/12673953.html","usedFor":["苍龙18Pro R9-9955HX 16G 1T RTX5070 页面 13999 → 到手 12124.03"]},{"id":"smzdm-jiguangx","title":"机械革命极光 X 游戏本（U7-251HX、16GB、1TB、RTX5060）9286.78 元","publisher":"什么值得买","date":"2026-11","url":"https://www.smzdm.com/p/185220709","usedFor":["极光X 页面 12489 → 到手 9286.78","含国补 1500 与 PLUS 立减"]},{"id":"zol-yaoshi","title":"机械革命耀世系列电竞游戏本享多重超值优惠","publisher":"中关村在线","date":"2026-11","url":"https://nb.zol.com.cn/1267/12673003.html","usedFor":["耀世18Pro 天猫 12999 → 到手 10299"]},{"id":"cheche-asus","title":"双 11 轻薄本选购指南：价格惊喜，总有一款适合你","publisher":"汽车大本营","date":"2026-11","url":"http://www.cheche520.cn/aust/488994.html","usedFor":["无畏 16SE 2026 叠加后到手 4079.2 元起","无畏 16SE 标配 16GB LPDDR5 + 1TB PCIe4.0"]},{"id":"sina-rounds","title":"手机一年涨价三轮：9 月 27 款机型调价，11 月底或再来一轮","publisher":"新浪财经","date":"2026-11","url":"https://www.sina.cn/gc/article/nivfwqv8246393.html","usedFor":["9 月 1 日 27 款机型上调、最高 +20.01%","10 月 9 日小米 17 Ultra 全系涨 1000","11 月底预计再涨 300 元起"]},{"id":"toutiao-account","title":"手机涨价 1000，国补只补 500：存储涨价怎么传到手机上","publisher":"今日头条","date":"2026-11","url":"https://www.toutiao.com/a7695917208840438282","usedFor":["存储占手机成本 10%~15% → 30%~40%，旗舰 30%~60%","首次超过处理器成为最贵零件","余承东称单台成本增加 200 美元以上"]},{"id":"smzdm-window","title":"手机集体涨价、越等越贵？这两个购机窗口还开着","publisher":"什么值得买","date":"2026-11","url":"https://post.smzdm.com/p/ae6qz3z3","usedFor":["双11 各机型国补后到手价","iQOO Z11 Turbo 2399 / 一加 Turbo6 2299 / 真我 Neo8 2599","荣耀 Power2 2699 / OPPO Reno16 国补后 2999 / 红米 K90 国补后 2799"]},{"id":"qq-store","title":"内存越大涨价越狠：手机同型号不同存储版本差价被拉大","publisher":"腾讯新闻","date":"2026-10-26","url":"https://news.qq.com/rain/a/20261026A06LT800","usedFor":["12GB+256GB 组合 500 → 2200 元","同型号大存储版溢价被拉大","手机均价同比 +15%"]},{"id":"subsidy-rule","title":"2026 年以旧换新补贴标准：家电 6 类封顶 1500，数码 4 类封顶 500","publisher":"北川羌族自治县人民政府","date":"2026-10","url":"https://www.beichuan.gov.cn/beichuan/c125502/202610/516d0d95e76a46dd97a8c47409159afa.shtml","usedFor":["电脑归家电类：15%、封顶 1500、无价格门槛","手机归数码类：15%、≤6000 元、封顶 500","政策执行至 2026-12-31"]},{"id":"toutiao-subsidy","title":"国补凑单怎么凑最划算：家电封顶 1500、手机超 6000 不补","publisher":"今日头条 · 寿光日报","date":"2026-10-09","url":"https://www.toutiao.com/article/7694496993283965459","usedFor":["电脑实付 10000 元刚好吃满 1500","手机实付 3333 元吃满 500","国补按折后实付价计算，不是标价"]},{"id":"smzdm-thinkbook14p","title":"8887 赞评测说「没有缺点」，1219 赞吐槽帖说「开俩 Word 卡死」：ThinkBook 14+ 2026 口碑分裂","publisher":"什么值得买社区","date":"2026-11","url":"https://post.smzdm.com/p/az8om4po","usedFor":["开俩 Word 卡死、0x10E 黑屏的早期驱动问题","不支持低于 65W 的 PD 充电器","LPCAMM2 升级需先更新 BIOS"]},{"id":"smzdm-thinkbook-ryzen","title":"99.9Wh 电池 + TGX + 85W 释放：新款 ThinkBook 14+/16+ 值得买？","publisher":"什么值得买社区","date":"2026-11","url":"https://post.m.smzdm.com/p/a6z43qgn","usedFor":["85W 释放下噪音 55dB、静音室 49dB","ThinkBook 14+ 锐龙 H253 16G+1TB 国补后 7224","锐龙 H255 32G+1TB 国补 8499","M.2 2280 双硬盘位"]},{"id":"baixiu-tianxuan","title":"天选 CPU 虚焊通病：冷热交替黑屏","publisher":"百修网","date":"2026-10","url":"https://www.baixiu.org/repair/28484587.html","usedFor":["天选系列 CPU 核心 BGA 焊球热疲劳虚焊","冷机正常、升温后黑屏死机、冷却后恢复","软件与散热优化无法修复，需 BGA 重植"]},{"id":"tousu-lowtin","title":"联想小新 Pro13 ARE 低温锡虚焊通病导致雪花屏 / 自动关机","publisher":"黑猫投诉","date":"2026-10-09","url":"https://sd.tousu.sina.com.cn/complaint/view/17402141246","usedFor":["小新 Pro13 ARE 低温锡膏焊接 CPU 致虚焊","症状：花屏、雪花屏、死机、自动关机","过保后维修费用争议"]},{"id":"zhinanshi-t9","title":"神舟战神 T9 的品控问题有哪些","publisher":"指南师","date":"2026-10","url":"https://www.zhinanshi.com/hasee-zhanshen-t9/5415355","usedFor":["显卡供电芯片损坏、显卡核心虚焊","公模方案外壳刚性不足、单手开合屏晃","售后网点集中省会城市"]},{"id":"stage1-thinkbook","title":"ThinkBook 16+ 长期使用反馈：噪音、色准、掉盘","publisher":"Stage1 论坛","date":"2026-10","url":"https://stage1st.com/2b/forum.php?mod=viewthread&tid=2290348","usedFor":["风道设计导致噪音偏大","独显模式续航一般","未校色时色准差、外接硬盘盒掉盘"]},{"id":"jd-zhan66","title":"惠普战 66 14 英寸 2026 商品规格与价格","publisher":"京东 · 惠普电脑整机旗舰店","date":"2026-11","url":"https://union-click.jd.com/jdc?e=&p=JF8BASwJK1olWAQGUVxbCUwXBV8IGlgXWQMBUl9YCE4UB19MRANLAjZbERscSkAJHTdNTwcKBlMdBgABFksWAG0MHlgTXAMCUV1ZFxJSXzI4Ex4PXHx_BDw-CTlsXTduGBJlK2V_NFJROE8RAGkMGloUXjYCVV9cCUIfCmcKK18TMwdsVFdYZksWVGtYE14cCVIKXQtYXEwnA244WjUWXQAHVVlaCHsWM28OE1kRVQcGVlpdD0snA2cMK4y889CO8orkopylgV84K1glbTYCZF1tViUXBG8NGAkdCGheExYcUQ8TRAEKHV0WXgUAV25fCUoVAV84KyNUPQFwUxYuVk5CeGhXRBJMWFBfL1kECANEd2gAezUXFk9JCTsJVEsefylMUix9FA4yVG5aDkonAl8","usedFor":["战 66 14 英寸：2 个内存插槽、最大 32GB","屏幕 1920×1200 60Hz、62.5% sRGB","1.48kg、锐龙5 220 版本"]},{"id":"beebom-gb6","publisher":"Beebom Gadgets","date":"2026","title":"Geekbench 6 vs 7：13 款手机芯片单核/多核实测对照","url":"https://gadgets.beebom.com/stories/i-ran-geekbench-7-and-6-on-13-phones-mid-range-chips-took-biggest-hit"},{"id":"cpumonkey-8g5","publisher":"CPU-Monkey","date":"2026","title":"Snapdragon 8 Gen 5 vs Dimensity 8500：Geekbench 6 对照","url":"https://cpu-monkey.com/en/compare_cpu-qualcomm_snapdragon_8_gen_5-vs-mediatek_dimensity_8500"},{"id":"geekwan-9030","publisher":"极客湾（公众号转载）","date":"2026-07","title":"麒麟 9030 实测：一颗「落后」芯片，打出了逆天战绩","url":"http://mp.weixin.qq.com/s?__biz=MzYzNjk3MzQwMg==&mid=2247483682&idx=1&sn=53cf78909f3683ea811550da7ed240c9"},{"id":"zol-spec","publisher":"中关村在线","date":"2026","title":"机型参数库：CPU 型号、电池容量与存储规格","url":"https://wap.zol.com.cn/"},{"id":"csdn-tier","publisher":"CSDN","date":"2025-11","title":"手机处理器性能排行榜：Geekbench 6 单核/多核与 GPU 天梯图（典型区间）","url":"https://blog.csdn.net/weixin_32349093/article/details/166446831"}],"categories":[{"key":"thin","name":"轻薄本 · 办公学习","short":"轻薄本","keywords":["轻薄","办公","学生","便携","商务","上网","写论文","课件","打字","小新","thinkpad","13寸","14寸","13 寸","14 寸","上课","图书馆"],"changeLow":17,"changeHigh":58,"changeLabel":"整机均价 +17%，同款最高 +58%","tone":"mixed","headline":"轻薄本已不是主力涨价战场，但要小心「内存焊死」","reasons":["同款实证：联想小新 Pro14 锐龙版 4138 元 → 6557 元，涨 58%；ThinkBook 14+ 首发 8299 元 → 现在 11489 元。","厂商在悄悄减配：512GB 固态改 256GB、16GB 内存改 8GB，用「同价更低配」代替直接涨价。","最值得警惕的一条：超轻薄本大量改用焊死内存（LPDDR5X），买到 16G 就是 16G 用到底 —— 在内存涨 5 倍的年份，这个选择的代价比差价大得多。"],"action":"先看规格表里写的是 LPDDR5X 还是 DDR5 SO-DIMM，再谈价格。预算够就优先选留插槽的（如惠普战 66），或干脆一次买够 32G 的（如 REDMI Book Pro 14）。","sources":["sina-impact","smzdm-panther","toutiao-6x","toutiao-soldered"]},{"key":"gaming","name":"游戏本 · 高性能","short":"游戏本","keywords":["游戏","电竞","打游戏","高性能","显卡","吃鸡","原神","3a","渲染","剪辑","建模","设计本"],"changeLow":50,"changeHigh":56,"changeLabel":"整体约 +50%，同款 +56%","tone":"stop","headline":"涨幅最猛的品类，而且同样一张 5060，笔记本比台式贵一千五","reasons":["同款实证：联想拯救者 Y9000P 同配置 9000 元 → 14000 元以上，涨 56%。","关键对比：最便宜的 RTX5060 游戏本 8237 元，而 i5-14600KF + RTX5060 + 32G 的台式整机只要 6720 元 —— 便宜 1500，内存还翻倍。","而且桌面版 5060 的 CUDA 核心比移动版多约 15%，同样的名字不是同样的性能。"],"action":"先问自己：这台机器真的需要每天背走吗？不需要就买台式，同样的钱算力实得多。必须便携再买游戏本，且优先挑留内存插槽的机型（多数游戏本仍保留 SO-DIMM，这一点比轻薄本宽容）。","sources":["sina-impact","smzdm-5060","smzdm-dell","vgover"]},{"key":"desktop","name":"台式整机 · DIY 装机","short":"台式整机","keywords":["台式","整机","主机","装机","diy","组装","台机","拼机","自装"],"changeLow":25,"changeHigh":25,"changeLabel":"中端配置 +25%","tone":"think","headline":"别买整机 —— 拆开买：CPU 和主板在跌，只有内存固态在涨","reasons":["整机确实贵了：中端 DIY 套装从 6 月的不到 8000 元涨到约 1 万元。","但 CPU 在跌：10 月酷睿 i 系跌价约 10%，锐龙 7500F 跌到 600 元附近，接近历史最低。","于是出现很反常的一幕：DDR5 新平台的板 U 套装（3699 元）比两根 32GB 内存（3300~3900 元）还便宜。"],"action":"老机器还能开机 → 今年只换板 U，内存固态按实际缺口补，别整机换新。整机的内存容量写死在配置单里，涨价期反而不好加。","sources":["sina-howmuch","vgover","netease-monthly","smzdm-config"]},{"key":"upgrade","name":"升级内存 / 硬盘","short":"内存固态","keywords":["内存","固态","硬盘","升级","加内存","换硬盘","扩容","ssd","内存条","加装"],"changeLow":130,"changeHigh":500,"changeLabel":"内存 +500%，固态 +130%","tone":"now","headline":"刚需现在买，非刚需别囤 —— 这一轮等不来降价","reasons":["16GB DDR5 从去年 400 多元涨到现在约 1800 元；32GB 套条 3300~3900 元。","1TB 固态从 410 元涨到 950 元。","上游产能被 AI 抢走：SK 海力士称 DRAM 和 HBM 到 2029 年产能已售罄，新增产能最快 2027 年后才形成有效供给。"],"action":"按够用买，别囤 —— 内存是典型周期品，涨得猛跌得也快。低于市价一半的条子大概率是拆机件或白片黑片颗粒。动手前先确认你的机器有没有插槽：写 LPDDR5X 的加不了。","sources":["smzdm-thinkpad","vgover","sohu-3x","smzdm-double11"]},{"key":"phone","kind":"phone","name":"手机","short":"手机","keywords":["手机","换机","换手机","打电话","拍照","续航","iphone","华为","小米","红米","荣耀","oppo","vivo","一加","真我","iqoo","红魔","魅族","努比亚","mate","nova","苹果","华为手机","小米手机"],"changeLow":15,"changeHigh":340,"changeLabel":"均价 +15%，大存储版更狠","tone":"mixed","headline":"手机涨得比电脑还凶，而且国补只认 6000 这一条线","reasons":["存储占手机成本从 10%~15% 飙到 30%~40%，旗舰机甚至到 30%~60% —— 史上第一次超过处理器，成了手机里最贵的零件。","12GB+256GB 的存储组合采购价从约 500 元涨到 2200 元，涨了三倍多；余承东说单台手机因此多出 200 美元以上成本。","一年内已经涨了三轮：9 月 1 日（27 款机型，最高涨 20%）、10 月 9 日（小米 17 Ultra 涨 1000）、11 月底预计再来一轮。"],"action":"第一件事不是看配置，是看价格有没有卡进 6000 这条线 —— 手机归「数码类」，国补只补 6000 以下的，超了是一分不补。第二件事是别买大存储版：今年 512GB 比 256GB 贵的钱，比往年多得多，256GB + 云盘比 512GB 划算。刚需趁双11+国补这个窗口上车，别等：你等的不是降价。","budgetBands":[{"max":1800,"text":"这个预算今年很难：1500~2000 元档性能机已经基本结束，只能买到入门配置。"},{"max":3000,"text":"主力战场：2000~3000 元档机型最密集，性能、影像、续航三选一，没有全能。"},{"max":4500,"text":"旗舰下放区：能买到上代旗舰或新中端顶配，是性价比最高的区间。"},{"max":6000,"text":"国补线内：这个预算能拿满 500 元补贴（实付 3333 元以上即可吃满），是高端的最后一块福利区。"},{"max":999999,"text":"超过 6000 就出局了：手机国补一分不补。要么退回国补线内，要么接受这个代价。"}],"sources":["sina-rounds","toutiao-account","smzdm-window","qq-store","subsidy-rule"]}],"subsidyRules":{"pc":{"bucket":"家电类","rate":15,"cap":1500,"threshold":null,"saturate":10000,"note":"电脑归「家电类」：实付 15% 立减，单台最高 1500 元，没有价格门槛。实付 10000 元刚好把 1500 拿满，再贵也不会更多。"},"phone":{"bucket":"数码类","rate":15,"cap":500,"threshold":6000,"saturate":3333,"note":"手机归「数码类」：实付 15%，但只有售价 ≤6000 元的机型才补，封顶 500 元。实付 3333 元就吃满了，再往上加钱不增加补贴。"}},"subsidyFacts":["全国全年 2500 亿，分四批发放，第四批 625 亿已下达，覆盖 29 个省市。政策执行到 2026-12-31，额度先到先得。","电脑是这次的「漏网之鱼」：它归在家电类目里，不是数码类，所以不受手机那条 6000 元红线限制 —— 一万五的笔记本照样能拿满 1500。用手机的规则套电脑，是最常见的一处白亏。","国补按「折后实付价」算，不是标价。平台满减、店铺券、PLUS 折扣全扣完之后，再乘 15%。","同一身份证每类产品全年限 1 件；家电和数码名额互不冲突，所以「今年换手机 + 换电脑」两笔都能拿。","退单、取消订单、修改收货信息会作废本年度该品类的补贴资格。下单前把型号和地址核清楚。"],"brands":[{"name":"惠普","hike":"内存已占整机成本约 35%（上季度 15%~18%）","upgrade":"good","upgradeNote":"战 66 八代：双内存槽 + 双 SSD 位","service":5,"resale":4,"verdict":"今年升级性最好的主流选择","note":"涨价压力最大（内存成本占比自己披露得最狠），但战 66 这类机器留了双槽，是这个年份最实用的差异点。","scope":"pc"},{"name":"联想","hike":"中高端机型普涨 500~1500 元，部分机型直接涨 1000 元","upgrade":"mixed","upgradeNote":"小新 Air14 板载；ThinkPad E14/E16 双插槽；X1C/X13 板载","service":5,"resale":5,"verdict":"售后和保值最稳，但必须逐型号看内存形态","note":"同一个品牌里，E14 能加内存、X1C 不能 —— 别按品牌判断，按型号判断。小新 16SE 的双 M.2 硬盘位是今年的卖点。","scope":"pc"},{"name":"戴尔","hike":"涨 20%~25%，商用线 10%~30%","upgrade":"bad","upgradeNote":"XPS 全系板载 LPDDR5X","service":4,"resale":4,"verdict":"涨价幅度靠前，高端线几乎全是焊死","note":"XPS 13 国补后六千多，价格回到了十年前的档位带 —— 但那是 16G 板载换来的。","scope":"pc"},{"name":"华硕","hike":"全系涨 15%~25%；商用上半年约 +30%，下半年再 +10%","upgrade":"mixed","upgradeNote":"无畏 16SE 为 LPDDR5；Vivobook 部分 DDR5 插槽","service":4,"resale":4,"verdict":"涨幅居中，官方明说明年上半年还要再涨 5%","note":"官方给的是「涨幅能压到约 5%」，不是「不涨」。天选/无畏/ROG 的定价没给任何承诺。","scope":"pc"},{"name":"宏碁","hike":"涨 10%~20%","upgrade":"mixed","upgradeNote":"Aspire 主流机型多留插槽","service":3,"resale":3,"noOffer":true,"verdict":"涨幅相对靠后，适合当价格锚点","note":"涨幅是几家里报得最低的，但售后网点密度不如前三家。这次没找到能核实的在售到手价，所以不参与排序 —— 空着比编一个强。","scope":"pc"},{"name":"机械革命","hike":"涨幅数据有限，主要靠低价换量","upgrade":"mixed","upgradeNote":"无界 14 系列用封装内存；游戏本多留 SO-DIMM","service":2,"resale":2,"verdict":"同配置最便宜，代价是售后与保值","note":"无界 14X 约 3000、极光X（RTX5060）9286 —— 价格屠夫属性还在。但网点少、二手折价快。","scope":"pc"},{"name":"荣耀","hike":"X14 Plus 2025 款 3199 → 2026 款 5099（+59%）","upgrade":"bad","upgradeNote":"轻薄线多为板载","service":3,"resale":2,"verdict":"同价位涨幅最猛的一家之一","note":"一年贵 1900 元。同系列换代涨价近六成，这个幅度比行业均值高得多。","scope":"pc"},{"name":"华为","hike":"未披露具体幅度","upgrade":"bad","upgradeNote":"MateBook 多为板载","service":4,"resale":3,"verdict":"同价位常见 1TB 固态，存储规格更舍得给","note":"MateBook D16 在 4589 元给到 1TB，是这一档里存储最宽的选择。","scope":"pc"},{"name":"红米","hike":"未披露具体幅度","upgrade":"mixed","upgradeNote":"Book Pro 14 部分配置留插槽","service":3,"resale":3,"verdict":"少见的 32G+1TB 在 7000 元以内的选择","note":"Book Pro 14（U5-338H/32G+1TB）首销 7999、国补后 6799.15 —— 在这个内存价位上很罕见。","scope":"pc"},{"name":"苹果","hike":"MacBook Air M5 定价未变（9499 元起）","upgrade":"bad","upgradeNote":"全系统一内存，焊死","service":4,"resale":5,"noOffer":true,"verdict":"被动变划算，但本工具不覆盖其行情","note":"Windows 本集体涨价后，它反而显得不贵了。不过 Mac 的调价逻辑不同，这里不给它的价格结论，也不放进榜单。","scope":"pc"},{"name":"华为","scope":"phone","hike":"Mate80 12+256GB 4699→5499（+800），Mate 80 Pro 512GB 首发 6999→7999","upgrade":"bad","upgradeNote":"全系不可换内存与存储，只支持 NM 卡扩展","service":5,"resale":4,"verdict":"信号与影像最稳，但溢价也最硬","note":"Mate 90 Pro 同配置比上代高 1500。鸿蒙生态是加分项，代价是部分安卓应用要绕路。（品牌分：售后 5 / 保值 4 —— 网点确实最密，但二手折价比苹果慢不了多少，不给并列第一。）"},{"name":"小米","scope":"phone","hike":"10 月 9 日小米 17 Ultra 全系涨 1000（6999→7999）","upgrade":"bad","upgradeNote":"不可扩展，按容量买定","service":4,"resale":4,"verdict":"配置给得最满，价格也涨得最实","note":"17 Ultra 这一代把存储成本直接转到了价签上。小米之家网点密度在小城里比线上品牌强。"},{"name":"红米","scope":"phone","hike":"K90 国补后 2799；K100 Pro Max 国补后 4249","upgrade":"bad","upgradeNote":"不可扩展","service":4,"resale":3,"verdict":"国补线内最值得看的一档","note":"K90 在 3000 以内把屏幕和性能都堆上了，是这一轮涨价里少数还讲性价比的机型。"},{"name":"荣耀","scope":"phone","hike":"Power2 12+256GB 2699；Magic8 Pro Air 12+256GB 4999","upgrade":"bad","upgradeNote":"不可扩展","service":4,"resale":3,"verdict":"续航做得最狠的一家","note":"Power 系列的电池容量在这一档几乎没有对手，代价是机身厚、影像凑数。"},{"name":"OPPO","scope":"phone","hike":"Reno16 国补后约 2999","upgrade":"bad","upgradeNote":"不可扩展","service":5,"resale":3,"verdict":"线下网点最多，人像调校讨喜","note":"Reno 系列的性能一直不是强项，但拿在手上的质感和自拍是同价位里比较靠前的。"},{"name":"vivo","scope":"phone","hike":"X300 约 4999；X500 Pro 全系降超 1300","upgrade":"bad","upgradeNote":"不可扩展","service":5,"resale":3,"verdict":"影像下放最舍得的一家","note":"X 系列把旗舰影像往下放得很快。X500 Pro 这轮降价幅度反常，是双11 的短期窗口，不是趋势。"},{"name":"一加","scope":"phone","hike":"Turbo6 12+256GB 2299","upgrade":"bad","upgradeNote":"不可扩展","service":3,"resale":3,"verdict":"同价位性能最激进","note":"Turbo 系列基本只做性能和快充，影像和质感都让位。售后要寄修，网点不如前几家。"},{"name":"iQOO","scope":"phone","hike":"Z11 Turbo 12+256GB 2399；Neo11 约 2599","upgrade":"bad","upgradeNote":"不可扩展","service":3,"resale":3,"verdict":"游戏调度最积极，影像凑数","note":"Z 系列是把电池和散热堆到极限的做法，长时间打游戏稳，拍照别指望。"},{"name":"真我","scope":"phone","hike":"Neo8 12+256GB 2599","upgrade":"bad","upgradeNote":"不可扩展","service":2,"resale":2,"verdict":"参数最漂亮，售后最薄","note":"价格屠夫属性还在，但线下网点少，出问题基本只能寄修。买之前先确认你所在城市有没有服务点。"},{"name":"摩托罗拉","scope":"phone","hike":"X70 Air Pro 12+256GB 4499","upgrade":"bad","upgradeNote":"不可扩展","service":2,"resale":2,"verdict":"轻薄做得最好，系统最干净","note":"接近原生安卓，没有预装全家桶。代价是系统更新周期短、售后网点稀少。"},{"name":"苹果","scope":"phone","hike":"iPhone18 Pro 9999（较上代 +1000）；Pro Max 2TB 比上代同规格高 5000","upgrade":"bad","upgradeNote":"不可扩展，容量差价极大","service":4,"resale":5,"verdict":"相对变划算，但容量溢价最狠","note":"安卓集体涨价后，iPhone 的相对价格反而没那么难看。但 Pro Max 2TB 比上代同规格高 5000，说明存储涨价它也一样扛不住。128G 起步这一档要格外小心。"}],"offers":[{"id":"thin-wujie14x","name":"机械革命 无界 14X","cat":"thin","spec":"R7 H255 · 16G + 512G","price":3000,"perf":62,"upgrade":0,"portable":3,"brand":"机械革命","tag":"最便宜的能开机方案","caution":"无界系列用封装内存，16G 就是 16G","sources":["wangbei-guide","toutiao-6x"],"pros":["这个价位唯一还能开机的正经机器","1.4kg 出头，背着不累","16G 应付文档和网页够用"],"cons":["封装内存，16G 就是 16G，涨内存的年代没有后路","公模方案，外壳刚性和屏轴精度一般","网点少，坏了基本靠寄修"],"chip":"R7 H255","cb23":[2055,15475]},{"id":"thin-air15","name":"联想小新 Air15 2026","cat":"thin","spec":"酷睿5 320 · 16G + 512G","price":3786,"perf":50,"upgrade":1,"portable":2,"brand":"联想","tag":"四千以内最稳的一台","caution":"内存形态按具体 SKU 而异，下单前看规格页","sources":["wangbei-guide"],"pros":["15.6 寸大屏 + 完整小键盘，写论文舒服","联想网点密度在这几家最高","不到 3800 拿到新平台"],"cons":["低色域屏，修图看片颜色发灰","内存形态按 SKU 而异，同一型号不同配置不一样","机身塑料感明显"],"chip":"酷睿5 320","cb23":[1939,7540]},{"id":"thin-inspiron15","name":"戴尔灵越 15 2026","cat":"thin","spec":"Ultra 5-225H · 16G","price":4164,"perf":62,"upgrade":1,"portable":2,"brand":"戴尔","tag":"新平台核显，性能比上一档高一截","caution":"灵越线部分配置可扩，但戴尔 XPS 全系板载 —— 别把品牌当结论","sources":["wangbei-guide","smzdm-dell"],"pros":["Ultra 5 核显比上一档强一截","戴尔商用售后响应稳定","接口给得比较全"],"cons":["模具是老模具换芯，屏占比低","屏幕素质同价位偏下","整机偏重，通勤不算轻"],"chip":"Ultra 5 225H","cb23":[1985,16436]},{"id":"thin-vivobook16se","name":"华硕无畏 16SE 2026","cat":"thin","spec":"酷睿5 320 · 16G + 512G","price":4249,"perf":50,"upgrade":0,"portable":2,"brand":"华硕","tag":"2.5K 144Hz 屏，同价位屏幕最好","caution":"用的是 LPDDR5 板载内存，买定没有回头路","sources":["wangbei-guide","cheche-asus"],"pros":["2.5K 144Hz 屏，这个价位屏幕最好的一台","标配就给 1TB 固态","接口齐全，有 RJ45"],"cons":["LPDDR5 板载，买定没有回头路","满载风扇噪音偏大","外壳按压有轻微形变"],"chip":"酷睿5 320","cb23":[1928,7880]},{"id":"thin-matebookd16","name":"华为 MateBook D16","cat":"thin","spec":"i5-13420H · 16G + 1TB","price":4589,"perf":45,"upgrade":0,"portable":2,"brand":"华为","tag":"这一档唯一给到 1TB 固态","caution":"处理器是 13 代老平台，性能不占优","sources":["wangbei-guide"],"pros":["这一档唯一给到 1TB 固态","多屏协同对华为手机用户很实用","键盘手感在同价位靠前"],"cons":["i5-13420H 是 13 代老平台，性能不占优","内存板载不可扩","屏幕刷新率只有 60Hz"],"chip":"i5-13420H","cb23":[1690,7839]},{"id":"thin-honorx14","name":"荣耀 X14 战斗版 2026","cat":"thin","spec":"酷睿5 320 · 16G + 512G","price":4607,"perf":50,"upgrade":0,"portable":3,"brand":"荣耀","tag":"轻，但同系列一年涨了六成","caution":"对比 2025 款 3199 元，这一代贵了 1400 元以上","sources":["wangbei-guide","smzdm-5060"],"pros":["1.4kg，便携做得不错","同价位屏幕亮度较高","价格比联想同配低一截"],"cons":["同系列一年涨了 1900 元，涨幅远高于行业均值","内存板载","售后网点密度一般"],"chip":"酷睿5 320","cb23":[1939,7540]},{"id":"thin-zhan66","name":"惠普战 66 八代锐龙版","cat":"thin","spec":"R7 H255 · 16G + 512G","price":5009,"perf":62,"upgrade":2,"portable":2,"brand":"惠普","tag":"双内存槽 + 双 SSD 位，今年最值钱的差异点","caution":"屏幕和重量都不算出彩，买它买的是可扩展","sources":["wangbei-guide","smzdm-thinkpad"],"pros":["双内存插槽 + 双 SSD 位，今年最值钱的差异点","军标认证，键盘防泼溅","一年上门保修，不用自己跑网点"],"cons":["屏幕只有 62.5% sRGB，色域是明显短板","1.48kg 在 14 寸里偏重","设计感一般，纯工具属性"],"chip":"R7 H255","cb23":[2055,15475],"efficiency":1,"efficiencyEvidence":{"from":"spec-hp-66g8-amd","energyModel":null,"filings":[],"source":"中国能效标识网 产品备案查询","syncedAt":"2026-11-09"},"efficiencyText":"一级","efficiencyStatus":"verified"},{"id":"thin-air14","name":"联想小新 Air14 柔光版","cat":"thin","spec":"Ultra 5 226V · 16G + 512G（原价 6799）","price":5100,"perf":48,"upgrade":0,"portable":3,"brand":"联想","tag":"1.14kg、2.5K 120Hz，轻薄做得最好","caution":"已确认用封装内存，1TB 版要 6800","sources":["zol-air14","toutiao-6x"],"pros":["1.14kg，这一档最轻的之一","2.5K 120Hz 高刷屏","柔光版抗反光，户外看着舒服"],"cons":["已确认封装内存，16G 用到报废","1TB 版本要 6800，容量溢价很陡","接口少，要带扩展坞"],"chip":"Ultra 5 226V","cb23":[1746,9041]},{"id":"thin-xiaoxin16","name":"联想小新 16","cat":"thin","spec":"R7 H255 · 16G + 512G（页面 6689）","price":5192,"perf":62,"upgrade":1,"portable":2,"brand":"联想","tag":"16 寸大屏，优惠叠得最狠（省 1497）","caution":"小新 16SE 有双 M.2 硬盘位，同价位更值得看","sources":["zol-xiaoxin16","toutiao-6x"],"pros":["16 寸大屏，多窗口效率高","优惠叠得最狠，页面 6689 砍到 5192","小新系列的键盘口碑一直不错"],"cons":["内存形态要按 SKU 确认","屏幕素质在同价位不算突出","机身偏大，14 寸包放不下"],"chip":"R7 H255","cb23":[2055,15475]},{"id":"thin-redmibookpro14","name":"Redmi Book Pro 14","cat":"thin","spec":"U5-338H · 32G + 1TB（首销 7999）","price":6799,"perf":62,"upgrade":1,"portable":2,"brand":"红米","tag":"七千以内罕见的 32G + 1TB","caution":"只在这个首销价位成立，其他 SKU 不能照抄","sources":["wangbei-guide"],"pros":["七千以内罕见的 32G + 1TB","3.2K 屏，色准和亮度都在线","一体成型机身，质感超出价位"],"cons":["这个价只在首销成立，其他 SKU 不能照抄","内存板载，32G 是上限","小米笔记本的售后体系不如手机"],"chip":"Ultra 5 338H","cb23":[2002,15988]},{"id":"gaming-tianxuan7","name":"华硕天选 7","cat":"gaming","spec":"R7 H260 · 16G + 512G · RTX 5050 · 2.5K 165Hz OLED","price":6799,"perf":56,"upgrade":2,"portable":1,"brand":"华硕","tag":"能买到的正经游戏本地板价","caution":"5050 比 5060 差一档，别为省这一千买错","sources":["smzdm-5060","smzdm-dell"],"pros":["能买到的正经游戏本地板价","留给内存插槽，以后能加","华硕的散热模具在这一档算成熟"],"cons":["天选系列有 CPU 虚焊通病：冷机正常、升温后黑屏、冷却又恢复，软件和散热都救不了","RTX 5050 比 5060 差一档，别为省这一千买错","满载噪音明显"],"chip":"R7 H260","cb23":[1760,15321],"efficiency":1,"efficiencyEvidence":{"from":"spec-tuf-a16-2026","energyModel":"FA608","filings":[{"model":"FA608","level":1,"regNo":"20260109-CEL0272025-135197","date":"2026-01-09","scheme":2025}],"source":"中国能效标识网 产品备案查询","syncedAt":"2026-11-09"},"efficiencyText":"一级","efficiencyStatus":"verified"},{"id":"gaming-yinxing","name":"隐星 P16 Pro","cat":"gaming","spec":"Ultra 7 251HX · 16G + 1TB · RTX 5060 · 2.5K 180Hz","price":8237,"perf":77,"upgrade":2,"portable":1,"brand":"机械革命","tag":"最便宜的 5060 游戏本","caution":"同价位台式能给 32G 内存 + 桌面版 5060","sources":["smzdm-5060"],"pros":["最便宜的 RTX 5060 游戏本","保留 SO-DIMM 插槽，内存能加","同价位性能给得最足"],"cons":["售后网点少，出问题寄修周期长","公模做工，外壳和屏轴精度一般","16G 内存必须自己加，加完总价就和一线品牌接近了"],"chip":"Ultra 7 251HX","cb23":[2096,26476]},{"id":"gaming-omen15","name":"暗影精灵 Pro 15","cat":"gaming","spec":"Ultra 7 255HX · 16G + 512G · RTX 5060 · 15.3 寸 180Hz","price":8698,"perf":78,"upgrade":2,"portable":1,"brand":"惠普","tag":"售后网点最密的一台 5060","caution":"比隐星贵 460，买的是品牌而不是性能","sources":["smzdm-5060"],"pros":["售后网点最密的 5060 机型","惠普的模具和散热调校比较稳","键盘和接口布局合理"],"cons":["比隐星贵 460，买的是品牌不是性能","满载风扇噪音偏大","同配置下性价比不占优"],"chip":"Ultra 7 255HX","cb23":[2027,29012]},{"id":"gaming-jiguangx","name":"机械革命 极光 X","cat":"gaming","spec":"U7-251HX · 16G + 1TB · RTX 5060 · 300Hz","price":9287,"perf":77,"upgrade":2,"portable":1,"brand":"机械革命","tag":"页面 12489 砍到 9287，省 3202","caution":"1TB 固态比同档多，但品牌售后弱","sources":["smzdm-jiguangx"],"pros":["1TB 固态 + 300Hz 屏，同档少见","页面 12489 砍到 9287，优惠力度最大","保留内存插槽"],"cons":["品牌售后弱，二手折价快","原价虚高，优惠后才回到合理区间","机身重量接近 2.5kg"],"chip":"Ultra 7 251HX","cb23":[2096,26476]},{"id":"gaming-yaoshi18","name":"机械革命 耀世 18 Pro","cat":"gaming","spec":"Ultra 7 251HX · 16G + 1TB · RTX 5060 · 18 寸 180Hz","price":10299,"perf":77,"upgrade":2,"portable":1,"brand":"机械革命","tag":"18 寸大屏，省 2700","caution":"2.8kg 级别，基本告别通勤","sources":["zol-yaoshi"],"pros":["18 寸大屏，看片和游戏沉浸感强","省 2700，绝对金额降得最多","散热空间大，长时间负载稳"],"cons":["2.8kg 级别，基本告别通勤","16 寸的包放不下","桌面占位大，宿舍小桌板吃紧"],"chip":"Ultra 7 251HX","cb23":[2096,26476]},{"id":"gaming-canglong18","name":"机械革命 苍龙 18 Pro","cat":"gaming","spec":"R9-9955HX · 16G + 1TB · RTX 5070 12G · 2.5K 180Hz","price":12124,"perf":94,"upgrade":2,"portable":1,"brand":"机械革命","tag":"这一档性能最强，价格也算得过来","caution":"同样 16G 内存，仍然要自己加","sources":["zol-canglong"],"pros":["这一档性能最强，RTX 5070 12G","1TB 固态 + 2.5K 180Hz","18 寸模具散热余量足"],"cons":["同样只给 16G 内存，还得自己加","重量和体积都不适合搬动","品牌售后是短板"],"chip":"R9-9955HX","cb23":[2157,39019]},{"id":"desktop-diy14600","name":"DIY 整机 i5-14600KF + RTX5060 + 32G","cat":"desktop","spec":"i5-14600KF + 桌面版 RTX 5060 · 32G + 1TB","price":6720,"perf":75,"upgrade":2,"portable":0,"brand":"机械革命","tag":"同样的钱，内存翻倍、显卡还更强","caution":"占地方、不能带走；品牌分按整机商保守给","sources":["smzdm-5060"],"pros":["同样的钱，内存翻倍、显卡还更强","桌面版 5060 CUDA 核心比移动版多约 15%","以后升级任何部件都不受限"],"cons":["不能带走，宿舍和家里二选一","整机 BIOS 和电源往往是缩水件","占地方，还要配显示器和键鼠"],"chip":"i5-14600KF","cb23":[2097,24683]},{"id":"desktop-banu","name":"只换板 U：9800X3D + B850M","cat":"desktop","spec":"9800X3D + B850M · 沿用旧机箱、电源、显卡、内存","price":3699,"perf":73,"upgrade":2,"portable":0,"brand":"机械革命","tag":"老机器还能开机的话，这是今年最省的一条路","caution":"只含 CPU+主板；DDR4 老平台换不了这套","sources":["vgover"],"pros":["3699 就能换到新平台，今年最省的一条路","沿用旧显卡和内存，绕开最贵的两项","9800X3D 游戏性能依然在第一梯队"],"cons":["只含 CPU + 主板，其他都得自己有","DDR4 老平台换不了这套，要连内存一起买","需要自己动手装，不会装就别碰"],"chip":"R7 9800X3D","cb23":[2095,23163]},{"id":"upgrade-ddr5-16g","name":"DDR5 16G 单条（就近买）","cat":"upgrade","spec":"16GB SO-DIMM · 插槽机专用","price":1400,"perf":null,"upgrade":2,"portable":0,"brand":"机械革命","tag":"刚需就买，别等 —— 现在 1400，年初还是 200 多","caution":"低于 700 的条子基本是拆机件或白片黑片，别碰","sources":["smzdm-double11","smzdm-thinkpad","sohu-3x"],"pros":["立刻可用，解决眼下的容量焦虑","单条加装，不用动整机","价格已经比年初翻了几倍，但也到了成交密集区"],"cons":["价格仍在高位，明年可能回落","低于 700 的基本是拆机件或白片黑片","焊死内存的机器根本用不上"],"chip":"不涉及 CPU","cb23":null},{"id":"upgrade-ddr5-32g","name":"DDR5 32G 套条","cat":"upgrade","spec":"2×16GB 套条","price":3600,"perf":null,"upgrade":2,"portable":0,"brand":"机械革命","tag":"3000 出头能拿到现货，是这个价位最硬的资产","caution":"已经比一套旗舰板 U 还贵；不差这口就别上","sources":["vgover","smzdm-double11"],"pros":["一步到位，三五年不用再想这件事","套条兼容性比混插稳","容量是这个年份最硬的资产"],"cons":["价格已经超过一套旗舰板 U","非刚需现在买是接盘","笔记本要用 SO-DIMM，别买成台式条"],"chip":"不涉及 CPU","cb23":null},{"id":"upgrade-ssd-1t","name":"1TB PCIe4.0 固态","cat":"upgrade","spec":"1TB · M.2","price":950,"perf":null,"upgrade":2,"portable":0,"brand":"机械革命","tag":"涨幅比内存温和，该补就补","caution":"先删重复文件算清缺口，别一上来就按最大容量买","sources":["sohu-3x","smzdm-double11","netease-monthly"],"pros":["涨幅比内存温和得多，该补就补","1TB 在 950 左右，是这一轮里少见的理性价位","换下来的旧盘还能做移动硬盘"],"cons":["下单前必须确认机器有几个 M.2 位","部分轻薄本只有一个位，要换不能加","低价盘大概率是 QLC 或白片"],"chip":"不涉及 CPU","cb23":null},{"id":"upgrade-old-keep","name":"旧机加内存 / 换固态（不换整机）","cat":"upgrade","spec":"沿用旧机，只动存储","price":950,"perf":null,"upgrade":2,"portable":0,"brand":"机械革命","tag":"老机器还能开机的话，这是今年最划算的升级","caution":"先确认有插槽：规格页写 LPDDR5X 的加不了内存","sources":["sina-howmuch","smzdm-thinkpad"],"pros":["今年最划算的一条路，没有之一","老机器的显卡和屏幕都还能用，只补短板","950 元换来的体感提升比换整机明显"],"cons":["前提是机器有插槽，写 LPDDR5X 的加不了","老平台可能只支持 DDR4，条子要买对","拆机有风险，卡扣容易断"],"chip":"不涉及 CPU","cb23":null},{"id":"phone-yijia-turbo6","name":"一加 Turbo6","cat":"phone","spec":"12G + 256G","price":2299,"perf":53,"battery":9000,"camera":42,"brand":"一加","tag":"两千出头性能最激进的一台","caution":"影像和质感都让位给了性能，售后要寄修","pros":["同价位性能最强，长时间游戏不掉帧","100W 快充，半小时基本回满","直屏 + 高刷，游戏手感好"],"cons":["影像基本是凑数水平","塑料中框，质感一般","线下网点少，出问题只能寄修"],"sources":["smzdm-window","sina-rounds","beebom-gb6","zol-spec"],"chip":"骁龙 8s Gen4 风驰版","gb6":[2080,6581]},{"id":"phone-iqoo-z11turbo","name":"iQOO Z11 Turbo","cat":"phone","spec":"12G + 256G","price":2399,"perf":76,"battery":7600,"camera":40,"brand":"iQOO","tag":"电池最狠的一档，续航焦虑终结者","caution":"影像凑数，系统有广告","pros":["同价位电池容量最大，重度用一天没问题","游戏调度积极，散热堆得足","充电速度快"],"cons":["影像只能应付扫码和记录","系统预装和广告偏多","机身偏厚，手感沉"],"sources":["smzdm-window","cpumonkey-8g5","zol-spec"],"chip":"骁龙 8 Gen5","gb6":[2864,9568]},{"id":"phone-realme-neo8","name":"真我 Neo8","cat":"phone","spec":"12G + 256G","price":2599,"perf":76,"battery":8000,"camera":48,"brand":"真我","tag":"参数最漂亮，价格最敢压","caution":"售后网点少，是这台唯一但很实在的短板","pros":["同价位参数给得最满","快充规格高","屏幕素质超出价位"],"cons":["线下服务点稀少，基本只能寄修","二手保值率低","系统更新周期短"],"sources":["smzdm-window","cpumonkey-8g5","zol-spec"],"chip":"骁龙 8 Gen5","gb6":[2864,9568]},{"id":"phone-honor-power2","name":"荣耀 Power2","cat":"phone","spec":"12G + 256G","price":2699,"perf":48,"battery":10080,"camera":45,"brand":"荣耀","tag":"续航这一项没有对手","caution":"性能中端，别指望打大型游戏","pros":["电池容量这一档最大，两天一充","护眼屏，长时间看眼睛累得慢","信号和通话质量稳"],"cons":["处理器中端，重载游戏会掉帧","机身厚，装口袋鼓","影像中规中矩"],"sources":["smzdm-window","beebom-gb6","cpumonkey-8g5","zol-spec"],"chip":"天玑 8500 Elite","gb6":[1712,6489]},{"id":"phone-redmi-k90","name":"红米 K90","cat":"phone","spec":"12G + 256G（国补后）","price":2799,"perf":87,"battery":7100,"camera":52,"brand":"红米","tag":"3000 以内综合最均衡","caution":"影像一般，机身偏厚","pros":["性能、屏幕、续航三项都不弱，没有明显短板","2K 直屏，同价位屏幕最好","小米之家网点密度高，售后方便"],"cons":["影像调校一般，夜景偏糊","机身厚度和重量都不算友好","系统广告需要手动关"],"sources":["smzdm-window","csdn-tier","zol-spec"],"chip":"骁龙 8 Elite","gb6":[3300,11000]},{"id":"phone-oppo-reno16","name":"OPPO Reno16","cat":"phone","spec":"12G + 256G（国补后）","price":2999,"perf":43,"battery":6700,"camera":68,"brand":"OPPO","tag":"人像和手感是它的全部理由","caution":"性能中端，别按旗舰预期买","pros":["人像调校讨喜，直出就能发","机身轻薄，握持手感好","线下网点最多，试机方便"],"cons":["处理器中端，性能不是强项","电池容量在同价位偏小","价格里有一部分是渠道成本"],"sources":["smzdm-window","zol-spec","csdn-tier"],"chip":"天玑 8550 SUPER","gb6":[1560,5733]},{"id":"phone-moto-x70airpro","name":"摩托罗拉 X70 Air Pro","cat":"phone","spec":"12G + 256G","price":4499,"perf":76,"battery":5600,"camera":60,"brand":"摩托罗拉","tag":"最轻薄，系统最干净","caution":"系统更新周期短，售后网点稀少","pros":["同价位最轻薄，单手握持舒服","接近原生安卓，没有预装全家桶","屏幕素质在线"],"cons":["系统大版本更新支持周期短","售后网点稀少","二手保值率低"],"sources":["smzdm-window","cpumonkey-8g5","zol-spec"],"chip":"骁龙 8 Gen5","gb6":[2864,9568]},{"id":"phone-honor-magic8proair","name":"荣耀 Magic8 Pro Air","cat":"phone","spec":"12G + 256G","price":4999,"perf":79,"battery":5500,"camera":74,"brand":"荣耀","tag":"把旗舰做薄，是这一档最特别的一台","caution":"为了薄，电池容量做了妥协","pros":["旗舰性能 + 轻薄机身，这个组合少见","影像规格接近顶配","屏幕和护眼做得扎实"],"cons":["电池容量为轻薄让路，重度用一天吃紧","价格接近国补线上沿","机身薄导致散热余量小，长时间游戏会降频"],"sources":["smzdm-window","beebom-gb6","zol-spec"],"chip":"天玑 9500","gb6":[3142,9650]},{"id":"phone-vivo-x300","name":"vivo X300","cat":"phone","spec":"12G + 256G","price":4999,"perf":79,"battery":6040,"camera":88,"brand":"vivo","tag":"影像下放最舍得的一台","caution":"刚好卡在国补线内，再贵一点就一分不补","pros":["影像能力接近上代旗舰","做工和手感扎实","售后网点密度高"],"cons":["性能不是这一档最强","价格踩在 6000 线内沿，配置稍微加一点就出局","X500 Pro 同期在降价，买前先比一下"],"sources":["smzdm-window","sina-rounds","beebom-gb6","zol-spec"],"chip":"天玑 9500","gb6":[3142,9650]},{"id":"phone-iphone17","name":"iPhone 17","cat":"phone","spec":"128G（双11 立减 1000 后）","price":5999,"perf":86,"battery":3692,"camera":70,"brand":"苹果","tag":"卡在国补线上的生态入口","caution":"128G 在 2026 年已经很紧张，而升级容量的差价被拉得很大","pros":["生态和保值率是安卓比不了的","系统更新支持周期最长","二手折价慢，长期持有成本低"],"cons":["128G 起步，装完系统和常用应用就剩不到一半","容量升级的差价这一年被拉得特别大","充电速度在同价位垫底"],"sources":["smzdm-window","qq-store","beebom-gb6","zol-spec"],"chip":"A19","gb6":[3730,9470]},{"id":"phone-xiaomi17ultra","name":"小米 17 Ultra","cat":"phone","spec":"12G + 256G","price":7999,"perf":90,"battery":6800,"camera":95,"brand":"小米","tag":"影像天花板，但要接受一个事实","caution":"7999 超过 6000，国补一分不补 —— 比 5999 的机器实际多花 2500 以上","pros":["这一档影像最强，长焦和夜景都是顶配","性能拉满，三年内不会落后","屏幕和做工都是旗舰水准"],"cons":["超 6000 一分补贴都没有，实际到手比标价差更疼","10 月刚涨 1000，是这一轮涨幅最大的机型之一","重量和厚度都不适合单手"],"sources":["sina-rounds","toutiao-account","beebom-gb6","zol-spec"],"chip":"骁龙 8 Elite Gen5","gb6":[3569,10956]},{"id":"phone-huawei-mate80","name":"华为 Mate80","cat":"phone","spec":"12G + 256G","price":5499,"perf":48,"battery":5750,"camera":90,"brand":"华为","tag":"影像和信号仍是这一档最强，但芯片是这一档最弱","caution":"一年内涨了 800 元；麒麟 9030 账面算力只到 2022 年骁龙 8 Gen 2 的水平，重度游戏和长视频导出要提前接受这个前提","pros":["影像调校是这一档天花板，长焦和夜景都稳","信号和通话质量在电梯、地下车库也是最好的一档","鸿蒙的系统调度把弱芯片的日常流畅度拉了回来，功耗控制比账面更好"],"cons":["麒麟 9030 的 GB6 单核 1866、多核 6000，只到骁龙 8 Gen 2 水平，落后当季旗舰两代以上","制程受限，拍照和游戏时功耗与发热明显高于同价位","比同配置竞品贵 800~1000，其中一部分是品牌溢价","12+256 起步，256G 对拍照多的人偏紧"],"sources":["sina-rounds","toutiao-account","geekwan-9030","zol-spec"],"chip":"麒麟 9030","gb6":[1866,6000]}],"crossSell":{"gaming":{"title":"同样一张 RTX 5060，两个价签","points":["笔记本：最便宜 5060 机型 8237 元，配 16G 内存。","台式：i5-14600KF + RTX5060 + 32G 整机 6720 元，便宜 1517 元。","而且桌面版 5060 的 CUDA 核心比移动版多约 15% —— 同名的卡不是同一张卡。","代价很实在：不能带走。上课、图书馆、寒暑假回家，这些场景台式机救不了你。"],"verdict":"如果这台机器主要放在家里或宿舍，买台式；如果需要每天背走，这 1500 就是便携费。","sources":["smzdm-5060"]},"thin":{"title":"轻薄本这一档，差 1000 块差的是什么","points":["3000~4600 元：核显 + 16G，日常办公学习够用，但内存基本焊死。","5000 元附近出现分水岭：惠普战 66 留了双内存槽和双 SSD 位，是这一档唯一「以后还能加」的选择。","6800 元：Redmi Book Pro 14 直接给 32G + 1TB —— 在内存涨 5 倍的年份，一次买够反而比事后加便宜。"],"verdict":"预算紧就认命买 16G 板载机（够用就好）；能到 5000 就优先买留槽的；能到 6800 就别折腾，直接 32G。","sources":["wangbei-guide","smzdm-thinkpad"]},"desktop":{"title":"整机 vs 只换板 U，差多少","points":["整机（全换）：6720 元起，含 32G 内存和 5060。","只换板 U：3699 元，沿用旧显卡、内存、机箱、电源。","差价 3021 元，但前提是你旧机器的显卡和内存还够用。","今年内存占了大头，能沿用旧内存就是最大的省钱。"],"verdict":"旧机还能开机就别整机换新。今年的钱不是花在性能上，是花在内存上 —— 而你旧机器里那两根内存，正是最贵的那部分。","sources":["vgover","smzdm-5060"]},"phone":{"title":"6000 这条线，值多少钱","points":["5999 元的机器：国补 15% 是 900，但数码类封顶 500，所以实补 500，到手 5499。","7999 元的机器：超过 6000，一分不补，到手 7999。","两者标价差 2000，实际到手差 2500 —— 那 500 是白丢的，不是折扣。","反过来说：5999 以内的机器，实付到 3333 就把 500 吃满了，再往上加钱不增加补贴。"],"verdict":"如果你的目标机型刚好在 6000 上下，往下降一档往往比硬上更划算。这不是劝你买便宜的，是那 500 块确实没人替你出。","sources":["subsidy-rule","toutiao-subsidy"]}},"upgradeGuide":{"title":"一分钟判断你的机器能不能加内存","rule":"打开商品规格页，搜「内存」两个字：写 LPDDR5 / LPDDR5X 的就是焊死，没有例外；写 DDR5 SO-DIMM 才有插槽。这一条能筛掉九成的误判。","levels":[{"tag":"焊死（板载）","tone":"stop","desc":"容量当场买够。16G 就是 16G，以后没有后路。","examples":"MacBook 全系、XPS 13/14/16、X1 Carbon、幻 14/16、无畏 16SE、小新 Air14"},{"tag":"有插槽","tone":"now","desc":"可以只补一条，不用动整机。今年这个价值比省钱更实在。","examples":"惠普战 66、ThinkPad E14/E16、多数游戏本、非 S 系 Vivobook、IdeaPad"},{"tag":"可换模组 LPCAMM2","tone":"think","desc":"能换，但是专有模组，价格和渠道都不跟普通内存条走，别当插槽机看。","examples":"ThinkPad T14p 2026、ThinkPad T14 Gen7 酷睿版、Framework Laptop 13"}],"capacity":"容量怎么定：轻办公 16G；开发/设计 32G；跑虚拟机、剪片、本地模型直接 64G。板载机尤其要按「三四年后还想同时开几个重应用」倒推，别按今天的用量买。","conflict":"关于焊死的普及率，公开说法并不一致：有说超轻薄本约七成、有说六成，还有一份说「游戏本九成以上焊死」——最后这个数字与「游戏本仍普遍保留插槽」直接矛盾，属于不可采信的一档。遇到「绝大多数笔记本都焊死了」这种说法，先问它统计的是哪个品类。","sources":["toutiao-soldered","smzdm-thinkpad","laptopcompat"]},"partsChange":[{"label":"DDR5 16G 内存条","low":500,"high":500,"note":"230 → 1400 元","period":"近 12 个月"},{"label":"1TB 固态硬盘","low":130,"high":130,"note":"410 → 950 元","period":"近 12 个月"},{"label":"独立显卡","low":25,"high":50,"note":"全线溢价","period":"近期区间"},{"label":"CPU（酷睿 i 系）","low":-10,"high":-10,"note":"10 月单月","period":"近 1 个月"}],"categoryChange":[{"key":"thin","kind":"pc","label":"轻薄本（同款）","value":58,"note":"小新 Pro14：4138 → 6557"},{"key":"gaming","kind":"pc","label":"游戏本（同款）","value":56,"note":"Y9000P：9000 → 14000"},{"key":"desktop","kind":"pc","label":"台式整机","value":25,"note":"8000 → 10000"},{"key":"avg","kind":"pc","label":"全网 PC 均价","value":17,"note":"Gartner 全年预测"},{"key":"phone-mate80","kind":"phone","label":"华为 Mate80","value":17,"note":"4699 → 5499"},{"key":"phone-mi17u","kind":"phone","label":"小米 17 Ultra","value":14,"note":"6999 → 7999"},{"key":"phone-nova16","kind":"phone","label":"nova16（256G）","value":13,"note":"2999 → 3399"},{"key":"phone-avg","kind":"phone","label":"手机均价","value":15,"note":"同比"}],"sameModel":[{"kind":"pc","name":"联想小新 Pro14 锐龙版","before":4138,"after":6557,"change":58},{"kind":"pc","name":"联想拯救者 Y9000P（同配置）","before":9000,"after":14000,"change":56},{"kind":"pc","name":"ThinkBook 14+（Ultra X7 358H）","before":8299,"after":11489,"change":38},{"kind":"pc","name":"荣耀 X14 Plus（换代）","before":3199,"after":5099,"change":59},{"kind":"pc","name":"DDR5 16G 内存条","before":230,"after":1400,"change":509},{"kind":"pc","name":"1TB 固态硬盘","before":410,"after":950,"change":132},{"kind":"phone","name":"小米 17 Ultra（12+256G）","before":6999,"after":7999,"change":14},{"kind":"phone","name":"华为 Mate80（12+256G）","before":4699,"after":5499,"change":17},{"kind":"phone","name":"nova16（256G）","before":2999,"after":3399,"change":13},{"kind":"phone","name":"iPhone18 Pro（较上代）","before":8999,"after":9999,"change":11},{"kind":"phone","name":"12GB+256G 存储组合（采购价）","before":500,"after":2200,"change":340}],"dramQoQ":[{"label":"25Q4","value":47.5,"forecast":false},{"label":"26Q1","value":92.5,"forecast":false},{"label":"26Q2","value":60.5,"forecast":false},{"label":"26Q3","value":60.0,"forecast":false},{"label":"26Q4","value":12.5,"forecast":true}],"outlook":{"verdict":"等，等的不是降价，是需求确认","points":["四季度 DRAM 合约价预计仍要环比涨 10%~15%：涨幅在放缓，但方向没变。","Counterpoint 判断这轮周期持续到 2027 年底；花旗认为拐点最快也要 2027 年四季度。","SK 海力士称 DRAM 与 HBM 到 2029 年的产能已售罄；戴尔 CEO 的说法更直接：2027 会更糟，新建晶圆厂要到 2029 或 2030 年才满产。"],"sources":["techtimes-dram","stcn-memory","smzdm-double11","smzdm-dell"]},"budgetBands":[{"max":3000,"text":"这个预算今年基本没有选择：3000 元档办公电脑已基本绝迹，2000 元级时代结束。"},{"max":5000,"text":"这个价位被挤压得最狠：同价位普遍降了一档配置，而且内存多为焊死。"},{"max":7000,"text":"出现第一个分水岭：能买到 32G+1TB，或者买到留内存槽的机型。"},{"max":10000,"text":"主流游戏本和高端轻薄本的区间，选择最多，也最需要比价。"},{"max":999999,"text":"绝对涨价金额最大，但占预算比例相对小；注意高端游戏本涨幅反而最猛。"}],"decision":[{"key":"upgrade","label":"内存 / 固态","tag":"刚需现在买","tone":"now","kind":"pc"},{"key":"desktop","label":"台式整机","tag":"别买整机，换板 U","tone":"think","kind":"pc"},{"key":"thin","label":"轻薄本","tag":"先看内存焊没焊死","tone":"mixed","kind":"pc"},{"key":"gaming","label":"游戏本","tag":"非刚需别下手","tone":"stop","kind":"pc"},{"key":"phone","label":"手机","tag":"先看有没有卡进 6000","tone":"mixed","kind":"phone"}],"dimensions":{"pc":[{"key":"price","label":"价格"},{"key":"perf","label":"性能"},{"key":"upgrade","label":"可加装"},{"key":"brand","label":"品牌"},{"key":"portable","label":"便携"}],"phone":[{"key":"price","label":"价格"},{"key":"perf","label":"性能"},{"key":"battery","label":"续航"},{"key":"camera","label":"影像"},{"key":"brand","label":"品牌"}]},"weights":{"pc":{"value":{"label":"省钱优先","cap":"同样预算里，买到最实在的配置","w":{"price":0.4,"perf":0.25,"upgrade":0.2,"brand":0.1,"portable":0.05},"primary":null},"perf":{"label":"性能优先","cap":"钱花在算力上，不为便携和品牌付溢价","w":{"price":0.15,"perf":0.5,"upgrade":0.15,"brand":0.1,"portable":0.1},"primary":"perf"},"future":{"label":"能加装优先","cap":"今年内存贵，留一条后路比省几百更值","w":{"price":0.18,"perf":0.17,"upgrade":0.45,"brand":0.15,"portable":0.05},"primary":"upgrade"},"carry":{"label":"要带出门","cap":"便携是硬门槛，性能往后放","w":{"price":0.22,"perf":0.18,"upgrade":0.1,"brand":0.15,"portable":0.35},"primary":"portable"}},"phone":{"value":{"label":"省钱优先","cap":"同样的钱，买到最均衡的一台","w":{"price":0.4,"perf":0.25,"battery":0.15,"camera":0.1,"brand":0.1},"primary":null},"perf":{"label":"性能优先","cap":"打游戏、剪视频，性能不能将就","w":{"price":0.15,"perf":0.5,"battery":0.15,"camera":0.1,"brand":0.1},"primary":"perf"},"battery":{"label":"续航优先","cap":"一天两充不能忍，电池排第一","w":{"price":0.2,"perf":0.15,"battery":0.45,"camera":0.1,"brand":0.1},"primary":"battery"},"camera":{"label":"拍照优先","cap":"影像是主要用途，价格往后放","w":{"price":0.15,"perf":0.15,"battery":0.1,"camera":0.5,"brand":0.1},"primary":"camera"}}},"costShare":{"title":"手机的钱被谁赚走了","points":[{"label":"2024 年 · 存储占成本","value":12,"note":"10%~15%"},{"label":"2026 年 · 存储占成本","value":35,"note":"30%~40%（旗舰 30%~60%）"},{"label":"2026 年 · 处理器占成本","value":22,"note":"已被存储反超"}],"verdict":"存储第一次超过处理器，成了手机里最贵的零件。这就是为什么这一轮手机涨价跟屏幕、跟芯片都没关系 —— 涨的是内存和闪存。","sources":["toutiao-account","qq-store"]},"trapsByKind":{"pc":[{"title":"低于市价一半的内存条","desc":"16G DDR5 均价 1400 上下，卖四五百的大概率是翻新、拆机或白片黑片颗粒。省下的钱不够救一次数据。"},{"title":"「同价更低配」","desc":"今年厂商常用 512G 换 256G、16G 换 8G 来代替直接涨价。看价格的同时必须看配置，否则你以为没涨价。"},{"title":"把国补当成常态","desc":"到手价里含 15% 国补（单台最高 1500）。补贴退出后同款回升约 15%，这是目前价格最大的单一变量。"}],"phone":[{"title":"为了大存储多花的钱，今年特别不划算","desc":"12GB+256GB 的存储组合采购价从 500 涨到 2200，涨了三倍多。厂商把这块成本几乎全额转到了大存储版本的价签上。256G + 云盘，比 512G 版本省下的钱今年格外多。"},{"title":"把 6000 当成「可以稍微超一点」","desc":"手机国补是硬门槛：6000 以内补 15% 封顶 500，超过 6000 一分不补。5999 和 6001 之间差的不是 2 块钱，是 500 块。而电脑没有这条线 —— 别拿手机的规则套电脑。"},{"title":"等下一轮降价","desc":"一年已经涨了三轮，11 月底还预计再涨 300 起。这不是促销周期，是成本推动。等的结果大概率是同样的钱买到更低的配置。"}]},"defects":{"title":"电脑的设计缺陷：买之前该查的那几项","cap":"涨价是一次性多花钱，设计缺陷是三年里反复折磨你。这一块比价格更该先看，因为价格能比，缺陷不能退货。","items":[{"name":"低温锡虚焊（CPU/显卡 BGA 焊点）","symptom":"开机正常，用一会儿花屏、雪花屏、死机、自动关机；冷机又能开","who":"联想小新 Pro13 ARE、小新 Air15 锐龙版、华硕天选系列","why":"出厂用低温锡膏焊接 BGA，长期冷热循环后焊球疲劳开裂。属于工艺缺陷，清灰、换硅脂、重装系统都无效。","fix":"只能 BGA 重植或换主板，过保后动辄上千。买之前搜「型号 + 虚焊 / 花屏」，有大量同类投诉的批次直接避开。","tone":"stop"},{"name":"显卡供电模块烧毁","symptom":"高负载后黑屏、死机、显卡无法识别、反复重启","who":"神舟战神 T9 等公模游戏本","why":"公模方案在供电用料上压缩成本，显卡供电芯片长期高温工作后失效。部分机型返修率接近 15%。","fix":"过保后官方常要求整体换主板，报价接近半台新机。这类机器要么买延保，要么别买。","tone":"stop"},{"name":"屏幕 / 屏轴问题","symptom":"单手开合时屏幕晃动、屏轴松动、右下角泛白、HDR 色阶断裂","who":"公模游戏本、部分轻薄本（ThinkBook 14+ 有右下角泛白反馈）","why":"屏轴阻尼和外壳刚性是省成本的重灾区。屏幕泛白属于面板均匀性问题，不是个体瑕疵。","fix":"到手先测：全白背景看四角色差，单手开合看晃动幅度。7 天内发现问题走无理由退货。","tone":"mixed"},{"name":"早期驱动导致的卡死 / 黑屏","symptom":"开两个 Word 就卡死、0x10E 黑屏、外接硬盘盒掉盘","who":"ThinkBook 14+ 2026 等首发新平台机型","why":"新平台首发驱动不成熟。这类问题九成能在到手第一天通过更新驱动绕过，但不会自己好。","fix":"属于「软件问题」，退货不占理，但你得会折腾。完全不想折腾的人，等上市三个月后再买同款更稳。","tone":"think"},{"name":"充电协议挑食","symptom":"手上的 100W 充电头插上没反应","who":"ThinkBook 14+ 2026（需要高于 60W 的 PD 才能触发）","why":"PD 策略做得激进，功率门槛高，杂牌线材虚标就触发不了。","fix":"买之前确认机器的最低 PD 功率要求，别指望旧充电头能通用。","tone":"mixed"},{"name":"只能换专有内存模组","symptom":"以为有插槽能自己加，结果发现是 LPCAMM2","who":"ThinkPad T14p 2026、T14 Gen7 酷睿版","why":"LPCAMM2 能换，但是专有模组，价格和渠道都不跟普通内存条走。而且部分机型升级前必须先更新 BIOS，否则新内存点不亮。","fix":"规格页写 LPCAMM2 的，按「一次性买够」规划，别当普通插槽机看。","tone":"mixed"}],"sources":["tousu-lowtin","baixiu-tianxuan","zhinanshi-t9","smzdm-thinkbook14p","stage1-thinkbook","smzdm-thinkpad"]}};
+
+const $ = s => document.querySelector(s);
+const KEY = 'pcmove.v1';
+const fmt = n => n.toLocaleString('zh-CN');
+const signed = n => (n > 0 ? '+' : '') + n + '%';
+const SRC = {}; DATA.sources.forEach(s => SRC[s.id] = s);
+const TONE = { stop: '建议别买', mixed: '看情况', think: '换个买法', now: '刚需就买' };
+const UPWORD = { good: '留插槽', mixed: '看型号', bad: '焊死' };
+// upgrade 是 0-3 的档位，详情页要说人话，不能直接印数字
+const OUPWORD_RAW = ['焊死', '看具体 SKU', '留插槽'];
+const PORTWORD = ['不适合携带', '较重', '正常', '很轻'];
+
+/* 维度与权重按品类分开：电脑看「可加装」，手机没有这回事，改看「续航 / 影像」。
+   两者硬套同一套维度会让手机排序完全失真 —— 手机的内存从来都不可换。 */
+const DIMS = DATA.dimensions;
+const WEIGHTPOOL = DATA.weights;
+
+function kindOf(cat) {
+  return (cat && cat.kind) || 'pc';
+}
+function weightsOf(kind) {
+  return WEIGHTPOOL[kind] || WEIGHTPOOL.pc;
+}
+function dimListOf(kind) {
+  return DIMS[kind] || DIMS.pc;
+}
+/* 品类切换时，如果当前侧重在这个品类里不存在（比如电脑的「能加装」到手机上），
+   自动退回该品类的第一个侧重，避免榜单空白。 */
+function fixMode(kind, mode) {
+  const w = weightsOf(kind);
+  return w[mode] ? mode : Object.keys(w)[0];
+}
+
+let STATE = { raw: '', cat: null, budget: null, head: '', tone: '', mode: 'value' };
+
+/* ---------- 品类匹配 ---------- */
+function analyze(raw) {
+  const s = String(raw || '').trim().toLowerCase().replace(/\s+/g, '');
+  if (!s) return { err: 'empty' };
+  // 苹果以前整条线都不覆盖；现在有了 iPhone 的价格，只挡 Mac
+  if (/mac|macbook|imac|苹果电脑|苹果笔记本|mac ?air|mac ?pro/.test(s)) return { err: 'nocover' };
+
+  // 「小米笔记本」「华为笔记本」这类说法里含品牌词，而品牌词又是手机品类的关键词。
+  // 先判断说的是不是电脑硬件，避免把「小米笔记本」判成手机。
+  const pcWord = /笔记本|电脑|台式|主机|装机|diy|轻薄本|游戏本|显卡|内存|固态/.test(s);
+  const phoneWord = /手机|iphone|换机|mate|nova/.test(s);
+  const blockPhone = pcWord && !phoneWord;
+
+  let cat = null;
+  for (const c of DATA.categories) {
+    if (blockPhone && c.key === 'phone') continue;
+    if (c.keywords.some(k => s.includes(k.toLowerCase()))) { cat = c; break; }
+  }
+
+  // 说了「笔记本」但没说是哪一类（比如「小米笔记本」）—— 按轻薄本处理，
+  // 因为这是绝大多数人问「笔记本」时真正指的品类。游戏本有专门关键词，不会被误收。
+  if (!cat && pcWord) cat = DATA.categories.find(c => c.key === 'thin') || null;
+
+  // 中文数字先换成阿拉伯数字：五千 → 5000，两万 → 20000
+  const cn = { '一': 1, '两': 2, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9 };
+  const norm = s.replace(/([一两二三四五六七八九])(万|千)/g,
+    (all, d, u) => String(cn[d] * (u === '万' ? 10000 : 1000)));
+
+  let budget = null;
+  const m = norm.match(/(\d{1,6})(k|千|万)?/);
+  if (m) {
+    let n = parseInt(m[1], 10);
+    if (m[2] === 'k' || m[2] === '千') n *= 1000;
+    if (m[2] === '万') n *= 10000;
+    if (n >= 1000 && n <= 50000) budget = n;
+  }
+  if (!cat && !budget) return { err: 'unknown' };
+  return { cat, budget };
+}
+
+function bandOf(budget, cat) {
+  if (!budget) return null;
+  const list = (cat && cat.budgetBands) || DATA.budgetBands;
+  return list.find(b => budget <= b.max) || list[list.length - 1];
+}
+
+/* ---------- 排序引擎 ---------- */
+/* 每个维度都归一到 0-100，再做加权平均。价格用「同类最低价 vs 你的预算」双向约束：
+   低于预算越多分越高，但超过预算直接掉到很低 —— 这比单纯「越便宜越好」更贴近真实决策。 */
+function dims(offer, cat, budget, mode) {
+  // cat 这里传的是品类 key（字符串），不是对象 —— 要单独取一次大类
+  const catObj = DATA.categories.find(c => c.key === cat);
+  const kind = kindOf(catObj);
+  const pool = DATA.offers.filter(o => o.cat === cat);
+  const prices = pool.map(o => o.price);
+  const lo = Math.min.apply(null, prices), hi = Math.max.apply(null, prices);
+
+  // 价格分：池内相对位置（便宜=高分）；给了预算就叠加预算约束
+  let p;
+  if (budget) {
+    const room = budget - offer.price;              // 正数=还有余量
+    p = room >= 0 ? Math.min(100, 60 + (room / budget) * 90) : Math.max(0, 60 + (room / budget) * 260);
+  } else {
+    p = hi === lo ? 70 : 100 - ((offer.price - lo) / (hi - lo)) * 70;
+  }
+
+  // 续航 / 影像同理：原始值是绝对值（电池 10080 vs 3692、影像 95 vs 40），
+// 而价格分是池内归一的（跨度能到 70 分）。不归一的话，
+// 「续航优先」这个权重 0.45 的档位照样会被价格分压过去，选不出续航最好的那台。
+  // 排序用归一后的相对分；对外展示一律用原始值（mAh / 主观分），
+  // 两边各说各的，绝不在同一个页面上混着给两个口径相同的数字。
+  // 注意：norm 必须定义在 perf 之前 —— const 有暂时性死区，用在下文会直接抛 ReferenceError。
+  const norm = (key) => {
+    const vs = pool.map(o => (typeof o[key] === 'number' ? o[key] : 50));
+    const lo2 = Math.min.apply(null, vs), hi2 = Math.max.apply(null, vs);
+    const v = (typeof offer[key] === 'number' ? offer[key] : 50);
+    return hi2 === lo2 ? 70 : 40 + ((v - lo2) / (hi2 - lo2)) * 60;
+  };
+
+  // 性能分。手机用 GB6、电脑用 Cinebench R23 换算，都是「100 ×（0.5×单核/上限 + 0.5×多核/上限）」，
+  // 所以同一张分数表里，手机 48 分和电脑 50 分是可比的 —— 都表示「大概是当季旗舰的一半」。
+  //
+  // 内存/固态这类没有 CPU 的品类，perf 是 null。此时不能塞一个假的池内值，
+  // 那等于凭空造数据。改成让 perf 这个维度退出加权（见 score() 的 skip 处理）。
+  const perfNA = (o) => o.perf === null || o.perf === undefined;
+  let perf;
+  if (perfNA(offer)) {
+    perf = null;                                    // 本机不适用，score() 会把它从权重里摘掉
+  } else if (kind === 'phone') {
+    perf = offer.perf;                              // 实测换算分，有绝对含义，直接用
+  } else {
+    // 电脑：有 R23 实测的也是绝对分。没有实测的（理论上不该存在）才退回池内归一，
+    // 这样至少不会让一台没数据的机器在「性能优先」里冒到前面去。
+    perf = offer.cb23 ? offer.perf : norm('perf');
+  }
+
+  // brandScore 已经直接返回 0-100，这里不再二次换算
+  const br = brandScore(offer.brand, kind);
+  // 只返回本大类的维度。多返回的键虽然权重用不到，但会让「详情页/图表」有可能
+  // 误取到另一类的维度（比如在手机上显示「可加装」），所以在这里就切干净。
+  const all = { price: p, perf: perf, brand: br };
+
+  // 电脑：可加装 + 便携
+  all.upgrade = offer.upgrade === 2 ? 100 : offer.upgrade === 1 ? 60 : 25;
+  all.portable = offer.portable === 3 ? 100 : offer.portable === 2 ? 70 : offer.portable === 1 ? 40 : 10;
+
+  // 手机：续航 / 影像（排序用池内归一，见上面的 norm）
+  all.battery = norm('battery');
+  all.camera = norm('camera');
+
+  const out = {};
+  dimListOf(kind).forEach(d => { out[d.key] = all[d.key]; });
+  return out;
+}
+
+function brandScore(name, kind) {
+  // 同一品牌名可能在两个大类里都出现（华为既有笔记本也有手机），
+  // 必须带 scope 一起找，否则会拿到另一类的售后/保值分。
+  const k = kind || 'pc';
+  const b = DATA.brands.find(x => x.name === name && (x.scope || 'pc') === k);
+  if (!b) return 60;
+  // 原始分是 (售后 + 保值)/2，落在 2~5 之间。直接乘 10 映射到 0-100 会放大差异：
+  // 原始差 1 分就变成 10 分，足以在加权里压过「续航/影像」这种真实差距。
+  // 这里压到 60-100 区间：差 1 分约等于 13 分，既不忽略品牌，也不让它喧宾夺主。
+  const raw = (b.service + b.resale) / 2;
+  return 60 + Math.max(0, Math.min(1, (raw - 2) / 3)) * 40;
+}
+
+function score(offer, cat, budget, mode) {
+  const d = dims(offer, cat, budget, mode);
+  const kind = kindOf(DATA.categories.find(c => c.key === cat));
+  const w = weightsOf(kind)[mode].w;
+  // 某个维度对这台机器根本不适用时（典型：内存条没有 CPU），dims 会给 null。
+  // 这时不能当 0 分算 —— 那等于"因为不涉及所以判它最差"。
+  // 正确做法是把它从权重里摘掉，剩下的权重按比例放大回 1。
+  let wsum = 0;
+  for (const k in w) if (d[k] !== null && d[k] !== undefined) wsum += w[k];
+  let total = 0;
+  for (const k in w) {
+    if (d[k] === null || d[k] === undefined) continue;
+    total += d[k] * (w[k] / (wsum || 1));
+  }
+  return { total: Math.round(total), d, wsum };
+}
+
+function rankOffers(cat, budget, mode) {
+  const catObj = DATA.categories.find(c => c.key === cat);
+  const kind = kindOf(catObj);
+  const cfg = weightsOf(kind)[mode] || weightsOf(kind)[Object.keys(weightsOf(kind))[0]];
+  const primary = cfg.primary || null;
+
+  // 预算容差：超 5% 以内不算超预算。说「5000 以内」时，5009 那台不该被踢掉 ——
+  // 差 9 块钱就换一台机器，不是用户想要的决策方式。
+  const slack = budget ? budget * 1.05 : 0;
+
+  // 主维度的原始分要在整池里取范围，才能在档位之间比较。
+  // 必须剔除「本维度不适用」的机型（perf=null），否则 Math.min 会把 null 当 0，
+  // 档位宽度被拉歪，所有机器挤进同一档。
+  const pool = DATA.offers.filter(o => o.cat === cat);
+  let ptierOf = () => 0;
+  if (primary) {
+    const raws = pool
+      .filter(o => !(primary === 'perf' && (o.perf === null || o.perf === undefined)))
+      .map(o => primaryRaw(o, primary));
+    const lo = Math.min.apply(null, raws), hi = Math.max.apply(null, raws);
+    // 分三档，档宽 = 池内跨度 / 3。差一档才算「明显不如」——
+    // 用连续值做硬门槛会把「差 1 分」也当成断层，那又回到加权的老毛病。
+    const width = (hi - lo) / 3 || 1;
+    ptierOf = (o) => {
+      const raw = primaryRaw(o, primary);
+      if (raw === null) return -1;          // 不适用 → 单独一档，排在所有有值的后面
+      if (hi === lo) return 0;
+      return Math.min(2, Math.floor((raw - lo) / width));  // 0=最弱 2=最强
+    };
+  }
+
+  return pool
+    .map(o => {
+      const s = score(o, cat, budget, mode);
+      const t = primary ? ptierOf(o) : 0;
+      // 榜单上那个大数字 = 排序真正依据的那个数，而且尽量用原始值，不用池内归一值。
+      // 理由有两条：
+      //   ① 分档排序下加权总分只是第三顺位，拿它当名次分显示会出现
+      //      「第 2 名 73 分、第 3 名 74 分」这种自相矛盾的画面。
+      //   ② 归一值会把真实差距放大：影像 90 和 88 只差 2 分，归一会变成 95 和 92，
+      //      读者以为是两个档次的差距。原始值能和详情页、和参数表对上。
+      // 只有 upgrade / portable 是 0-2 / 0-3 的档位，原始值不能当分数看，才退回归一值。
+      const disp = primary ? primaryDisplay(o, primary, s.d[primary]) : { v: s.total, unit: '' };
+      return Object.assign({}, o, {
+        _score: s.total, _d: s.d,
+        _main: disp.v, _mainUnit: disp.unit, _mainText: !!disp.text, _mainKey: primary,
+        _mainRaw: primary ? primaryRaw(o, primary) : null,
+        _over: budget ? o.price > slack : false,
+        _ptier: t
+      });
+    })
+    .sort((a, b) => {
+      // 超预算的排到后面，但保留在列表里（让人看到差多少钱）
+      if (a._over !== b._over) return a._over ? 1 : -1;
+      // ① 主维度先分档 —— 点「性能优先」就该先看到性能最强的那一档，
+      //    而不是被品牌和续航把差距抵掉。这是加权平均做不到的事：
+      //    权重再高也只是「拉票」，票数够了仍然会被别的维度翻盘。
+      if (a._ptier !== b._ptier) return b._ptier - a._ptier;
+      // ② 同档内按主维度原始分排。不按总分 —— 否则 perf 80 会排在 perf 82 前面，
+      //    用户点「性能优先」看到的却不是性能顺序，按钮就成了装饰。
+      //    primaryRaw 可能返回 null（该维度不适用），null 一律排在有值之后。
+      if (primary) {
+        const ra = primaryRaw(a, primary), rb = primaryRaw(b, primary);
+        const na = ra === null, nb = rb === null;
+        if (na !== nb) return na ? 1 : -1;
+        if (!na && rb !== ra) return rb - ra;
+      }
+      // ③ 主维度打平了才看加权总分
+      if (b._score !== a._score) return b._score - a._score;
+      // ④ 最后用 id 兜底，保证排序稳定可复现（不能靠引擎稳定性）
+      return a.id < b.id ? -1 : 1;
+    });
+}
+
+/* 榜单大数字该显示什么。原则：能显示原始值就显示原始值，只有档位类维度
+   （upgrade / portable）没有「分数」的含义，才回退到池内归一位。 */
+function primaryDisplay(o, key, normed) {
+  if (key === 'perf' && (o.perf === null || o.perf === undefined)) {
+    // 内存条 / 固态没有 CPU。这不是「性能差」，是「这一项不适用」。
+    // 显示 0 分会被读成「性能垫底」，显示池内值则是编数据 —— 只能照实说。
+    return { v: '不涉及', unit: '', text: true, na: true };
+  }
+  if (key === 'perf' && o.gb6) return { v: o.perf, unit: '分' };          // 手机：GB6 换算分
+  if (key === 'perf' && o.cb23) return { v: o.perf, unit: '分' };         // 电脑：R23 换算分
+  if (key === 'perf') return { v: Math.round(normed), unit: '分' };       // 兜底：没实测才用池内位
+  if (key === 'battery') return { v: o.battery, unit: 'mAh' };           // 真实容量
+  if (key === 'camera') return { v: o.camera, unit: '分' };              // 主观分，原样展示
+  // upgrade / portable 是档位，没有「分数」语义。显示 100 / 60 会被当成分数，
+  // 而且三台同为「很轻」时会并排三个 100，看不出任何信息 —— 直接给档位原文。
+  if (key === 'upgrade') return { v: OUPWORD_RAW[o.upgrade], unit: '', text: true };
+  if (key === 'portable') return { v: PORTWORD[o.portable], unit: '', text: true };
+  return { v: Math.round(normed), unit: '' };
+}
+
+/* 主维度的原始值。upgrade/portable 是 0-3 的档位，先换算成可比数值。 */
+function primaryRaw(o, key) {
+  if (o[key] === null || o[key] === undefined) return null;   // 不适用
+  if (typeof o[key] === 'number') return o[key];
+  if (key === 'upgrade') return o.upgrade === 2 ? 2 : o.upgrade === 1 ? 1 : 0;
+  if (key === 'portable') return o.portable || 0;
+  return 0;
+}
+
+/* ---------- 小组件 ---------- */
+function barRow(o) {
+  const max = o.max || 100;
+  const w = Math.min(100, Math.abs(o.value) / max * 100);
+  const soft = o.high && o.high > o.value ? Math.min(100, o.high / max * 100) : 0;
+  const fill = o.dim ? 'gray' : '';
+  return '<div class="row' + (o.dim ? ' dim' : '') + '">' +
+    '<div class="top"><span class="lab">' + o.label + '</span><span class="val">' + o.valueText + '</span></div>' +
+    '<div class="track">' +
+      '<span class="fill ' + fill + '" style="width:' + w + '%"></span>' +
+      (soft ? '<span class="fill soft" style="width:' + (soft - w) + '%"></span>' : '') +
+    '</div></div>';
+}
+
+function srcLine(ids) {
+  // 同一家媒体可能有多篇，按媒体去重并取最新日期
+  const byPub = {};
+  ids.map(id => SRC[id]).filter(Boolean).forEach(s => {
+    const cur = byPub[s.publisher];
+    if (!cur || s.date > cur.date) byPub[s.publisher] = s;
+  });
+  const list = Object.keys(byPub).map(k => byPub[k]);
+  if (!list.length) return '';
+  return '<p class="srcin">依据：' + list.map(s => s.publisher + '（' + s.date + '）').join('、') + '</p>';
+}
+
+/* ---------- 四张图 ---------- */
+function chartCategory(catKey) {
+  const cat = catKey ? DATA.categories.find(c => c.key === catKey) : null;
+  const kind = kindOf(cat);
+  const rows = DATA.categoryChange.filter(d => d.kind === kind);
+
+  // 只高亮用户所选的那一根；没选品类时全部一视同仁。
+  // 早先这里用 keys[i] !== catKey 判断，catKey 为 null 时 null !== null 为 false，
+  // 会把「全网均价」误标成用户所选 —— 所以改成按 key 显式比较。
+  const html = rows.map(d => barRow({
+    label: d.label,
+    value: d.value,
+    max: kind === 'phone' ? 25 : 60,
+    valueText: '+' + d.value + '%',
+    dim: catKey ? d.key !== catKey : false
+  })).join('');
+
+  const note = kind === 'phone'
+    ? '手机的涨幅按机型看不吓人，真正狠的是存储 —— 12GB+256GB 组合的采购价涨了 340%。'
+    : '同款机型对比是最有说服力的口径 —— 比"均价"更贴近你真正要付的钱。';
+
+  return '<div class="blk"><h2>你这类机器涨了多少</h2>' +
+    '<p class="cap">' + note + '</p>' +
+    html +
+    '<p class="srcin">数据：新浪财经、Gartner、腾讯新闻（2026）</p></div>';
+}
+
+function chartSame(cat) {
+  const kind = kindOf(cat);
+  const rows = DATA.sameModel.filter(d => d.kind === kind).map(d =>
+    '<div class="mrow">' +
+    '<div class="mn">' + d.name + '</div>' +
+    '<div class="mp">去年 ¥' + fmt(d.before) + ' → 现在 ¥' + fmt(d.after) + '</div>' +
+    '<div class="md">+' + d.change + '%</div></div>'
+  ).join('');
+  return '<div class="blk"><h2>同款机体现在贵多少</h2>' +
+    '<p class="cap">从左到右是同一个东西的价格变化，不是不同型号的对比。</p>' +
+    rows +
+    '<p class="srcin">数据：新浪财经、搜狐、什么值得买、腾讯新闻（2026-10 / 11）</p></div>';
+}
+
+function chartParts() {
+  const up = DATA.partsChange.filter(d => d.high > 0);
+  const down = DATA.partsChange.filter(d => d.high <= 0);
+  const rows = up.map(d => barRow({
+    label: d.label,
+    value: d.low,
+    high: d.high,
+    max: 520,
+    valueText: d.low === d.high ? '+' + d.low + '%' : '+' + d.low + '~' + d.high + '%'
+  })).join('');
+  const drow = down.map(d =>
+    '<div class="downrow"><span>' + d.label + ' <span style="color:var(--ink3)">(' + d.period + ')</span></span>' +
+    '<span class="dv">' + signed(d.low) + '</span></div>'
+  ).join('');
+  return '<div class="blk"><h2>钱被谁赚走了</h2>' +
+    '<p class="cap">涨的不是整台机器，是存储。CPU 反而是今年唯一在降的部件。</p>' +
+    rows + drow +
+    '<p class="srcin">数据：什么值得买、电玩帮、网易·电脑吧评测室（2026-10 / 11）</p></div>';
+}
+
+function chartQuarter() {
+  const max = 100;
+  const cols = DATA.dramQoQ.map(d => {
+    const h = Math.round(d.value / max * 128);
+    return '<div class="qcol' + (d.forecast ? ' fc' : '') + '">' +
+      '<span class="qval">+' + d.value + '%</span>' +
+      '<div class="qbar" style="height:' + h + 'px"></div>' +
+      '<span class="qlab">' + d.label + (d.forecast ? '*' : '') + '</span></div>';
+  }).join('');
+  return '<div class="blk"><h2>还会不会降</h2>' +
+    '<p class="cap">DRAM 合约价的逐季环比。柱子变矮代表涨得慢，不代表下跌 —— 只要还是正的，价格就还在往上走。</p>' +
+    '<div class="qchart">' + cols + '</div>' +
+    '<p class="cap" style="margin:14px 0 0">* 26Q4 为 TrendForce 预测值。当前节奏：涨幅在收窄，方向没变。</p>' +
+    '<p class="srcin">数据：TrendForce（经证券时报、Tech Times 转引）</p></div>';
+}
+
+/* ---------- 榜单 ---------- */
+function rankRow(o, i, budget) {
+  const tag = i === 0 && !o._over ? '<span class="badge b-tag">最优解</span>' : '';
+  const over = o._over ? '<span class="badge b-tag">超预算 ¥' + fmt(o.price - budget) + '</span>'
+    : (budget && o.price > budget ? '<span class="badge" style="background:#fdf4e3;color:#8a5a0b">略超 ¥' + fmt(o.price - budget) + '</span>' : '');
+  const why = o._over
+    ? '超出预算，仅作对照：这台要 ¥' + fmt(o.price) + '。'
+    : '<b>' + o.tag + '</b>' + (o.caution ? '　注意：' + o.caution : '');
+  const kind = kindOf(DATA.categories.find(c => c.key === o.cat));
+  const W = weightsOf(kind)[STATE.mode];
+  const list = dimListOf(kind);
+  const dm = list.map(d =>
+    '<span class="dm"><i class="' + (W.w[d.key] >= .2 ? 'hi' : '') + '" style="width:' + Math.round(o._d[d.key]) + '%"></i></span>'
+  ).join('');
+  return '<div class="rk' + (i === 0 && !o._over ? ' top' : '') + '" data-id="' + o.id + '">' +
+    '<span class="num">' + (i + 1) + '</span>' +
+    '<span class="nm">' + o.name + tag + over + '</span>' +
+    '<span class="sc' + (o._mainText ? ' txt' : '') + '">' + (o._mainText ? o._main : fmt(o._main)) +
+      (o._mainUnit ? '<em>' + o._mainUnit + '</em>' : '') + '</span>' +
+    '<span class="sp">' + o.spec + '</span>' +
+    '<span class="pr">¥' + fmt(o.price) + '</span>' +
+    '<span class="why">' + why + '</span>' +
+    '<span class="dims">' + dm + '</span>' + quickPros(o) +
+    '</div>';
+}
+
+function rankBlock(cat, budget) {
+  const kind = kindOf(cat);
+  const mode = fixMode(kind, STATE.mode);
+  STATE.mode = mode;
+  const pool = weightsOf(kind);
+  const list = rankOffers(cat.key, budget, mode);
+  if (!list.length) return '';
+  const W = pool[mode];
+  const list2 = dimListOf(kind);
+  const TOP = 3;
+
+  const head = list.slice(0, TOP).map((o, i) => rankRow(o, i, budget)).join('');
+  const rest = list.slice(TOP);
+  const restHtml = rest.length ? fold('还有 ' + rest.length + ' 台备选',
+    '分数从高到低，点一行看详情', '<div class="rank" id="rankrest">' +
+    rest.map((o, i) => rankRow(o, i + TOP, budget)).join('') + '</div>') : '';
+
+  const modeBtns = Object.keys(pool).map(k =>
+    '<button class="wbtn' + (k === mode ? ' on' : '') + '" type="button" data-mode="' + k + '">' + pool[k].label + '</button>'
+  ).join('');
+
+  const dimText = list2.map(d => d.label).join(' / ');
+
+  // 榜单里这个数字代表什么，要写在表头上 —— 否则读者不知道 87 是跑分还是加权分。
+  // 有主维度时它等于主维度的池内相对分；「省钱优先」没有主维度，它是加权总分。
+  const mainLabel = W.primary
+    ? list2.find(d => d.key === W.primary).label
+    : '综合分';
+  const mainHint = W.primary
+    ? '这一列是「' + mainLabel + '」的原始值，也就是下面排名的依据：先按它分三档，同档内也按它从高到低。'
+    : '这一列是综合分：价格、性能等各项加权后的总分，省钱优先看重的是整体均衡，没有单项硬门槛。';
+
+  return '<div class="blk"><h2>该买哪台：按你的侧重排序</h2>' +
+    '<p class="cap">换一个侧重，排名就变 —— 没有绝对的最优，只有适合你的排序。' +
+    (budget ? '已按预算 ¥' + fmt(budget) + ' 计算。' : '') + '</p>' +
+    '<div class="weigh" id="weigh">' + modeBtns + '</div>' +
+    '<p class="wcap" id="wcap">' + W.cap + '　·　五根小条：' + dimText + '</p>' +
+    '<p class="colhead"><span class="ch-l">序号</span><span class="ch-m">' + mainLabel +
+      '</span><span class="ch-r">到手价</span></p>' +
+    '<div class="rank" id="rank">' + head + '</div>' +
+    restHtml +
+    '<p class="srcin">' + mainHint + ' 价格为国补后到手价（2026-11 报道口径）。' +
+    (kind === 'phone'
+      ? '性能分由 Geekbench 6 实测换算（单核/4000 与多核/12000 各占一半），账面算力，不含调度与降频。'
+      : '性能分由 Cinebench R23 实测换算（单核/2400 与多核/40000 各占一半）。两把尺子的锚点同为当季旗舰上限，所以和手机分可比。') +
+    ' 点任意一行看详情。</p></div>';
+}
+
+function brandBlock(cat) {
+  const kind = kindOf(cat);
+  const order = { good: 0, mixed: 1, bad: 2 };
+  const list = DATA.brands.filter(b => (b.scope || 'pc') === kind).slice().sort((a, b) =>
+    order[a.upgrade] - order[b.upgrade] || b.service - a.service);
+
+  const rowOf = b => {
+    const no = b.noOffer ? '<span class="badge" style="background:#f1efe8;color:#8f8d86;margin-left:0">未进榜单</span> ' : '';
+    return '<div class="brow">' +
+      '<div class="bh"><span class="bn">' + b.name + no + '</span>' +
+      '<span class="bv pill up' + b.upgrade + '">' + UPWORD[b.upgrade] + '</span></div>' +
+      '<div class="bw"><b style="font-weight:500">' + b.verdict + '</b>　' + b.hike + '</div>' +
+      '<div class="bx">' + b.upgradeNote + '。' + b.note + '</div>' +
+      '</div>';
+  };
+
+  // 品牌表 10 条全展开接近 1800px，是这一页最占地方的块。
+  // 只把排序最靠前的 3 家摊开，其余收进折叠 —— 结论在最前面，细节按需展开。
+  const TOPB = 3;
+  const head = list.slice(0, TOPB).map(rowOf).join('');
+  const rest = list.slice(TOPB);
+  const restHtml = rest.length
+    ? fold('另外 ' + rest.length + ' 家', '按同一口径排序，点开看', '<div class="bt">' + rest.map(rowOf).join('') + '</div>')
+    : '';
+
+  const cap = kind === 'phone'
+    ? '手机的内存和存储全都不可换，所以这张表不按「能不能加」排 —— 按「涨价幅度 + 售后 + 保值」排，这些才是手机长期用下去的真实差异。'
+    : '按「能不能加内存」排序，不是按名气。今年的关键差异不在涨价幅度（大家都涨），在于谁给你留了后路。';
+  const tail = kind === 'phone'
+    ? '手机没有可扩展性这一说，所以品牌分主要由网点密度和保值率决定。标「未进榜单」的是我没找到能核实的稳定到手价，宁可不排。'
+    : '品牌分 = 售后网点密度 × 二手保值，主观综合，来源有限；涨价幅度来自各家公开口径。标「未进榜单」的是我没找到能核实的在售到手价，宁可不排，也不编一个。';
+
+  return '<div class="blk"><h2>品牌怎么选</h2>' +
+    '<p class="cap">' + cap + '</p>' +
+    '<div class="bt">' + head + '</div>' +
+    restHtml +
+    '<p class="srcin">' + tail + '</p></div>';
+}
+
+function upgradeBlock() {
+  const g = DATA.upgradeGuide;
+  const lv = g.levels.map(l =>
+    '<div class="brow">' +
+    '<div class="bh"><span class="bn">' + l.tag + '</span>' +
+    '<span class="bv pill t-' + l.tone + '">' + (l.tone === 'stop' ? '买定没有回头路' : l.tone === 'now' ? '推荐' : '注意') + '</span></div>' +
+    '<div class="bw">' + l.desc + '</div>' +
+    '<div class="bx">' + l.examples + '</div></div>'
+  ).join('');
+  return '<div class="blk"><h2>' + g.title + '</h2>' +
+    '<p class="cap">' + g.rule + '</p>' +
+    '<div class="bt">' + lv + '</div>' +
+    '<div class="actcard" style="margin-top:12px"><p class="al">容量怎么定</p><p>' + g.capacity + '</p></div>' +
+    '<div class="note" style="background:#f4f2ed;color:var(--ink2)">' + g.conflict + '</div>' +
+    srcLine(g.sources) + '</div>';
+}
+
+function crossSellBlock(catKey) {
+  const c = DATA.crossSell[catKey];
+  if (!c) return '';
+  const li = c.points.map(p => '<li>' + p + '</li>').join('');
+  return '<div class="blk"><h2>' + c.title + '</h2>' +
+    '<ul class="olist" style="margin-top:14px">' + li + '</ul>' +
+    '<div class="actcard"><p class="al">结论</p><p>' + c.verdict + '</p></div>' +
+    srcLine(c.sources) + '</div>';
+}
+
+function trapsBlock(cat) {
+  const kind = kindOf(cat);
+  const src = (DATA.trapsByKind && DATA.trapsByKind[kind]) || DATA.trapsByKind.pc;
+  const t = src.map(x =>
+    '<div class="trap"><p class="tt">' + x.title + '</p><p>' + x.desc + '</p></div>'
+  ).join('');
+  return '<div class="blk"><h2>三个比涨价更贵的坑</h2><div style="margin-top:14px">' + t + '</div></div>';
+}
+
+/* ---------- 国补 ---------- */
+/* 按实付价算补贴。电脑归家电类（15% / 封顶 1500 / 无门槛），
+   手机归数码类（15% / 封顶 500 / 仅 ≤6000 可补）。这两条规则不一样，
+   混在一起讲是最容易让人白亏的地方 —— 所以单独开一块，且带计算。 */
+function subsidyCalc(rule, price) {
+  if (!price || price <= 0) return null;
+  const overLine = rule.threshold && price > rule.threshold;
+  const raw = price * rule.rate / 100;
+  const capped = Math.min(raw, rule.cap);
+  const got = overLine ? 0 : Math.round(capped);
+  return { raw: Math.round(raw), capped: Math.round(capped), got: got, overLine: !!overLine, pay: price - got };
+}
+
+function subsidyBlock() {
+  const R = DATA.subsidyRules;
+  const card = (key, r) => {
+    const sat = Math.round(r.saturate);
+    return '<div class="subcard' + (r.threshold ? '' : ' hot') + '">' +
+      '<p class="sh">' + (key === 'pc' ? '电脑' : '手机') + '　<span style="font-size:12px;color:var(--ink3)">' + r.bucket + '</span></p>' +
+      '<p class="sb">' + (r.threshold ? '≤ ' + fmt(r.threshold) + ' 元才补' : '无价格门槛') + '</p>' +
+      '<div class="sr"><span>补贴比例</span><b>' + r.rate + '%</b></div>' +
+      '<div class="sr"><span>单件封顶</span><b>¥' + fmt(r.cap) + '</b></div>' +
+      '<div class="sr"><span>吃满要实付</span><b>¥' + fmt(sat) + '</b></div>' +
+      '<p class="sn">' + r.note + '</p></div>';
+  };
+  return '<div class="blk"><h2>国补怎么算：电脑和手机不是一套规则</h2>' +
+    '<p class="cap">这一块单独讲，因为搞混它的代价是几百到一千五。<b>电脑归家电类，手机归数码类</b> —— ' +
+    '两条线的封顶和门槛都不一样，用手机的规则套电脑会白亏。</p>' +
+    '<div class="subgrid">' + card('pc', R.pc) + card('phone', R.phone) + '</div>' +
+    '<div class="calc">' +
+    '<p class="cl">算一下你的到手价</p>' +
+    '<div class="calcrow"><input id="pin" type="number" inputmode="numeric" placeholder="输入实付价，比如 5999" min="0"><span class="unit">元</span></div>' +
+    '<div class="calcres" id="pout"></div>' +
+    '</div>' +
+    '<p class="srcin">规则来源：2026 年以旧换新政策（家电 6 类 / 数码 4 类），执行至 2026-12-31。</p></div>';
+}
+
+function bindCalc() {
+  const inp = $('#pin'), out = $('#pout');
+  if (!inp || !out) return;
+  const R = DATA.subsidyRules;
+  const render = () => {
+    const v = parseInt(inp.value, 10);
+    if (!v || v <= 0) { out.innerHTML = '<span style="color:var(--ink3)">输入实付价后，这里会分别算出电脑和手机各能补多少。</span>'; return; }
+    const pc = subsidyCalc(R.pc, v);
+    const ph = subsidyCalc(R.phone, v);
+    const line = (name, r) => {
+      if (!r) return '';
+      const bad = r.overLine;
+      return '<div class="ln"><span>' + name + '能补</span><b>' +
+        (bad ? '<span style="color:var(--upink)">¥0（超过 ' + fmt(R.phone.threshold) + '，不参与）</span>' : '¥' + fmt(r.got)) +
+        '</b></div>';
+    };
+    let warn = '';
+    if (ph.overLine) {
+      warn = '<div class="calcwarn bad">这台手机超过 ' + fmt(R.phone.threshold) + ' 元，国补<b>一分不补</b>。' +
+        '如果目标是拿补贴，退回到 ' + fmt(R.phone.threshold) + ' 以内往往比硬上更划算。</div>';
+    } else if (ph.got === R.phone.cap && v > R.phone.saturate) {
+      warn = '<div class="calcwarn tip">手机补贴已经吃满 ¥' + fmt(R.phone.cap) + '，再往上加钱不会多补一分。</div>';
+    } else if (!ph.overLine && ph.got < R.phone.cap) {
+      warn = '<div class="calcwarn tip">手机再往上加 ¥' + fmt(Math.round(R.phone.saturate - v)) + ' 左右就吃满 ¥' + fmt(R.phone.cap) + '，超过这个点加钱只加配置、不加补贴。</div>';
+    } else {
+      // 刚好落在吃满点上：这时说「再加钱不涨」是对的，但说「还差多少」就不对了
+      const left = R.phone.threshold - v;
+      warn = '<div class="calcwarn tip">手机补贴已吃满 ¥' + fmt(R.phone.cap) + '。' +
+        '注意离 6000 的红线只剩 ¥' + fmt(left) + ' —— 再加一档配置很可能就跨过去，补贴直接归零。</div>';
+    }
+    out.innerHTML =
+      '<div style="margin-bottom:8px"><span style="color:var(--ink3)">实付 ¥' + fmt(v) + ' 的电脑，省</span> ' +
+      '<span class="big save">¥' + fmt(pc.got) + '</span> <span style="color:var(--ink3)">，到手 ¥' + fmt(pc.pay) + '</span></div>' +
+      '<div><span style="color:var(--ink3)">同样的价买手机，省</span> ' +
+      '<span class="big ' + (ph.overLine ? 'none' : 'save') + '">¥' + fmt(ph.got) + '</span>' +
+      ' <span style="color:var(--ink3)">，到手 ¥' + fmt(ph.pay) + '</span></div>' +
+      line('电脑', pc) + line('手机', ph) + warn;
+  };
+  inp.addEventListener('input', render);
+  render();
+}
+
+/* ---------- 优缺点 ---------- */
+function prosConsBlock(o) {
+  if (!o.pros || !o.pros.length) return '';
+  const li = arr => arr.map(x => '<li>' + x + '</li>').join('');
+  return '<div class="pc">' +
+    '<div class="prow"><p class="ph g">优点</p><ul>' + li(o.pros) + '</ul></div>' +
+    '<div class="prow con"><p class="ph b">缺点</p><ul>' + li(o.cons || []) + '</ul></div>' +
+    '</div>';
+}
+
+/* 榜单里给前三名各挂一段「优缺点速览」，不用点进详情也能比。
+   只给前三名，是因为再往后就变成信息过载了。 */
+function quickPros(o) {
+  if (!o.pros || !o.pros.length) return '';
+  const g = o.pros.slice(0, 2).map(x => '✓ ' + x).join('　');
+  const b = (o.cons || []).slice(0, 1).map(x => '✕ ' + x).join('');
+  return '<div class="pq"><span class="qg">' + g + '</span>' + (b ? '<span class="qb">' + b + '</span>' : '') + '</div>';
+}
+
+/* ---------- 电脑设计缺陷 ---------- */
+function defectBlock() {
+  const D = DATA.defects;
+  if (!D) return '';
+  const itemOf = d =>
+    '<div class="dfi">' +
+    '<div class="dh"><span class="dn">' + d.name + '</span>' +
+    '<span class="pill t-' + d.tone + '" style="flex:none">' + (d.tone === 'stop' ? '避开' : d.tone === 'think' ? '可解' : '留意') + '</span></div>' +
+    '<p class="dl"><b>症状：</b>' + d.symptom + '</p>' +
+    '<p class="dl"><b>涉及：</b>' + d.who + '</p>' +
+    '<p class="dl"><b>为什么：</b>' + d.why + '</p>' +
+    '<p class="dw">' + d.fix + '</p>' +
+    '</div>';
+
+  // 6 条全展开是 1500px，比整个榜单还高。只把最该避开的（tone=stop）摊开，
+  // 其余收进折叠 —— 「先看这三个」比「看这六个」更容易记住。
+  const bad = D.items.filter(d => d.tone === 'stop');
+  const rest = D.items.filter(d => d.tone !== 'stop');
+  const headHtml = bad.length ? bad.map(itemOf).join('') : D.items.slice(0, 2).map(itemOf).join('');
+  const restHtml = rest.length
+    ? fold('还有 ' + rest.length + ' 项该留意的', '不是通病，但买之前值得搜一下型号', '<div class="df">' + rest.map(itemOf).join('') + '</div>')
+    : '';
+
+  return '<div class="blk"><h2>' + D.title + '</h2>' +
+    '<p class="cap">' + D.cap + '</p>' +
+    '<div class="df">' + headHtml + '</div>' +
+    restHtml +
+    srcLine(D.sources) + '</div>';
+}
+
+function chartOutlook() {
+  const li = DATA.outlook.points.map(p => '<li>' + p + '</li>').join('');
+  return '<div class="blk"><h2>那到底要不要等</h2>' +
+    '<ul class="olist" style="margin-top:14px">' + li + '</ul>' +
+    srcLine(DATA.outlook.sources) + '</div>';
+}
+
+function decisionList(catKey) {
+  const cat = DATA.categories.find(c => c.key === catKey);
+  const kind = kindOf(cat);
+  // 只列同一大类的，电脑问题就看电脑的决策卡
+  const rows = DATA.decision.filter(d => (d.kind || 'pc') === kind).map(d =>
+    '<div class="drow' + (d.key === catKey ? ' now' : '') + '">' +
+    '<span class="dl">' + d.label + '</span>' +
+    '<span class="pill t-' + d.tone + '">' + d.tag + '</span></div>'
+  ).join('');
+  const cap = kind === 'phone'
+    ? '按你手上的机型对号入座。'
+    : '按你要买的东西对号入座。';
+  return '<div class="blk"><h2>一眼决策</h2>' +
+    '<p class="cap">' + cap + '</p><div class="dlist">' + rows + '</div></div>';
+}
+
+function saveBlock() {
+  return '<button class="savebtn" id="savebtn" type="button">保存这次结论</button>' +
+    '<div id="savenote"></div>';
+}
+
+/* ---------- 页面 ---------- */
+/* 折叠区：次要内容默认收起，首屏只留「结论 + 榜单 + 品牌」 */
+function fold(title, sub, body, open) {
+  return '<details class="fold"' + (open ? ' open' : '') + '>' +
+    '<summary><span><span class="ft">' + title + '</span>' +
+    '<span class="fs" style="display:block">' + sub + '</span></span>' +
+    '<span class="fi">›</span></summary>' +
+    '<div class="fbody">' + body + '</div></details>';
+}
+
+function fullResult(cat, budget, raw) {
+  const kind = kindOf(cat);
+  STATE = { raw, cat, budget, head: cat.headline, tone: cat.tone, mode: fixMode(kind, STATE.mode || 'value') };
+  const band = bandOf(budget, cat);
+  const isPhone = kind === 'phone';
+
+  let html = '<div class="back" id="back">← 换个问题</div>';
+  html += '<div class="vcard fade">' +
+    '<span class="pill t-' + cat.tone + '">' + TONE[cat.tone] + '</span>' +
+    '<h1 class="vhead">' + cat.headline + '</h1>' +
+    '<p class="vsub">' + cat.name + (budget ? ' · 预算 ¥' + fmt(budget) : '') + ' · ' + cat.changeLabel + '</p>' +
+    (band ? '<p class="quote">' + band.text + '</p>' : '') +
+    '</div>';
+
+  // ① 为什么是这个结论（短，直接展开）
+  html += '<div class="blk"><h2>为什么是这个结论</h2><ul class="olist" style="margin-top:14px">' +
+    cat.reasons.map(r => '<li>' + r + '</li>').join('') + '</ul></div>';
+
+  // ② 榜单 —— 用户最想要的一句话答案，放最前
+  html += rankBlock(cat, budget);
+
+  // ③ 国补 —— 这次单独立块，因为电脑和手机的规则不是一套
+  html += subsidyBlock();
+
+  // ④ 品牌。手机没有「可加装」，所以手机不出现在升级指南里
+  html += brandBlock(cat);
+  if (!isPhone) html += upgradeBlock();
+
+  // ⑤ 电脑专属：设计缺陷。手机这一块用不上，手机的坑在下面
+  if (!isPhone) html += defectBlock();
+
+  // ⑥ 品类横向对比（台式 vs 笔记本、6000 门槛这类，决定性信息）
+  html += crossSellBlock(cat.key);
+
+  // ⑦ 涨价详情：全部收进折叠区，想看再点
+  html += '<div class="foldwrap"><h2>涨了多少：完整数据</h2>' +
+    '<p class="cap">这一块是「现在到底贵了多少」的证据，不影响上面的选择，所以默认收起。四张图，不堆更多。</p>';
+  html += fold('你这类机器涨了多少', '同款机型对比，比均价更贴近你要付的钱', chartCategory(cat.key) + chartSame(cat));
+  html += isPhone
+    ? fold('钱被谁赚走了', '存储第一次超过处理器，成了手机里最贵的零件', chartCostShare())
+    : fold('钱被谁赚走了', '涨的是存储，不是整台机器', chartParts());
+  html += fold('还会不会降', 'DRAM 逐季环比，涨幅在收窄但方向没变', chartQuarter() + chartOutlook());
+  html += fold('三个比涨价更贵的坑', isPhone ? '大存储溢价 / 6000 门槛 / 等下轮降价' : '低价条 / 同价减配 / 国补不是常态', trapsBlock(cat));
+  html += '</div>';
+
+  // ⑧ 全部品类的横向决策卡
+  html += decisionList(cat.key);
+
+  html += '<div class="blk"><h2>现在该怎么做</h2><div class="actcard">' +
+    '<p class="al">可以直接照做</p><p>' + cat.action + '</p></div>' + srcLine(cat.sources) + '</div>';
+
+  html += saveBlock();
+  return html;
+}
+
+/* 手机的费用占比图：存储 vs 处理器 */
+function chartCostShare() {
+  const C = DATA.costShare;
+  if (!C) return '';
+  const rows = C.points.map(d => barRow({
+    label: d.label,
+    value: d.value,
+    max: 40,
+    valueText: d.value + '%',
+    dim: d.label.indexOf('处理器') >= 0
+  })).join('');
+  return '<div class="blk"><h2>' + C.title + '</h2>' +
+    '<p class="cap">这是手机这一轮涨价的根 —— 跟屏幕、跟芯片都没关系。</p>' +
+    rows +
+    '<div class="actcard" style="margin-top:12px"><p class="al">结论</p><p>' + C.verdict + '</p></div>' +
+    srcLine(C.sources) + '</div>';
+}
+
+function budgetOnly(budget) {
+  STATE = { raw: String(budget), cat: null, budget, head: '先说要买哪一类', tone: 'mixed', mode: STATE.mode || 'value' };
+  let html = '<div class="back" id="back">← 换个问题</div>';
+  html += '<div class="vcard fade">' +
+    '<span class="pill t-mixed">还差一步</span>' +
+    '<h1 class="vhead">预算 ¥' + fmt(budget) + '，先定买什么</h1>' +
+    '<p class="vsub">不同品类今年的走势差很多，补贴规则也不一样，选一个我再给准数</p>' +
+    '</div>';
+  html += '<div class="blk cand" id="cand">' +
+    DATA.categories.map(c =>
+      '<button type="button" data-key="' + c.key + '">' + c.name + '<span style="color:var(--ink3);font-size:13px"> · ' + c.changeLabel + '</span></button>'
+    ).join('') + '</div>';
+  html += '<div class="blk">' + chartCategory(null) + '</div>';
+  html += subsidyBlock();
+  html += chartOutlook();
+  return html;
+}
+
+function unknownCard(raw) {
+  STATE = { raw: '', cat: null, budget: null, head: '', tone: '', mode: STATE.mode || 'value' };
+  return '<div class="back" id="back">← 换个问题</div>' +
+    '<div class="vcard fade">' +
+    '<span class="pill t-mixed">没看懂</span>' +
+    '<h1 class="vhead">不确定你想问哪一类</h1>' +
+    '<p class="vsub">换个说法，或者直接选一个：</p></div>' +
+    '<div class="blk cand" id="cand">' +
+    DATA.categories.map(c => '<button type="button" data-key="' + c.key + '">' + c.name + '</button>').join('') +
+    '</div>';
+}
+
+function nocoverCard() {
+  STATE = { raw: '', cat: null, budget: null, head: '', tone: '', mode: STATE.mode || 'value' };
+  return '<div class="back" id="back">← 换个问题</div>' +
+    '<div class="vcard fade">' +
+    '<span class="pill t-mixed">信息不足</span>' +
+    '<h1 class="vhead">Mac 这条线我暂时没有可靠数据</h1>' +
+    '<p class="vsub">这个工具目前覆盖 Windows 整机、DIY 配件和手机。Mac 的调价逻辑和 Windows 阵营不太一样 —— ' +
+    '它这一轮基本没跟涨（MacBook Air M5 定价仍是 9499 起），我不想拿别人的数字硬套给你。</p>' +
+    '<p class="quote">需要的话，先说清是买电脑还是手机，其余部分我先给你。</p></div>' +
+    '<div class="blk cand" id="cand">' +
+    DATA.categories.map(c => '<button type="button" data-key="' + c.key + '">' + c.name + '</button>').join('') +
+    '</div>';
+}
+
+/* 单品详情 */
+function detailCard(id) {
+  const o = DATA.offers.find(x => x.id === id);
+  if (!o) return;
+  const cat = DATA.categories.find(c => c.key === o.cat);
+  const kind = kindOf(cat);
+  const isPhone = kind === 'phone';
+  const mode = fixMode(kind, STATE.mode);
+  const s = score(o, o.cat, STATE.budget, mode);
+  const b = DATA.brands.find(x => x.name === o.brand && (x.scope || 'pc') === kind);
+  const bd = STATE.budget;
+
+  // 顶部标签：电脑讲「能不能加」，手机讲「续航和影像的定位」。
+  // 阈值改成实测值：电池看 7000mAh（当前这一档的常见分界），影像仍是主观分看 80。
+  let badge, badgeTone;
+  if (isPhone) {
+    badgeTone = o.battery >= 7000 ? 'now' : o.camera >= 80 ? 'think' : 'mixed';
+    badge = o.battery >= 7000 ? '续航强项' : o.camera >= 80 ? '影像强项' : '均衡取向';
+  } else {
+    badgeTone = o.upgrade === 2 ? 'now' : o.upgrade === 1 ? 'mixed' : 'stop';
+    badge = '可加装：' + UPWORD[o.upgrade === 2 ? 'good' : o.upgrade === 1 ? 'mixed' : 'bad'];
+  }
+
+  // 手机这四项都显示可核实的原始值：容量、GB6 跑分、影像主观分。
+  // 池内相对位只在括号里当辅助，因为它是归一值，和原始值不是一个量纲。
+  // 主维度那一项已经由「名次依据」交代过（含原始值 + 相对位），这里不再重复。
+  // mainKey 要在 subRows 之前算出来，否则下面用不到它（let 有暂时性死区，不是 undefined）。
+  const modeCfg = weightsOf(kind)[mode];
+  const mainKey = modeCfg.primary;
+  const mainDim = mainKey ? dimListOf(kind).find(d => d.key === mainKey) : null;
+
+  const subRows = isPhone
+    ? (mainKey === 'battery' ? '' :
+        '<dt>续航</dt><dd>' + fmt(o.battery) + ' mAh（池内相对位 ' + Math.round(s.d.battery) + '/100）</dd>') +
+      '<dt>芯片</dt><dd>' + (o.chip || '—') +
+        (o.gb6 ? '　GB6 单核 ' + fmt(o.gb6[0]) + ' / 多核 ' + fmt(o.gb6[1]) : '') + '</dd>' +
+      (mainKey === 'camera' ? '' :
+        '<dt>影像</dt><dd>' + o.camera + ' / 100（主观分，池内相对位 ' + Math.round(s.d.camera) + '/100）</dd>')
+    : (mainKey === 'upgrade' ? '' :
+        '<dt>可加装</dt><dd>' + OUPWORD_RAW[o.upgrade] + '（池内相对位 ' + Math.round(s.d.upgrade) + '/100）</dd>') +
+      (mainKey === 'portable' ? '' :
+        '<dt>便携</dt><dd>' + PORTWORD[o.portable] + '（池内相对位 ' + Math.round(s.d.portable) + '/100）</dd>');
+
+  // 「名次依据」和「综合分」两行必须和排序逻辑对齐。
+  // 关键：同一个指标只给一个口径的数字。之前这里同时印了「性能分 46」和
+  // 「GB6 1866」，两个数都叫性能却差一个量级，读者会以为哪里算错了。
+  // 现在有主维度时，主维度那一行只给原始值 + 档位 + 池内相对位，不再重复给分。
+  const rankRows = mainDim
+    ? '<dt>名次依据</dt><dd>' + mainDim.label + '：' +
+        (isPhone && mainKey === 'perf' ? o.perf + ' 分'
+          : mainKey === 'battery' ? fmt(o.battery) + ' mAh'
+          : mainKey === 'camera' ? o.camera + ' 分（主观）'
+          : primaryDisplay(o, mainKey, s.d[mainKey]).v) +
+        '　·　池内相对位 ' + Math.round(s.d[mainKey]) + '/100' +
+        '<br><span class="ddim">先按这一项分三档，同档内再按它从高到低</span></dd>'
+    : '<dt>名次依据</dt><dd>综合分 ' + s.total + ' / 100' +
+        '<br><span class="ddim">「' + modeCfg.label + '」没有单项硬门槛，按各项加权总分排</span></dd>';
+
+  // 加分项里已经写了主维度，这里就不重复；写重复等于同一个数给两个名字。
+  // subRows 已经把续航 / 影像 / 可加装 / 便携讲过了，extraDims 只补真正没出现过的，
+  // 否则详情页会出现两条「续航」、两条「价格」，读者会以为数据打架。
+  const shown = new Set(isPhone
+    ? ['battery', 'camera', 'perf', 'price', 'brand']
+    : ['upgrade', 'portable', 'perf', 'price', 'brand']);
+  const extraDims = dimListOf(kind).filter(d => !shown.has(d.key) && d.key !== mainKey);
+  const extraRows = extraDims.map(d =>
+    '<dt>' + d.label + '</dt><dd>' + Math.round(s.d[d.key]) + ' / 100</dd>').join('');
+
+  let html = '<div class="back" id="detailback">← 回榜单</div>';
+  html += '<div class="detail fade">' +
+    '<span class="pill t-' + badgeTone + '">' + badge + '</span>' +
+    '<h1 class="vhead">' + o.name + '</h1>' +
+    '<p class="vsub">' + o.spec + ' · ' + cat.name + '</p>' +
+    (bd && o.price > bd ? '<p class="quote" style="color:var(--upink)">超出你的预算 ¥' + fmt(o.price - bd) + '。</p>' : '') +
+    '<dl class="spec">' +
+    '<dt>到手价</dt><dd>¥' + fmt(o.price) + '</dd>' +
+    rankRows +
+    '<dt>综合分</dt><dd>' + s.total + ' / 100<span class="ddim">（各项加权，仅供参考）</span></dd>' +
+    '<dt>价格分</dt><dd>' + Math.round(s.d.price) + ' / 100</dd>' +
+    (isPhone && mainKey !== 'perf' ? '<dt>性能</dt><dd>' + o.perf + ' 分' + (mainKey === 'perf' ? '' : '（池内相对位 ' + Math.round(s.d.perf) + '/100）') + '</dd>' : '') +
+    subRows +
+    ((!isPhone && mainKey !== 'perf')
+      ? (o.perf === null || o.perf === undefined
+          ? '<dt>性能</dt><dd>不涉及<span class="ddim">（本类目没有 CPU，不计入加权）</span></dd>'
+          : '<dt>性能</dt><dd>' + o.perf + ' 分<span class="ddim">（Cinebench R23 '
+            + o.cb23[0] + '/' + o.cb23[1] + ' 实测换算）</span></dd>')
+      : '') +
+    extraRows +
+    '<dt>品牌</dt><dd>' + o.brand + (b ? '　' + b.verdict : '') + '</dd>' +
+    '</dl>' +
+    '<div class="problock"><p class="ph g">优点</p><ul>' + (o.pros || []).map(x => '<li>' + x + '</li>').join('') + '</ul>' +
+    '<p class="ph b">缺点</p><ul class="cons">' + (o.cons || []).map(x => '<li>' + x + '</li>').join('') + '</ul></div>' +
+    '<div class="actcard"><p class="al">一句话</p><p>' + o.tag + '</p></div>' +
+    (o.caution ? '<div class="note" style="background:#fdf4e3;color:#8a5a0b">注意：' + o.caution + '</div>' : '') +
+    srcLine(o.sources) +
+    '</div>';
+  const sec = $('#result');
+  sec.innerHTML = html;
+  window.scrollTo(0, 0);
+  $('#detailback').onclick = () => run(STATE.raw);
+}
+
+/* ---------- 保存 ---------- */
+function doSave() {
+  const btn = $('#savebtn'), note = $('#savenote');
+  if (!btn) return;
+  const payload = { t: Date.now(), raw: STATE.raw, cat: STATE.cat ? STATE.cat.key : null, budget: STATE.budget, head: STATE.head, tone: STATE.tone };
+  let ok = false;
+  try { localStorage.setItem(KEY, JSON.stringify(payload)); ok = true; } catch (e) { ok = false; }
+  if (ok) {
+    btn.textContent = '已保存 · 下次打开还能看到';
+    btn.classList.add('done');
+    btn.disabled = true;
+    note.innerHTML = '';
+  } else {
+    note.innerHTML = '<div class="note bad">这次结果没保存成功（可能是浏览器隐私模式，或本机存储已满）。' +
+      '你可以截图，或复制这句：' + STATE.head + '</div>';
+  }
+}
+
+function showSaved(s) {
+  const el = $('#saved');
+  const d = new Date(s.t);
+  const when = (d.getMonth() + 1) + ' 月 ' + d.getDate() + ' 日';
+  el.innerHTML = '上次看的：<b>' + (s.raw || '—') + '</b> · ' + when + '<br><span style="opacity:.8">' + s.head + '</span>';
+  el.hidden = false;
+  el.onclick = () => { $('#q').value = s.raw || ''; run(s.raw); };
+}
+
+/* ---------- 主流程 ---------- */
+function wire() {
+  const back = $('#back');
+  if (back) back.onclick = goHome;
+  const sb = $('#savebtn');
+  if (sb) sb.onclick = doSave;
+
+  const cand = $('#cand');
+  if (cand) cand.onclick = e => {
+    const b = e.target.closest('button[data-key]');
+    if (!b) return;
+    const c = DATA.categories.find(x => x.key === b.dataset.key);
+    const keep = STATE.budget;
+    run(keep ? String(keep) + ' ' + c.short : c.name);
+    STATE.budget = keep;
+  };
+
+  // 侧重切换：只重排榜单，不重建整页（保持滚动位置）
+  const weigh = $('#weigh');
+  if (weigh) weigh.onclick = e => {
+    const b = e.target.closest('.wbtn');
+    if (!b || b.dataset.mode === STATE.mode) return;
+    STATE.mode = b.dataset.mode;
+    const cat = STATE.cat;
+    if (!cat) { run(STATE.raw); return; }
+    const kind = kindOf(cat);
+    const holder = document.createElement('div');
+    holder.innerHTML = rankBlock(cat, STATE.budget);
+    ['#rank', '#rankrest'].forEach(sel => {
+      const old = $(sel), neu = holder.querySelector(sel);
+      if (old && neu) old.innerHTML = neu.innerHTML;
+    });
+    const cap = $('#wcap');
+    if (cap) cap.textContent = weightsOf(kind)[STATE.mode].cap + '　·　五根小条：' +
+      dimListOf(kind).map(d => d.label).join(' / ');
+    Array.prototype.forEach.call(weigh.children, x => x.classList.toggle('on', x.dataset.mode === STATE.mode));
+    bindRank();
+  };
+
+  bindRank();
+  bindCalc();
+}
+
+function bindRank() {
+  const handler = e => {
+    const row = e.target.closest('.rk');
+    if (!row) return;
+    detailCard(row.dataset.id);
+  };
+  ['#rank', '#rankrest'].forEach(sel => {
+    const el = $(sel);
+    if (el) el.onclick = handler;
+  });
+}
+
+function run(raw) {
+  const r = analyze(raw);
+  const sec = $('#result');
+  if (r.err === 'empty') { $('#q').focus(); return; }
+  if (r.cat) STATE.mode = STATE.mode || 'value';
+
+  let html;
+  if (r.err === 'unknown') html = unknownCard(raw);
+  else if (r.err === 'nocover') html = nocoverCard(raw);
+  else if (!r.cat) html = budgetOnly(r.budget);
+  else html = fullResult(r.cat, r.budget, raw);
+
+  sec.innerHTML = html;
+  $('#home').hidden = true;
+  sec.hidden = false;
+  window.scrollTo(0, 0);
+  wire();
+}
+
+function goHome() {
+  $('#result').hidden = true;
+  $('#home').hidden = false;
+  window.scrollTo(0, 0);
+  $('#q').focus();
+}
+
+/* ---------- 初始化 ---------- */
+$('#asof').textContent = DATA.meta.updated;
+$('#srccount').textContent = DATA.sources.length;
+$('#srclist').innerHTML = DATA.sources.map(s =>
+  '<li><b>' + s.title + '</b><br><span class="pm">' + s.publisher + ' · ' + s.date + '</span> · ' +
+  '<a href="' + s.url + '" target="_blank" rel="noopener">原文</a></li>'
+).join('');
+
+$('#chips').innerHTML = [
+  { t: '5000 的轻薄本', v: '5000 的轻薄本' },
+  { t: '游戏本', v: '游戏本' },
+  { t: '3000 的手机', v: '3000 的手机' },
+  { t: '手机 6000 以内', v: '6000 以内的手机' },
+  { t: '台式整机', v: '台式整机' },
+  { t: '想加内存', v: '想加内存' }
+].map(c => '<button class="chip" type="button" data-v="' + c.v + '">' + c.t + '</button>').join('');
+
+$('#chips').onclick = e => {
+  const b = e.target.closest('.chip');
+  if (!b) return;
+  $('#q').value = b.dataset.v;
+  run(b.dataset.v);
+};
+$('#go').onclick = () => run($('#q').value);
+$('#q').addEventListener('keydown', e => { if (e.key === 'Enter') run($('#q').value); });
+
+try {
+  const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+  if (s && s.head) showSaved(s);
+} catch (e) { /* 隐私模式读不到，静默跳过 */ }
+</script>
+</body>
+</html>

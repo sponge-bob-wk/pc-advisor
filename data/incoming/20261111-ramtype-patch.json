@@ -1,0 +1,91 @@
+{
+  "meta": {
+    "created": "2026-11-11T21:00:00+08:00",
+    "purpose": "ramType 卡点批次：补 ram.type / ram.slots（白名单内字段）。ram.form / ram.maxGB 走 tools/fill_cpuid.py（人工决定字段）。",
+    "sourceDiscipline": "主来源=京东商品参数页/品牌官网，逐台标注",
+    "howToMerge": "python tools/merge_patch.py --patch data/incoming/20261111-ramtype-patch.json --apply"
+  },
+  "patch": [
+    {
+      "id": "spec-parsed-jd-dell-inspiron14plus-7440-core5-210h-1",
+      "name": "灵越 14 Plus 7440",
+      "ram": { "type": "LPDDR5X", "slots": 0 },
+      "confidence": "medium",
+      "dataGaps": [
+        "throttle",
+        "efficiencyStatus",
+        "⚠️ 内存形态裁定（2026-11-11）：戴尔官网『板载 LPDDR5x 6400 双通道，16G=2×8 板载 / 32G=2×16 板载』。京东参数区『插槽数量:7个』为明显的参数区错误数据，弃用。原库内『LPDDR5X 焊死 vs 1 插槽 vs 最大16G』自相矛盾已解：焊死、无插槽、最大 32G"
+      ],
+      "evidence": {
+        "ramSpec": "主来源：戴尔中国官网 dell.com/zh-cn Inspiron 14 Plus 7440 技术规格页；交叉：京东自营/旗舰店两个 SKU 参数区（内存频率 4800MHz 与官网 6400 不一致，取官网）",
+        "ramSpecQuote": "官网原文：内存 * 16 GB, 2 个 8 GB(板载), LPDDR5x, 6400 MT/s, 双通道；32 GB, 2 个 16 GB(板载), LPDDR5x, 6400 MT/s, 双通道"
+      }
+    },
+    {
+      "id": "jd-huawei-matebookd16-i513420h-16g-1t-20261109",
+      "name": "华为 MateBook D 16（i5-13420H）",
+      "ram": { "type": "LPDDR4X", "slots": 0 },
+      "confidence": "medium",
+      "evidence": {
+        "ramSpec": "主来源：华为商城 vmall.com 官方参数页（MCLG-16，Linux V20R102 i5/16GB/1TB）；交叉：京东自营同认证型号参数区（最大支持容量 16GB）",
+        "ramSpecQuote": "官网原文：运行内存 16GB；内存类型 LPDDR4X；存储 1TB；电池容量 56Wh(额定容量)；机身重量 约1.7kg(含电池)"
+      }
+    },
+    {
+      "id": "spec-parsed-jd-asus-wuwei16-2026-r7h260-16g-512g-202",
+      "name": "华硕 无畏16 2026（R7-H260）",
+      "ram": { "type": "DDR5", "slots": 1, "form": "sodimm" },
+      "confidence": "medium",
+      "dataGaps": [
+        "throttle",
+        "efficiencyStatus",
+        "内存为混合形态：官网『板载 8GB/16GB DDR5 + 1×DDR5 SO-DIMM 扩展槽』，16G 版=板载16G+空槽可扩展。form 填 sodimm 指判定语义『可加内存』（lib_judge form_is_soldered 有插槽即可换）"
+      ],
+      "evidence": {
+        "ramSpec": "主来源：华硕官网 asus.com.cn M1607HA techspec；交叉：京东华硕电脑官方旗舰店/严选旗舰店（插槽数量 1个；最大 40GB 或 16GB 两种写法）",
+        "ramSpecQuote": "官网原文：内存(视出货而定) 板载 8GB DDR5 / 板载 16GB DDR5；扩展槽(包含已用) 1x DDR5 SO-DIMM 插槽；电池 42WHrs",
+        "ramSpecNote": "官网 42Wh 与京东自营 70Wh 分歧：M1607HA 是 2025 款页面，京东 2026 在售（M3650U 能效型号）写 70Wh。内存形态两代同模具一致，电池分歧记入 dataGaps 待核"
+      }
+    },
+    {
+      "id": "jd-mechrevo-kuangshix-i514450hx-rtx5050-32g-1t-20261109",
+      "name": "旷世X 2026（i5-14450HX/RTX5050）",
+      "ram": { "type": "DDR5", "slots": 2, "form": "sodimm" },
+      "confidence": "medium",
+      "evidence": {
+        "ramSpec": "主来源：京东商品页 item.jd.com/10234898973363.html（正是 i5-14450HX SKU，插槽数量 2个、内存类型 DDR5）；交叉：今日头条拆机帖（『机器有两个内存插槽，如有需求可自行加装』）、港零售商规格页（SO-DIMM 双插槽，最高 64GB）",
+        "ramSpecQuote": "京东参数：插槽数量 2个；内存类型 DDR5；产品净重 2.2kg；屏幕 2560*1600 180Hz 100% Adobe RGB"
+      }
+    },
+    {
+      "id": "spec-parsed-jd-lenovo-xiaoxinpro16-u5-336h-24g-1t-20",
+      "name": "小新Pro16 2026（U5-336H/24G）",
+      "ram": { "type": "DDR5", "slots": 2, "form": "sodimm" },
+      "confidence": "medium",
+      "evidence": {
+        "ramSpec": "主来源：京东 JDG 电竞官方旗舰店同 SKU（认证型号 小新 Pro 16 IPH11，U5-336H 24G）参数『插槽数量:2个 最大支持容量:96GB』；交叉：IT之家发布稿 ithome.com/0/930/374.htm（『32GB 内存(预留插槽)』）、联想自营同 SKU",
+        "ramSpecNote": "24G = 2×SO-DIMM（8+16）组合，96GB 上限佐证双插槽"
+      }
+    },
+    {
+      "id": "spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-yih",
+      "name": "小新Pro16 2026（R7-H255/24G 京东自营）",
+      "ram": { "type": "DDR5", "slots": 2, "form": "sodimm" },
+      "confidence": "medium",
+      "evidence": {
+        "ramSpec": "主来源：京东同系列 SKU（认证型号 小新Pro16c AHP10R，R7-H255 24G）参数『插槽数量:2个 最大支持容量:96GB』",
+        "ramSpecNote": "与 U5-336H 版（Pro 16 IPH11）同代同模具系列，双 SO-DIMM"
+      }
+    },
+    {
+      "id": "spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-fla",
+      "name": "小新Pro16 2026（R7-H255/24G 翻新版渠道）",
+      "ram": { "type": "DDR5", "slots": 2, "form": "sodimm" },
+      "confidence": "medium",
+      "evidence": {
+        "ramSpec": "同上：小新Pro16c AHP10R 系列，京东参数 slots=2 / max 96GB",
+        "ramSpecNote": "库内该条 slots 原为 null，按同认证型号系列补齐"
+      }
+    }
+  ]
+}

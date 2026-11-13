@@ -1,0 +1,1648 @@
+{
+ "meta": {
+  "version": "0.2",
+  "updated": "2026-11-07",
+  "scope": "中国大陆本科 / 专科，面向准大学生入学购机（Windows 阵营为主）",
+  "basis": "专业 → 高校公开培养方案中的课程 → 课程对应的软件 → 软件厂商官方系统要求",
+  "coverage": "10 个软件栈组 / 311 个专业（本科 235 / 专科 76）；软件要求库 20 条，其中 10 条已取证、10 条待取证",
+  "levelRule": "majors 里的纯字符串默认是本科；专科写成 {\"name\": \"会计\", \"level\": \"专\"}。同名本专科可以各自存在，按 name+level 唯一。",
+  "evidenceRule": "每一组的硬件门槛要么能追到软件官方系统要求（evidence=official），要么明确标为人写判断（evidence=judgment）并给出理由。没有第三种。",
+  "disclaimer": "同一专业在不同学校的课程强度差异很大（同一门「三维建模」，有的学校教 Rhino，有的教 3ds Max）。本表给门槛与原因，不给「必须买某台」。学校不同、方向不同，请以本校培养方案为准。",
+  "notCovered": "Mac 全系（调价逻辑与 Windows 阵营不同，硬套会误导）；平板、主机、二手；艺术类中偏纯技能的细分方向（声乐、舞蹈、器乐演奏）只按最低档处理。"
+ },
+ "sources": [
+  {
+   "id": "jit-arch",
+   "type": "curriculum",
+   "title": "建筑学专业卓越工程师教育培养方案（含 AutoCAD / Revit / SketchUp / Photoshop 课程说明）",
+   "publisher": "金陵科技学院 建筑工程学院",
+   "date": "2026",
+   "url": "https://jg.jit.edu.cn/__local/4/B8/4D/4CB49E3DD09F44125784C68C3FE_FAD8DEB1_B5411.pdf",
+   "usedFor": [
+    "建筑学课程中的 AutoCAD、Revit、SketchUp、Photoshop",
+    "软件课按学期分布"
+   ]
+  },
+  {
+   "id": "jit-arch2",
+   "type": "curriculum",
+   "title": "建筑学专业人才培养方案（建筑数字技术 I/II/III 课程群）",
+   "publisher": "金陵科技学院 建筑工程学院",
+   "date": "2026",
+   "url": "https://jg.jit.edu.cn/__local/9/5E/A8/2812CBF5E05D8C867C27848FE39_CD5010F2_FA42D.pdf",
+   "usedFor": [
+    "建筑数字技术 I：AutoCAD、SketchUp",
+    "II：Photoshop、Illustrator",
+    "III：Revit、Rhino"
+   ]
+  },
+  {
+   "id": "jxstnu-vcd",
+   "type": "curriculum",
+   "title": "视觉传达设计专业人才培养方案（课程含 PS / AI / AE / C4D 学分表）",
+   "publisher": "江西科技师范大学",
+   "date": "2026",
+   "url": "https://gjxy.jxstnu.edu.cn/__local/E/A7/CE/F9414DCEEDE7CF7EF6EC7AA6E79_AF409EA3_473DD.pdf",
+   "usedFor": [
+    "视觉传达含 Photoshop、Illustrator、AE 视频特效、C4D 三维",
+    "网页编程基础"
+   ]
+  },
+  {
+   "id": "ndzy-vcd",
+   "type": "curriculum",
+   "title": "视觉传达设计专业人才培养方案（实训项目：PS 基础 / AI 软件应用 / 信息可视化三维建模）",
+   "publisher": "宁德职业技术学院",
+   "date": "2026",
+   "url": "https://www.ndzy.cn/upload/file/20260701/6391852483457478721673893.pdf",
+   "usedFor": [
+    "PS、AI 为必修实训",
+    "信息可视化含三维建模与渲染"
+   ]
+  },
+  {
+   "id": "hubu-cs",
+   "type": "curriculum",
+   "title": "计算机科学与技术专业本科人才培养方案（2024 版）",
+   "publisher": "湖北大学 计算机学院",
+   "date": "2024",
+   "url": "http://cs.hubu.edu.cn/1_jisuanjikexueyujishuzhuanyebenkerencaipeiyangfangan-2024ban.pdf",
+   "usedFor": [
+    "核心课程：数据结构、操作系统、数据库、计算机网络、算法",
+    "无图形学以外的重显卡课程"
+   ]
+  },
+  {
+   "id": "zjut-cs",
+   "type": "curriculum",
+   "title": "2024 级计算机科学与技术专业培养方案",
+   "publisher": "浙江工业大学 计算机学院",
+   "date": "2024",
+   "url": "https://cs.zjut.edu.cn/ueditor/jsp/upload/file/20250228/1740722132736093999.pdf",
+   "usedFor": [
+    "课程以程序设计、组成原理、编译原理为主"
+   ]
+  },
+  {
+   "id": "audio-cur",
+   "type": "curriculum",
+   "title": "音乐制作 / 录音艺术专业课程与软件说明（Cubase、Logic Pro、Pro Tools、Ableton）",
+   "publisher": "公开招生资料汇编",
+   "date": "2026",
+   "url": "https://xgkguide.com/jiuyeqianjing/10882.html",
+   "usedFor": [
+    "核心课：录音与缩混技术、MIDI 制作、声音设计",
+    "主流 DAW：Cubase / Logic / Pro Tools / Studio One / Ableton"
+   ]
+  },
+  {
+   "id": "adobe-ps",
+   "type": "sysreq",
+   "title": "Photoshop 系统要求（官方）",
+   "publisher": "Adobe",
+   "date": "2026",
+   "url": "https://helpx.adobe.com/cn/photoshop/system-requirements.html",
+   "usedFor": [
+    "内存 8G 最低 / 16G 推荐",
+    "显存 1.5G 最低 / 4G（4K 屏）",
+    "硬盘 100G 推荐"
+   ]
+  },
+  {
+   "id": "adobe-pr",
+   "type": "sysreq",
+   "title": "Premiere Pro 系统要求（官方）",
+   "publisher": "Adobe",
+   "date": "2026",
+   "url": "https://helpx.adobe.com/hr/premiere-pro/system-requirements.html",
+   "usedFor": [
+    "内存 8G 最低 / HD 16G / 4K 32G",
+    "显存 2G 最低 / 8G 推荐"
+   ]
+  },
+  {
+   "id": "adobe-ae",
+   "type": "sysreq",
+   "title": "After Effects 系统要求（官方，中文）",
+   "publisher": "Adobe",
+   "date": "2026",
+   "url": "https://www.adobe.com/go/system_req_page_after-effects_prod_cn",
+   "usedFor": [
+    "内存 16G 最低 / 32G 推荐（4K）",
+    "显存 4G 最低 / 8G 推荐",
+    "需要独立 GPU（OpenCL 2.0）"
+   ]
+  },
+  {
+   "id": "bmd-resolve",
+   "type": "sysreq",
+   "title": "DaVinci Resolve 21 系统最低需求（官方 Readme）",
+   "publisher": "Blackmagic Design",
+   "date": "2026-07",
+   "url": "https://www.blackmagicdesign.com/my/support/readme/a18f0f2a933a4f7889c90d1a5431eddf",
+   "usedFor": [
+    "Windows 16G 最低 / Fusion 需 32G",
+    "显存 4G 最低 / AI 工具 16G"
+   ]
+  },
+  {
+   "id": "autodesk-revit",
+   "type": "sysreq",
+   "title": "Revit 2026 产品系统要求（官方）",
+   "publisher": "Autodesk",
+   "date": "2026-10",
+   "url": "https://www.autodesk.com/support/technical/article/System-requirements-for-Revit-2026-products",
+   "usedFor": [
+    "入门 16G 内存（约 300MB 单模型）",
+    "均衡 32G 内存（约 600MB）",
+    "大模型 64G 内存",
+    "显存 4G 起 / 8G（性能档）"
+   ]
+  },
+  {
+   "id": "sw-sysreq",
+   "type": "sysreq",
+   "title": "SOLIDWORKS 系统要求（官方中文）",
+   "publisher": "Dassault Systèmes",
+   "date": "2026",
+   "url": "https://www.solidworks.com/zh-hans/support/system-requirements",
+   "usedFor": [
+    "内存 16G，推荐 32G",
+    "需认证显卡 + 认证驱动（不按显存数字衡量）"
+   ]
+  },
+  {
+   "id": "rhino-sysreq",
+   "type": "sysreq",
+   "title": "Rhino 8 系统需求（官方中文）",
+   "publisher": "McNeel",
+   "date": "2026",
+   "url": "https://www.rhino3d.com/cn/8/system-requirements",
+   "usedFor": [
+    "内存建议 8G 起",
+    "建议 4G 显存、OpenGL 4.5"
+   ]
+  },
+  {
+   "id": "steinberg-cubase",
+   "type": "sysreq",
+   "title": "Cubase 版本对比与系统要求（官方）",
+   "publisher": "Steinberg",
+   "date": "2026",
+   "url": "https://new.steinberg.net/cubase/compare-editions/",
+   "usedFor": [
+    "内存最低 8G",
+    "不作独显要求",
+    "完整安装 75G 硬盘"
+   ]
+  },
+  {
+   "id": "mathworks",
+   "type": "sysreq",
+   "title": "MATLAB R2026a System Requirements for Windows（官方）",
+   "publisher": "MathWorks",
+   "date": "2026",
+   "url": "https://in.mathworks.com/support/sysreq.html",
+   "usedFor": [
+    "内存 8G 最低 / 16G 推荐",
+    "CPU 推荐 4 逻辑核 + AVX2",
+    "显卡仅需支持 WebGL 2.0，2GB 以上",
+    "全部产品安装 25G"
+   ]
+  },
+  {
+   "id": "esri-arcgis",
+   "type": "sysreq",
+   "title": "ArcGIS Pro 3.7 系统要求（官方中文）",
+   "publisher": "Esri",
+   "date": "2026",
+   "url": "https://pro.arcgis.com/zh-cn/Pro-app/get-started/arcgis-pro-system-requirements.htm",
+   "usedFor": [
+    "内存 8G 最低 / 32G 推荐 / 64G 最佳",
+    "推荐独立显卡，独占显存 8G 以上",
+    "存储 32G 安装 + 最多 32G 可视化缓存"
+   ]
+  }
+ ],
+ "dimensions": {
+  "gpu": {
+   "label": "显卡",
+   "scale": "0 核显 / 1 入门独显（4G 显存）/ 2 中端独显（6-8G）/ 3 高端独显（12G+）",
+   "why": "新增维度。原有五维（价格/性能/可加装/品牌/便携）里没有显卡，而专业需求里显卡是第一条硬门槛。"
+  },
+  "ram": {
+   "label": "内存",
+   "scale": "8 / 16 / 32 / 64（单位 GB）",
+   "why": "新增维度。内存是准大学生四年里最可能不够的一项，且涨内存的年份里它同时决定价格。"
+  },
+  "storage": {
+   "label": "存储",
+   "scale": "512 / 1024 / 2048（单位 GB）",
+   "why": "新增维度。视频素材与音频采样库的体积差一个数量级，512G 在这两个组里是硬伤，在办公组里完全够用。"
+  }
+ },
+ "software": [
+  {
+   "id": "ps",
+   "name": "Photoshop",
+   "vendor": "Adobe",
+   "verified": true,
+   "ramMin": 8,
+   "ramRec": 16,
+   "vramMin": 1.5,
+   "vramRec": 4,
+   "diskGB": 100,
+   "gpuNeed": "any",
+   "source": "adobe-ps",
+   "note": "4G 显存只在 4K 及以上显示器时才是推荐值"
+  },
+  {
+   "id": "pr",
+   "name": "Premiere Pro",
+   "vendor": "Adobe",
+   "verified": true,
+   "ramMin": 8,
+   "ramRec": 32,
+   "vramMin": 2,
+   "vramRec": 8,
+   "diskGB": 0,
+   "gpuNeed": "any",
+   "source": "adobe-pr",
+   "note": "HD 素材 16G 够，4K 起要 32G；显存 8G 推荐"
+  },
+  {
+   "id": "ae",
+   "name": "After Effects",
+   "vendor": "Adobe",
+   "verified": true,
+   "ramMin": 16,
+   "ramRec": 32,
+   "vramMin": 4,
+   "vramRec": 8,
+   "diskGB": 0,
+   "gpuNeed": "discrete",
+   "source": "adobe-ae",
+   "note": "明确要求独立 GPU（OpenCL 2.0），是本表里对显卡最硬的一条"
+  },
+  {
+   "id": "davinci",
+   "name": "DaVinci Resolve",
+   "vendor": "Blackmagic Design",
+   "verified": true,
+   "ramMin": 16,
+   "ramRec": 32,
+   "vramMin": 4,
+   "vramRec": 16,
+   "diskGB": 0,
+   "gpuNeed": "any",
+   "source": "bmd-resolve",
+   "note": "用 Fusion 页面时内存要 32G；AI 工具要 16G 显存"
+  },
+  {
+   "id": "revit",
+   "name": "Revit",
+   "vendor": "Autodesk",
+   "verified": true,
+   "ramMin": 16,
+   "ramRec": 32,
+   "vramMin": 4,
+   "vramRec": 8,
+   "diskGB": 100,
+   "gpuNeed": "discrete",
+   "source": "autodesk-revit",
+   "note": "16G 只够约 300MB 的单模型；官方「均衡」档是 32G，大模型档 64G。单核频率比核心数重要"
+  },
+  {
+   "id": "sw",
+   "name": "SOLIDWORKS",
+   "vendor": "Dassault",
+   "verified": true,
+   "ramMin": 16,
+   "ramRec": 32,
+   "vramMin": null,
+   "vramRec": null,
+   "diskGB": 0,
+   "gpuNeed": "certified",
+   "source": "sw-sysreq",
+   "note": "官方只要求「认证显卡 + 认证驱动」，不看显存数字。游戏本跑 SW 可能不如移动工作站稳"
+  },
+  {
+   "id": "rhino",
+   "name": "Rhino",
+   "vendor": "McNeel",
+   "verified": true,
+   "ramMin": 8,
+   "ramRec": 32,
+   "vramMin": 4,
+   "vramRec": 6,
+   "diskGB": 5,
+   "gpuNeed": "any",
+   "source": "rhino-sysreq",
+   "note": "官方写的 8G 内存是「能开」，实际建模加 Grasshopper 要 32G"
+  },
+  {
+   "id": "cubase",
+   "name": "Cubase",
+   "vendor": "Steinberg",
+   "verified": true,
+   "ramMin": 8,
+   "ramRec": 16,
+   "vramMin": 0,
+   "vramRec": 0,
+   "diskGB": 75,
+   "gpuNeed": "none",
+   "source": "steinberg-cubase",
+   "note": "不要独显。完整安装 75G，采样库另算，动辄几百 G。瓶颈在 CPU 单核与声卡驱动"
+  },
+  {
+   "id": "matlab",
+   "name": "MATLAB / Simulink",
+   "vendor": "MathWorks",
+   "verified": true,
+   "ramMin": 8,
+   "ramRec": 16,
+   "vramMin": 0,
+   "vramRec": 2,
+   "diskGB": 25,
+   "gpuNeed": "any",
+   "source": "mathworks",
+   "note": "官方不要求独显，只要支持 WebGL 2.0；CPU 推荐 4 逻辑核 + AVX2。真正吃的是内存和核心数"
+  },
+  {
+   "id": "arcgis",
+   "name": "ArcGIS Pro",
+   "vendor": "Esri",
+   "verified": true,
+   "ramMin": 8,
+   "ramRec": 32,
+   "vramMin": 0,
+   "vramRec": 8,
+   "diskGB": 32,
+   "gpuNeed": "discrete",
+   "source": "esri-arcgis",
+   "note": "推荐 32G / 最佳 64G；推荐独立显卡、独占显存 8G；另有最多 32G 可视化缓存"
+  },
+  {
+   "id": "cad",
+   "name": "AutoCAD",
+   "vendor": "Autodesk",
+   "verified": false,
+   "ramMin": null,
+   "ramRec": null,
+   "vramMin": null,
+   "vramRec": null,
+   "diskGB": null,
+   "gpuNeed": null,
+   "source": null,
+   "note": "本版未取证。二维制图对硬件要求低，通常不是该组瓶颈"
+  },
+  {
+   "id": "ai",
+   "name": "Illustrator",
+   "vendor": "Adobe",
+   "verified": false,
+   "ramMin": null,
+   "ramRec": null,
+   "vramMin": null,
+   "vramRec": null,
+   "diskGB": null,
+   "gpuNeed": null,
+   "source": null,
+   "note": "本版未取证。要求低于 Photoshop，不单独设门槛"
+  },
+  {
+   "id": "su",
+   "name": "SketchUp",
+   "vendor": "Trimble",
+   "verified": false,
+   "ramMin": null,
+   "ramRec": null,
+   "vramMin": null,
+   "vramRec": null,
+   "diskGB": null,
+   "gpuNeed": null,
+   "source": null,
+   "note": "本版未取证。要求低于 Revit"
+  },
+  {
+   "id": "c4d",
+   "name": "Cinema 4D",
+   "vendor": "Maxon",
+   "verified": false,
+   "ramMin": null,
+   "ramRec": null,
+   "vramMin": null,
+   "vramRec": null,
+   "diskGB": null,
+   "gpuNeed": null,
+   "source": null,
+   "note": "本版未取证。渲染吃 CPU 多核，视口预览吃显存"
+  },
+  {
+   "id": "ide",
+   "name": "IDE / 虚拟机 / Docker",
+   "vendor": "多家",
+   "verified": false,
+   "ramMin": null,
+   "ramRec": null,
+   "vramMin": null,
+   "vramRec": null,
+   "diskGB": null,
+   "gpuNeed": null,
+   "source": null,
+   "note": "本版未取证。没有厂商会为「学生用 Docker」给统一要求，这项门槛来自经验：同时开 IDE + 虚拟机 + 浏览器，16G 会不够"
+  },
+  {
+   "id": "eda",
+   "name": "Altium / Proteus / Keil / Multisim",
+   "vendor": "多家",
+   "verified": false,
+   "ramMin": null,
+   "ramRec": null,
+   "vramMin": null,
+   "vramRec": null,
+   "diskGB": null,
+   "gpuNeed": null,
+   "source": null,
+   "note": "本版未取证。EDA 工具普遍不吃显卡，但要 Windows、要 USB 接口接开发板；部分老工具对高分屏缩放支持差"
+  },
+  {
+   "id": "scisoft",
+   "name": "ChemDraw / Origin / SPSS / Gaussian",
+   "vendor": "多家",
+   "verified": false,
+   "ramMin": null,
+   "ramRec": null,
+   "vramMin": null,
+   "vramRec": null,
+   "diskGB": null,
+   "gpuNeed": null,
+   "source": null,
+   "note": "本版未取证。绘图与统计软件轻，但计算化学（Gaussian / Materials Studio）吃 CPU 多核与内存，分子动力学可上 GPU"
+  },
+  {
+   "id": "gameengine",
+   "name": "Unity / Unreal",
+   "vendor": "多家",
+   "verified": false,
+   "ramMin": null,
+   "ramRec": null,
+   "vramMin": null,
+   "vramRec": null,
+   "diskGB": null,
+   "gpuNeed": null,
+   "source": null,
+   "note": "本版未取证。编辑器的编译与烘焙吃 CPU 多核和内存，光追显卡对编辑器帮助远小于对游戏帧数"
+  },
+  {
+   "id": "blender",
+   "name": "Blender / Maya",
+   "vendor": "多家",
+   "verified": false,
+   "ramMin": null,
+   "ramRec": null,
+   "vramMin": null,
+   "vramRec": null,
+   "diskGB": null,
+   "gpuNeed": null,
+   "source": null,
+   "note": "本版未取证。建模吃内存，渲染吃 CPU 或显卡（取决于渲染器）"
+  },
+  {
+   "id": "sibelius",
+   "name": "Sibelius / Finale（打谱）",
+   "vendor": "多家",
+   "verified": false,
+   "ramMin": null,
+   "ramRec": null,
+   "vramMin": null,
+   "vramRec": null,
+   "diskGB": null,
+   "gpuNeed": null,
+   "source": null,
+   "note": "本版未取证。打谱软件对硬件要求很低，核显足够"
+  }
+ ],
+ "groups": [
+  {
+   "id": "office",
+   "name": "通识办公",
+   "tagline": "四年里最重的软件是 Office 和浏览器",
+   "majors": [
+    "汉语言文学",
+    "汉语言",
+    "汉语国际教育",
+    "中国少数民族语言文学",
+    "秘书学",
+    "英语",
+    "俄语",
+    "德语",
+    "法语",
+    "西班牙语",
+    "日语",
+    "朝鲜语",
+    "阿拉伯语",
+    "翻译",
+    "商务英语",
+    "历史学",
+    "世界史",
+    "考古学",
+    "文物与博物馆学",
+    "哲学",
+    "逻辑学",
+    "宗教学",
+    "法学",
+    "知识产权",
+    "政治学与行政学",
+    "国际政治",
+    "外交学",
+    "社会学",
+    "社会工作",
+    "人类学",
+    "民族学",
+    "思想政治教育",
+    "马克思主义理论",
+    "经济学",
+    "国际经济与贸易",
+    "财政学",
+    "税收学",
+    "金融学",
+    "保险学",
+    "投资学",
+    "金融工程",
+    "工商管理",
+    "市场营销",
+    "会计学",
+    "财务管理",
+    "人力资源管理",
+    "审计学",
+    "物流管理",
+    "电子商务",
+    "旅游管理",
+    "酒店管理",
+    "会展经济与管理",
+    "行政管理",
+    "公共事业管理",
+    "劳动与社会保障",
+    "土地资源管理",
+    "文化产业管理",
+    "农林经济管理",
+    "教育学",
+    "学前教育",
+    "小学教育",
+    "特殊教育",
+    "体育教育",
+    "新闻学",
+    "传播学",
+    "编辑出版学",
+    "网络与新媒体",
+    "心理学",
+    "应用心理学",
+    "临床医学",
+    "口腔医学",
+    "麻醉学",
+    "医学影像学",
+    "预防医学",
+    "中医学",
+    "中西医临床医学",
+    "针灸推拿学",
+    "康复治疗学",
+    "医学检验技术",
+    "卫生检验与检疫",
+    "眼视光医学",
+    "精神医学",
+    "儿科学",
+    "护理学",
+    "健康服务与管理",
+    "运动训练",
+    "社会体育指导与管理",
+    "武术与民族传统体育",
+    "运动人体科学",
+    "舞蹈表演",
+    "舞蹈学",
+    "舞蹈编导",
+    "交通运输",
+    {
+     "name": "文秘",
+     "level": "专"
+    },
+    {
+     "name": "法律事务",
+     "level": "专"
+    },
+    {
+     "name": "会计",
+     "level": "专"
+    },
+    {
+     "name": "市场营销",
+     "level": "专"
+    },
+    {
+     "name": "电子商务",
+     "level": "专"
+    },
+    {
+     "name": "旅游管理",
+     "level": "专"
+    },
+    {
+     "name": "酒店管理",
+     "level": "专"
+    },
+    {
+     "name": "物流管理",
+     "level": "专"
+    },
+    {
+     "name": "商务英语",
+     "level": "专"
+    },
+    {
+     "name": "学前教育",
+     "level": "专"
+    },
+    {
+     "name": "小学教育",
+     "level": "专"
+    },
+    {
+     "name": "行政管理",
+     "level": "专"
+    },
+    {
+     "name": "社区管理与服务",
+     "level": "专"
+    },
+    {
+     "name": "人力资源管理",
+     "level": "专"
+    },
+    {
+     "name": "护理",
+     "level": "专"
+    }
+   ],
+   "software": [
+    "ide"
+   ],
+   "stackText": "Office 三件套、浏览器、网课平台；心理学与医学类要跑 SPSS；医学类还要长时间看文献与影像",
+   "req": {
+    "ramMin": 8,
+    "ramRec": 16,
+    "vramMin": 0,
+    "vramRec": 0,
+    "gpu": "either",
+    "storageMinGB": 512,
+    "cpu": "无所谓，近三代 i5 / R5 都够",
+    "basis": "judgment",
+    "rationale": "这一组没有任何重负载软件，门槛由「四年后 Windows 和浏览器还跑得动」决定，而不是由某门课决定。8G 是下限，16G 是让它在第三年不至于卡。"
+   },
+   "hardGates": [],
+   "mode": "value",
+   "preferCats": [
+    "thin"
+   ],
+   "followups": [
+    "平时会剪视频、做海报吗？",
+    "要不要带来带去（教室 / 图书馆 / 宿舍三点一线）？"
+   ],
+   "trap": "这个组最容易被「大学要用四年」推着买独显游戏本。按课程表算，它到毕业都用不满 16G 内存——多花的钱应该放在续航、屏幕和轻便上。医学类和法学要整天看文献，屏幕尺寸与护眼比算力重要；临床、护理还要带去见习，重量是硬指标。",
+   "evidence": "judgment"
+  },
+  {
+   "id": "code",
+   "name": "编程数据",
+   "tagline": "显卡基本无用，内存是命门",
+   "majors": [
+    "计算机科学与技术",
+    "软件工程",
+    "网络工程",
+    "信息安全",
+    "物联网工程",
+    "智能科学与技术",
+    "电子与计算机工程",
+    "数据科学与大数据技术",
+    "人工智能",
+    "网络空间安全",
+    "密码科学与技术",
+    "区块链工程",
+    "统计学",
+    "应用统计学",
+    "经济统计学",
+    "数据计算及应用",
+    "信息与计算科学",
+    "数学与应用数学",
+    "信息管理与信息系统",
+    "管理科学",
+    "大数据管理与应用",
+    {
+     "name": "计算机应用技术",
+     "level": "专"
+    },
+    {
+     "name": "软件技术",
+     "level": "专"
+    },
+    {
+     "name": "大数据技术",
+     "level": "专"
+    },
+    {
+     "name": "信息安全技术应用",
+     "level": "专"
+    },
+    {
+     "name": "云计算技术应用",
+     "level": "专"
+    },
+    {
+     "name": "人工智能技术应用",
+     "level": "专"
+    },
+    {
+     "name": "计算机网络技术",
+     "level": "专"
+    },
+    {
+     "name": "移动应用开发",
+     "level": "专"
+    }
+   ],
+   "software": [
+    "ide"
+   ],
+   "stackText": "IDE、虚拟机、Docker、数据库、浏览器开几十个标签；不涉及 CUDA 训练",
+   "req": {
+    "ramMin": 16,
+    "ramRec": 32,
+    "vramMin": 0,
+    "vramRec": 4,
+    "gpu": "either",
+    "storageMinGB": 512,
+    "cpu": "多核有用，但不是瓶颈",
+    "basis": "judgment",
+    "rationale": "本科阶段的编程课程（数据结构、操作系统、数据库、编译原理）没有一项吃显卡。真正的瓶颈是「同时开 IDE + 虚拟机 + 浏览器」，16G 在第三年会明显不够。显卡只在选人工智能方向、跑本地小模型时才有意义。"
+   },
+   "hardGates": [
+    {
+     "dim": "upgrade",
+     "min": 2,
+     "why": "内存焊死等于四年后没有后路，这一组最不能接受"
+    }
+   ],
+   "mode": "future",
+   "preferCats": [
+    "thin",
+    "gaming"
+   ],
+   "followups": [
+    "打算走人工智能方向吗（要不要在本地跑模型）？",
+    "会同时开虚拟机吗？"
+   ],
+   "trap": "「学计算机要买高配」是流传最广的误解。课程里没有一门课需要独显；把独显的钱换成 32G 内存和能加装的插槽，收益大得多。反过来，板载 16G 的轻薄本是这一组最危险的选项。",
+   "evidence": "judgment"
+  },
+  {
+   "id": "graphic",
+   "name": "平面视觉",
+   "tagline": "吃色准和内存，不吃独显",
+   "majors": [
+    "视觉传达设计",
+    "广告学",
+    "数字媒体艺术",
+    "艺术设计学",
+    "包装设计",
+    "服装与服饰设计",
+    "服装设计与工程",
+    "工艺美术",
+    "公共艺术",
+    "美术学",
+    "绘画",
+    "雕塑",
+    "中国画",
+    "书法学",
+    "漫画",
+    "摄影",
+    "文物保护与修复",
+    "戏剧影视美术设计",
+    "珠宝首饰设计与工艺",
+    {
+     "name": "艺术设计",
+     "level": "专"
+    },
+    {
+     "name": "视觉传达设计",
+     "level": "专"
+    },
+    {
+     "name": "广告艺术设计",
+     "level": "专"
+    },
+    {
+     "name": "数字媒体艺术设计",
+     "level": "专"
+    },
+    {
+     "name": "产品艺术设计",
+     "level": "专"
+    },
+    {
+     "name": "服装与服饰设计",
+     "level": "专"
+    },
+    {
+     "name": "摄影摄像技术",
+     "level": "专"
+    },
+    {
+     "name": "美术",
+     "level": "专"
+    },
+    {
+     "name": "书画艺术",
+     "level": "专"
+    },
+    {
+     "name": "包装艺术设计",
+     "level": "专"
+    }
+   ],
+   "software": [
+    "ps",
+    "ai"
+   ],
+   "stackText": "Photoshop、Illustrator、InDesign、Figma；部分学校加 AE 与 C4D",
+   "req": {
+    "ramMin": 16,
+    "ramRec": 32,
+    "vramMin": 2,
+    "vramRec": 4,
+    "gpu": "either",
+    "storageMinGB": 512,
+    "cpu": "单核重要，多核次要",
+    "basis": "official",
+    "derivedFrom": [
+     "ps"
+    ],
+    "rationale": "Photoshop 官方 8G 最低 / 16G 推荐，显存 1.5G 起。取 16G 作下限，是因为这一组的课表普遍要和 Illustrator、InDesign 同时开，加上浏览器找参考。"
+   },
+   "hardGates": [
+    {
+     "dim": "ram",
+     "min": 16,
+     "why": "PS 多图层叠加 AI 矢量文件，16G 是能干活的下限"
+    }
+   ],
+   "mode": "value",
+   "preferCats": [
+    "thin",
+    "gaming"
+   ],
+   "followups": [
+    "课表里有 AE 或 C4D 吗？",
+    "要做印刷品（对色准要求高）吗？"
+   ],
+   "trap": "平面设计不吃独显。给学生推一张 RTX 5070 是浪费——这笔钱换成 32G 内存和一块 100% sRGB 的屏更值。但注意一个转折：一旦课程表里出现 AE 和 C4D，门槛会跳到视频组那一档（AE 官方要 16G 内存、4G 显存且必须独显）。买之前先看课表。",
+   "evidence": "official"
+  },
+  {
+   "id": "video",
+   "name": "视频影视",
+   "tagline": "全表最吃配置的本科方向",
+   "majors": [
+    "广播电视编导",
+    "广播电视学",
+    "影视摄影与制作",
+    "影视技术",
+    "戏剧影视文学",
+    "戏剧影视导演",
+    "戏剧学",
+    "电影学",
+    "动画",
+    "播音与主持艺术",
+    {
+     "name": "广播影视节目制作",
+     "level": "专"
+    },
+    {
+     "name": "影视编导",
+     "level": "专"
+    },
+    {
+     "name": "影视多媒体技术",
+     "level": "专"
+    },
+    {
+     "name": "播音与主持",
+     "level": "专"
+    },
+    {
+     "name": "动漫制作技术",
+     "level": "专"
+    },
+    {
+     "name": "影视动画",
+     "level": "专"
+    }
+   ],
+   "software": [
+    "pr",
+    "ae",
+    "davinci"
+   ],
+   "stackText": "Premiere Pro、After Effects、DaVinci Resolve、Audition；4K 素材是常态",
+   "req": {
+    "ramMin": 32,
+    "ramRec": 32,
+    "vramMin": 6,
+    "vramRec": 8,
+    "gpu": "discrete",
+    "storageMinGB": 1024,
+    "cpu": "多核决定导出时间",
+    "basis": "official",
+    "derivedFrom": [
+     "pr",
+     "ae",
+     "davinci"
+    ],
+    "rationale": "Premiere 4K 要 32G 内存、8G 显存；AE 最低 16G / 推荐 32G、必须独立 GPU；达芬奇 16G 起、Fusion 页面要 32G。三条取最严：32G 内存 + 独显。",
+    "preferActiveCooling": true
+   },
+   "hardGates": [
+    {
+     "dim": "gpu",
+     "min": 2,
+     "why": "AE 明确要求独立 GPU，核显无法满足"
+    },
+    {
+     "dim": "ram",
+     "min": 32,
+     "why": "4K 素材加缓存，32G 是官方推荐值"
+    }
+   ],
+   "mode": "perf",
+   "preferCats": [
+    "gaming",
+    "desktop"
+   ],
+   "followups": [
+    "主要是剪 1080P 还是 4K？",
+    "要做特效合成（AE）吗？"
+   ],
+   "trap": "轻薄本的 32G 板载看起来够，实际剪 4K 加缓存会爆，而且这一组会长时间满载渲染——散热和风扇噪音比跑分更影响体验，而这两项参数表都不写。另外 1T 起步不是奢侈：一小时的 4K 素材就是几十 G。",
+   "evidence": "official"
+  },
+  {
+   "id": "threeD",
+   "name": "三维建筑工业",
+   "tagline": "独显是入场券，32G 是及格线",
+   "majors": [
+    "建筑学",
+    "城乡规划",
+    "风景园林",
+    "历史建筑保护工程",
+    "土木工程",
+    "建筑环境与能源应用工程",
+    "给排水科学与工程",
+    "道路桥梁与渡河工程",
+    "城市地下空间工程",
+    "智能建造",
+    "工程管理",
+    "工程造价",
+    "环境设计",
+    "工业设计",
+    "产品设计",
+    "机械设计制造及其自动化",
+    "机械电子工程",
+    "材料成型及控制工程",
+    "车辆工程",
+    "汽车服务工程",
+    "过程装备与控制工程",
+    "能源与动力工程",
+    "船舶与海洋工程",
+    "飞行器设计与工程",
+    "农业机械化及其自动化",
+    "木材科学与工程",
+    {
+     "name": "建筑工程技术",
+     "level": "专"
+    },
+    {
+     "name": "工程造价",
+     "level": "专"
+    },
+    {
+     "name": "建筑设计",
+     "level": "专"
+    },
+    {
+     "name": "建筑室内设计",
+     "level": "专"
+    },
+    {
+     "name": "环境艺术设计",
+     "level": "专"
+    },
+    {
+     "name": "机械制造及自动化",
+     "level": "专"
+    },
+    {
+     "name": "模具设计与制造",
+     "level": "专"
+    },
+    {
+     "name": "数控技术",
+     "level": "专"
+    },
+    {
+     "name": "工业设计",
+     "level": "专"
+    },
+    {
+     "name": "汽车检测与维修技术",
+     "level": "专"
+    },
+    {
+     "name": "市政工程技术",
+     "level": "专"
+    }
+   ],
+   "software": [
+    "revit",
+    "sw",
+    "rhino",
+    "cad",
+    "su",
+    "blender"
+   ],
+   "stackText": "AutoCAD、Revit、SketchUp、Rhino、3ds Max、SOLIDWORKS、Lumion / Enscape",
+   "req": {
+    "ramMin": 32,
+    "ramRec": 32,
+    "vramMin": 4,
+    "vramRec": 8,
+    "gpu": "discrete",
+    "storageMinGB": 1024,
+    "cpu": "单核频率优先（Revit 官方原话）",
+    "basis": "official",
+    "derivedFrom": [
+     "revit",
+     "sw",
+     "rhino"
+    ],
+    "rationale": "Revit 官方入门档 16G 只够约 300MB 的单模型，课程作业常见 600MB 以上，对应官方「均衡」档 32G；SOLIDWORKS 官方 16G、推荐 32G；Rhino 官方标 8G 是「能开」，实际建模要 32G。三条取最严：32G + 独显 4G 显存起。",
+    "platformUnfit": {
+     "macos": "Revit 和 SolidWorks 都没有 macOS 版，这两门课的核心作业交不了（Rhino/SketchUp/Blender 有 Mac 版，但替代不了）"
+    },
+    "preferActiveCooling": true
+   },
+   "hardGates": [
+    {
+     "dim": "gpu",
+     "min": 1,
+     "why": "Revit 与 Rhino 都要求独立显卡与 OpenGL / DirectX 支持"
+    },
+    {
+     "dim": "ram",
+     "min": 32,
+     "why": "Revit 均衡档即 32G；组内最容易被 16G 卡住"
+    }
+   ],
+   "mode": "perf",
+   "preferCats": [
+    "gaming",
+    "desktop"
+   ],
+   "followups": [
+    "要做建筑（Revit）还是工业造型（Rhino / SolidWorks）？",
+    "要渲染效果图吗？"
+   ],
+   "trap": "两个反直觉的点。① Revit 官方写 16G，但那是给 300MB 小模型的；课程做到期末，模型轻松翻倍，16G 会卡死。② SOLIDWORKS 只认认证显卡和认证驱动，显存大不等于能跑——一台游戏本跑 SW 可能不如同价位的移动工作站稳。",
+   "evidence": "official"
+  },
+  {
+   "id": "audio",
+   "name": "音乐音频",
+   "tagline": "显卡无用，存储最贵",
+   "majors": [
+    "录音艺术",
+    "作曲与作曲技术理论",
+    "音乐学",
+    "音乐表演",
+    "艺术与科技",
+    {
+     "name": "音乐制作",
+     "level": "专"
+    },
+    {
+     "name": "录音技术与艺术",
+     "level": "专"
+    },
+    {
+     "name": "现代流行音乐",
+     "level": "专"
+    },
+    {
+     "name": "音乐表演",
+     "level": "专"
+    }
+   ],
+   "software": [
+    "cubase",
+    "sibelius"
+   ],
+   "stackText": "Cubase、Logic Pro、Pro Tools、Ableton Live、Kontakt 采样库、外接声卡；理论方向用打谱软件",
+   "req": {
+    "ramMin": 16,
+    "ramRec": 32,
+    "vramMin": 0,
+    "vramRec": 0,
+    "gpu": "none",
+    "storageMinGB": 1024,
+    "cpu": "单核频率与低延迟驱动最关键",
+    "basis": "official",
+    "derivedFrom": [
+     "cubase"
+    ],
+    "rationale": "Cubase 官方最低 8G 内存、不对显卡作要求、完整安装 75G。取 16G 与 1T，是加上采样音源后的实际需要（一套管弦乐采样库常在 100G 以上），这一项属判断，已在硬门槛里单独标出。",
+    "portNeeds": [
+     "usb-a"
+    ]
+   },
+   "hardGates": [
+    {
+     "dim": "storage",
+     "min": 1024,
+     "why": "Cubase 完整安装 75G，采样库动辄几百 G"
+    }
+   ],
+   "mode": "value",
+   "preferCats": [
+    "thin",
+    "desktop"
+   ],
+   "followups": [
+    "要不要外接声卡 / MIDI 键盘？",
+    "装正版音源吗（采样库体积差别很大）？"
+   ],
+   "trap": "唯一一个「显卡完全不重要、存储最重要」的组。Cubase 官方 8G 内存、不要独显，但采样库能把 512G 盘直接吃满。这一组最容易被销售推成游戏本——那是把钱花在完全用不上的地方。真正的瓶颈是 CPU 单核、ASIO 驱动延迟和硬盘速度。另外很多学校用 Mac 教学，买 Windows 要先问清楚课程要求。",
+   "evidence": "official"
+  },
+  {
+   "id": "engine",
+   "name": "游戏与数字媒体技术",
+   "tagline": "专业课和娱乐需求在同一个预算里打架",
+   "majors": [
+    "数字媒体技术",
+    "虚拟现实技术",
+    "新媒体技术",
+    "智能交互设计",
+    {
+     "name": "电子竞技运动与管理",
+     "level": "专"
+    },
+    {
+     "name": "游戏艺术设计",
+     "level": "专"
+    },
+    {
+     "name": "虚拟现实技术应用",
+     "level": "专"
+    },
+    {
+     "name": "数字媒体技术",
+     "level": "专"
+    },
+    {
+     "name": "动漫设计",
+     "level": "专"
+    }
+   ],
+   "software": [
+    "gameengine",
+    "ae",
+    "blender",
+    "ide"
+   ],
+   "stackText": "Unity、Unreal、Maya / Blender、After Effects；宿舍里还要打游戏",
+   "req": {
+    "ramMin": 32,
+    "ramRec": 32,
+    "vramMin": 8,
+    "vramRec": 8,
+    "gpu": "discrete",
+    "storageMinGB": 1024,
+    "cpu": "多核（编译、烘焙、光照）",
+    "basis": "official",
+    "derivedFrom": [
+     "ae"
+    ],
+    "rationale": "引擎本身没有面向学生的统一系统要求，所以取本组唯一有官方依据的 AE 兜底（16G 最低 / 32G 推荐、4G 显存起、必须独显），再按「引擎编译 + 素材库 + 游戏」的经验上调到 32G / 8G 显存。",
+    "platformUnfit": {
+     "macos": "Unity/Unreal 有 Mac 版，但国内课程与企业实习普遍按 Windows 环境走，插件与工具链在 Mac 上坑更多"
+    },
+    "preferActiveCooling": true
+   },
+   "hardGates": [
+    {
+     "dim": "gpu",
+     "min": 2,
+     "why": "引擎编辑器与游戏需求叠加"
+    },
+    {
+     "dim": "ram",
+     "min": 32,
+     "why": "编辑器 + 素材 + 浏览器同时开"
+    }
+   ],
+   "mode": "perf",
+   "preferCats": [
+    "gaming"
+   ],
+   "followups": [
+    "主要用 Unity 还是 Unreal？",
+    "宿舍里打游戏占多少比重？"
+   ],
+   "trap": "这一组预算最容易失控，因为「学习需求」和「娱乐需求」会互相借力。但要说清一件事：虚幻引擎的编译和光照烘焙吃的是 CPU 和内存，光追显卡对编辑器的帮助远小于对游戏帧数。想清楚这笔钱是买学习效率还是买游戏体验。",
+   "evidence": "official"
+  },
+  {
+   "id": "electric",
+   "name": "电气与自动化",
+   "tagline": "显卡不重要，CPU 和接口才是",
+   "majors": [
+    "电气工程及其自动化",
+    "自动化",
+    "电子信息工程",
+    "通信工程",
+    "微电子科学与工程",
+    "集成电路设计与集成系统",
+    "电子信息科学与技术",
+    "光电信息科学与工程",
+    "机器人工程",
+    "轨道交通信号与控制",
+    "测控技术与仪器",
+    "智能装备与系统",
+    "农业电气化",
+    "电气工程与智能控制",
+    {
+     "name": "电气自动化技术",
+     "level": "专"
+    },
+    {
+     "name": "电子信息工程技术",
+     "level": "专"
+    },
+    {
+     "name": "机电一体化技术",
+     "level": "专"
+    },
+    {
+     "name": "工业机器人技术",
+     "level": "专"
+    },
+    {
+     "name": "应用电子技术",
+     "level": "专"
+    },
+    {
+     "name": "通信技术",
+     "level": "专"
+    },
+    {
+     "name": "集成电路技术",
+     "level": "专"
+    },
+    {
+     "name": "智能控制技术",
+     "level": "专"
+    }
+   ],
+   "software": [
+    "matlab",
+    "eda"
+   ],
+   "stackText": "MATLAB / Simulink、Altium Designer、Proteus、Keil、Multisim；仿真跑在 CPU 上",
+   "req": {
+    "ramMin": 16,
+    "ramRec": 32,
+    "vramMin": 0,
+    "vramRec": 2,
+    "gpu": "either",
+    "storageMinGB": 512,
+    "cpu": "多核，AVX2 指令集（MATLAB 官方推荐）",
+    "basis": "official",
+    "derivedFrom": [
+     "matlab"
+    ],
+    "rationale": "MATLAB 官方 8G 最低 / 16G 推荐，CPU 推荐 4 逻辑核 + AVX2，显卡只要求支持 WebGL 2.0——也就是核显就够。取 16G / 32G 是因为仿真和 EDA 常常同时开，且 MATLAB 全产品安装 25G。",
+    "platformUnfit": {
+     "macos": "EDA 环节的 Multisim / Proteus 只有 Windows 版，仿真课做不了；MATLAB 虽有 Mac 版，但课程通常按 Windows 版教学"
+    },
+    "portNeeds": [
+     "usb-a"
+    ]
+   },
+   "hardGates": [],
+   "mode": "value",
+   "preferCats": [
+    "thin",
+    "gaming"
+   ],
+   "followups": [
+    "要跑哪类仿真（电力系统 / 控制系统 / 电路）？",
+    "要接开发板做实验吗？"
+   ],
+   "trap": "这一组是「工科就要独显」这句错的典型受害者。MATLAB 官方只要求显卡支持 WebGL 2.0，EDA 工具更是不吃显卡——钱应该花在 CPU 多核、内存和一块大屏上。另一个实际坑：很多 EDA 和烧录工具只支持 Windows，且对高分屏缩放支持差，买 Mac 或用 4K 小屏都会难受。",
+   "evidence": "official"
+  },
+  {
+   "id": "science",
+   "name": "理工实验",
+   "tagline": "轻则核显够用，重则集群在机房",
+   "majors": [
+    "化学",
+    "应用化学",
+    "化学工程与工艺",
+    "材料科学与工程",
+    "材料物理",
+    "材料化学",
+    "高分子材料与工程",
+    "新能源材料与器件",
+    "生物科学",
+    "生物技术",
+    "生物工程",
+    "生物制药",
+    "生物信息学",
+    "药学",
+    "药物制剂",
+    "制药工程",
+    "环境科学",
+    "环境工程",
+    "食品科学与工程",
+    "食品质量与安全",
+    "物理学",
+    "应用物理学",
+    "应用气象学",
+    "地质学",
+    "地球化学",
+    "海洋科学",
+    "轻化工程",
+    "纺织工程",
+    "农学",
+    "林学",
+    "园艺",
+    "植物保护",
+    "动物科学",
+    "动物医学",
+    "水产养殖学",
+    "中药学",
+    "法医学",
+    {
+     "name": "药品生产技术",
+     "level": "专"
+    },
+    {
+     "name": "食品检验检测技术",
+     "level": "专"
+    },
+    {
+     "name": "环境工程技术",
+     "level": "专"
+    },
+    {
+     "name": "应用化工技术",
+     "level": "专"
+    },
+    {
+     "name": "生物制药技术",
+     "level": "专"
+    }
+   ],
+   "software": [
+    "scisoft",
+    "matlab"
+   ],
+   "stackText": "ChemDraw、Origin、SPSS / R、Gaussian、Materials Studio；重计算通常连学校集群",
+   "req": {
+    "ramMin": 16,
+    "ramRec": 32,
+    "vramMin": 0,
+    "vramRec": 4,
+    "gpu": "either",
+    "storageMinGB": 512,
+    "cpu": "多核（计算化学的并行求解）",
+    "basis": "judgment",
+    "rationale": "这一组没有单一的重型商业软件做锚点：ChemDraw / Origin / SPSS 都是轻负载，而 Gaussian、Materials Studio 这类计算化学软件真正跑起来通常上机房集群，不在自己电脑上跑满。所以门槛按「轻软件 + 偶尔本地小算例」定：16G 起、32G 舒服。显卡只在做分子动力学或生物信息交叉方向时才需要考虑。",
+    "platformUnfit": {
+     "macos": "化学/材料常用的 Origin、部分仪器配套软件只有 Windows 版，实验数据导出与作图会受影响"
+    },
+    "portNeeds": [
+     "usb-a"
+    ]
+   },
+   "hardGates": [],
+   "mode": "value",
+   "preferCats": [
+    "thin"
+   ],
+   "followups": [
+    "要在自己电脑上跑计算（Gaussian / 分子模拟）吗？",
+    "偏实验还是偏计算方向？"
+   ],
+   "trap": "这一组的常见误判是「学生物的要买高配」。实际情况相反：绝大多数本科实验课的软件很轻，重计算都在机房跑或者提交到集群。把钱花在内存和屏幕（长时间看图表很费眼）比花在显卡上合理得多。例外是生物信息学——它本质是编程方向，会用到 Docker 和较大内存。",
+   "evidence": "judgment"
+  },
+  {
+   "id": "geo",
+   "name": "测绘与空间信息",
+   "tagline": "内存与显存双高，硬盘还要留缓存",
+   "majors": [
+    "测绘工程",
+    "地理信息科学",
+    "遥感科学与技术",
+    "导航工程",
+    "地理空间信息工程",
+    "土地整治工程",
+    {
+     "name": "工程测量技术",
+     "level": "专"
+    },
+    {
+     "name": "测绘地理信息技术",
+     "level": "专"
+    },
+    {
+     "name": "摄影测量与遥感技术",
+     "level": "专"
+    },
+    {
+     "name": "地籍测绘与土地管理",
+     "level": "专"
+    }
+   ],
+   "software": [
+    "arcgis",
+    "cad"
+   ],
+   "stackText": "ArcGIS Pro、ENVI、QGIS、AutoCAD；遥感影像与三维场景吃内存和显存",
+   "req": {
+    "ramMin": 32,
+    "ramRec": 32,
+    "vramMin": 4,
+    "vramRec": 8,
+    "gpu": "discrete",
+    "storageMinGB": 1024,
+    "cpu": "4 核以上（官方推荐 4 核，最佳 10 核）",
+    "basis": "official",
+    "derivedFrom": [
+     "arcgis"
+    ],
+    "rationale": "ArcGIS Pro 官方 8G 最低 / 32G 推荐 / 64G 最佳，推荐独立显卡且独占显存 8G 以上，安装占 32G 之外另有多达 32G 的可视化缓存。取 32G + 独显，与官方推荐档一致。",
+    "platformUnfit": {
+     "macos": "ArcGIS Pro 只有 Windows 版，这是测绘专业的核心工具；QGIS 有 Mac 版但教学不通用"
+    },
+    "portNeeds": [
+     "usb-a"
+    ]
+   },
+   "hardGates": [
+    {
+     "dim": "gpu",
+     "min": 1,
+     "why": "ArcGIS Pro 的三维视图与影像渲染推荐独立显卡"
+    },
+    {
+     "dim": "ram",
+     "min": 32,
+     "why": "官方推荐值就是 32G，影像处理时 16G 会明显卡"
+    }
+   ],
+   "mode": "perf",
+   "preferCats": [
+    "gaming",
+    "desktop"
+   ],
+   "followups": [
+    "要做遥感影像处理（ENVI）吗？",
+    "会做三维场景或点云吗？"
+   ],
+   "trap": "这一组容易被当成「文科地理」而买轻薄本，结果大二跑 ArcGIS 的三维场景直接卡死。两个具体数字：官方推荐 32G 内存，另有多达 32G 的可视化缓存——所以 1T 盘不是浪费。不过也要说清：只做二维制图和属性表的话 16G 能用，别一上来就冲 64G。",
+   "evidence": "official"
+  }
+ ],
+ "majorAliases": {
+  "计科": "计算机科学与技术",
+  "CS": "计算机科学与技术",
+  "计算机": "计算机科学与技术",
+  "软工": "软件工程",
+  "信安": "信息安全",
+  "网安": "网络空间安全",
+  "网工": "网络工程",
+  "大数据": "数据科学与大数据技术",
+  "信管": "信息管理与信息系统",
+  "信计": "信息与计算科学",
+  "数学": "数学与应用数学",
+  "数媒": "数字媒体艺术",
+  "数媒技术": "数字媒体技术",
+  "数字媒体": "数字媒体艺术",
+  "视传": "视觉传达设计",
+  "视觉传达": "视觉传达设计",
+  "广告": "广告学",
+  "平面设计": "视觉传达设计",
+  "环艺": "环境设计",
+  "室内设计": "环境设计",
+  "装潢": "视觉传达设计",
+  "服装": "服装与服饰设计",
+  "服设": "服装与服饰设计",
+  "摄影专业": "摄影",
+  "建院": "建筑学",
+  "建筑": "建筑学",
+  "城规": "城乡规划",
+  "规划": "城乡规划",
+  "园林": "风景园林",
+  "景观": "风景园林",
+  "土木工程专业": "土木工程",
+  "工设": "工业设计",
+  "产设": "产品设计",
+  "机械": "机械设计制造及其自动化",
+  "机制": "机械设计制造及其自动化",
+  "车辆": "车辆工程",
+  "汽车": "车辆工程",
+  "能动": "能源与动力工程",
+  "电气": "电气工程及其自动化",
+  "电气自动化": "电气工程及其自动化",
+  "自动化专业": "自动化",
+  "电信": "电子信息工程",
+  "通信": "通信工程",
+  "微电子": "微电子科学与工程",
+  "集成": "集成电路设计与集成系统",
+  "机器人": "机器人工程",
+  "测控": "测控技术与仪器",
+  "化学专业": "化学",
+  "化工": "化学工程与工艺",
+  "材料": "材料科学与工程",
+  "高材": "高分子材料与工程",
+  "生物": "生物科学",
+  "生工": "生物工程",
+  "生信": "生物信息学",
+  "药学专业": "药学",
+  "环境": "环境工程",
+  "食品": "食品科学与工程",
+  "物理": "物理学",
+  "测绘": "测绘工程",
+  "地信": "地理信息科学",
+  "GIS": "地理信息科学",
+  "遥感": "遥感科学与技术",
+  "编导": "广播电视编导",
+  "广编": "广播电视编导",
+  "影视": "影视摄影与制作",
+  "播音": "播音与主持艺术",
+  "主持": "播音与主持艺术",
+  "录音": "录音艺术",
+  "音制": "音乐制作",
+  "作曲": "作曲与作曲技术理论",
+  "音乐": "音乐学",
+  "电竞": "电子竞技运动与管理",
+  "VR": "虚拟现实技术",
+  "游戏": "游戏艺术设计",
+  "法学专业": "法学",
+  "法律": "法学",
+  "会专": "会计",
+  "会计专业": "会计学",
+  "金融": "金融学",
+  "国贸": "国际经济与贸易",
+  "工商": "工商管理",
+  "审计": "审计学",
+  "中文": "汉语言文学",
+  "对外汉语": "汉语国际教育",
+  "小教": "小学教育",
+  "学前": "学前教育",
+  "特教": "特殊教育",
+  "心理": "心理学",
+  "新闻": "新闻学",
+  "新传": "传播学",
+  "护理专业": "护理学",
+  "英语专业": "英语",
+  "日语专业": "日语",
+  "翻译专业": "翻译",
+  "历史": "历史学",
+  "哲学专业": "哲学",
+  "社会学专业": "社会学",
+  "工管": "工程管理",
+  "造价": "工程造价",
+  "建环": "建筑环境与能源应用工程",
+  "兽医": "动物医学",
+  "畜牧兽医": "动物医学",
+  "临床": "临床医学",
+  "口腔": "口腔医学",
+  "中医": "中医学",
+  "电气工程": "电气工程及其自动化",
+  "材料科学": "材料科学与工程",
+  "电子信息": "电子信息工程",
+  "土木": "土木工程",
+  "交运": "交通运输"
+ }
+}

@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "created": "2026-11-11T21:10:00+08:00",
+    "purpose": "第三批屏幕/电池补丁（无界14、无界15X Pro、ThinkPad E16 Ultra5版）+ 无界15X Pro 三处纠错（120Hz/99Wh/USB-C×2）。",
+    "sourceDiscipline": "主来源 = 京东商品页/品牌官网；三方报道仅交叉验证。每条 evidence 都标了主来源与交叉来源。",
+    "howToMerge": "python tools/merge_patch.py --patch data/incoming/20261111-screen3-patch.json --apply"
+  },
+  "patch": [
+    {
+      "id": "jd-mechrevo-wujie14-u5-226v-16g-1t-20261109",
+      "name": "无界14 2026（Ultra5-226V/16G/1T）",
+      "screen": {
+        "widthPx": 2880,
+        "heightPx": 1800,
+        "refreshHz": 120,
+        "brightnessNit": 500
+      },
+      "batteryWh": 60,
+      "confidence": "medium",
+      "dataGaps": [
+        "throttle",
+        "efficiencyStatus"
+      ],
+      "evidence": {
+        "screenSpec": "主来源：京东自营旗舰店 item.jd.com/100331584964.html（与本记录 platformSkuId 同一 SKU，商品名「无界 14 2026 酷睿 Ultra 5 226V 16G 1T 2.8K」）；交叉：IT之家发布稿 ithome.com/0/929/760.htm 与 0/991/057.htm、超能网 expreview.com/104728.html",
+        "screenSpecQuote": "官方与发布稿一致：14 英寸 LCD 雾面防眩屏，2880×1800，120Hz，500nits，100% sRGB，DC 调光；内置 60Wh 电池，65W 氮化镓适配器；接口 2×雷电4 + 3×USB-A + HDMI 2.1 TMDS + 3.5mm（与库内 ports 一致）",
+        "screenSpecNote": "分辨率/刷新率/电池三来源一致，且 IT之家预约稿直接引用自营商品页 100331584964（灵感灰）。重量 1.07kg（详情表）与官方『约 1.0kg』口径相符，不改"
+      }
+    },
+    {
+      "id": "jd-mechrevo-wujie15x-r7h255-16g-1t-20261109",
+      "name": "无界15X Pro（R7-H255/16G/1T）",
+      "screen": {
+        "sizeInch": 15.3,
+        "widthPx": 2560,
+        "heightPx": 1600,
+        "refreshHz": 120,
+        "brightnessNit": 400
+      },
+      "batteryWh": 99,
+      "weightKg": 1.77,
+      "ports": [
+        "USB4 ×1（DP/充电）",
+        "USB-C 3.2 全功能 ×1",
+        "USB-A 3.2 Gen1 ×3",
+        "HDMI 2.1 ×1",
+        "RJ45 千兆 ×1",
+        "3.5mm 音频 ×1"
+      ],
+      "confidence": "medium",
+      "dataGaps": [
+        "throttle",
+        "efficiencyStatus",
+        "ram.maxGB 有 64（京东详情表）与 96（闽南网 H255 版报道）两种说法，maxGB 不影响判定，不改",
+        "⚠️ 纠错说明：原记 refreshHz=240 来自第三方店详情表『配置名 2.5K/240Hz』，官网产品页、京东自营同模具版、海外官网、三方四来源全部为 120Hz，本次按多数+官方口径纠错为 120。原 batteryWh=80 同为第三方店详情表值，官方与全渠道为 99Wh，纠错为 99"
+      ],
+      "evidence": {
+        "screenSpec": "主来源：机械革命官网产品页 mechrevo.com/cn/products/wu-jie-15-xpro/（本机型存在性与同模具确认）+ 京东自营 1号会员店同模具 HX470 版参数（2560*1600、120Hz、15.3英寸、100%sRGB、1.77kg、99Wh）；交叉：闽南网 H255 版专稿 mnw.cn/news/digi/3025590.html、太平洋 g.pconline.com.cn/product/notebook/mechrevo/2678599_detail.html、中关村、海外官网 Forza 15X Pro（15.3\" 2.5K 120Hz / 99Wh）",
+        "screenSpecQuote": "闽南网（H255 版）：15.3英寸 IPS，2560×1600，120Hz，400nits，sRGB 100%，99Wh 电池 + 100W 氮化镓，约 1.77kg；接口 1×USB4 + 1×全功能USB-C + 3×USB3.2 Gen1 + HDMI 2.1 + RJ45 千兆 + 3.5mm。京东自营 HX470 版：USB-A 3个、USB-C 2个、HDMI 2.1、RJ45 千兆、净重 1.77kg、120Hz、2560*1600、100%sRGB",
+        "screenSpecNote": "H255 版与 HX470 版同模具同屏（全渠道 15.3\" 2.5K 120Hz 无一例外）。原记录 refreshHz=240、batteryWh=80、USB-C×1 均来自第三方专卖店详情表（『结构化配置，未经交叉核实』），本次全部按官方+自营口径纠错"
+      }
+    },
+    {
+      "id": "spec-parsed-jd-lenovo-thinkpade16-u5-32g-1t-authoriz",
+      "name": "ThinkPad E16 Gen 2（Ultra5 版）",
+      "screen": {
+        "refreshHz": 60
+      },
+      "confidence": "low",
+      "dataGaps": [
+        "throttle",
+        "batteryWh、weightKg 仍缺（psref 有值但本轮未取证，不填）",
+        "cpu.model 记为『Ultra5（第1代）』= Ultra 5 125U/125H，cpuId 待补（属 cpuId 批次任务）"
+      ],
+      "evidence": {
+        "screenSpec": "主来源：联想官方 psref（ThinkPad E16 Gen 2 规格页，全系 60Hz）；交叉：京东授权店 SKU 页参数",
+        "screenSpecNote": "psref 为联想官方规格库，E16 Gen 2 各面板选项均为 60Hz，无高刷版本。同系列 Core5 版（E16 Gen 4）库内已有 refreshHz 60，两代口径一致"
+      }
+    }
+  ]
+}

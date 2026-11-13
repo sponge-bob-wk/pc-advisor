@@ -1,0 +1,58 @@
+{
+  "meta": {
+    "version": "0.1",
+    "updated": "2026-11-08",
+    "purpose": "京东「商品详情」区块 → 我们数据结构的字段映射与解析规则。",
+    "whyThisBlock": "商品详情是京东自己维护的结构化字段区，不是商家文案。它给出插槽数量、净重、接口明细、是否带雷电、能效网规格型号——这些在标题和详情页文案里都没有。",
+    "position": "商品页往下翻，标题为「商品详情」的表格；顶部还有一排摘要块（CPU / 显卡 / 尺寸 / 分辨率 / 刷新率）。",
+    "rule": "顶部摘要 + 下方表格要一起读。摘要里的分辨率和刷新率，表格里往往没有；表格里的插槽数和接口，摘要里也没有。"
+  },
+
+  "summaryTiles": {
+    "note": "顶部那块大数字摘要，字段少但都是关键项",
+    "map": [
+      { "jd": "CPU（如 R5-7640H）", "ours": "cpu.model", "parse": "原样保留大小写与前缀，勿改写型号" },
+      { "jd": "显卡（如 RTX 3050）", "ours": "gpu.model", "parse": "只有型号，没有显存与功耗，需回官网补" },
+      { "jd": "产品尺寸（如 长0mm 宽0mm）", "ours": "—", "parse": "⚠ 值为 0 或带省略号即为未填，必须记 null，不许当 0" },
+      { "jd": "屏幕分辨率（如 1920*1080）", "ours": "screen.widthPx / heightPx", "parse": "按 * 或 × 切分，转成两个整数" },
+      { "jd": "屏幕刷新率（如 144Hz）", "ours": "screen.refreshHz", "parse": "去掉 Hz 取整数" }
+    ]
+  },
+
+  "tableFields": [
+    { "jd": "品牌", "ours": "brand", "parse": "去掉英文括注（机械革命(MECHREVO) → 机械革命）" },
+    { "jd": "商品编号", "ours": "platformSkuId", "parse": "原样保留，用于回溯与去重" },
+    { "jd": "店铺", "ours": "shopName", "parse": "与采集记录的店铺名对齐，用于判定 shopType" },
+    { "jd": "产品净重", "ours": "weightKg", "parse": "「2.3kg」→ 2.3；「约2.5kg」→ 2.5；「1.5-2.0Kg」→ 记区间并标 estimated" },
+    { "jd": "型号", "ours": "modelHint", "parse": "用于与官网型号对齐；注意「型号」与「认证型号」可能不同" },
+    { "jd": "认证型号", "ours": "certModel", "parse": "认证型号常用于查能效备案，单独存一个字段" },
+    { "jd": "能效网规格型号", "ours": "energyModel", "parse": "★ 关键字段：可拿去 www.energylabel.com.cn 查能效等级，决定国补资格" },
+    { "jd": "插槽数量", "ours": "ram.slots", "parse": "整数；配合「内存类型」判定 form：有插槽=DDR5 可换，无插槽=LPDDR 板载" },
+    { "jd": "雷电/USB4接口", "ours": "ports", "parse": "「无雷电端口」是明确的无，要记为 known-absent，不是缺失" },
+    { "jd": "USB-C接口数量", "ours": "ports", "parse": "整数；注意与雷电口是否重复计数" },
+    { "jd": "USB-A接口数", "ours": "ports", "parse": "整数" },
+    { "jd": "显示端口", "ours": "ports", "parse": "「HDMI 2.1接口 MINI DP...」→ 拆成 HDMI 2.1 + Mini DP；省略号说明被截断，标 partial" },
+    { "jd": "有线网络RJ45", "ours": "ports", "parse": "给出速率即代表有网口；「无」则明确无" },
+    { "jd": "键盘", "ours": "keyboard", "parse": "「RGB背光键盘」记录背光类型，用于办公/宿舍场景提示" }
+  ],
+
+  "notInThisBlock": {
+    "note": "商品详情里经常没有、必须另找的字段",
+    "items": [
+      { "field": "显存 GB", "where": "品牌官网 techspec", "why": "京东只给显卡型号" },
+      { "field": "显卡功耗 TGP", "where": "品牌官网 / 第三方评测", "why": "商品详情从不写" },
+      { "field": "内存类型（DDR5/LPDDR5X）", "where": "官网规格页", "why": "只有「插槽数量」，靠它反推不严谨" },
+      { "field": "屏幕色域 / 面板 / 亮度", "where": "官网规格页，偶尔在商品详情", "why": "不同 SKU 的字段完整度不一样" },
+      { "field": "电池容量 Wh", "where": "有时在商品详情（另一些 SKU 有）", "why": "字段存在与否取决于类目模板" },
+      { "field": "能效等级", "where": "能效标识网（用 energyModel 查）", "why": "京东只给能效网规格型号，不给等级" }
+    ]
+  },
+
+  "traps": [
+    { "trap": "尺寸填 0 或带省略号", "handling": "记 null 并标 unprovided，绝不写 0——0mm 会被下游算成超薄" },
+    { "trap": "「无雷电端口」", "handling": "记为明确无（known_absent），与「未填」区分——前者能作为结论，后者不能" },
+    { "trap": "显示端口被省略号截断", "handling": "记已知部分 + partial: true，不猜后面还有什么" },
+    { "trap": "型号与认证型号不一致", "handling": "两个都存。认证型号是查能效备案的键，型号是电商标题的键" },
+    { "trap": "同一商品多个 SKU 共用一个商品详情", "handling": "商品编号相同但配置不同时，按 SKU 拆记录，不要用详情区当成单 SKU 规格" }
+  ]
+}

@@ -1,0 +1,224 @@
+{
+  "meta": {
+    "created": "2026-11-11T19:52:00+08:00",
+    "purpose": "ports 补齐批次补丁。沙箱恢复后用脚本合并进 machine_pool.json，不要手工贴。",
+    "channel": "用户日常 Edge（已登录态）+ 浏览器扩展接管；京东商品参数页为主，官方旗舰店与太平洋交叉验证",
+    "capturedBy": "直接读京东商品页 / 商品参数区，价格以页面实拍为准",
+    "howToMerge": [
+      "1. 先备份：cp data/machine_pool.json data/machine_pool.json.bak-20261111",
+      "2. 按 id 在 machines[] 里定位，只覆盖 patch 里出现的字段，其余一律不动",
+      "3. screen / ram / gpu / price 是嵌套对象，必须做深合并（dict.update），不能整个替换",
+      "4. 合并后跑 python tools/coverage.py，recommendable 不得低于 357",
+      "5. dataGaps 用 patch 的完整替换，因为它本来就已经过时了"
+    ],
+    "warning": "本文件里的 dataGaps 是重新写的（只保留真实缺口）。合并时直接覆盖旧 dataGaps，不要做并集。"
+  },
+  "patch": [
+    {
+      "id": "add-acer-predator-helios10",
+      "name": "宏碁 掠夺者 战斧10 Neo S",
+      "ports": [
+        "USB-A 3.2 Gen1 ×3",
+        "USB-C ×2（1×雷电4/USB4 + 1×USB-C 3.2）",
+        "HDMI 2.1 ×1",
+        "RJ45 千兆 ×1",
+        "microSD 读卡器 ×1",
+        "3.5mm 音频 ×1"
+      ],
+      "batteryWh": 92,
+      "weightKg": 2.2,
+      "screen": {
+        "refreshHz": 165,
+        "sizeInch": 16,
+        "widthPx": 2560,
+        "heightPx": 1600,
+        "panel": "OLED",
+        "colorGamut": {
+          "dciP3": 100
+        }
+      },
+      "ram": {
+        "slots": 2,
+        "type": "DDR5"
+      },
+      "energyModel": "N25Q15C",
+      "certModel": "N25Q15",
+      "efficiencyStatus": "pending_verify",
+      "price": {
+        "list": 19999,
+        "discounts": [
+          "满18000减2000"
+        ],
+        "net": 17999,
+        "subsidy": 1500,
+        "final": 16499,
+        "basisNote": "2026-11-11 19:40 京东商品页实拍（宏碁京东自营旗舰店，pid 100341518130，规格 U7-356H/32G/1T/RTX5070/16英寸2.5K OLED）。list=页面划线价¥19999；discounts=「满18000减2000」；net=19999−2000=17999；subsidy=「国家补贴｜领后减¥1500」；final=页面「国补领后价」¥16499；校验：17999−1500=16499 成立。页面另显示「可再享最高返824京东」属返利非立减，不计入 net。库存仅剩 3 件。"
+      },
+      "priceCapturedAt": "2026-11-11T19:40:00+08:00",
+      "shopType": "self",
+      "shopName": "宏碁京东自营旗舰店",
+      "platformSkuId": "100341518130",
+      "url": "https://item.jd.com/100341518130.html",
+      "confidence": "medium",
+      "dataGaps": [
+        "throttle",
+        "雷电口数量两来源分歧（自营参数页写2个，官方旗舰店与太平洋写1个，本记录采信1个）",
+        "能效网规格型号两写法（N25Q15C / N25Q15），采信自营页 N25Q15C"
+      ],
+      "evidence": {
+        "portsSpec": "京东商品参数页 pid 100341518130（自营）+ 京东同款 pid 10223566616567 + 太平洋科技 g.pconline.com.cn/product/notebook/acer/2904411_detail.html",
+        "portsSpecQuote": "京东参数：USB-C接口数量 2个；USB-A接口数 3个；雷电/USB4接口 1个；显示端口 HDMI 2.1接口;USB-C(雷电/USB4)；有线网络 RJ45 10/100/1000Mbps；读卡器 Micro SDHC；电池容量 92Wh；产品净重 2.2kg；型号 N25Q15；能效网规格型号 N25Q15C；屏幕刷新率 165Hz；屏幕色域 100% DCI-P3",
+        "portsSpecNote": "三来源交叉一致。⚠️ 宏碁中国新闻稿 acer.com.cn/news_view.html?newsid=172 的「双雷电5+SD卡槽」属于 18 英寸旗舰版战斧10，不是本机 16 英寸 Neo S，不可混用"
+      }
+    },
+    {
+      "id": "add-thunde-renjian-s",
+      "name": "雷神 猎刃S",
+      "ports": [
+        "USB-A ×3",
+        "USB-C ×2",
+        "HDMI 2.1 ×1",
+        "miniDP ×1",
+        "RJ45 2.5G ×1",
+        "3.5mm 音频 ×1"
+      ],
+      "batteryWh": 80,
+      "weightKg": 2.5,
+      "efficiency": 1,
+      "screen": {
+        "refreshHz": 240,
+        "brightnessNit": 500,
+        "sizeInch": 16,
+        "widthPx": 2560,
+        "heightPx": 1600,
+        "panel": "IPS",
+        "colorGamut": {
+          "dciP3": 100
+        }
+      },
+      "ram": {
+        "slots": 2
+      },
+      "efficiencyStatus": "verified",
+      "priceStatus": "pending_jd_verify",
+      "confidence": "medium",
+      "dataGaps": [
+        "throttle",
+        "价格 12599 高于所有已知报价，来源不明",
+        "CPU/GPU/内存组合跨版本，见 conflict"
+      ],
+      "conflict": {
+        "type": "跨 SKU 混合配置",
+        "detail": "库内记 R7-7745HX + RTX5070 + 32G。但雷神官网 12 个版本里没有这个组合：R7-7745HX-RTX5070 只有 16G 版（¥8499），32G 只出现在 i9-13900HX-RTX5060 版（京东自营 pid 100253916480）。当前记录是 CPU+显卡取自 R7 版、内存取自 32G 版，物理上不存在。",
+        "impact": "ram.gb=32 是三维建筑工业组的硬门槛；若真实为 16G，该机在该组会从「够用」翻成「不够」",
+        "options": [
+          "A 改记为 i9-13900HX / RTX5060 / 32G（京东自营在售，官网 item/1849 佐证，能买到）——需补 i9-13900HX 跑分",
+          "B 改记为 R7-7745HX / RTX5070 / 16G（官网在售版本，¥8499）——内存降级影响判定",
+          "C 改记为 R7-7745HX / RTX5070 / 32G / 2T（京东第三方『定制』版 ¥13397，数码笔记本专营店，非自营）——配置成立但价格与渠道偏离库内口径",
+          "D 拆成两条独立记录——池子 71 → 72 台，需重跑覆盖率"
+        ],
+        "recommended": "A",
+        "note": "本 patch 只补不冲突的字段（ports/battery/weight/screen/ram.slots/efficiency），CPU/GPU/ram.gb/price 一律不动，等用户选完方案再改。官网 item/1800.html 属性表再次直接确认 R7-7745HX-RTX5070 版『原机内存：16G』，16G 是官方原装口径"
+      },
+      "evidence": {
+        "portsSpec": "主来源：雷神官网 www.thunderobot.com/item/1800.html（属性表：本地网络 2.5Gbps、屏幕 240Hz 100% DCI-P3、裸机 2.5Kg、原机内存 16G）+ 雷神官方渲染图接口标注（经 IT之家 ithome.com/0/873/257.htm 稿件呈现的官方物料）；交叉：什么值得买 wiki.smzdm.com/p/xz0ozzj/canshu、京东第三方定制版参数页",
+        "portsSpecQuote": "官方渲染图标注：左侧 USB-C 3.2Gen2（10Gbps+DP+PD100W）、USB-A 3.2Gen1（5Gbps）、3.5mm 音频、RJ-45 网口（2.5G）；右侧 2×USB-A 3.2Gen1（5Gbps）；后侧 USB-C 3.2Gen2（10Gbps+PD100W&140W 私有协议）、DC 电源口、Mini DP、HDMI 2.1（48Gbps）、安全锁孔；80Wh 电池。官网属性表：「本地网络：2.5Gbps」「电池功率：250W（实为适配器功率）」「能效等级：一级」",
+        "portsSpecNote": "⚠️ 来源纪律修订（2026-11-11）：原 evidence 把 IT之家/什么值得买列为主来源，不符『京东/官网为主』要求，现改官网+官方物料为主。京东第三方定制版参数页（R7-7745HX/RTX5070/32G/2T【定制】¥13397，数码笔记本专营店）端口字段为空，仅作存在性交叉。注意 RJ45 是 2.5G 不是千兆（官网直接确认），无雷电口——别按常见游戏本套模板填"
+      }
+    },
+    {
+      "id": "add-laikuair16",
+      "name": "联想来酷 Air16 2026",
+      "ports": [
+        "USB-A ×2",
+        "USB-C ×2（支持 DP 视频输出）"
+      ],
+      "batteryWh": 60,
+      "weightKg": 1.28,
+      "energyModel": "Lecoo N160A",
+      "certModel": "Lecoo N160A",
+      "confidence": "medium",
+      "dataGaps": [
+        "efficiency",
+        "HDMI 接口待核（京东结构化参数只列「显示端口 USB-C(DP)」，未列 HDMI，不排除漏填）",
+        "内存/硬盘容量跨 SKU，见 conflict"
+      ],
+      "conflict": {
+        "type": "跨 SKU 混合配置",
+        "detail": "库内记 Core5 320 / 16G / 512G。但京东在售两个 SKU 都是 12G + 1TB：①联想电脑整机京东自营专区 Core5-320 12G+1T ¥4419.15；②联想授权笔记本专卖店 Core5-320 12G 1TB ¥4154.8。而「16G/32G + 512G」是另一个型号——来酷Air 16 酷睿Ultra版（Ultra 5 226V / Lunar Lake / 2.5K 120Hz / 65Wh / 约1kg / 镁合金），是完全不同的产品。",
+        "impact": "ram.gb=16 影响编程/平面组的门槛；storageGB 512 vs 1024 影响视频组的存储硬门槛",
+        "options": [
+          "A 改为 Core5 320 / 12G / 1T（京东在售，能买到）",
+          "B 拆成两条：来酷Air16 2026（Core5 320/12G/1T）与 来酷Air 16 Ultra版（Ultra5 226V/16G/512G/2.5K 120Hz/65Wh）——后者其实是更好的机器，值得单列"
+        ],
+        "recommended": "B",
+        "note": "本 patch 只补 ports/battery/weight/能效型号，CPU/内存/硬盘/价格不动"
+      },
+      "evidence": {
+        "portsSpec": "京东商品参数（联想电脑整机京东自营专区）+ 京东商品参数（联想授权笔记本专卖店）",
+        "portsSpecQuote": "自营店：USB-A接口数 2个；USB-C接口数量 2个；显示端口 USB-C(DP)；电池容量 60Wh；产品净重 1.28kg；能效网规格型号 Lecoo N160A；认证型号 Lecoo N160A；屏幕 1920×1200 60Hz IPS 100%sRGB 16英寸。授权店同配置，另注「雷电/USB4接口：无雷电端口」",
+        "portsSpecNote": "两个京东 SKU 参数一致。⚠️ 百度百科「来酷Air 16」词条讲的是 Ultra 5 226V 版（Lunar Lake、2.5K 120Hz、65Wh、1kg、镁合金、左侧2×USB-C+1×USB-A/右侧1×USB-A+HDMI+3.5mm），那是另一个型号，不要拿来当本机依据"
+      }
+    },
+    {
+      "id": "add-laiku-zhan7000",
+      "name": "联想来酷 斗战者 战7000",
+      "ports": [
+        "USB-A 5Gbps ×4",
+        "USB-C ×1（全功能：10Gbps + DP 独显直连 + 100W PD）",
+        "HDMI 2.1 ×1",
+        "RJ45 千兆 ×1",
+        "3.5mm 音频 ×1"
+      ],
+      "batteryWh": 80,
+      "weightKg": 2.5,
+      "energyModel": "斗战者N176B",
+      "certModel": "斗战者N176B",
+      "confidence": "medium",
+      "dataGaps": [
+        "efficiency",
+        "throttle",
+        "电池容量有 80Wh（京东在售 i7 版）与 60Wh（2026款首销配置）两种，本记录取京东在售 SKU 的 80Wh",
+        "重量有 2.5kg（京东）与 2.37kg（百科不含适配器）两种",
+        "CPU/刷新率/价格跨 SKU，见 conflict"
+      ],
+      "conflict": {
+        "type": "跨 SKU 混合 + 型号笔误 + 多处规格分歧",
+        "detail": "库内记 R9-8945HX / RTX5060 / 16G / 1T / 165Hz / DCI-P3 100 / 2.5kg / ¥8888。2026-11-11 京东复核：①战7000 不止 Intel 版——京东在售确有锐龙版，CPU 为 R9-8940HX（联想精选专卖店，认证型号 斗战者N176B），『全系 Intel』的说法不成立，但型号名 8945HX 在战7000 全系任何渠道都查不到，应为 8940HX 笔误；②R9-8940HX 版参数页：2560×1600、180Hz、100%sRGB、80Wh、净重 2.4kg，与库内 165Hz、DCI-P3 100、2.5kg 三处不符；③另有 Intel 版（i7-13645HX 首销 16G+512G ¥7699 / i7-13650HX / i7-14650HX）。",
+        "impact": "CPU 8945HX→8940HX 若为笔误则跑分可沿用（同颗芯片）；165→180Hz 与色域口径影响屏幕分档；价格差约 800~1200 元",
+        "options": [
+          "A CPU 改为 R9-8940HX（京东在售，最接近库内记录，可能只是型号笔误），屏幕 165→180Hz、色域改 sRGB 100、重量 2.5→2.4",
+          "B 整条改为 Intel i7-13650HX / RTX5060 / 16G / 1T（京东在售酷睿版）——需补 i7-13650HX 跑分",
+          "C 拆成锐龙版与酷睿版两条——池子 71 → 72 台，需重跑覆盖率"
+        ],
+        "recommended": "A（改动最小且有京东在售 SKU 支撑）",
+        "note": "本 patch 只补 ports/battery/weight/能效型号，CPU/屏幕/价格不动，等用户拍板"
+      },
+      "evidence": {
+        "portsSpec": "主来源：京东商品页 item.jd.com/10164258872175.html（认证型号 斗战者N176B，R9-8940HX/RTX5060 版商品参数）；交叉：联想官方社区拆机帖 club.lenovo.com.cn/thread-9440581 与 thread-9452538（官方社区，内容含拆机实拍）；三方佐证（降级）：百度百科、IT之家、闽南网",
+        "portsSpecQuote": "京东参数页：USB-C接口数量 1个；USB-A接口数 4个；雷电/USB4接口 无雷电端口；显示端口 HDMI 2.1接口；有线网络RJ45 10/100/1000Mbps；电池容量 80Wh；产品净重 2.4kg；屏幕 2560*1600、180Hz、100%sRGB；无线 双天线Wi-Fi 6。联想社区拆机帖：左侧 2×USB-A 5Gbps + 3.5mm；右侧 2×USB-A 5Gbps；后部 RJ45 千兆网口 + HDMI 2.1 + 10Gbps USB Type-C（支持 100W PD 充电）+ 标准 DC5525 电源口",
+        "portsSpecNote": "⚠️ 来源纪律修订（2026-11-11）：原 evidence 以百度百科为主来源，不符『京东/官网为主』要求，现改京东商品页为主、联想官方社区拆机帖为交叉（两者完全一致）。京东 R9-8940HX 版参数页还带出三个新分歧进 conflict：色域 100%sRGB vs 库内 dciP3 100、净重 2.4kg vs 库内 2.5、刷新率 180Hz vs 库内 165。RJ45 是千兆不是 2.5G，注意别和猎刃S 混"
+      }
+    }
+  ],
+  "verified_ok_no_change_needed": [
+    "add-honorx14-amd（ports 4项，荣耀官网引文）",
+    "add-matebook14-2026（ports 4项，华为官网引文）",
+    "add-magicbookpro14（ports 5项）",
+    "add-acer-predator-helios9（ports 9项，宏碁全球新闻稿引文）",
+    "add-xingbookproair14（ports 4项，惠普商城引文）",
+    "add-adou14air（ports 5项，华硕官网引文）",
+    "add-canglong16pro（ports 6项）",
+    "add-canglong18pro-jd（ports 6项，机械革命官网+IT之家引文）",
+    "add-omen-pro15-jd（ports 6项，惠普商城引文）"
+  ],
+  "blocked": [
+    {
+      "id": "add-xingbookplus14",
+      "name": "星Book Plus 14",
+      "reason": "京东自营无此配置 SKU。搜索返回的全是近似名（星Book Pro Air 14 / 星Book 14 Plus / 星Book Air 14 / 星Book Pro 14）。唯一配置接近的在售 SKU 是京东国际（npcitem.jd.hk）NAVIGATOR手机海外专营店的「星Book 14 Plus Core5 320 16G 512G OLED」，但该 SKU 实际显卡为 RTX5050 独显、含税价 ¥15094.3、店铺评分 3.5 非自营，与库内「核显/¥4150/自营」三项全不符，判定不是同一台。",
+      "suggestedAction": "标 priceBlockedBy 并降 confidence；或由用户/惠普官网确认「星Book Air 14」（pid 100437767124 / 100437735172，惠普京东自营，酷睿5+16G+512G+OLED）是否为该机的京东名称",
+      "doNotDo": "不要用海外店 ¥15094.3 冒充库内价格，也不要把星Book Air 14 的规格直接套过来"
+    }
+  ]
+}

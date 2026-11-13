@@ -1,0 +1,70 @@
+{
+ "updated": "2026-11-11",
+ "note": "只列真正进入 R 级判定的字段；maxGB 等不参与判定",
+ "fields": [
+  {
+   "field": "ports",
+   "cn": "接口",
+   "missing": 11,
+   "machines": [
+    "华为 MateBook D 16（i5-13420H/16G/1T，店铺预装 Win 未激活）",
+    "无畏14 SE 2026",
+    "星Book Plus 14",
+    "荣耀 X14 锐龙版",
+    "MateBook 14 2026",
+    "荣耀 MagicBook Pro 14 2026",
+    "联想来酷 Air16 2026",
+    "星Book Pro Air 14",
+    "a豆 14 Air 2026",
+    "苍龙16 Pro",
+    "联想来酷 斗战者 战7000"
+   ]
+  },
+  {
+   "field": "ram.form",
+   "cn": "内存形态(板载/插槽)",
+   "missing": 2,
+   "machines": [
+    "灵越 14 Plus 7440（自营最新款，未标 2026）",
+    "华为 MateBook D 16（i5-13420H/16G/1T，店铺预装 Win 未激活）"
+   ]
+  },
+  {
+   "field": "ram.type",
+   "cn": "内存类型",
+   "missing": 2,
+   "machines": [
+    "灵越 14 Plus 7440（自营最新款，未标 2026）",
+    "华为 MateBook D 16（i5-13420H/16G/1T，店铺预装 Win 未激活）"
+   ]
+  },
+  {
+   "field": "screen.colorGamut",
+   "cn": "色域",
+   "missing": 2,
+   "machines": [
+    "旷世X 2026（i5-14450HX/RTX5050/32G/1T）",
+    "华为 MateBook D 16（i5-13420H/16G/1T，店铺预装 Win 未激活）"
+   ]
+  },
+  {
+   "field": "screen.refreshHz",
+   "cn": "刷新率",
+   "missing": 4,
+   "machines": [
+    "ThinkPad E16 Gen 2（Ultra5 版）",
+    "旷世X 2026（i5-14450HX/RTX5050/32G/1T）",
+    "无界14 2026（Ultra5-226V/16G/1T）",
+    "华为 MateBook D 16（i5-13420H/16G/1T，店铺预装 Win 未激活）"
+   ]
+  },
+  {
+   "field": "cpu.cores",
+   "cn": "CPU核心数",
+   "missing": 1,
+   "machines": [
+    "ThinkPad E16 Gen 2（Ultra5 版）"
+   ]
+  }
+ ]
+}

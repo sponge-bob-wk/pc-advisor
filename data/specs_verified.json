@@ -1,0 +1,2141 @@
+{
+ "meta": {
+  "version": "0.1",
+  "updated": "2026-11-08",
+  "purpose": "已交叉核实的机型规格。来源优先级：品牌官网 techspec > 品牌官网 wiki/商城 > 电商参数区 > 第三方媒体。",
+  "keyFinding": "京东「商品参数」区本身就是结构化字段（GPU性能释放、内存类型、插槽数量、屏幕色域、电池容量、净重），比标题与详情页文案可靠。采集时应优先读这一块。",
+  "conflictRule": "不同来源冲突时，保留全部冲突并标注采用了哪个，不许只留一个数。",
+  "evidenceTiers": {
+   "A": "品牌官网 techspec / 官方规格页",
+   "B": "品牌商城参数 / 电商参数区（京东自营维护）",
+   "C": "第三方媒体或店铺自填"
+  },
+  "efficiencySource": {
+   "officialChannel": "https://www.energylabel.com.cn →「产品备案查询」，输入产品型号或生产者名称",
+   "keyFinding": "「微型计算机」自 2026-02-01 起实施新版能效标识规则；此前出厂/进口的产品可推迟至 2028 年对应日期前再加施新标。",
+   "impactOnSubsidy": "国补家电线要求 1 级能效。但 2026-02 之前出厂的笔记本可能仍按旧标或未贴新标，所以「查不到能效等级」不等于「不满足」——不能据此判补贴为 0，只能标记为待核。",
+   "action": "能效等级从能效标识网按型号查，不依赖电商页面；查不到时 subsidy 置 null 并标 pending，不许默认 0 也不许默认 15%。"
+  },
+  "coverageSnapshot": {
+   "date": "2026-11-08 00:25",
+   "records": 28,
+   "verified": 10,
+   "parsed": 18,
+   "conclusiveCombinations": "85 / 280（10 个专业组 × 28 台机型）",
+   "byGroup": {
+    "通识办公": "8",
+    "编程数据": "8",
+    "平面视觉": "10",
+    "视频影视": "3",
+    "三维建筑工业": "3",
+    "音乐音频": "10",
+    "游戏与数字媒体技术": "3",
+    "电气与自动化": "10",
+    "理工实验": "27",
+    "测绘与空间信息": "3"
+   },
+   "structuralFinding": "剩下卡住视频/三维/引擎/测绘四组的，不是缺字段，而是库里只有 4 台独显机。25 台核显机对「需要独立显卡」的组属于事实不满足，补数据补不出来——只能靠采更多游戏本/创作本。",
+   "trueDataGaps": {
+    "ports": 18,
+    "batteryWh": 20,
+    "ramType": 18,
+    "colorGamut": 12,
+    "resolution": 3
+   },
+   "judgmentRules": [
+    "核显判「不满足」而非「缺失」；throttle 缺失降级不阻断；efficiency 只进国补计算不进选机门槛",
+    "核数按 CPU 型号回填（Intel ARK / AMD 官方），不逐台查"
+   ]
+  },
+  "cpuSpecNote": "核数已按 CPU 型号回填（Intel ARK / AMD 官方），不再需要逐台查。",
+  "dedupNote": "2026-11-09 合并同 id 重复记录（截断 id 冲突），保留字段更全的一条"
+ },
+ "records": [
+  {
+   "id": "spec-legion-y9000p-2026",
+   "modelHint": "拯救者 Y9000P 2026",
+   "brand": "联想",
+   "cat": "gaming",
+   "cpu": {
+    "model": "Core Ultra 9 290HX Plus",
+    "vendor": "Intel",
+    "cores": 24,
+    "threads": 24,
+    "baseW": 55,
+    "maxW": 160,
+    "coreSrc": "同代 275HX 官方 24核；290HX Plus 待核"
+   },
+   "ram": {
+    "gb": 16,
+    "type": "DDR5",
+    "config": "16GB×1",
+    "form": "sodimm",
+    "slots": 2,
+    "maxGB": null
+   },
+   "storageGB": 1024,
+   "gpu": {
+    "model": "RTX 5060",
+    "vendor": "NVIDIA",
+    "vramGB": 8,
+    "type": "discrete",
+    "tgpBaseW": null,
+    "tgpMaxW": 115,
+    "boost": "Dynamic Boost 2.0"
+   },
+   "screen": {
+    "sizeInch": 16,
+    "widthPx": 2560,
+    "heightPx": 1600,
+    "refreshHz": 240,
+    "panel": null,
+    "colorGamut": {
+     "dciP3": 100
+    },
+    "brightnessNit": null
+   },
+   "batteryWh": 80,
+   "weightKg": 2.5,
+   "ports": [
+    "雷电 4 ×1",
+    "USB-C ×1",
+    "USB-A ×3",
+    "HDMI 2.1"
+   ],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "A",
+     "url": "https://www.lenovo.com.cn/wiki/product-1058153.html",
+     "title": "联想拯救者Y9000P 2026 16英寸 碳晶黑（官方规格页）",
+     "gives": [
+      "CPU",
+      "内存 16GB DDR5",
+      "RTX5060 8G",
+      "16\" 2560×1600 240Hz",
+      "80Wh",
+      "约2.5kg",
+      "接口"
+     ]
+    },
+    {
+     "tier": "A",
+     "url": "https://www.lenovo.com.cn/wiki-shop/product-doc-47751.html",
+     "title": "拯救者Y9000P 冰魄白 套餐页（官方）",
+     "gives": [
+      "RTX5060 8GB GDDR7",
+      "Dynamic Boost 2.0，功耗释放可达 115W",
+      "32GB DDR5-6400",
+      "16\" OLED 240Hz 100% DCI-P3 HDR1000",
+      "140W USB-C 快充"
+     ]
+    }
+   ],
+   "conflicts": [
+    {
+     "field": "ram.gb",
+     "values": [
+      {
+       "v": 16,
+       "src": "官方规格页"
+      },
+      {
+       "v": 32,
+       "src": "官方套餐页"
+      }
+     ],
+     "adopted": 16,
+     "why": "两页对应不同 SKU，按标准版取 16GB"
+    },
+    {
+     "field": "cpu.model",
+     "values": [
+      {
+       "v": "Ultra 9 290HX Plus",
+       "src": "官方规格页"
+      },
+      {
+       "v": "Ultra 9 275HX",
+       "src": "官方套餐页"
+      }
+     ],
+     "adopted": "Ultra 9 290HX Plus",
+     "why": "按 2026 款规格页取"
+    },
+    {
+     "field": "gpu.tgpMaxW",
+     "values": [
+      {
+       "v": 115,
+       "src": "官方套餐页原文「整机功耗释放可达115W」"
+      }
+     ],
+     "adopted": 115,
+     "why": "原文是「整机」功耗释放，非纯 GPU TGP，标注为待核；参考同类 5060 机型多为 GPU 115W"
+    }
+   ],
+   "confidence": "medium",
+   "note": "TGP 是最需要复核的一项：官方用「整机功耗释放」表述，可能指整机而非显卡。同系列参考：天选7 的 RTX5060 明确标 115W（100W+15W）。",
+   "efficiencyEvidence": {
+    "energyModel": "Legion Y9000P IAX10",
+    "certModel": "Legion Y9000P IAX10",
+    "filings": [
+     {
+      "model": "Legion Y9000P IAX10",
+      "level": 1,
+      "regNo": "20251216-CEL0272025-362868",
+      "date": "2025-12-16",
+      "scheme": 2025
+     }
+    ],
+    "source": "中国能效标识网 产品备案查询",
+    "checkedAt": "2026-11-09"
+   },
+   "efficiencyText": "一级",
+   "efficiencyStatus": "verified"
+  },
+  {
+   "id": "spec-omen11-2026",
+   "modelHint": "暗影精灵 11（2026，Ultra7-251HX/RTX5060）",
+   "brand": "惠普",
+   "cat": "gaming",
+   "cpu": {
+    "model": "Ultra7-251HX",
+    "vendor": "AMD",
+    "cores": 16,
+    "threads": 32,
+    "baseW": 55,
+    "maxW": 75,
+    "coreSrc": "AMD 官方｜裁决 2026-11-10：R9-8945HX 来自 AMD 版 SKU 的京东参数（不同机器）；"
+   },
+   "ram": {
+    "gb": 32,
+    "type": "DDR5-5600",
+    "form": "sodimm",
+    "slots": 2,
+    "maxGB": 32
+   },
+   "storageGB": 2048,
+   "gpu": {
+    "model": "RTX 5060",
+    "vendor": "NVIDIA",
+    "vramGB": null,
+    "type": "discrete",
+    "tgpMaxW": 115,
+    "tgpBaseW": null
+   },
+   "screen": {
+    "sizeInch": 16,
+    "widthPx": 2560,
+    "heightPx": 1600,
+    "refreshHz": 240,
+    "panel": "IPS",
+    "colorGamut": {
+     "sRGB": 100
+    },
+    "brightnessNit": null
+   },
+   "batteryWh": 83,
+   "weightKg": 2.46,
+   "ports": [
+    "HDMI 2.1",
+    "RJ45"
+   ],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "B",
+     "url": "https://union-click.jd.com/jdc?e=&p=JF8BATYJK1olXDYCVV9ZAU0VC20JElwTWTZGCwYDV3tORipJWVALQ15HAAJCUx4IUTFUBVsUXAILUlxVCkoeBGkMBAJQAVsyCkAKVC4VXxZtfxtAPg5UUSs6fAsQc2MEK18TXgAGVV9cC3sXAm4JGlIdVA4AZFpbZkp5A2YNdV4dCQZXBAoKD0xDBjgLSVwlXQcyHzBcOEonA2kAHloSWw8DXVxeCnsXC2s4zPK7i4qkgOf33_mVM184GGslbQYyV24DZkoQB21fGVkSM1pEUwMCXh1ebWwNGlIXXg8KZFxcCUkVM1_WlutuLwJrBi0dbRlTdTkBXQ1Hg4uyRSwtCEkfAX44YRx1NVJSMis0SiphBghJG1h2VFpeJBUnT0gXCg9mGRxGOFN5NgcvDw1kAyYNXxAcbQYyZF9t",
+     "title": "京东商品参数区（暗影精灵11 R9-8945HX/RTX5060）",
+     "gives": [
+      "GPU性能释放 115W",
+      "内存 DDR5-5600，2 插槽，最大 32GB",
+      "16\" 2560×1600 240Hz IPS 100% sRGB",
+      "83Wh",
+      "2.46kg",
+      "型号 TPN-Q305"
+     ]
+    }
+   ],
+   "conflicts": [
+    {
+     "field": "cpu.model",
+     "values": [
+      {
+       "v": "R9-8945HX",
+       "src": "京东参数（该 SKU）"
+      },
+      {
+       "v": "Ultra7-251HX",
+       "src": "采集记录 modelHint"
+      }
+     ],
+     "adopted": "Ultra7-251HX",
+     "why": "已裁决：modelHint 与价格来源采集记录标题均为 Ultra7-251HX/RTX5060，R9-8945HX 属暗影精灵11 AMD 版（不同 SKU），已从本记录剔除并标注待另建"
+    }
+   ],
+   "confidence": "medium",
+   "note": "来源是京东参数区（第三方店铺填写，但该区块由京东统一维护）。显存未单独列出，需补官网 techspec。CPU 与采集记录不一致，说明同一型号有 AMD/Intel 两条产品线，不能合并成一条。",
+   "efficiencyEvidence": {
+    "energyModel": "TPN-I145A3",
+    "certModel": "TPN-I145A3",
+    "filings": [
+     {
+      "model": "TPN-I145A3",
+      "level": 1,
+      "regNo": "20260327-CEL0272025-161370",
+      "date": "2026-03-27",
+      "scheme": 2025
+     }
+    ],
+    "source": "中国能效标识网 产品备案查询",
+    "checkedAt": "2026-11-09"
+   },
+   "efficiencyText": "一级",
+   "efficiencyStatus": "verified"
+  },
+  {
+   "id": "spec-tuf-a16-2026",
+   "modelHint": "天选7 2026（锐龙7 H260/RTX5050）",
+   "brand": "华硕",
+   "cat": "gaming",
+   "cpu": {
+    "model": "Ryzen 7 H260",
+    "vendor": "AMD",
+    "cores": 8,
+    "threads": 16,
+    "baseGHz": 3.8,
+    "boostGHz": 5.1,
+    "baseW": 45,
+    "maxW": 54,
+    "coreSrc": "华硕官网：8核16线程 3.8/5.1GHz"
+   },
+   "ram": {
+    "gb": 16,
+    "type": "DDR5-5600",
+    "config": "16GB×1",
+    "form": "sodimm",
+    "slots": 2,
+    "maxGB": null
+   },
+   "storageGB": 512,
+   "gpu": {
+    "model": "RTX 5050",
+    "vendor": "NVIDIA",
+    "vramGB": 8,
+    "vramType": "GDDR7",
+    "type": "discrete",
+    "tgpBaseW": 55,
+    "tgpMaxW": 115,
+    "boost": "Dynamic Boost"
+   },
+   "screen": {
+    "sizeInch": 16,
+    "widthPx": 2560,
+    "heightPx": 1600,
+    "refreshHz": 165,
+    "panel": "OLED",
+    "colorGamut": {
+     "dciP3": 100,
+     "sRGB": 100
+    },
+    "brightnessNit": 1100
+   },
+   "batteryWh": 90,
+   "weightKg": 2.1,
+   "ports": [
+    "电源方口",
+    "RJ45",
+    "HDMI 2.1",
+    "USB4（DP1.4）",
+    "USB-C（DP2.1，100W PD）",
+    "USB-A ×3",
+    "3.5mm"
+   ],
+   "efficiency": 1,
+   "warranty": "1 年整机国际联保 + 2 年主要部件",
+   "sources": [
+    {
+     "tier": "A",
+     "url": "https://www.asus.com.cn/laptops/for-gaming/tuf-gaming/asus-tuf-gaming-a16-2025/techspec",
+     "title": "华硕官网 天选7 / A16 techspec",
+     "gives": [
+      "RTX5050 笔记本 GPU 55W（至高 115W 动态加速）8GB GDDR7",
+      "RTX5060 115W（100W+15W）8GB GDDR7",
+      "16\" 2.5K 165Hz IPS 100% sRGB / 300Hz DCI-P3 两种屏"
+     ]
+    },
+    {
+     "tier": "B",
+     "url": "https://wap.asus.com.cn/standard/product/detail?productId=42278055763985",
+     "title": "华硕商城 天选7（R7 H260/RTX5050/16G/512G/2.5K OLED）",
+     "gives": [
+      "R7 H260 8 核 16 线程 3.8/5.1GHz",
+      "16G DDR5-5600，2 插槽",
+      "512GB，2 个接口",
+      "16\" OLED 100% DCI-P3 165Hz 2560×1600",
+      "90Wh",
+      "2.1kg"
+     ]
+    }
+   ],
+   "conflicts": [
+    {
+     "field": "screen.panel",
+     "values": [
+      {
+       "v": "OLED 165Hz 100% DCI-P3",
+       "src": "华硕商城该 SKU"
+      },
+      {
+       "v": "IPS 165Hz 100% sRGB",
+       "src": "官网 techspec 另一配置"
+      }
+     ],
+     "adopted": "OLED 165Hz 100% DCI-P3",
+     "why": "按本 SKU（productId 42278055763985）取；两版屏同时存在，属不同配置"
+    }
+   ],
+   "confidence": "high",
+   "note": "三台里规格最完整的一台。官网直接给出 TGP 双档（55W 基础 / 115W 动态），这正是「同型号不同功耗」最直接的证据——只看型号名会误判成一档性能。",
+   "efficiencyEvidence": {
+    "energyModel": "FA608",
+    "certModel": "FA608",
+    "filings": [
+     {
+      "model": "FA608",
+      "level": 1,
+      "regNo": "20260109-CEL0272025-135197",
+      "date": "2026-01-09",
+      "scheme": 2025
+     }
+    ],
+    "source": "中国能效标识网 产品备案查询",
+    "checkedAt": "2026-11-09"
+   },
+   "efficiencyText": "一级",
+   "efficiencyStatus": "verified"
+  },
+  {
+   "id": "spec-legion-y7000p-2026",
+   "modelHint": "拯救者 Y7000P 2026",
+   "brand": "联想",
+   "cat": "gaming",
+   "cpu": {
+    "model": "Core Ultra 7 251HX",
+    "vendor": "Intel",
+    "boostGHz": 5.1,
+    "plW": 135,
+    "plNote": "京东参数区：CPU 性能释放 135W",
+    "cores": 18,
+    "threads": 18,
+    "baseW": 55,
+    "maxW": 160,
+    "coreSrc": "Intel ARK：6P+12E 18核18线程"
+   },
+   "ram": {
+    "gb": 16,
+    "type": "DDR5",
+    "config": "16GB×1",
+    "form": "sodimm",
+    "slots": 2,
+    "maxGB": 64
+   },
+   "storageGB": 1024,
+   "gpu": {
+    "model": "RTX 5060",
+    "vendor": "NVIDIA",
+    "vramGB": 8,
+    "type": "discrete",
+    "tgpBaseW": null,
+    "tgpMaxW": 115,
+    "tgpNote": "京东参数区：GPU 性能释放 115W"
+   },
+   "screen": {
+    "sizeInch": 16,
+    "widthPx": 2560,
+    "heightPx": 1600,
+    "refreshHz": 240,
+    "panel": null,
+    "colorGamut": {
+     "dciP3": 100
+    },
+    "brightnessNit": null
+   },
+   "batteryWh": 80,
+   "weightKg": 2.35,
+   "ports": [
+    "雷电 4 / USB4 ×1",
+    "USB-C ×1",
+    "USB-A ×3",
+    "HDMI 2.1",
+    "RJ45"
+   ],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "A",
+     "url": "https://www.lenovo.com.cn/wiki/product-1058143.html",
+     "title": "联想拯救者Y7000P 2026 碳晶黑（官方规格页）",
+     "gives": [
+      "Ultra7 251HX",
+      "16GB(16GBx1) DDR5",
+      "RTX5060 8GB显存",
+      "16\" 2560×1600 240Hz",
+      "80Wh",
+      "约2.35kg"
+     ]
+    },
+    {
+     "tier": "B",
+     "url": "https://union-click.jd.com/jdc?e=&p=JF8BAcgJK1olWAcFV15YDEweC18IGloXXQ4KVFdeAE8nRzBQRQQlBENHFRxWFlVWQDEXR0ROCBlQCgJDVBtKXnFYSR5NGlIcUVoabhJnX2dda1lNVQF3Cj4PfSxNBylaRDxwDxhaCwsJQVRORjNVFRlPGQp5HVdVdjtpCzoNGFhlD1JrN1laC0hnURpBbiYXAw9sVgEBTB90SghUWSllNgUDDh8-Hw9IWzFXRgtKCGNKFQpRCFxLUzdXeQFRUQYDVVxdAEMXCmwAH2tFHVFfCycHDCh-dXVybBBqX1UcXCctBEcnB2kLHV8UXAcBZF5cCUoWCmcBE1klWQBsVTBdAU55A2oNSA5GCQ9SVAsPDUgVC18IGmtFMw4KXFxaAU0fB20BK1olXQAKUV9aDkMWBWwKGmsVVQIyg_fz3sex19aizOmXbTYyV25tOEgRM2w4RTUUWgIGVwoJXSVLRWhVWgFXBGgBUV9ZC00UBF8KGloXXzYyitPtbk9oAhV7UCJCJE9lEQobcZWas356a1sRWgITZCUUAUNpcxEATl4WXnZQADc-D0wUAB9abhJgIARcXTBfVxdTVwxBfAdXL3ZpV18HSSgnA18PHVolXDY",
+     "title": "京东自营 商品参数区",
+     "gives": [
+      "CPU性能释放 135W",
+      "GPU性能释放 115W",
+      "DDR5 2 插槽",
+      "100% DCI-P3",
+      "80Wh",
+      "2.35kg"
+     ]
+    }
+   ],
+   "conflicts": [
+    {
+     "field": "ram.maxGB",
+     "values": [
+      {
+       "v": 64,
+       "src": "京东参数区"
+      }
+     ],
+     "adopted": 64,
+     "why": "仅一处来源，待官网复核"
+    }
+   ],
+   "confidence": "high",
+   "note": "TGP 这次是京东参数区明写的「GPU性能释放 115W」，不是整机口径，比 Y9000P 那条可信。CPU 也有明确的 135W 释放。",
+   "efficiencyEvidence": {
+    "energyModel": "Legion Y7000P IAX10",
+    "certModel": "Legion Y7000P IAX10",
+    "filings": [
+     {
+      "model": "Legion Y7000P IAX10",
+      "level": 1,
+      "regNo": "20251216-CEL0272025-717057",
+      "date": "2025-12-16",
+      "scheme": 2025
+     }
+    ],
+    "source": "中国能效标识网 产品备案查询",
+    "checkedAt": "2026-11-09"
+   },
+   "efficiencyText": "一级",
+   "efficiencyStatus": "verified"
+  },
+  {
+   "id": "spec-hp-starbookpro14-2026",
+   "modelHint": "星 Book Pro 14 2026 锐龙版",
+   "brand": "惠普",
+   "cat": "thin",
+   "cpu": {
+    "model": "Ryzen 7 H255",
+    "vendor": "AMD",
+    "boostGHz": 5.2,
+    "cores": 8,
+    "threads": 16,
+    "baseW": 45,
+    "maxW": 54,
+    "coreSrc": "AMD 官方"
+   },
+   "ram": {
+    "gb": 32,
+    "type": "LPDDR5X-8533",
+    "config": "板载",
+    "form": "lpddr",
+    "slots": 0,
+    "maxGB": 32
+   },
+   "storageGB": 1024,
+   "gpu": {
+    "model": "Radeon 780M",
+    "vendor": "AMD",
+    "vramGB": null,
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 14,
+    "widthPx": 2880,
+    "heightPx": 1800,
+    "refreshHz": 120,
+    "panel": "OLED",
+    "colorGamut": {
+     "dciP3": 100
+    },
+    "brightnessNit": 1100
+   },
+   "batteryWh": null,
+   "weightKg": 1.54,
+   "ports": [
+    "USB-A ×2",
+    "USB-C ×2",
+    "HDMI 2.1"
+   ],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "B",
+     "url": "https://union-click.jd.com/jdc?e=&p=JF8BAUgJK1olXwULVllaD0wXBF8IGlgVVA4EUl9dCEkXAF9MRANLAjZbERscSkAJHTdNTwcKBlMdBgABFksWAG8BE10TXAYCVl5eFxJSXzI4YllsOAB4Uls_fEhpRQhNZClCB3ZHAlJROE8RAGkMGloUXjYCVV9cCUIfCmcKK18TMwdsVFdYZhsVB24KGVxFCQQBVA5fW0gnA244WjUSWwEKV1dtCXsXBWcNGlwTVQcEVFdaOEsfB1_fsvXD0aDW7fSKusknM18LK2slXTYBZAAzCUwTB2wMHQh7AUAFCR8HS0N5AGoIGlscXQAyVl9cCkknM7GFqyxgGHNUIQ0CbxFLAhtgW1PL0LYTJi5dDEoREl9UZjtGIlVDFSAnCj9EQjJATz9BG3JRFQw_dT5qZQ9mGS1sGnVkLBUIawxAXzkMWylzbQYyU1hcOEon",
+     "title": "京东旗舰店 商品参数区",
+     "gives": [
+      "R7 H255",
+      "Radeon 780M",
+      "32G",
+      "1T",
+      "14\" 2880×1800 120Hz OLED 100% DCI-P3",
+      "1.54kg",
+      "内存 8000MHz 最大 32GB"
+     ]
+    },
+    {
+     "tier": "C",
+     "url": "https://m.toutiao.com/article/7666385248137921039",
+     "title": "评测文章（内存形态与屏幕校准）",
+     "gives": [
+      "内存 LPDDR5X-8533 板载",
+      "SSD 双插槽 M.2 2280 + 2242",
+      "OLED 2.8K 120Hz 1100nit 100% DCI-P3",
+      "不支持色域切换、无出厂校色"
+     ]
+    }
+   ],
+   "conflicts": [
+    {
+     "field": "ram.type",
+     "values": [
+      {
+       "v": "8000MHz（未标类型）",
+       "src": "京东参数区"
+      },
+      {
+       "v": "LPDDR5X-8533 板载",
+       "src": "评测文章"
+      }
+     ],
+     "adopted": "LPDDR5X-8533",
+     "why": "京东只给频率，评测给出类型；频率 8000 与 8533 接近，判定为同一物料"
+    }
+   ],
+   "confidence": "medium",
+   "note": "平面组重点：这台屏幕色域够（100% DCI-P3）但**不支持色域切换、无出厂校色**——做印刷品要额外校色。另外内存板载 32G 封顶，无法升级。",
+   "efficiencyStatus": "verified",
+   "energyModel": "TPN-Q316",
+   "efficiencyEvidence": "能效网「TPN-Q316」备案 2026-03-02，1 级，HP Inc.；京东三个 SKU 的能效网规格型号/认证型号均为 TPN-Q316"
+  },
+  {
+   "id": "spec-hp-66g8-amd",
+   "modelHint": "战66 八代 14 英寸（2026 款锐龙版）",
+   "brand": "惠普",
+   "cat": "thin",
+   "cpu": {
+    "model": "Ryzen 7 H255",
+    "vendor": "AMD",
+    "cores": 8,
+    "threads": 16,
+    "baseW": 45,
+    "maxW": 54,
+    "coreSrc": "AMD 官方"
+   },
+   "ram": {
+    "gb": 16,
+    "type": "DDR5-6400",
+    "config": "双插槽",
+    "form": "sodimm",
+    "slots": 2,
+    "maxGB": 64
+   },
+   "storageGB": 1024,
+   "gpu": {
+    "model": "Radeon 780M",
+    "vendor": "AMD",
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 14,
+    "widthPx": 2560,
+    "heightPx": 1600,
+    "refreshHz": 120,
+    "panel": "IPS",
+    "colorGamut": {
+     "dciP3": 100
+    },
+    "brightnessNit": 400
+   },
+   "batteryWh": 68,
+   "weightKg": 1.48,
+   "ports": [
+    "USB-A ×2",
+    "USB-C ×2",
+    "HDMI",
+    "RJ45"
+   ],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "C",
+     "url": "https://s.click.taobao.com/t?e=m%3D2%26s%3DOW5eItxlXY9w4vFB6t2Z2ueEDrYVVa64yK8Cckff7TVRAdhuF14FMXaVvLQkXu6%2Fxq3IhSJN6GSbBjBh3LodcDtMDMUFdHxsEga%2Bn4dNFSFW2RGh2%2FLyNYVwhIsr1DlAgb9ZeSZXs4rQ5thPdhAOVFlsmLBYq%2Fyx%2B0GRqF5ym1aMHuv7RoNv0YzeH%2FA0sTcbczX4G%2BDoP8hGGKBgzPB%2BaMypt80IKuWiQIyQ6YGvxUapxLz4TiElK9ZlTmhA4frjFOZwZQ7R4Lb%2F%2BK%2FGY2Z6j6oev4430F3LVTNZps58YJE%2B2t3tb8DziAyW7mQwqx7e&union_lens=lensId:TAPI@1794066844@216606b9_1549_1a1b6b78b3f_04eb@01&skuId=6316640479406",
+     "title": "天猫 商品属性区",
+     "gives": [
+      "能效等级 一级",
+      "R7 H255 核显",
+      "16GB",
+      "1.5-2kg",
+      "2.5K 120Hz",
+      "保修 12 个月"
+     ]
+    },
+    {
+     "tier": "C",
+     "url": "https://m.toutiao.com/article/7666385248137921039",
+     "title": "评测文章（内存与接口细节）",
+     "gives": [
+      "68Wh",
+      "14 寸 1.48kg / 16 寸 1.74kg",
+      "双 DDR5 插槽，最高 64GB DDR5-6400",
+      "1 个 SSD 插槽",
+      "2.5K 400nit 120Hz 100% DCI-P3",
+      "双 USB-A + 双 USB-C + HDMI + RJ45，不支持雷电"
+     ]
+    }
+   ],
+   "conflicts": [],
+   "confidence": "medium",
+   "note": "**这是目前唯一拿到「一级能效」的机型**，直接决定国补资格——家电线要求 1 级能效，没这条连补贴都算不了。另两个卖点：双内存插槽最高 64GB（四年可升级）、RJ45 网口。代价是没有雷电。",
+   "efficiencyText": "一级",
+   "efficiencyStatus": "verified"
+  },
+  {
+   "id": "spec-xiaoxin-pro14-2026-amd",
+   "modelHint": "小新 Pro 14 2026（锐龙版）",
+   "brand": "联想",
+   "cat": "thin",
+   "cpu": {
+    "model": "Ryzen 7 H255",
+    "vendor": "AMD",
+    "threads": 16,
+    "cores": 8,
+    "baseW": 45,
+    "maxW": 54,
+    "coreSrc": "AMD 官方"
+   },
+   "ram": {
+    "gb": 24,
+    "type": "DDR5-5600",
+    "config": "SO-DIMM 双槽",
+    "form": "sodimm",
+    "slots": 2,
+    "maxGB": 64
+   },
+   "storageGB": 1024,
+   "gpu": {
+    "model": "Radeon 780M",
+    "vendor": "AMD",
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 14,
+    "widthPx": 2880,
+    "heightPx": 1800,
+    "refreshHz": 120,
+    "panel": "IPS",
+    "colorGamut": {
+     "sRGB": 100
+    },
+    "brightnessNit": null
+   },
+   "batteryWh": null,
+   "weightKg": 1.46,
+   "ports": [
+    "USB-A ×2",
+    "USB-C（DP）",
+    "HDMI 2.1",
+    "Micro SD"
+   ],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "B",
+     "url": "https://union-click.jd.com/jdc?e=&p=JF8BAV4JK1olXwELXFhZCEkeCl8IGlgUVA4KUllZC0wVC19MRANLAjZbERscSkAJHTdDTwcKBlMdBgABFksWAG4BE1MTWgIBU1xVFxJSXzIGXwRNA1l-AAsFWC5HVWMLdVp7XTZxHB8_cSx3Vw0WRwsdNmdyKyYUb05RD2M4H10WWwIDVV9eOEsWAm4JElMcVQQyUFgzCSUXCmpmElMVVA8BAFxVD0NFAjoBSWsVXDZDOl5UAU8eCmYJK1olXQAKUV9aDkMeAm8JHWsVVQIyg_fz3sex19aizOmXbTYyV25tOEsnAF9WdVsSXQMBBlYIZhdRBDJLH1pTMwUHV1tdCUwfM20JGlkXbTbc2e4mAA93XmoKYw0QLWdcHygJ1sanEhN_GVkdXBcyXTY9CyhkcB10SyBtLnB2ERZVARlvcGl7a1h2C2ViOlxVCBxEeTV9c10VKHECKSgtTHsXM2gOGmsUbQ",
+     "title": "京东 授权专卖店 参数区（R7 H255/32G/1T）",
+     "gives": [
+      "R7 H255 16 线程",
+      "1.46kg",
+      "60Wh",
+      "14\" 2880×1800 120Hz IPS 100% sRGB",
+      "HDMI 2.1 + Micro SD"
+     ]
+    },
+    {
+     "tier": "B",
+     "url": "data/crawl/2026-11-07_specs.jsonl",
+     "title": "上一轮官网规格核实（联想 PSREF / 商城）",
+     "gives": [
+      "DDR5-5600 SO-DIMM ×2 可更换",
+      "1.39kg",
+      "100% DCI-P3",
+      "45W"
+     ]
+    }
+   ],
+   "conflicts": [
+    {
+     "field": "weightKg",
+     "values": [
+      {
+       "v": 1.39,
+       "src": "官网规格"
+      },
+      {
+       "v": 1.46,
+       "src": "京东授权店"
+      },
+      {
+       "v": 1.63,
+       "src": "京东整机旗舰店"
+      }
+     ],
+     "adopted": 1.46,
+     "why": "三个不同 SKU（内存/屏不同），取带电池容量的一条"
+    },
+    {
+     "field": "screen.colorGamut",
+     "values": [
+      {
+       "v": "100% sRGB",
+       "src": "京东参数区（IPS）"
+      },
+      {
+       "v": "100% DCI-P3",
+       "src": "上一轮官网规格"
+      }
+     ],
+     "adopted": null,
+     "why": "真实冲突：疑为 IPS 版与 OLED 版两个配置。平面组若要 DCI-P3 必须先确认版本，不能默认"
+    },
+    {
+     "field": "ram.gb",
+     "values": [
+      {
+       "v": 24,
+       "src": "京东整机店"
+      },
+      {
+       "v": 32,
+       "src": "京东授权店"
+      }
+     ],
+     "adopted": 24,
+     "why": "按 24G 版建主记录，32G 版另建"
+    },
+    {
+     "field": "modelHint（年份）",
+     "values": [
+      {
+       "v": "2025 款",
+       "src": "ZOL 参数页 detail.zol.com.cn/2176/2175977（型号 小新Pro 14c AHP10R，标 2025 锐龙版）"
+      },
+      {
+       "v": "2025 款",
+       "src": "苏宁商品页（同型号，标题写 小新Pro14 2025）"
+      },
+      {
+       "v": "2026 款",
+       "src": "库内命名（京东标题只写「小新Pro14超能本」，未标年份）"
+      }
+     ],
+     "adopted": null,
+     "why": "型号代码 AHP10R 在两家第三方参数站都归到 2025 款；京东标题不写年份。按 2026 款卖给学生可能造成代际误判，暂不改名，先记为冲突待核"
+    }
+   ],
+   "confidence": "medium",
+   "note": "最值得注意的是屏幕：京东两处都写 IPS 100% sRGB，而上一轮官网核实写的是 100% DCI-P3。这决定它能不能给平面组用——sRGB 够网页与屏幕稿，印刷要 Adobe RGB。必须先确认 IPS 版还是 OLED 版。",
+   "efficiencyStatus": "verified",
+   "energyModel": "小新Pro 14c AHP10R",
+   "certModel": "小新Pro 14c AHP10R",
+   "efficiencyEvidence": "能效网查「小新Pro 14c AHP10R」：20260109 前有 2025-12-05 与 2025-03-25 两条备案，均 1 级，生产者 联想（北京）有限公司"
+  },
+  {
+   "id": "spec-thinkbook16p-2026",
+   "modelHint": "ThinkBook 16+ 2026（酷睿 Ultra5 338H）",
+   "brand": "联想",
+   "cat": "thin",
+   "cpu": {
+    "model": "Core Ultra 5 338H",
+    "vendor": "Intel",
+    "cores": 12,
+    "threads": 12,
+    "boostGHz": 4.7,
+    "baseW": 25,
+    "maxW": 65,
+    "coreSrc": "Intel ARK：12核，Arc B370"
+   },
+   "ram": {
+    "gb": 32,
+    "type": "LPCAMM2-8533",
+    "form": "lpcamm2",
+    "slots": 1,
+    "maxGB": null
+   },
+   "storageGB": 1024,
+   "gpu": {
+    "model": "Intel Arc B370",
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 16,
+    "widthPx": 3200,
+    "heightPx": 2000,
+    "refreshHz": 165,
+    "panel": "IPS",
+    "colorGamut": {
+     "dciP3": 100
+    },
+    "brightnessNit": 500,
+    "hdr": "HDR400"
+   },
+   "batteryWh": 99.9,
+   "weightKg": 1.75,
+   "ports": [
+    "雷电 4 ×2",
+    "USB-A 3.2 ×2",
+    "USB 2.0 隐藏式 ×1",
+    "HDMI 2.1 FRL",
+    "4 合 1 SD 读卡器",
+    "RJ45",
+    "3.5mm"
+   ],
+   "efficiency": 1,
+   "warranty": "2 年有限保修（送修）+ 闪修",
+   "sources": [
+    {
+     "tier": "A",
+     "url": "https://b.lenovo.com.cn/product/1054347.html",
+     "title": "联想企业购 官方规格（06CD）",
+     "gives": [
+      "Ultra 5 338H 12核12线程 4.7GHz",
+      "32GB LPCAMM2 8533",
+      "1TB M.2 2242 PCIe G4",
+      "Arc B370 核显",
+      "16\" 3.2K 165Hz 500nits HDR400 100% DCI-P3",
+      "99.9Whr",
+      "140W 氮化镓",
+      "约1.5-2.0kg / 15.9mm"
+     ]
+    },
+    {
+     "tier": "C",
+     "url": "https://nghenhinvietnam.vn/lenovo-ra-mat-dong-may-tinh-xach-tay-thinkbook-moi-su-dung-chip-amd-va-ho-tro-egpu-hien-nang-cao",
+     "title": "海外发布信息",
+     "gives": [
+      "16\" 3200×2000 165Hz 500nit",
+      "100% DCI-P3"
+     ]
+    }
+   ],
+   "conflicts": [
+    {
+     "field": "weightKg",
+     "values": [
+      {
+       "v": "1.5-2.0",
+       "src": "联想官方区间"
+      },
+      {
+       "v": 1.75,
+       "src": "取区间中值"
+      }
+     ],
+     "adopted": 1.75,
+     "why": "官方只给区间，取中值是估算，已标注"
+    }
+   ],
+   "confidence": "high",
+   "note": "内存是 LPCAMM2（专有模组）——能换但买不到便宜的，按「准焊死」处理。99.9Wh 是国标允许上飞机的上限，续航能力强。这台对三维组很合适（3.2K 165Hz + 100% DCI-P3 + 32G）。",
+   "efficiencyStatus": "verified",
+   "energyModel": "ThinkBook 16 G8+ IPH",
+   "efficiencyEvidence": "能效网「ThinkBook 16 G8+」家族 8 条备案（IPH/AHP/AGP/IPD 各变体，2025-12-19~2026-10-30）全部 1 级；酷睿版对应 IPH 系列"
+  },
+  {
+   "id": "spec-thinkbook14p-2026",
+   "modelHint": "ThinkBook 14+ 2026 锐龙版",
+   "brand": "联想",
+   "cat": "thin",
+   "cpu": {
+    "model": "Ryzen 7 H255",
+    "vendor": "AMD",
+    "cores": 8,
+    "threads": 16,
+    "baseW": 45,
+    "maxW": 54,
+    "coreSrc": "AMD 官方"
+   },
+   "ram": {
+    "gb": 32,
+    "type": "DDR5",
+    "form": "sodimm",
+    "slots": 2,
+    "maxGB": 64
+   },
+   "storageGB": 1024,
+   "gpu": {
+    "model": "Radeon 780M",
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 14.5,
+    "widthPx": 3072,
+    "heightPx": 1920,
+    "refreshHz": 120,
+    "panel": "IPS",
+    "colorGamut": {
+     "dciP3": 100
+    },
+    "brightnessNit": 500
+   },
+   "batteryWh": 99.9,
+   "weightKg": 1.5,
+   "ports": [
+    "雷电 4 / USB4",
+    "USB-A",
+    "HDMI",
+    "SD 读卡器"
+   ],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "A",
+     "url": "https://www.thinkpad.com/index.html",
+     "title": "ThinkPad 官网首页产品位",
+     "gives": [
+      "ThinkBook 14+ 2026 R7 H255 / 32G / 99.9Whr",
+      "2026 新品"
+     ]
+    },
+    {
+     "tier": "C",
+     "url": "https://nghenhinvietnam.vn/lenovo-ra-mat-dong-may-tinh-xach-tay-thinkbook-moi-su-dung-chip-amd-va-ho-tro-egpu-hien-nang-cao",
+     "title": "海外发布信息",
+     "gives": [
+      "14.5\" 3072×1920 120Hz 500nit",
+      "100% DCI-P3"
+     ]
+    },
+    {
+     "tier": "B",
+     "url": "data/crawl/2026-11-07_specs.jsonl",
+     "title": "上一轮官网核实",
+     "gives": [
+      "LPDDR5X 板载（16G 版本）",
+      "1.5kg",
+      "100% DCI-P3 500nit"
+     ]
+    }
+   ],
+   "conflicts": [
+    {
+     "field": "ram.form",
+     "values": [
+      {
+       "v": "LPDDR5X 板载",
+       "src": "上一轮核实（16G 版）"
+      },
+      {
+       "v": "DDR5 插槽",
+       "src": "官网 32G 版未明确"
+      }
+     ],
+     "adopted": null,
+     "why": "16G 与 32G 版本内存形态可能不同（板载 vs 插槽），必须按 SKU 确认——这正是「按型号判断而非按品牌」的原因"
+    }
+   ],
+   "confidence": "medium",
+   "note": "同一型号 16G 版是板载、32G 版可能留插槽——如果成立，这台的「能不能升级」取决于买哪个配置。这类差异必须按 SKU 记，不能按型号一律而论。",
+   "efficiencyStatus": "verified",
+   "energyModel": "ThinkBook 14 G8+ AHP",
+   "certModel": "ThinkBook 14 G8+ AHP",
+   "efficiencyEvidence": "能效网查「ThinkBook 14 G8+ AHP」：2025-12-19 单型号备案 1 级；另有 AHP001-012 系列备案（2026-10-30 / 2026-01-26）均 1 级"
+  },
+  {
+   "id": "spec-parsed-jd-lenovo-xiaoxinpro14-u7-356h-32g-1t-20",
+   "modelHint": "小新 Pro 14 2026（酷睿 Ultra 7 版）",
+   "brand": "联想",
+   "cat": "thin",
+   "cpu": {
+    "model": "Ultra7 356H",
+    "vendor": null,
+    "cores": 16,
+    "threads": 16,
+    "baseW": 28,
+    "maxW": 80,
+    "coreSrc": "铭凡参数「十六核」+ Intel Core Ultra 3"
+   },
+   "ram": {
+    "gb": 32,
+    "type": null,
+    "form": "unknown",
+    "slots": null,
+    "maxGB": null
+   },
+   "storageGB": 1024,
+   "gpu": {
+    "model": "核显",
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 14.0,
+    "widthPx": 2900,
+    "note": "14 英寸 2.8K OLED 120Hz",
+    "refreshHz": 120,
+    "panel": "OLED"
+   },
+   "batteryWh": null,
+   "weightKg": null,
+   "ports": [],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "C",
+     "url": "data/crawl/2026-11-07_jd.jsonl",
+     "title": "采集记录（屏幕为自由文本，已解析）",
+     "gives": [
+      "CPU/内存/存储/显卡",
+      "屏幕原文字：14 英寸 2.8K OLED 120Hz"
+     ]
+    }
+   ],
+   "conflicts": [],
+   "confidence": "low",
+   "specParsed": true,
+   "note": "仅从采集记录解析，未经官网核实。屏幕色域与内存形态均未知，不能用于平面组/编程组判断。",
+   "efficiencyStatus": "verified",
+   "energyModel": "小新Pro 14 IPH11",
+   "efficiencyEvidence": "能效网「小新Pro」查询中 小新Pro 14 IPH11 备案 2025-12-17，1 级；同平台 IPH11 系列（YOGA Air 14 IPH11、小新 14SE IPH11 等）全部 1 级"
+  },
+  {
+   "id": "spec-parsed-jd-lenovo-xiaoxinpro16-u5-336h-24g-1t-20",
+   "modelHint": "小新 Pro 16 2026（酷睿 Ultra 5 版）",
+   "brand": "联想",
+   "cat": "thin",
+   "cpu": {
+    "model": "Ultra5-336H",
+    "vendor": null,
+    "cores": 12,
+    "threads": 12,
+    "baseW": 25,
+    "maxW": 65,
+    "coreSrc": "Intel ARK：12核 4P+4E+4LPE"
+   },
+   "ram": {
+    "gb": 24,
+    "type": null,
+    "form": "unknown",
+    "slots": null,
+    "maxGB": null
+   },
+   "storageGB": 1024,
+   "gpu": {
+    "model": "核显",
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 16.0,
+    "widthPx": 2880,
+    "heightPx": 1800,
+    "refreshHz": 120,
+    "panel": "OLED",
+    "colorGamut": {
+     "dciP3": 100
+    }
+   },
+   "batteryWh": null,
+   "weightKg": null,
+   "ports": [],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "C",
+     "url": "data/crawl/2026-11-07_jd.jsonl",
+     "title": "采集记录（屏幕为自由文本，已解析）",
+     "gives": [
+      "CPU/内存/存储/显卡",
+      "屏幕原文字：16 英寸 2.8K(2880×1800) 120Hz OLED 100% DCI-P3"
+     ]
+    }
+   ],
+   "conflicts": [],
+   "confidence": "low",
+   "specParsed": true,
+   "note": "仅从采集记录解析，未经官网核实。屏幕色域与内存形态均未知，不能用于平面组/编程组判断。",
+   "efficiencyStatus": "verified",
+   "energyModel": "小新Pro 16 IPH11",
+   "certModel": "小新Pro 16 IPH11",
+   "efficiencyEvidence": "能效网「小新Pro 16 IPH11」备案 2025-12-17，1 级；京东多个 SKU（7649.15 / 8489.8 / 8932.65）与北航政采站的认证型号、能效网规格型号均为小新Pro 16 IPH11；什么值得买百科同型号标「能效等级 一级能效」"
+  },
+  {
+   "id": "spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-yih",
+   "modelHint": "小新 Pro 16 超能本（锐龙版）",
+   "brand": "联想",
+   "cat": "thin",
+   "cpu": {
+    "model": "R7-H255",
+    "vendor": null,
+    "cores": 8,
+    "threads": 16,
+    "baseW": 45,
+    "maxW": 54,
+    "coreSrc": "AMD 官方"
+   },
+   "ram": {
+    "gb": 24,
+    "type": null,
+    "form": "unknown",
+    "slots": null,
+    "maxGB": null
+   },
+   "storageGB": 1024,
+   "gpu": {
+    "model": "核显",
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 16.0
+   },
+   "batteryWh": null,
+   "weightKg": null,
+   "ports": [],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "C",
+     "url": "data/crawl/2026-11-07_jd.jsonl",
+     "title": "采集记录（屏幕为自由文本，已解析）",
+     "gives": [
+      "CPU/内存/存储/显卡",
+      "屏幕原文字：16 英寸"
+     ]
+    }
+   ],
+   "conflicts": [],
+   "confidence": "low",
+   "specParsed": true,
+   "note": "仅从采集记录解析，未经官网核实。屏幕色域与内存形态均未知，不能用于平面组/编程组判断。",
+   "efficiencyStatus": "verified",
+   "energyModel": "小新Pro 16c AHP10R",
+   "certModel": "小新Pro 16c AHP10R",
+   "efficiencyEvidence": "联想官网 item.lenovo.com.cn 产品型号=小新Pro 16c AHP10R（24G/1T/R7-H255/16吋/2880x1800/120Hz/80Wh）；京东三个 SKU 的「认证型号/能效网规格型号」均为小新Pro 16c AHP10R；能效网该型号备案 2025-03-25，1 级，联想（北京）有限公司"
+  },
+  {
+   "id": "spec-parsed-jd-lenovo-xiaoxinpro16-u7-356h-32g-1t-20",
+   "modelHint": "小新 Pro 16 超能本（酷睿 Ultra 7 版）",
+   "brand": "联想",
+   "cat": "thin",
+   "cpu": {
+    "model": "Ultra7-356H",
+    "vendor": null,
+    "cores": 16,
+    "threads": 16,
+    "baseW": 28,
+    "maxW": 80,
+    "coreSrc": "铭凡参数「十六核」+ Intel Core Ultra 3"
+   },
+   "ram": {
+    "gb": 32,
+    "type": null,
+    "form": "unknown",
+    "slots": null,
+    "maxGB": null
+   },
+   "storageGB": 1024,
+   "gpu": {
+    "model": "核显",
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 16.0,
+    "widthPx": 2900,
+    "note": "16 英寸 2.8K"
+   },
+   "batteryWh": null,
+   "weightKg": null,
+   "ports": [],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "C",
+     "url": "data/crawl/2026-11-07_jd.jsonl",
+     "title": "采集记录（屏幕为自由文本，已解析）",
+     "gives": [
+      "CPU/内存/存储/显卡",
+      "屏幕原文字：16 英寸 2.8K"
+     ]
+    }
+   ],
+   "conflicts": [],
+   "confidence": "low",
+   "specParsed": true,
+   "note": "仅从采集记录解析，未经官网核实。屏幕色域与内存形态均未知，不能用于平面组/编程组判断。",
+   "efficiencyStatus": "verified",
+   "energyModel": "小新Pro 16 IPH11",
+   "efficiencyEvidence": "能效网「小新Pro」查询中 小新Pro 16 IPH11 备案 2025-12-17，1 级；本系列酷睿版（含 Ultra5-336H 的 24G/1T 款）认证型号均为 小新Pro 16 IPH11"
+  },
+  {
+   "id": "spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-fla",
+   "modelHint": "小新 Pro 16 2025（锐龙版）",
+   "brand": "联想",
+   "cat": "thin",
+   "cpu": {
+    "model": "R7-H255",
+    "vendor": null,
+    "cores": 8,
+    "threads": 16,
+    "baseW": 45,
+    "maxW": 54,
+    "coreSrc": "AMD 官方"
+   },
+   "ram": {
+    "gb": 24,
+    "type": null,
+    "form": "unknown",
+    "slots": null,
+    "maxGB": null
+   },
+   "storageGB": 1024,
+   "gpu": {
+    "model": "核显",
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 16.0,
+    "widthPx": 2900,
+    "note": "16 英寸 2.8K OLED 120Hz",
+    "refreshHz": 120,
+    "panel": "OLED"
+   },
+   "batteryWh": null,
+   "weightKg": null,
+   "ports": [],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "C",
+     "url": "data/crawl/2026-11-07_jd.jsonl",
+     "title": "采集记录（屏幕为自由文本，已解析）",
+     "gives": [
+      "CPU/内存/存储/显卡",
+      "屏幕原文字：16 英寸 2.8K OLED 120Hz"
+     ]
+    }
+   ],
+   "conflicts": [],
+   "confidence": "low",
+   "specParsed": true,
+   "note": "仅从采集记录解析，未经官网核实。屏幕色域与内存形态均未知，不能用于平面组/编程组判断。",
+   "efficiencyStatus": "verified",
+   "energyModel": "小新Pro 16 ASP10",
+   "efficiencyEvidence": "能效网「小新Pro」查询：小新Pro 16 ASP10 备案 2025-12-23，1 级；同页面 小新Pro 16 AKP10、小新Pro 16 IPH11 亦均 1 级"
+  },
+  {
+   "id": "spec-parsed-jd-lenovo-xiaoxinair14-u5-226v-16g-512g-",
+   "modelHint": "小新 Air 14 2026（酷睿 Ultra5 版）",
+   "brand": "联想",
+   "cat": "thin",
+   "cpu": {
+    "model": "Ultra5-226V",
+    "vendor": null,
+    "cores": 8,
+    "threads": 8,
+    "baseW": 17,
+    "maxW": 37,
+    "coreSrc": "Intel ARK（Lunar Lake 无超线程）"
+   },
+   "ram": {
+    "gb": 16,
+    "type": null,
+    "form": "unknown",
+    "slots": null,
+    "maxGB": null
+   },
+   "storageGB": 512,
+   "gpu": {
+    "model": "核显",
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 14.0,
+    "widthPx": 2600,
+    "note": "14 英寸 2.5K 120Hz 防眩光雾面 LCD",
+    "refreshHz": 120,
+    "panel": "LCD"
+   },
+   "batteryWh": null,
+   "weightKg": null,
+   "ports": [],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "C",
+     "url": "data/crawl/2026-11-07_jd.jsonl",
+     "title": "采集记录（屏幕为自由文本，已解析）",
+     "gives": [
+      "CPU/内存/存储/显卡",
+      "屏幕原文字：14 英寸 2.5K 120Hz 防眩光雾面 LCD"
+     ]
+    }
+   ],
+   "conflicts": [],
+   "confidence": "low",
+   "specParsed": true,
+   "note": "仅从采集记录解析，未经官网核实。屏幕色域与内存形态均未知，不能用于平面组/编程组判断。",
+   "efficiencyStatus": "verified",
+   "energyModel": "小新Air 14 ILL11",
+   "efficiencyEvidence": "能效网「ILL11」：小新Air 14 ILL11 备案 2026-04-27，1 级；京东 SKU 认证型号/能效网规格型号均为小新Air 14 ILL11（Ultra5-226V 16G/512G），海星智采同款标「一级能效」"
+  },
+  {
+   "id": "spec-parsed-jd-lenovo-xiaoxinair14-u7-256v-16g-1t-20",
+   "modelHint": "小新 Air 14（酷睿 Ultra7 版）",
+   "brand": "联想",
+   "cat": "thin",
+   "cpu": {
+    "model": "Ultra7-256V",
+    "vendor": null,
+    "cores": 8,
+    "threads": 8,
+    "baseW": 17,
+    "maxW": 37,
+    "coreSrc": "Intel ARK（Lunar Lake）"
+   },
+   "ram": {
+    "gb": 16,
+    "type": null,
+    "form": "unknown",
+    "slots": null,
+    "maxGB": null
+   },
+   "storageGB": 1024,
+   "gpu": {
+    "model": "核显",
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 14.0,
+    "widthPx": 2600,
+    "note": "14 英寸 2.5K 120Hz",
+    "refreshHz": 120
+   },
+   "batteryWh": null,
+   "weightKg": null,
+   "ports": [],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "C",
+     "url": "data/crawl/2026-11-07_jd.jsonl",
+     "title": "采集记录（屏幕为自由文本，已解析）",
+     "gives": [
+      "CPU/内存/存储/显卡",
+      "屏幕原文字：14 英寸 2.5K 120Hz"
+     ]
+    }
+   ],
+   "conflicts": [],
+   "confidence": "low",
+   "specParsed": true,
+   "note": "仅从采集记录解析，未经官网核实。屏幕色域与内存形态均未知，不能用于平面组/编程组判断。",
+   "efficiencyStatus": "verified",
+   "energyModel": "小新Air 14 ILL11",
+   "efficiencyEvidence": "能效网「ILL11」：小新Air 14 ILL11 备案 2026-04-27，1 级；京东 SKU 认证型号/能效网规格型号均为小新Air 14 ILL11（Ultra5-226V 16G/512G），海星智采同款标「一级能效」"
+  },
+  {
+   "id": "spec-parsed-jd-lenovo-xiaoxinair15-core5-320-16g-512",
+   "modelHint": "小新 Air 15 2026（触控屏版）",
+   "brand": "联想",
+   "cat": "thin",
+   "cpu": {
+    "model": "Core5-320",
+    "vendor": null,
+    "cores": 14,
+    "threads": 18,
+    "baseW": 15,
+    "maxW": 35,
+    "coreSrc": "联想社区评测 14核18线程"
+   },
+   "ram": {
+    "gb": 16,
+    "type": null,
+    "form": "unknown",
+    "slots": null,
+    "maxGB": null
+   },
+   "storageGB": 512,
+   "gpu": {
+    "model": "核显",
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 15.3,
+    "refreshHz": 120
+   },
+   "batteryWh": null,
+   "weightKg": null,
+   "ports": [],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "C",
+     "url": "data/crawl/2026-11-07_jd.jsonl",
+     "title": "采集记录（屏幕为自由文本，已解析）",
+     "gives": [
+      "CPU/内存/存储/显卡",
+      "屏幕原文字：15.3 英寸 120Hz 高刷触控屏"
+     ]
+    }
+   ],
+   "conflicts": [],
+   "confidence": "low",
+   "specParsed": true,
+   "note": "仅从采集记录解析，未经官网核实。屏幕色域与内存形态均未知，不能用于平面组/编程组判断。",
+   "efficiencyStatus": "verified",
+   "energyModel": "小新Air 15 IWC11",
+   "efficiencyEvidence": "能效网「小新Air 15」家族 4 条现行备案（IWC11 2026-04-17 / Q8Y11 2026-02-24 / ARP10 2025-12-19，另 2022 年老款）全部 1 级，无 2/3 级备案"
+  },
+  {
+   "id": "spec-parsed-jd-lenovo-thinkbook14plus-u5-225h-16g-51",
+   "modelHint": "ThinkBook 14+（酷睿 Ultra5 版）",
+   "brand": "联想",
+   "cat": "thin",
+   "cpu": {
+    "model": "Ultra5-225H",
+    "vendor": null,
+    "cores": 14,
+    "threads": 18,
+    "baseW": 28,
+    "maxW": 115,
+    "coreSrc": "Intel ARK（Meteor Lake）"
+   },
+   "ram": {
+    "gb": 16,
+    "type": null,
+    "form": "unknown",
+    "slots": null,
+    "maxGB": null
+   },
+   "storageGB": 512,
+   "gpu": {
+    "model": "核显",
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 14.0,
+    "widthPx": 2880,
+    "heightPx": 1800,
+    "refreshHz": 120,
+    "panel": "IPS",
+    "colorGamut": {
+     "sRGB": 100
+    }
+   },
+   "batteryWh": null,
+   "weightKg": null,
+   "ports": [],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "C",
+     "url": "data/crawl/2026-11-07_jd.jsonl",
+     "title": "采集记录（屏幕为自由文本，已解析）",
+     "gives": [
+      "CPU/内存/存储/显卡",
+      "屏幕原文字：14 英寸 2.8K(2880×1800) IPS 120Hz 100% sRGB"
+     ]
+    }
+   ],
+   "conflicts": [],
+   "confidence": "low",
+   "specParsed": true,
+   "note": "仅从采集记录解析，未经官网核实。屏幕色域与内存形态均未知，不能用于平面组/编程组判断。",
+   "efficiencyStatus": "verified",
+   "energyModel": "ThinkBook 14 G8+ IPH",
+   "efficiencyEvidence": "能效网「ThinkBook」系列：ThinkBook 14 G8+ AHP 备案 1 级；同代 IPH（酷睿版）见 ThinkBook 16 G8+ IPH 系列（IPH001-015，全部 1 级）"
+  },
+  {
+   "id": "spec-parsed-jd-lenovo-thinkbook16plus-r7h255-32g-1t-",
+   "modelHint": "ThinkBook 16+ 锐龙版 2026",
+   "brand": "联想",
+   "cat": "thin",
+   "cpu": {
+    "model": "R7-H255",
+    "vendor": null,
+    "cores": 8,
+    "threads": 16,
+    "baseW": 45,
+    "maxW": 54,
+    "coreSrc": "AMD 官方"
+   },
+   "ram": {
+    "gb": 32,
+    "type": null,
+    "form": "unknown",
+    "slots": null,
+    "maxGB": null
+   },
+   "storageGB": 1024,
+   "gpu": {
+    "model": "核显",
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 16.0,
+    "panel": "IPS"
+   },
+   "batteryWh": null,
+   "weightKg": null,
+   "ports": [],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "C",
+     "url": "data/crawl/2026-11-07_jd.jsonl",
+     "title": "采集记录（屏幕为自由文本，已解析）",
+     "gives": [
+      "CPU/内存/存储/显卡",
+      "屏幕原文字：16 英寸 IPS 全高清"
+     ]
+    }
+   ],
+   "conflicts": [],
+   "confidence": "low",
+   "specParsed": true,
+   "note": "仅从采集记录解析，未经官网核实。屏幕色域与内存形态均未知，不能用于平面组/编程组判断。",
+   "efficiencyStatus": "verified",
+   "energyModel": "ThinkBook 16 G8+ AHP",
+   "efficiencyEvidence": "能效网「ThinkBook 16 G8+」家族 8 条备案全部 1 级；锐龙版对应 AHP 系列（AHP001-012，2026-01-26 / 2026-10-30）"
+  },
+  {
+   "id": "spec-parsed-jd-lenovo-thinkpade14-u5-336h-32g-1t-202",
+   "modelHint": "ThinkPad E14 2026（Ultra 版）",
+   "brand": "联想",
+   "cat": "thin",
+   "cpu": {
+    "model": "Ultra5-336H",
+    "vendor": null,
+    "cores": 12,
+    "threads": 12,
+    "baseW": 25,
+    "maxW": 65,
+    "coreSrc": "Intel ARK：12核 4P+4E+4LPE"
+   },
+   "ram": {
+    "gb": 32,
+    "type": null,
+    "form": "unknown",
+    "slots": null,
+    "maxGB": null
+   },
+   "storageGB": 1024,
+   "gpu": {
+    "model": "核显",
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 14.0,
+    "widthPx": 2900,
+    "note": "14 英寸 2.8K"
+   },
+   "batteryWh": null,
+   "weightKg": null,
+   "ports": [],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "C",
+     "url": "data/crawl/2026-11-07_jd.jsonl",
+     "title": "采集记录（屏幕为自由文本，已解析）",
+     "gives": [
+      "CPU/内存/存储/显卡",
+      "屏幕原文字：14 英寸 2.8K"
+     ]
+    }
+   ],
+   "conflicts": [],
+   "confidence": "low",
+   "specParsed": true,
+   "note": "仅从采集记录解析，未经官网核实。屏幕色域与内存形态均未知，不能用于平面组/编程组判断。",
+   "efficiencyStatus": "verified",
+   "energyModel": "ThinkPad E14 Gen 8",
+   "efficiencyEvidence": "能效网「ThinkPad E14」家族 Gen 6/7/8 备案全部 1 级（Gen 8 于 2026-03-05 / 2026-05-20 备案）"
+  },
+  {
+   "id": "spec-parsed-jd-lenovo-thinkpade16-core5-320-16g-512g",
+   "modelHint": "ThinkPad E16 2026",
+   "brand": "联想",
+   "cat": "thin",
+   "cpu": {
+    "model": "Core5-320",
+    "vendor": null,
+    "cores": 14,
+    "threads": 18,
+    "baseW": 15,
+    "maxW": 35,
+    "coreSrc": "联想社区评测 14核18线程"
+   },
+   "ram": {
+    "gb": 16,
+    "type": null,
+    "form": "unknown",
+    "slots": null,
+    "maxGB": null
+   },
+   "storageGB": 512,
+   "gpu": {
+    "model": "核显",
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 16.0,
+    "widthPx": 1920,
+    "heightPx": 1200,
+    "refreshHz": 60,
+    "panel": "IPS"
+   },
+   "batteryWh": null,
+   "weightKg": null,
+   "ports": [],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "C",
+     "url": "data/crawl/2026-11-07_jd.jsonl",
+     "title": "采集记录（屏幕为自由文本，已解析）",
+     "gives": [
+      "CPU/内存/存储/显卡",
+      "屏幕原文字：16 英寸 IPS 1920×1200 60Hz 45% NTSC"
+     ]
+    }
+   ],
+   "conflicts": [],
+   "confidence": "low",
+   "specParsed": true,
+   "note": "仅从采集记录解析，未经官网核实。屏幕色域与内存形态均未知，不能用于平面组/编程组判断。",
+   "efficiencyStatus": "verified",
+   "energyModel": "ThinkPad E16 Gen 4",
+   "efficiencyEvidence": "能效网「ThinkPad E16」家族 Gen 2/3/4/7 备案全部 1 级（Gen 4 于 2026-03-05 / 2026-05-20 备案）"
+  },
+  {
+   "id": "spec-parsed-jd-lenovo-thinkpade16-u5-32g-1t-authoriz",
+   "modelHint": "ThinkPad E16 Gen 2（Ultra5 版）",
+   "brand": "联想",
+   "cat": "thin",
+   "cpu": {
+    "model": "Ultra5（第1代）",
+    "vendor": null
+   },
+   "ram": {
+    "gb": 32,
+    "type": null,
+    "form": "unknown",
+    "slots": null,
+    "maxGB": null
+   },
+   "storageGB": 1024,
+   "gpu": {
+    "model": "核显",
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 16.0,
+    "widthPx": 2560,
+    "heightPx": 1600,
+    "panel": "IPS"
+   },
+   "batteryWh": null,
+   "weightKg": null,
+   "ports": [],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "C",
+     "url": "data/crawl/2026-11-07_jd.jsonl",
+     "title": "采集记录（屏幕为自由文本，已解析）",
+     "gives": [
+      "CPU/内存/存储/显卡",
+      "屏幕原文字：16 英寸 IPS 2560×1600（2.5K）"
+     ]
+    }
+   ],
+   "conflicts": [],
+   "confidence": "low",
+   "specParsed": true,
+   "note": "仅从采集记录解析，未经官网核实。屏幕色域与内存形态均未知，不能用于平面组/编程组判断。",
+   "efficiencyStatus": "verified",
+   "energyModel": "ThinkPad E16 Gen 2",
+   "efficiencyEvidence": "能效网「ThinkPad E16 Gen 2」单条备案 2026-01-04，1 级"
+  },
+  {
+   "id": "spec-parsed-jd-lenovo-legion-r7000p2026-r9-8940hx-16",
+   "modelHint": "拯救者 R7000P 2026（R7000 系列自营在售款）",
+   "brand": "联想",
+   "cat": "thin",
+   "cpu": {
+    "model": "R9-8940HX",
+    "vendor": null,
+    "cores": 16,
+    "threads": 32,
+    "baseW": 55,
+    "maxW": 75,
+    "coreSrc": "AMD 官方"
+   },
+   "ram": {
+    "gb": 16,
+    "type": null,
+    "form": "unknown",
+    "slots": null,
+    "maxGB": null
+   },
+   "storageGB": 1024,
+   "gpu": {
+    "model": "RTX5060",
+    "type": "discrete"
+   },
+   "screen": {
+    "sizeInch": 16.0,
+    "widthPx": 2600,
+    "note": "16 英寸 2.5K 240Hz 100% DCI-P3",
+    "refreshHz": 240,
+    "colorGamut": {
+     "dciP3": 100
+    }
+   },
+   "batteryWh": null,
+   "weightKg": null,
+   "ports": [],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "C",
+     "url": "data/crawl/2026-11-07_jd.jsonl",
+     "title": "采集记录（屏幕为自由文本，已解析）",
+     "gives": [
+      "CPU/内存/存储/显卡",
+      "屏幕原文字：16 英寸 2.5K 240Hz 100% DCI-P3"
+     ]
+    }
+   ],
+   "conflicts": [],
+   "confidence": "low",
+   "specParsed": true,
+   "note": "仅从采集记录解析，未经官网核实。屏幕色域与内存形态均未知，不能用于平面组/编程组判断。",
+   "efficiencyEvidence": {
+    "energyModel": "Legion R7000P ADR10",
+    "certModel": "Legion R7000P ADR10",
+    "filings": [
+     {
+      "model": "Legion R7000P ADR10",
+      "level": 1,
+      "regNo": "20251211-CEL0272025-378760",
+      "date": "2025-12-11",
+      "scheme": 2025
+     }
+    ],
+    "source": "中国能效标识网 产品备案查询",
+    "checkedAt": "2026-11-09"
+   },
+   "efficiencyText": "一级",
+   "efficiencyStatus": "verified"
+  },
+  {
+   "id": "spec-parsed-jd-dell-inspiron14plus-7440-core5-210h-1",
+   "modelHint": "灵越 14 Plus 7440（自营最新款，未标 2026）",
+   "brand": "戴尔",
+   "cat": "thin",
+   "cpu": {
+    "model": "Core5-210H",
+    "vendor": null,
+    "cores": 8,
+    "threads": 12,
+    "baseW": 45,
+    "maxW": 115,
+    "coreSrc": "Raptor Lake 标准"
+   },
+   "ram": {
+    "gb": 16,
+    "type": null,
+    "form": null,
+    "slots": null,
+    "maxGB": null,
+    "note": "内存形态存疑：库内原记 LPDDR5X 焊死，却同时标了 1 个插槽与最大 16G，自相矛盾；京东参数区写『5200MHz / 插槽数量 7 个 / 最大支持 32G』，5200MHz 更像 DDR5 插槽条，而『7 个插槽』明显是页面数据错误。三处证据互斥，形态与插槽数置空待实物核实"
+   },
+   "storageGB": 1024,
+   "gpu": {
+    "model": "核显",
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 14.0,
+    "widthPx": 2560,
+    "heightPx": 1600,
+    "refreshHz": 120,
+    "colorGamut": {
+     "sRGB": 100
+    }
+   },
+   "batteryWh": null,
+   "weightKg": null,
+   "ports": [],
+   "efficiency": null,
+   "sources": [
+    {
+     "tier": "C",
+     "url": "data/crawl/2026-11-07_jd.jsonl",
+     "title": "采集记录（屏幕为自由文本，已解析）",
+     "gives": [
+      "CPU/内存/存储/显卡",
+      "屏幕原文字：14 英寸 2560×1600 120Hz 100% sRGB"
+     ]
+    }
+   ],
+   "conflicts": [
+    {
+     "field": "efficiency",
+     "values": [
+      {
+       "v": "2 级",
+       "src": "能效网 Inspiron 14 Plus 7440（2025-12-18）"
+      },
+      {
+       "v": "1 级",
+       "src": "能效网 Inspiron 14 Plus 7440-001（2026-02-09）"
+      },
+      {
+       "v": "京东标「国家补贴15%」",
+       "src": "京东商品标题"
+      }
+     ],
+     "adopted": null,
+     "why": "同一系列基础型号 2 级、-001 变体 1 级，本机认证型号 Ins14-7440F-R3609L 对不上任何一条。京东页面标「补贴15%」，但若本机实为 2 级则拿不到国补 —— 不能替商家圆这个话"
+    },
+    {
+     "field": "ram.form",
+     "values": [
+      {
+       "v": "LPDDR5X 焊死",
+       "src": "库内原记录"
+      },
+      {
+       "v": "DDR5 插槽（5200MHz，最大32G）",
+       "src": "京东参数区"
+      },
+      {
+       "v": "插槽 7 个",
+       "src": "京东参数区（明显错误）"
+      }
+     ],
+     "adopted": null,
+     "why": "三个来源互斥且其中一个明显是脏数据；内存形态直接决定编程组能否推荐，不能靠猜"
+    }
+   ],
+   "confidence": "low",
+   "specParsed": true,
+   "note": "仅从采集记录解析，未经官网核实。屏幕色域与内存形态均未知，不能用于平面组/编程组判断。",
+   "efficiencyStatus": "conflict",
+   "energyModel": "Inspiron 14 Plus 7440",
+   "efficiencyEvidence": "能效网查「Inspiron 14 Plus 7440」返回两条互相矛盾的备案：①Inspiron 14 Plus 7440 → 2 级（2025-12-18）；②Inspiron 14 Plus 7440-001 → 1 级（2026-02-09）。本机京东认证型号为 Ins14-7440F-R3609L，与两条备案名都不精确对应"
+  },
+  {
+   "id": "spec-parsed-jd-asus-wuwei16-2026-r7h260-16g-512g-202",
+   "modelHint": "无畏16 2026 锐龙版（R7-H260/核显）",
+   "brand": "华硕",
+   "cat": "thin",
+   "cpu": {
+    "model": "R7-H260",
+    "vendor": null,
+    "cores": 8,
+    "threads": 16,
+    "baseW": 45,
+    "maxW": 54,
+    "coreSrc": "华硕官网 8核16线程"
+   },
+   "ram": {
+    "gb": 16,
+    "type": null,
+    "form": "unknown",
+    "slots": null,
+    "maxGB": null
+   },
+   "storageGB": 512,
+   "gpu": {
+    "model": "核显",
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 16.0,
+    "widthPx": 2560,
+    "heightPx": 1600,
+    "refreshHz": 144,
+    "colorGamut": {
+     "sRGB": 100
+    }
+   },
+   "batteryWh": null,
+   "weightKg": null,
+   "ports": [],
+   "efficiency": null,
+   "sources": [
+    {
+     "tier": "C",
+     "url": "data/crawl/2026-11-07_jd.jsonl",
+     "title": "采集记录（屏幕为自由文本，已解析）",
+     "gives": [
+      "CPU/内存/存储/显卡",
+      "屏幕原文字：16 英寸 2560×1600 144Hz 100% sRGB"
+     ]
+    }
+   ],
+   "conflicts": [],
+   "confidence": "low",
+   "specParsed": true,
+   "note": "仅从采集记录解析，未经官网核实。屏幕色域与内存形态均未知，不能用于平面组/编程组判断。",
+   "efficiencyStatus": "pending"
+  },
+  {
+   "id": "spec-parsed-jd-asus-wuwei-pro14-2026-u7-356h-32g-1t-",
+   "modelHint": "无畏Pro14 酷睿版 2026（Ultra7-356H/核显）",
+   "brand": "华硕",
+   "cat": "thin",
+   "cpu": {
+    "model": "Ultra7-356H",
+    "vendor": null,
+    "cores": 16,
+    "threads": 16,
+    "baseW": 28,
+    "maxW": 80,
+    "coreSrc": "铭凡参数「十六核」+ Intel Core Ultra 3"
+   },
+   "ram": {
+    "gb": 32,
+    "type": null,
+    "form": "unknown",
+    "slots": null,
+    "maxGB": null
+   },
+   "storageGB": 1024,
+   "gpu": {
+    "model": "核显",
+    "type": "integrated",
+    "vramType": "shared",
+    "vramNote": "核显共享系统内存，无独立显存；对要求显存的组判不满足"
+   },
+   "screen": {
+    "sizeInch": 14.0,
+    "widthPx": 2880,
+    "heightPx": 1800,
+    "refreshHz": 120,
+    "panel": "OLED",
+    "colorGamut": {
+     "dciP3": 100
+    }
+   },
+   "batteryWh": null,
+   "weightKg": null,
+   "ports": [],
+   "efficiency": 1,
+   "sources": [
+    {
+     "tier": "C",
+     "url": "data/crawl/2026-11-07_jd.jsonl",
+     "title": "采集记录（屏幕为自由文本，已解析）",
+     "gives": [
+      "CPU/内存/存储/显卡",
+      "屏幕原文字：14 英寸 2880×1800 OLED 120Hz 100% DCI-P3 1100nits"
+     ]
+    }
+   ],
+   "conflicts": [],
+   "confidence": "low",
+   "specParsed": true,
+   "note": "仅从采集记录解析，未经官网核实。屏幕色域与内存形态均未知，不能用于平面组/编程组判断。",
+   "efficiencyEvidence": {
+    "energyModel": "S5450A",
+    "certModel": null,
+    "filings": [
+     {
+      "model": "S5450A",
+      "level": 1,
+      "regNo": "20251209-CEL0272025-847101",
+      "date": "2025-12-09",
+      "scheme": 2025
+     }
+    ],
+    "source": "中国能效标识网 产品备案查询",
+    "checkedAt": "2026-11-09"
+   },
+   "efficiencyText": "一级",
+   "efficiencyStatus": "verified"
+  }
+ ],
+ "methodNotes": [
+  "京东「商品参数」区是结构化字段：GPU性能释放、内存类型、插槽数量、最大支持容量、屏幕色域、屏幕类型、电池容量、产品净重、接口数量。优先级高于详情页文案。",
+  "品牌官网 techspec 页会写 TGP 的完整档位（如 55W 基础 + 55W 动态），电商只会写「满血」「性能释放」这类营销词。",
+  "同一型号常见双产品线（暗影精灵11 有 AMD 与 Intel 两版），不能合并成一条记录，必须按 SKU 拆。",
+  "官方文档里「整机功耗释放」不等于「显卡 TGP」——遇到这种表述必须标待核，不许直接当 TGP 用。"
+ ],
+ "stillMissing": {
+  "items": [
+   "显存（暗影精灵11）",
+   "TGP（拯救者 Y9000P 待确认是否整机口径）",
+   "能效等级（三台全缺）",
+   "亮度（Y9000P、暗影精灵11）",
+   "内存最大支持容量（Y9000P、天选7）"
+  ],
+  "nextStep": "优先从官网 techspec 补齐显存与能效等级；能效等级若官网不写，查中国能效标识备案库。"
+ }
+}

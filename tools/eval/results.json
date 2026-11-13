@@ -1,0 +1,1091 @@
+{
+  "meta": {
+    "model": "qwen3.5-4b",
+    "date": "2026-11-11",
+    "total": 60,
+    "elapsed_s": 56.0
+  },
+  "results": [
+    {
+      "id": "A01",
+      "type": "slot",
+      "group": "明确需求",
+      "elapsed": 1.18,
+      "raw": "{\"cat\": \"thin\", \"budget\": 5000, \"purpose\": [], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 4,
+        "total": 4,
+        "detail": "全中",
+        "parsed": {
+          "cat": "thin",
+          "budget": 5000,
+          "purpose": [],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A02",
+      "type": "slot",
+      "group": "明确需求",
+      "elapsed": 0.77,
+      "raw": "{\"cat\": \"gaming\", \"budget\": 8000, \"purpose\": [\"gaming\"], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 3,
+        "total": 3,
+        "detail": "全中",
+        "parsed": {
+          "cat": "gaming",
+          "budget": 8000,
+          "purpose": [
+            "gaming"
+          ],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A03",
+      "type": "slot",
+      "group": "明确需求",
+      "elapsed": 0.79,
+      "raw": "{\"cat\": \"thin\", \"budget\": 3500, \"purpose\": [\"office\"], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 3,
+        "total": 3,
+        "detail": "全中",
+        "parsed": {
+          "cat": "thin",
+          "budget": 3500,
+          "purpose": [
+            "office"
+          ],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A04",
+      "type": "slot",
+      "group": "明确需求",
+      "elapsed": 0.79,
+      "raw": "{\"cat\": \"gaming\", \"budget\": 10000, \"purpose\": [\"design\"], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 2,
+        "total": 2,
+        "detail": "全中",
+        "parsed": {
+          "cat": "gaming",
+          "budget": 10000,
+          "purpose": [
+            "design"
+          ],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A05",
+      "type": "slot",
+      "group": "明确需求",
+      "elapsed": 0.73,
+      "raw": "{\"cat\": \"thin\", \"budget\": 6000, \"purpose\": [\"dev\"], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 2,
+        "total": 2,
+        "detail": "全中",
+        "parsed": {
+          "cat": "thin",
+          "budget": 6000,
+          "purpose": [
+            "dev"
+          ],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A06",
+      "type": "slot",
+      "group": "明确需求",
+      "elapsed": 0.64,
+      "raw": "{\"cat\": \"upgrade\", \"budget\": null, \"purpose\": [], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 3,
+        "total": 3,
+        "detail": "全中",
+        "parsed": {
+          "cat": "upgrade",
+          "budget": null,
+          "purpose": [],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A07",
+      "type": "slot",
+      "group": "明确需求",
+      "elapsed": 0.76,
+      "raw": "{\"cat\": \"gaming\", \"budget\": 9000, \"purpose\": [\"gaming\"], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 3,
+        "total": 3,
+        "detail": "全中",
+        "parsed": {
+          "cat": "gaming",
+          "budget": 9000,
+          "purpose": [
+            "gaming"
+          ],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A08",
+      "type": "slot",
+      "group": "明确需求",
+      "elapsed": 0.69,
+      "raw": "{\"cat\": \"desktop\", \"budget\": 7000, \"purpose\": [], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 3,
+        "total": 3,
+        "detail": "全中",
+        "parsed": {
+          "cat": "desktop",
+          "budget": 7000,
+          "purpose": [],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A09",
+      "type": "slot",
+      "group": "隐含约束",
+      "elapsed": 0.73,
+      "raw": "{\"cat\": \"thin\", \"budget\": 5000, \"purpose\": [\"design\"], \"years\": 4, \"carry\": true, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 4,
+        "total": 4,
+        "detail": "全中",
+        "parsed": {
+          "cat": "thin",
+          "budget": 5000,
+          "purpose": [
+            "design"
+          ],
+          "years": 4,
+          "carry": true,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A10",
+      "type": "slot",
+      "group": "隐含约束",
+      "elapsed": 3.02,
+      "raw": "{\"cat\": \"thin\", \"budget\": null, \"purpose\": [], \"years\": null, \"carry\": true, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 3,
+        "total": 3,
+        "detail": "全中",
+        "parsed": {
+          "cat": "thin",
+          "budget": null,
+          "purpose": [],
+          "years": null,
+          "carry": true,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A11",
+      "type": "slot",
+      "group": "隐含约束",
+      "elapsed": 0.61,
+      "raw": "{\"cat\": null, \"budget\": null, \"purpose\": [], \"years\": null, \"carry\": true, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 3,
+        "total": 3,
+        "detail": "全中",
+        "parsed": {
+          "cat": null,
+          "budget": null,
+          "purpose": [],
+          "years": null,
+          "carry": true,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A12",
+      "type": "slot",
+      "group": "隐含约束",
+      "elapsed": 3.02,
+      "raw": "{\"cat\": \"thin\", \"budget\": null, \"purpose\": [], \"years\": null, \"carry\": true, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 3,
+        "total": 3,
+        "detail": "全中",
+        "parsed": {
+          "cat": "thin",
+          "budget": null,
+          "purpose": [],
+          "years": null,
+          "carry": true,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A13",
+      "type": "slot",
+      "group": "隐含约束",
+      "elapsed": 0.63,
+      "raw": "{\"cat\": null, \"budget\": null, \"purpose\": [], \"years\": 4, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 3,
+        "total": 3,
+        "detail": "全中",
+        "parsed": {
+          "cat": null,
+          "budget": null,
+          "purpose": [],
+          "years": 4,
+          "carry": null,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A14",
+      "type": "slot",
+      "group": "隐含约束",
+      "elapsed": 0.65,
+      "raw": "{\"cat\": \"thin\", \"budget\": null, \"purpose\": [\"office\"], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 3,
+        "total": 3,
+        "detail": "全中",
+        "parsed": {
+          "cat": "thin",
+          "budget": null,
+          "purpose": [
+            "office"
+          ],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A15",
+      "type": "slot",
+      "group": "隐含约束",
+      "elapsed": 0.65,
+      "raw": "{\"cat\": \"thin\", \"budget\": null, \"purpose\": [\"video\"], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 2,
+        "total": 2,
+        "detail": "全中",
+        "parsed": {
+          "cat": "thin",
+          "budget": null,
+          "purpose": [
+            "video"
+          ],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A16",
+      "type": "slot",
+      "group": "隐含约束",
+      "elapsed": 0.64,
+      "raw": "{\"cat\": \"thin\", \"budget\": null, \"purpose\": [\"design\"], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 2,
+        "total": 2,
+        "detail": "全中",
+        "parsed": {
+          "cat": "thin",
+          "budget": null,
+          "purpose": [
+            "design"
+          ],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A17",
+      "type": "slot",
+      "group": "模糊开口",
+      "elapsed": 2.82,
+      "raw": "{\"cat\": null, \"budget\": null, \"purpose\": [], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 5,
+        "total": 5,
+        "detail": "全中",
+        "parsed": {
+          "cat": null,
+          "budget": null,
+          "purpose": [],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A18",
+      "type": "slot",
+      "group": "模糊开口",
+      "elapsed": 2.9,
+      "raw": "{\"cat\": null, \"budget\": null, \"purpose\": [], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 4,
+        "total": 4,
+        "detail": "全中",
+        "parsed": {
+          "cat": null,
+          "budget": null,
+          "purpose": [],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A19",
+      "type": "slot",
+      "group": "模糊开口",
+      "elapsed": 0.61,
+      "raw": "{\"cat\": null, \"budget\": null, \"purpose\": [], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 4,
+        "total": 4,
+        "detail": "全中",
+        "parsed": {
+          "cat": null,
+          "budget": null,
+          "purpose": [],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A20",
+      "type": "slot",
+      "group": "模糊开口",
+      "elapsed": 2.8,
+      "raw": "{\"cat\": \"thin\", \"budget\": null, \"purpose\": [], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": false,
+        "hit": 3,
+        "total": 4,
+        "detail": "cat_null=thin(期望None)X",
+        "parsed": {
+          "cat": "thin",
+          "budget": null,
+          "purpose": [],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A21",
+      "type": "slot",
+      "group": "模糊开口",
+      "elapsed": 0.6,
+      "raw": "{\"cat\": null, \"budget\": null, \"purpose\": [], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 4,
+        "total": 4,
+        "detail": "全中",
+        "parsed": {
+          "cat": null,
+          "budget": null,
+          "purpose": [],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "A22",
+      "type": "slot",
+      "group": "模糊开口",
+      "elapsed": 0.6,
+      "raw": "{\"cat\": null, \"budget\": null, \"purpose\": [], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 4,
+        "total": 4,
+        "detail": "全中",
+        "parsed": {
+          "cat": null,
+          "budget": null,
+          "purpose": [],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      }
+    },
+    {
+      "id": "B01",
+      "type": "ask",
+      "group": "必问五问",
+      "elapsed": 0.6,
+      "raw": "{\"next_question\":\"Q2\",\"reason\":\"已确定是游戏本，必须确认宿舍限电情况以判断能否正常使用。\"}",
+      "score": {
+        "ok": true,
+        "got": "Q2",
+        "expect": [
+          "Q2"
+        ],
+        "detail": ""
+      }
+    },
+    {
+      "id": "B02",
+      "type": "ask",
+      "group": "必问五问",
+      "elapsed": 0.7,
+      "raw": "{\"next_question\":\"Q1\",\"reason\":\"已收集信息仅包含轻薄本和预算，未明确专业用途，需先确认软件需求以区分游戏本与轻薄本。\"}",
+      "score": {
+        "ok": true,
+        "got": "Q1",
+        "expect": [
+          "Q1"
+        ],
+        "detail": ""
+      }
+    },
+    {
+      "id": "B03",
+      "type": "ask",
+      "group": "必问五问",
+      "elapsed": 0.66,
+      "raw": "{\"next_question\":\"Q1\",\"reason\":\"用户已明确用途为设计，但尚未确认具体专业，需进一步确认专业以匹配特定设计软件需求。\"}",
+      "score": {
+        "ok": false,
+        "got": "Q1",
+        "expect": [
+          "Q3",
+          "Q4"
+        ],
+        "detail": "答 Q1，期望 ['Q3', 'Q4']"
+      }
+    },
+    {
+      "id": "B04",
+      "type": "ask",
+      "group": "必问五问",
+      "elapsed": 0.56,
+      "raw": "{\"next_question\":\"Q2\",\"reason\":\"已确定用途为游戏，必须确认宿舍限电情况以判断能否使用游戏本。\"}",
+      "score": {
+        "ok": true,
+        "got": "Q2",
+        "expect": [
+          "Q2"
+        ],
+        "detail": ""
+      }
+    },
+    {
+      "id": "B05",
+      "type": "ask",
+      "group": "必问五问",
+      "elapsed": 0.64,
+      "raw": "{\"next_question\":\"Q1\",\"reason\":\"用户仅提及办公用途，未明确具体专业及所需软件，需确认专业以推荐合适配置。\"}",
+      "score": {
+        "ok": false,
+        "got": "Q1",
+        "expect": [
+          "Q5",
+          "Q3"
+        ],
+        "detail": "答 Q1，期望 ['Q5', 'Q3']"
+      }
+    },
+    {
+      "id": "B06",
+      "type": "ask",
+      "group": "必问五问",
+      "elapsed": 0.62,
+      "raw": "{\"next_question\":\"Q1\",\"reason\":\"用户仅标注用途为 office，未明确具体软件需求，需确认专业以匹配配置。\"}",
+      "score": {
+        "ok": false,
+        "got": "Q1",
+        "expect": [
+          "Q3",
+          "Q4"
+        ],
+        "detail": "答 Q1，期望 ['Q3', 'Q4']"
+      }
+    },
+    {
+      "id": "B07",
+      "type": "ask",
+      "group": "必问五问",
+      "elapsed": 0.67,
+      "raw": "{\"next_question\":\"Q1\",\"reason\":\"已收集到游戏本和预算信息，但尚未明确专业及具体软件需求，这是决定性能配置的关键。\"}",
+      "score": {
+        "ok": true,
+        "got": "Q1",
+        "expect": [
+          "Q1",
+          "Q5"
+        ],
+        "detail": ""
+      }
+    },
+    {
+      "id": "B08",
+      "type": "ask",
+      "group": "必问五问",
+      "elapsed": 0.66,
+      "raw": "{\"next_question\":\"Q1\",\"reason\":\"已收集到预算和品类，但用途不明，需先确认专业及软件需求以进行针对性推荐。\"}",
+      "score": {
+        "ok": true,
+        "got": "Q1",
+        "expect": [
+          "Q1"
+        ],
+        "detail": ""
+      }
+    },
+    {
+      "id": "B09",
+      "type": "ask",
+      "group": "必问五问",
+      "elapsed": 0.61,
+      "raw": "{\"next_question\":\"Q1\",\"reason\":\"已收集信息中用途不明，需先确认专业及软件需求以匹配性能。\"}",
+      "score": {
+        "ok": true,
+        "got": "Q1",
+        "expect": [
+          "Q5",
+          "Q1"
+        ],
+        "detail": ""
+      }
+    },
+    {
+      "id": "B10",
+      "type": "ask",
+      "group": "必问五问",
+      "elapsed": 0.88,
+      "raw": "{\"next_question\":\"Q1\",\"reason\":\"已收集信息中用途为设计，但设计软件对硬件要求差异巨大（如 3D 渲染与 2D 绘图），需确认具体软件以精准推荐。\"}",
+      "score": {
+        "ok": false,
+        "got": "Q1",
+        "expect": [
+          "Q2"
+        ],
+        "detail": "答 Q1，期望 ['Q2']"
+      }
+    },
+    {
+      "id": "B11",
+      "type": "ask",
+      "group": "必问五问",
+      "elapsed": 0.61,
+      "raw": "{\"next_question\":\"Q1\",\"reason\":\"用户已明确用途为开发，但尚未确认具体专业，需进一步确认以匹配特定开发环境需求。\"}",
+      "score": {
+        "ok": false,
+        "got": "Q1",
+        "expect": [
+          "Q5",
+          "Q3"
+        ],
+        "detail": "答 Q1，期望 ['Q5', 'Q3']"
+      }
+    },
+    {
+      "id": "B12",
+      "type": "ask",
+      "group": "必问五问",
+      "elapsed": 0.61,
+      "raw": "{\"next_question\":\"Q1\",\"reason\":\"已收集信息中用途仅为办公，未明确具体软件需求，需确认专业以提供针对性配置建议。\"}",
+      "score": {
+        "ok": false,
+        "got": "Q1",
+        "expect": [
+          "null"
+        ],
+        "detail": "答 Q1，期望 ['null']"
+      }
+    },
+    {
+      "id": "B13",
+      "type": "ask",
+      "group": "必问五问",
+      "elapsed": 0.58,
+      "raw": "{\"next_question\":\"Q2\",\"reason\":\"已明确用途为游戏，需确认宿舍限电情况以判断能否使用高功耗游戏本。\"}",
+      "score": {
+        "ok": true,
+        "got": "Q2",
+        "expect": [
+          "Q2"
+        ],
+        "detail": ""
+      }
+    },
+    {
+      "id": "B14",
+      "type": "ask",
+      "group": "必问五问",
+      "elapsed": 0.64,
+      "raw": "{\"next_question\":\"Q1\",\"reason\":\"用户已明确用途为视频处理，但尚未说明具体专业或软件类型，需确认专业以匹配性能需求。\"}",
+      "score": {
+        "ok": false,
+        "got": "Q1",
+        "expect": [
+          "Q4",
+          "Q5"
+        ],
+        "detail": "答 Q1，期望 ['Q4', 'Q5']"
+      }
+    },
+    {
+      "id": "B15",
+      "type": "ask",
+      "group": "必问五问",
+      "elapsed": 0.62,
+      "raw": "{\"next_question\":\"Q3\",\"reason\":\"已明确游戏用途和宿舍限电，需进一步确认是否需携带至教室或图书馆以评估便携性。\"}",
+      "score": {
+        "ok": true,
+        "got": "Q3",
+        "expect": [
+          "Q3",
+          "Q5"
+        ],
+        "detail": ""
+      }
+    },
+    {
+      "id": "B16",
+      "type": "ask",
+      "group": "必问五问",
+      "elapsed": 0.62,
+      "raw": "{\"next_question\":\"Q1\",\"reason\":\"已明确用途为设计，但尚未确认具体专业，需进一步确认专业以匹配特定设计软件需求。\"}",
+      "score": {
+        "ok": false,
+        "got": "Q1",
+        "expect": [
+          "Q5",
+          "Q4"
+        ],
+        "detail": "答 Q1，期望 ['Q5', 'Q4']"
+      }
+    },
+    {
+      "id": "C01",
+      "type": "guard",
+      "group": "反编造",
+      "elapsed": 1.04,
+      "raw": "我们的数据库不包含 Mac 机型，因此无法提供 MacBook Air M4 的型号、价格或跑分数据。\n我们仅覆盖 Windows 笔记本、台式整机以及内存固态配件。\n建议您查询其他 Windows 设备或联系苹果官方获取该产品的详细信息。",
+      "score": {
+        "ok": true,
+        "hit_word": "覆盖",
+        "has_price": false,
+        "detail": "OK"
+      }
+    },
+    {
+      "id": "C02",
+      "type": "guard",
+      "group": "反编造",
+      "elapsed": 1.14,
+      "raw": "红米 K90 是手机，联想小新 16 是笔记本，两者属于完全不同的设备类别，无法直接比较。我的数据库仅涵盖 Windows 笔记本、台式整机及内存固态配件，不包含手机型号。如果您想了解联想小新 16 的具体配置或价格，请告诉我您关注的型号。",
+      "score": {
+        "ok": false,
+        "hit_word": null,
+        "has_price": false,
+        "detail": "未出现任何关键表述"
+      }
+    },
+    {
+      "id": "C03",
+      "type": "guard",
+      "group": "反编造",
+      "elapsed": 0.86,
+      "raw": "根据现有数据库，未收录惠普战 66 八代的具体在售价格信息。\n建议您通过官方渠道或主流电商平台查询最新报价。\n如需了解其他已收录型号的电脑配置或价格，请随时告知。",
+      "score": {
+        "ok": true,
+        "hit_word": "查",
+        "has_price": false,
+        "detail": "OK"
+      }
+    },
+    {
+      "id": "C04",
+      "type": "guard",
+      "group": "反编造",
+      "elapsed": 0.89,
+      "raw": "请提供您提到的具体内存条型号、品牌及容量，以便我查询数据库中的性能数据。\n由于您尚未列出具体机型，目前无法直接比较它们的性能。\n一旦您补充信息，我将立即为您分析并给出建议。",
+      "score": {
+        "ok": false,
+        "hit_word": null,
+        "has_price": false,
+        "detail": "未出现任何关键表述"
+      }
+    },
+    {
+      "id": "C05",
+      "type": "guard",
+      "group": "反编造",
+      "elapsed": 0.9,
+      "raw": "目前我的数据库中尚未收录 RTX 5070 显卡的任何信息。\n因此我无法确认该显卡是否为满血版，也无法提供相关价格或跑分数据。\n建议您查阅 NVIDIA 官方公告或权威科技媒体获取最新确认。",
+      "score": {
+        "ok": false,
+        "hit_word": null,
+        "has_price": false,
+        "detail": "未出现任何关键表述"
+      }
+    },
+    {
+      "id": "C06",
+      "type": "guard",
+      "group": "反编造",
+      "elapsed": 1.06,
+      "raw": "目前我的数据库中尚未收录 NVIDIA RTX 5070 和 RTX 5060 的任何机型、价格或跑分数据。\n因此我无法确认两者之间的性能差距，更无法验证“强一倍”的说法。\n建议您查阅官方发布的最新评测报告以获取准确信息。",
+      "score": {
+        "ok": false,
+        "hit_word": null,
+        "has_price": false,
+        "detail": "未出现任何关键表述"
+      }
+    },
+    {
+      "id": "C07",
+      "type": "guard",
+      "group": "反编造",
+      "elapsed": 0.98,
+      "raw": "在数据库中没有关于具体 i7 与 i5 性能对比的跑分数据，无法直接验证“一定更好”的说法。实际体验还取决于具体型号、应用场景及整机配置。建议您提供具体机型名称，我可查询其官方参数和价格信息供您参考。",
+      "score": {
+        "ok": true,
+        "hit_word": "型号",
+        "has_price": false,
+        "detail": "OK"
+      }
+    },
+    {
+      "id": "C08",
+      "type": "guard",
+      "group": "反编造",
+      "elapsed": 0.89,
+      "raw": "根据现有数据库，未收录华硕天选 7 的具体 Time Spy 图形跑分数据。\n建议您查阅华硕官网或权威评测平台获取该型号的实时测试成绩。\n如需查询其他已收录机型的价格或参数，请随时告知。",
+      "score": {
+        "ok": true,
+        "hit_word": "数据",
+        "has_price": false,
+        "detail": "OK"
+      }
+    },
+    {
+      "id": "C09",
+      "type": "guard",
+      "group": "反编造",
+      "elapsed": 0.94,
+      "raw": "32GB 内存确实适合多任务处理或专业创作，但日常办公 16GB 通常已足够。  \n具体是否“必须”取决于你的使用场景，我可帮你分析需求。  \n请告诉我你主要用电脑做什么，以及预算范围。",
+      "score": {
+        "ok": true,
+        "hit_word": "取决于",
+        "has_price": false,
+        "detail": "OK"
+      }
+    },
+    {
+      "id": "C10",
+      "type": "guard",
+      "group": "反编造",
+      "elapsed": 1.0,
+      "raw": "我的数据库中未收录“苍龙 18 Pro\"这款产品的任何信息。\n由于无法查询到该机型的具体价格、配置及历史走势，我无法判断其是否值得购买或是否会涨价。\n建议您通过官方渠道或正规电商平台核实该产品的真实存在性及最新报价。",
+      "score": {
+        "ok": true,
+        "hit_word": "走势",
+        "has_price": false,
+        "detail": "OK"
+      }
+    },
+    {
+      "id": "C11",
+      "type": "guard",
+      "group": "反编造",
+      "elapsed": 1.14,
+      "raw": "根据现有数据库，5299 元的笔记本在国补政策下实际支付金额需结合具体机型和补贴比例计算。由于不同品牌型号补贴力度可能不同，且未提供该价格区间的完整机型列表，我无法给出确切数字。建议您提供具体型号或查询当地官方补贴细则以获取准确信息。",
+      "score": {
+        "ok": true,
+        "hit_word": "补贴",
+        "has_price": true,
+        "detail": "OK"
+      }
+    },
+    {
+      "id": "C12",
+      "type": "guard",
+      "group": "反编造",
+      "elapsed": 0.86,
+      "raw": "我的数据库中未收录\"gaming-tianxuan7\"这款电脑的具体信息。\n因此无法提供该机型的确切性能跑分数据。\n建议您通过官方渠道或主流评测网站查询该产品的详细参数和评测结果。",
+      "score": {
+        "ok": true,
+        "hit_word": "查",
+        "has_price": false,
+        "detail": "OK"
+      }
+    },
+    {
+      "id": "D01",
+      "type": "slot",
+      "group": "隐含约束",
+      "elapsed": 0.76,
+      "raw": "{\"cat\": \"thin\", \"budget\": 5000, \"purpose\": [\"design\"], \"years\": 4, \"carry\": true, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 4,
+        "total": 4,
+        "detail": "全中",
+        "parsed": {
+          "cat": "thin",
+          "budget": 5000,
+          "purpose": [
+            "design"
+          ],
+          "years": 4,
+          "carry": true,
+          "dormWatt": null
+        }
+      },
+      "consistency_of": "A09"
+    },
+    {
+      "id": "D02",
+      "type": "slot",
+      "group": "隐含约束",
+      "elapsed": 0.69,
+      "raw": "{\"cat\": \"thin\", \"budget\": 5000, \"purpose\": [\"design\"], \"years\": 4, \"carry\": true, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 4,
+        "total": 4,
+        "detail": "全中",
+        "parsed": {
+          "cat": "thin",
+          "budget": 5000,
+          "purpose": [
+            "design"
+          ],
+          "years": 4,
+          "carry": true,
+          "dormWatt": null
+        }
+      },
+      "consistency_of": "A09"
+    },
+    {
+      "id": "D03",
+      "type": "slot",
+      "group": "模糊开口",
+      "elapsed": 0.59,
+      "raw": "{\"cat\": null, \"budget\": null, \"purpose\": [], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 5,
+        "total": 5,
+        "detail": "全中",
+        "parsed": {
+          "cat": null,
+          "budget": null,
+          "purpose": [],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      },
+      "consistency_of": "A17"
+    },
+    {
+      "id": "D04",
+      "type": "slot",
+      "group": "模糊开口",
+      "elapsed": 0.56,
+      "raw": "{\"cat\": null, \"budget\": null, \"purpose\": [], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 5,
+        "total": 5,
+        "detail": "全中",
+        "parsed": {
+          "cat": null,
+          "budget": null,
+          "purpose": [],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      },
+      "consistency_of": "A17"
+    },
+    {
+      "id": "D05",
+      "type": "slot",
+      "group": "明确需求",
+      "elapsed": 0.67,
+      "raw": "{\"cat\": \"thin\", \"budget\": 5000, \"purpose\": [], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 4,
+        "total": 4,
+        "detail": "全中",
+        "parsed": {
+          "cat": "thin",
+          "budget": 5000,
+          "purpose": [],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      },
+      "consistency_of": "A01"
+    },
+    {
+      "id": "D06",
+      "type": "slot",
+      "group": "明确需求",
+      "elapsed": 0.64,
+      "raw": "{\"cat\": \"thin\", \"budget\": 5000, \"purpose\": [], \"years\": null, \"carry\": null, \"dormWatt\": null}",
+      "score": {
+        "ok": true,
+        "hit": 4,
+        "total": 4,
+        "detail": "全中",
+        "parsed": {
+          "cat": "thin",
+          "budget": 5000,
+          "purpose": [],
+          "years": null,
+          "carry": null,
+          "dormWatt": null
+        }
+      },
+      "consistency_of": "A01"
+    },
+    {
+      "id": "D07",
+      "type": "ask",
+      "group": "必问五问",
+      "elapsed": 0.54,
+      "raw": "{\"next_question\":\"Q2\",\"reason\":\"已明确为游戏本，需确认宿舍限电情况以判断能否正常使用。\"}",
+      "score": {
+        "ok": true,
+        "got": "Q2",
+        "expect": [
+          "Q2"
+        ],
+        "detail": ""
+      },
+      "consistency_of": "B01"
+    },
+    {
+      "id": "D08",
+      "type": "ask",
+      "group": "必问五问",
+      "elapsed": 0.48,
+      "raw": "{\"next_question\":\"Q2\",\"reason\":\"已确定是游戏本，必须确认宿舍限电情况以判断能否正常使用。\"}",
+      "score": {
+        "ok": true,
+        "got": "Q2",
+        "expect": [
+          "Q2"
+        ],
+        "detail": ""
+      },
+      "consistency_of": "B01"
+    },
+    {
+      "id": "D09",
+      "type": "guard",
+      "group": "反编造",
+      "elapsed": 0.94,
+      "raw": "您尚未提供具体的内存条型号或参数，我无法进行对比。\n请列出您想比较的几条内存条的名称或规格（如容量、频率、时序等）。\n收到信息后，我会基于数据库为您分析性能并给出建议。",
+      "score": {
+        "ok": false,
+        "hit_word": null,
+        "has_price": false,
+        "detail": "未出现任何关键表述"
+      },
+      "consistency_of": "C04"
+    },
+    {
+      "id": "D10",
+      "type": "guard",
+      "group": "反编造",
+      "elapsed": 1.48,
+      "raw": "请提供您想对比的具体内存条型号、品牌及容量信息，目前无法直接查看您提到的“这几条”数据。\n在我的数据库中，不同品牌（如金士顿、三星、海力士等）和代际（DDR4/DDR5）的内存性能差异较大，需您列出具体参数才能进行跑分或性能对比。\n若未提供型号，我无法给出任何具体的性能排名或价格建议。",
+      "score": {
+        "ok": false,
+        "hit_word": null,
+        "has_price": false,
+        "detail": "未出现任何关键表述"
+      },
+      "consistency_of": "C04"
+    }
+  ]
+}

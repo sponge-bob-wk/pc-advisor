@@ -1,0 +1,69 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<title>数据质量审核报告</title>
+<style>
+body{font:14px/1.7 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:#1f2937;
+max-width:900px;margin:0 auto;padding:32px 24px;background:#fff}
+h1{font-size:22px;margin:0 0 4px} .sub{color:#6b7280;font-size:13px;margin-bottom:24px}
+h2{font-size:15px;margin:28px 0 10px;padding-left:9px;border-left:3px solid #c0392b}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+th,td{text-align:left;padding:7px 9px;border-bottom:1px solid #eef1f4}
+th{background:#f9fafb;font-weight:600;color:#374151}
+.kpi{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 4px}
+.card{flex:1 1 150px;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px}
+.card b{display:block;font-size:20px;color:#111827;font-variant-numeric:tabular-nums}
+.card span{font-size:12px;color:#6b7280}
+.ok{color:#047857} .bad{color:#b91c1c} .warn{color:#b45309}
+.note{background:#f9fafb;border-left:3px solid #d1d5db;padding:9px 12px;margin:12px 0;
+font-size:12.5px;color:#4b5563;border-radius:0 4px 4px 0}
+</style></head><body>
+<h1>数据质量审核报告</h1>
+<div class="sub">生成时间 2026-11-10 01:20 · 机型池 51 台 · 10 个专业组</div>
+
+<div class="kpi">
+  <div class="card"><b>51/51（100%）</b><span>有价格</span></div>
+  <div class="card"><b>36/51（71%）</b><span>已核 1 级能效</span></div>
+  <div class="card"><b>34/51（67%）</b><span>有 CPU 跑分</span></div>
+  <div class="card"><b>16/51（31%）</b><span>有持续性能数据</span></div>
+</div>
+
+<h2>价格对账</h2>
+<p>规则：<code>划线 − Σ折扣 = 券后</code>，<code>券后 − 国补 = 到手</code>。差额若符 15%/封顶 1500 判为国补，否则判为商家优惠。</p>
+<p><span class="ok">✓ 全部对得上账，无自相矛盾的价格</span></p>
+
+
+<h2>专业组覆盖（够用且买得到）</h2>
+<table><tr><th>专业组</th><th>可选机型</th><th>覆盖专业数</th></tr><tr><td>通识办公</td><td>50</td><td>108</td></tr><tr><td>编程数据</td><td>29</td><td>29</td></tr><tr><td>平面视觉</td><td>22</td><td>29</td></tr><tr><td>视频影视</td><td>6</td><td>16</td></tr><tr><td>三维建筑工业</td><td>6</td><td>37</td></tr><tr><td>音乐音频</td><td>37</td><td>9</td></tr><tr><td>游戏与数字媒体技术</td><td>5</td><td>9</td></tr><tr><td>电气与自动化</td><td>46</td><td>22</td></tr><tr><td>理工实验</td><td>46</td><td>42</td></tr><tr><td>测绘与空间信息</td><td>6</td><td>10</td></tr></table>
+
+<h2>能效核对（国补资格的唯一依据）</h2>
+<p>已确认 1 级：<b>36</b> 台；备案冲突无法判定：<b>1</b> 台
+（灵越 14 Plus 7440（自营最新款，未标 2026））</p>
+<details><summary style="cursor:pointer;color:#6b7280;font-size:13px">展开逐台清单</summary>
+<table><tr><th>机型</th><th>能效网型号</th><th>等级</th></tr><tr><td>ROG幻16 Air 2026（Ultra9-386H/RTX5070/32G/1T）</td><td>GU606</td><td class='ok'>1 级</td></tr><tr><td>ThinkBook 14+ 2026 锐龙版</td><td>ThinkBook 14 G8+ AHP</td><td class='ok'>1 级</td></tr><tr><td>ThinkBook 14+（酷睿 Ultra5 版）</td><td>ThinkBook 14 G8+ IPH</td><td class='ok'>1 级</td></tr><tr><td>ThinkBook 16+ 2026（酷睿 Ultra5 338H）</td><td>ThinkBook 16 G8+ IPH</td><td class='ok'>1 级</td></tr><tr><td>ThinkBook 16+ 锐龙版 2026</td><td>ThinkBook 16 G8+ AHP</td><td class='ok'>1 级</td></tr><tr><td>ThinkPad E14 2026（Ultra 版）</td><td>ThinkPad E14 Gen 8</td><td class='ok'>1 级</td></tr><tr><td>ThinkPad E16 2026</td><td>ThinkPad E16 Gen 4</td><td class='ok'>1 级</td></tr><tr><td>ThinkPad E16 Gen 2（Ultra5 版）</td><td>ThinkPad E16 Gen 2</td><td class='ok'>1 级</td></tr><tr><td>天选6 2026（锐龙7 H260/RTX5050/32G/1T）</td><td>FA608</td><td class='ok'>1 级</td></tr><tr><td>天选7 2026（锐龙7 H260/RTX5050）</td><td>FA608</td><td class='ok'>1 级</td></tr><tr><td>小新 Air 14 2026（酷睿 Ultra5 版）</td><td>小新Air 14 ILL11</td><td class='ok'>1 级</td></tr><tr><td>小新 Air 14（酷睿 Ultra5 版）</td><td>小新Air 14 ILL11</td><td class='ok'>1 级</td></tr><tr><td>小新 Air 14（酷睿 Ultra7 版）</td><td>小新Air 14 ILL11</td><td class='ok'>1 级</td></tr><tr><td>小新 Air 15 2026（触控屏版）</td><td>小新Air 15 IWC11</td><td class='ok'>1 级</td></tr><tr><td>小新 Pro 14 2026（酷睿 Ultra 7 版）</td><td>小新Pro 14 IPH11</td><td class='ok'>1 级</td></tr><tr><td>小新 Pro 14 2026（锐龙版）</td><td>小新Pro 14c AHP10R</td><td class='ok'>1 级</td></tr><tr><td>小新 Pro 16 2025（锐龙版）</td><td>小新Pro 16 ASP10</td><td class='ok'>1 级</td></tr><tr><td>小新 Pro 16 2026（酷睿 Ultra 5 版）</td><td>小新Pro 16 IPH11</td><td class='ok'>1 级</td></tr><tr><td>小新 Pro 16 超能本（酷睿 Ultra 7 版）</td><td>小新Pro 16 IPH11</td><td class='ok'>1 级</td></tr><tr><td>小新 Pro 16 超能本（锐龙版）</td><td>小新Pro 16c AHP10R</td><td class='ok'>1 级</td></tr><tr><td>战66 八代 14 英寸（2026 款锐龙版）</td><td>—</td><td class='ok'>1 级</td></tr><tr><td>拯救者 R7000P 2026（R7000 系列自营在售款）</td><td>—</td><td class='ok'>1 级</td></tr><tr><td>拯救者 Y7000P 2026</td><td>—</td><td class='ok'>1 级</td></tr><tr><td>拯救者 Y9000P 2026</td><td>Legion Y9000P IAX10</td><td class='ok'>1 级</td></tr><tr><td>无界14 2026（Ultra5-226V/16G/1T）</td><td>机械革命 无界14IL-5BC4U</td><td class='ok'>1 级</td></tr><tr><td>无界15X Pro（R7-H255/16G/1T）</td><td>机械革命 无界15XPA</td><td class='ok'>1 级</td></tr><tr><td>无畏16 2026 锐龙版（R7-H260/核显）</td><td>—</td><td class='ok'>1 级</td></tr><tr><td>无畏Pro14 酷睿版 2026（Ultra7-356H/核显）</td><td>S5450A</td><td class='ok'>1 级</td></tr><tr><td>旷世X 2026（i5-14450HX/RTX5050/32G/1T）</td><td>机械革命旷世X-505C9128</td><td class='ok'>1 级</td></tr><tr><td>星 Book Pro 14 2026 锐龙版</td><td>TPN-Q316</td><td class='ok'>1 级</td></tr><tr><td>星影15 MAX 2026（i7-13620H/RTX5050/32G/1T）</td><td>—</td><td class='ok'>1 级</td></tr><tr><td>暗影精灵 11（2026，Ultra7-251HX/RTX5060）</td><td>TPN-I145A3</td><td class='ok'>1 级</td></tr><tr><td>机械革命 蛟龙 15K（R5-7640H/16G/512G）</td><td>机械革命蛟龙15K-08047A118</td><td class='ok'>1 级</td></tr><tr><td>极光X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz）</td><td>—</td><td class='ok'>1 级</td></tr><tr><td>神舟 战神T8（i7-13650HX/16G/1T/RTX5060/2.5K 180Hz）</td><td>CV36S07</td><td class='ok'>1 级</td></tr><tr><td>荣耀 MagicBook Pro 16 2026（Ultra5-338H/32G/1T）</td><td>XWC-P</td><td class='ok'>1 级</td></tr></table></details>
+
+<h2>跨源冲突（未裁决）</h2>
+<table><tr><th>机型 / 记录</th><th>冲突项</th></tr><tr><td>小新 Pro 14 2026（锐龙版）</td><td>screen.colorGamut</td></tr><tr><td>小新 Pro 14 2026（锐龙版）</td><td>modelHint（年份）</td></tr><tr><td>ThinkBook 14+ 2026 锐龙版</td><td>ram.form</td></tr><tr><td>灵越 14 Plus 7440（自营最新款，未标 2026）</td><td>efficiency</td></tr><tr><td>灵越 14 Plus 7440（自营最新款，未标 2026）</td><td>ram.form</td></tr><tr><td>小新 Pro 14 2026（锐龙版）</td><td>screen.colorGamut（真实冲突：疑为 IPS 版与 OLED 版两个配置。平面组若要 DCI-P3 必须先确认版本，不能默认…）</td></tr><tr><td>小新 Pro 14 2026（锐龙版）</td><td>modelHint（年份）（型号代码 AHP10R 在两家第三方参数站都归到 2025 款；京东标题不写年份。按 2026 款卖给学生可能造成代际误…）</td></tr><tr><td>ThinkBook 14+ 2026 锐龙版</td><td>ram.form（16G 与 32G 版本内存形态可能不同（板载 vs 插槽），必须按 SKU 确认——这正是「按型号判断而非按品牌」的原…）</td></tr><tr><td>灵越 14 Plus 7440（自营最新款，未标 2026）</td><td>efficiency（同一系列基础型号 2 级、-001 变体 1 级，本机认证型号 Ins14-7440F-R3609L 对不上任何一条。京…）</td></tr><tr><td>灵越 14 Plus 7440（自营最新款，未标 2026）</td><td>ram.form（三个来源互斥且其中一个明显是脏数据；内存形态直接决定编程组能否推荐，不能靠猜…）</td></tr></table>
+
+
+<h2>平台差异</h2>
+<p>macOS 机型 <b>4</b> 台。判定分三个层面：</p>
+<table>
+<tr><th>层面</th><th>处理方式</th></tr>
+<tr><td>软件可装性</td><td>五个组标记 Windows 独占软件（Revit/SolidWorks/Multisim/ArcGIS Pro/Origin）→ 直接不推荐</td></tr>
+<tr><td>内存与显存</td><td>统一内存按容量判显存等效需求；门槛仍用 PC 口径，命中时注明"对 Mac 偏保守"</td></tr>
+<tr><td>接口与散热</td><td>无 USB-A → 提示扩展坞成本；无风扇 → 提示长时间负载降频（有实测的写实测值）</td></tr>
+</table>
+
+<h2>已知局限（诚实清单）</h2>
+<div class="note">
+<b>1. 持续性能数据只有 16 台。</b>其余 35 台的"长时间跑会不会掉速"没有实测，
+推荐里带"缺持续性能数据"的保留项。要补只能逐台翻评测的双烤/Cinebench 循环数据。<br>
+<b>2. 跑分不覆盖全部 CPU。</b>17 台缺 CPU 跑分，多为新款或小众型号。<br>
+<b>3. Mac 的能效等级查不到。</b>京东明确标可享国补，但能效网无 MacBook 备案，
+所以价格照页面填、等级留空，并注明"以结算页为准"。<br>
+<b>4. 门槛来自 PC 端软件官方建议。</b>应用到 Mac 上可能偏严，未做等效换算——这是刻意的，
+因为"Mac 16G≈PC 32G"这类说法没有权威出处。<br>
+<b>5. 价格是快照。</b>双 11 期间一天内多次变动，记录的是采集时刻的页面值，附 basisNote 说明口径。
+</div>
+
+<div class="note">数据源：京东商品页（无障碍树读取）+ 中国能效标识网（备案查询）+ 联想/华硕/微星官网 + Intel ARK + Notebookcheck/cpu-monkey 等公开评测。每条记录都带 evidence 与 basisNote。</div>
+</body></html>

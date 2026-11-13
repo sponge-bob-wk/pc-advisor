@@ -1,0 +1,5 @@
+{
+  "steps": [
+    {"tool": "get_app_state", "args": {"pid": 14672, "disableScreenshot": false}, "grep": "[image", "max": 400}
+  ]
+}

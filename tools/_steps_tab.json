@@ -1,0 +1,7 @@
+{
+  "steps": [
+    {"tool": "get_app_state", "args": {"pid": 14672, "disableScreenshot": true, "disableDiff": true}, "grep": "tab-item", "max": 600},
+    {"tool": "click", "args": {"pid": 14672, "element_id": "10"}, "max": 400},
+    {"tool": "get_app_state", "args": {"pid": 14672, "disableScreenshot": false}, "grep": "[image", "max": 600, "sleep": 4}
+  ]
+}

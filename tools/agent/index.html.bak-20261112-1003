@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>选机助手 · 电脑选机智能体</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#FBFBF9;
+    --surface:#FFFFFF;
+    --ink:#16160F;
+    --ink2:#63625A;
+    --ink3:#9C9A90;
+    --line:#E9E7DF;
+    --line2:#F2F0E9;
+    --accent:#1C5B47;
+    --accent-hover:#154836;
+    --accent-soft:#EDF4F0;
+    --accent-line:#C6DACE;
+    --price:#B1573A;
+    --warn:#8A5B0B;
+    --warn-bg:#FBF4E4;
+    --bad:#9E2B2B;
+    --bad-bg:#FBEEEE;
+    --soft:#F6F4EE;
+    --serif:"Source Serif Pro",Georgia,"Songti SC",serif;
+  }
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--ink);
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+    display:flex;flex-direction:column;font-size:14px;
+  }
+
+  /* ═══ 顶栏 ═══ */
+  .top{
+    height:54px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 28px;border-bottom:1px solid var(--line);
+    background:rgba(251,251,249,.86);backdrop-filter:blur(12px);
+    position:sticky;top:0;z-index:30;flex-shrink:0;
+  }
+  .brand{display:flex;align-items:center;gap:11px}
+  .mark{
+    width:24px;height:24px;border-radius:7px;background:var(--accent);
+    position:relative;flex-shrink:0;
+  }
+  .mark::before{
+    content:"";position:absolute;left:6px;top:7px;width:12px;height:2px;
+    background:rgba(255,255,255,.92);border-radius:1px;
+  }
+  .mark::after{
+    content:"";position:absolute;left:6px;top:12px;width:7px;height:2px;
+    background:rgba(255,255,255,.5);border-radius:1px;
+  }
+  .brand b{font-size:14.5px;font-weight:600;letter-spacing:.1px}
+  .brand .ver{
+    font-size:10.5px;color:var(--ink3);padding:2px 7px;border-radius:4px;
+    background:var(--line2);letter-spacing:.2px;font-weight:500;
+  }
+  .status{display:flex;align-items:center;gap:14px;font-size:11.5px;color:var(--ink2)}
+  .status .sep{width:1px;height:12px;background:var(--line)}
+  .dot{width:6px;height:6px;border-radius:50%;background:#CFCCC2;flex-shrink:0;
+    transition:background .3s}
+  .dot.on{background:#4A9E33;box-shadow:0 0 0 3px rgba(74,158,51,.12)}
+  .dot.off{background:var(--bad);box-shadow:0 0 0 3px rgba(158,43,43,.1)}
+  .live{display:flex;align-items:center;gap:6px}
+
+  /* ═══ 主滚动区 ═══ */
+  .scroll{flex:1;overflow-y:auto;overflow-x:hidden}
+  .scroll::-webkit-scrollbar{width:10px}
+  .scroll::-webkit-scrollbar-thumb{background:#DEDBD0;border-radius:6px;
+    border:3px solid var(--bg)}
+  .scroll::-webkit-scrollbar-thumb:hover{background:#CFCBBE}
+  .col{max-width:760px;margin:0 auto;padding:0 26px 48px}
+
+  /* ═══ 首屏 ═══ */
+  .hero{padding:56px 0 0}
+  .eyebrow{
+    font-size:11px;letter-spacing:1.4px;text-transform:uppercase;
+    color:var(--accent);font-weight:600;margin-bottom:18px;
+    display:flex;align-items:center;gap:9px;
+  }
+  .eyebrow::after{content:"";flex:1;height:1px;background:var(--accent-line);max-width:52px}
+  .hero h1{
+    font-family:var(--serif);font-size:33px;font-weight:600;line-height:1.38;
+    letter-spacing:-.4px;margin-bottom:16px;
+  }
+  .hero h1 em{font-style:normal;color:var(--accent);
+    background:linear-gradient(to top,rgba(28,91,71,.09) 0 38%,transparent 38%)}
+  .hero .lede{
+    font-size:13.5px;color:var(--ink2);line-height:1.9;max-width:490px;
+    margin-bottom:34px;
+  }
+
+  /* 数据口径说明：把「22 台」和「225 条采集」的关系写清楚，
+     免得演示时被问「怎么就这么几台」却答不上来。 */
+  .scope-note{
+    font-size:11.5px;color:var(--ink3);line-height:1.85;max-width:560px;
+    margin:-16px 0 30px;padding-left:11px;
+    border-left:2px solid var(--accent-line);
+  }
+  .scope-note b{color:var(--ink2);font-weight:600}
+
+  /* 数据条 */
+  .facts{
+    display:flex;gap:0;border:1px solid var(--line);border-radius:11px;
+    background:var(--surface);overflow:hidden;margin-bottom:30px;
+  }
+  .fact{flex:1;padding:13px 16px;border-right:1px solid var(--line2)}
+  .fact:last-child{border-right:none}
+  .fact .n{font-size:17px;font-weight:600;letter-spacing:-.3px;
+    font-variant-numeric:tabular-nums;line-height:1.2}
+  .fact .n small{font-size:11px;font-weight:400;color:var(--ink3);margin-left:2px}
+  .fact .k{font-size:10.5px;color:var(--ink3);margin-top:4px;letter-spacing:.2px}
+
+  /* 场景卡 */
+  .scenes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:640px){.scenes{grid-template-columns:1fr}}
+  .sc{
+    background:var(--surface);border:1px solid var(--line);border-radius:11px;
+    padding:15px 16px;cursor:pointer;transition:.2s;position:relative;
+    display:flex;flex-direction:column;gap:5px;
+  }
+  .sc:hover{border-color:var(--accent-line);box-shadow:0 8px 20px -14px rgba(28,91,71,.45);
+    transform:translateY(-1px)}
+  .sc:active{transform:translateY(0)}
+  .sc .t{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .sc .t i{
+    font-style:normal;width:18px;height:18px;border-radius:5px;background:var(--accent-soft);
+    color:var(--accent);font-size:10px;font-weight:600;display:flex;
+    align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .sc .d{font-size:11.8px;color:var(--ink2);line-height:1.6;padding-left:26px}
+  .sc .arr{position:absolute;right:15px;top:50%;transform:translateY(-50%);
+    color:var(--ink3);font-size:15px;transition:.2s}
+  .sc:hover .arr{color:var(--accent);right:12px}
+
+  /* ═══ 对话 ═══ */
+  .turn{padding:24px 0}
+  .turn + .turn{border-top:1px solid var(--line2)}
+  .turn.u{display:flex;justify-content:flex-end}
+
+  .ubb{
+    background:var(--accent);color:#fff;padding:10px 16px;
+    border-radius:15px 15px 4px 15px;font-size:13.5px;line-height:1.65;
+    max-width:76%;word-break:break-word;
+  }
+
+  .say{
+    font-size:14px;line-height:1.92;color:var(--ink);
+    letter-spacing:.1px;margin-bottom:15px;
+  }
+  .say:last-child{margin-bottom:0}
+
+  /* 推荐卡 */
+  .card{
+    border:1px solid var(--accent-line);border-radius:14px;overflow:hidden;
+    background:var(--surface);box-shadow:0 1px 2px rgba(22,22,15,.03);
+  }
+  .card-hd{padding:15px 17px 0;display:flex;justify-content:space-between;
+    align-items:flex-start;gap:12px}
+  .card-nm{font-size:15.5px;font-weight:600;letter-spacing:.1px;line-height:1.4}
+  .card-sp{font-size:11.5px;color:var(--ink3);margin-top:4px;line-height:1.5;
+    font-variant-numeric:tabular-nums}
+  .badge{
+    font-size:10.5px;padding:3.5px 9px;border-radius:100px;
+    background:var(--accent-soft);color:var(--accent);
+    flex-shrink:0;white-space:nowrap;font-weight:500;letter-spacing:.2px;
+  }
+  .badge.over{background:var(--warn-bg);color:var(--warn)}
+
+  .price-row{padding:13px 17px 3px;display:flex;align-items:baseline;gap:9px}
+  .price{font-size:29px;font-weight:600;color:var(--price);letter-spacing:-.8px;
+    line-height:1;font-variant-numeric:tabular-nums}
+  .price small{font-size:14px;font-weight:400;margin-right:2px}
+  .price-lb{font-size:11px;color:var(--ink3)}
+  .price-sub{padding:0 17px;font-size:11.5px;color:var(--ink2);
+    margin-bottom:13px;font-variant-numeric:tabular-nums}
+
+  /* 短板（硬） */
+  .note-hard{
+    margin:0 17px 11px;padding:10px 13px;background:var(--bad-bg);
+    border-left:2.5px solid var(--bad);border-radius:6px;
+    font-size:11.8px;line-height:1.7;color:var(--bad);
+  }
+  .note-hard b{display:block;font-weight:600;margin-bottom:4px;
+    font-size:11px;letter-spacing:.2px}
+  .note-hard .li{padding-left:11px;position:relative}
+  .note-hard .li + .li{margin-top:2px}
+  .note-hard .li::before{content:"";position:absolute;left:0;top:8px;
+    width:3px;height:3px;border-radius:50%;background:var(--bad)}
+
+  /* 弱项（灰） */
+  .note-soft{
+    margin:0 17px 11px;padding:9px 13px;background:var(--soft);
+    border-left:2.5px solid #C9C4B5;border-radius:6px;
+    font-size:11.5px;line-height:1.7;color:var(--ink2);
+  }
+  .note-soft b{display:block;font-weight:600;margin-bottom:3px;
+    font-size:11px;color:var(--ink);letter-spacing:.2px}
+  .note-soft .li{padding-left:11px;position:relative}
+  .note-soft .li::before{content:"";position:absolute;left:0;top:7px;
+    width:3px;height:3px;border-radius:50%;background:#B5AF9E}
+
+  /* 注意（黄） */
+  .note-warn{
+    margin:0 17px 11px;padding:9px 13px;background:var(--warn-bg);
+    border-radius:7px;font-size:11.8px;line-height:1.68;color:var(--warn);
+    display:flex;gap:8px;
+  }
+  .note-warn b{font-weight:600;flex-shrink:0}
+
+  /* 缺数据（中立） */
+  .note-nil{
+    margin:0 17px 11px;padding:8px 13px;background:#F5F4EF;border-radius:7px;
+    font-size:11.3px;color:var(--ink2);line-height:1.62;
+  }
+
+  .alts{
+    padding:11px 17px;border-top:1px dashed var(--line);font-size:11.8px;
+    color:var(--ink2);line-height:1.75;background:#FCFCFA;
+  }
+  .alts b{font-weight:600;color:var(--ink)}
+  .alts .dotsep{color:var(--ink3);margin:0 7px}
+
+  /* 澄清 / 追问按钮 */
+  .askbox{
+    margin-top:17px;background:var(--accent-soft);border-radius:12px;
+    padding:15px 17px;border:1px solid var(--accent-line);
+  }
+  .askbox .lbl{font-size:10.5px;color:var(--accent);font-weight:600;
+    letter-spacing:.8px;margin-bottom:8px;text-transform:uppercase}
+  .askbox .q{font-size:13.5px;line-height:1.7;margin-bottom:13px;color:var(--ink)}
+  .chips{display:flex;flex-wrap:wrap;gap:7px}
+  .chips button{
+    font:inherit;font-size:12.5px;padding:6px 14px;border-radius:100px;
+    cursor:pointer;background:var(--surface);border:1px solid var(--accent-line);
+    color:var(--accent);transition:.15s;font-weight:500;
+  }
+  .chips button:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .chips button:disabled{opacity:.4;cursor:not-allowed}
+
+  /* 预警 */
+  .warnbar{
+    margin-top:13px;padding:10px 14px;background:var(--warn-bg);
+    border-radius:8px;font-size:11.8px;line-height:1.7;color:var(--warn);
+  }
+
+  /* 依据折叠 */
+  .proof{margin-top:15px}
+  .proof summary{
+    font-size:11.5px;color:var(--ink3);cursor:pointer;list-style:none;
+    display:inline-flex;align-items:center;gap:6px;user-select:none;
+    transition:color .15s;
+  }
+  .proof summary::-webkit-details-marker{display:none}
+  .proof summary::before{
+    content:"";width:0;height:0;border-left:4.5px solid currentColor;
+    border-top:3.5px solid transparent;border-bottom:3.5px solid transparent;
+    transition:transform .2s;display:inline-block;
+  }
+  .proof[open] summary::before{transform:rotate(90deg)}
+  .proof summary:hover{color:var(--accent)}
+  .proof .body{
+    margin-top:11px;border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;font-size:11.5px;line-height:1.85;color:var(--ink2);
+    background:var(--surface);
+  }
+  .proof .sec{font-size:10.5px;color:var(--ink3);letter-spacing:.5px;
+    text-transform:uppercase;margin:0 0 7px;font-weight:600}
+  .proof .sec + .sec{margin-top:14px}
+  .kv{display:flex;justify-content:space-between;gap:14px;padding:2.5px 0}
+  .kv span:first-child{color:var(--ink3);flex-shrink:0}
+  .kv span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+  .chk{display:flex;align-items:flex-start;gap:7px;padding:2.5px 0}
+  .chk i{font-style:normal;flex-shrink:0;font-weight:600;width:11px}
+  .chk.ok i{color:#4A9E33}
+  .chk.no i{color:var(--bad)}
+
+  .focuschip{
+    display:inline-flex;align-items:center;gap:7px;font-size:11px;
+    color:var(--accent);background:var(--accent-soft);padding:5px 12px;
+    border-radius:100px;border:1px solid var(--accent-line);font-weight:500;
+  }
+  .focuschip::before{content:"";width:5px;height:5px;border-radius:50%;
+    background:var(--accent);flex-shrink:0}
+
+  .banner{
+    border-left:2.5px solid var(--bad);padding:2px 0 2px 15px;
+    font-size:13px;line-height:1.85;color:var(--ink2);
+  }
+  .banner b{color:var(--bad);font-weight:600;display:block;margin-bottom:4px;font-size:12px}
+
+  /* ═══ 输入区 ═══ */
+  .dock{
+    flex-shrink:0;padding:14px 26px 22px;
+    background:linear-gradient(to top,var(--bg) 55%,rgba(251,251,249,0));
+  }
+  .dock-in{max-width:760px;margin:0 auto}
+  .field{
+    display:flex;align-items:flex-end;gap:9px;background:var(--surface);
+    border:1px solid var(--line);border-radius:14px;padding:8px 8px 8px 17px;
+    transition:.18s;box-shadow:0 2px 12px -8px rgba(22,22,15,.14);
+  }
+  .field:focus-within{border-color:var(--accent-line);
+    box-shadow:0 6px 22px -14px rgba(28,91,71,.45)}
+  .field textarea{
+    flex:1;border:none;outline:none;resize:none;font:inherit;font-size:13.5px;
+    line-height:1.65;max-height:120px;background:transparent;padding:5px 0;
+    color:var(--ink);font-family:inherit;
+  }
+  .field textarea::placeholder{color:var(--ink3)}
+  .field button{
+    font:inherit;font-size:13px;padding:9px 19px;border:none;border-radius:10px;
+    background:var(--accent);color:#fff;cursor:pointer;transition:.15s;
+    flex-shrink:0;font-weight:500;
+  }
+  .field button:hover{background:var(--accent-hover)}
+  .field button:disabled{background:#D8D5CB;cursor:not-allowed}
+  .hint{text-align:center;font-size:10.5px;color:var(--ink3);margin-top:8px;
+    letter-spacing:.2px}
+  .hint kbd{
+    font-family:inherit;font-size:10px;padding:1px 5px;border-radius:3px;
+    background:var(--line2);border:1px solid var(--line);color:var(--ink2);
+  }
+
+  .typing{display:flex;gap:5px;padding:9px 2px;align-items:center}
+  .typing i{width:6px;height:6px;border-radius:50%;background:var(--ink3);
+    animation:bl 1.35s infinite}
+  .typing i:nth-child(2){animation-delay:.16s}
+  .typing i:nth-child(3){animation-delay:.32s}
+  @keyframes bl{0%,62%,100%{opacity:.2}32%{opacity:1}}
+
+  .fadein{animation:fi .32s ease both}
+  @keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <div class="mark"></div>
+    <b>选机助手</b>
+    <span class="ver">Demo</span>
+  </div>
+  <div class="status">
+    <span id="statText" class="live"><span class="dot" id="dot"></span><span id="stx">连接中</span></span>
+    <span class="sep"></span>
+    <span id="dataAsOf">数据 —</span>
+  </div>
+</header>
+
+<div class="scroll" id="scroll">
+  <div class="col" id="col">
+    <div class="hero" id="hero">
+      <div class="eyebrow">Decision Agent</div>
+      <h1>说清楚预算和用途，<br>我告诉你<em>具体买哪一台</em>。</h1>
+      <p class="lede">
+        不罗列参数表。直接给机型、到手价、以及这台机器<strong style="font-weight:600;color:var(--ink)">在你这个用途下的短板</strong>。
+        每个数字都能追到数据源；库里没有的，明说没有。
+      </p>
+
+      <div class="facts" id="facts">
+        <div class="fact"><div class="n" id="fTotal">—</div><div class="k">可推荐机型</div></div>
+        <div class="fact"><div class="n" id="fReview">—</div><div class="k">写过评测</div></div>
+        <div class="fact"><div class="n" id="fCat">—</div><div class="k">覆盖品类</div></div>
+        <div class="fact"><div class="n">0<small>条</small></div><div class="k">编造数字（硬门槛）</div></div>
+      </div>
+      <p class="scope-note">
+        这 <b id="fTotal2">—</b> 台里，<b id="fReview2">—</b> 台是<b>逐台核对过优缺点与注意事项</b>的，
+        能回答「这台在你用途下的短板是什么」；其余 <b id="fNoReview">—</b> 台来自京东采集池，
+        配置、价格、跑分都有据可查，但还没人写过评价 —— 问到「值不值得买」会明说没有，
+        只答参数，不替它编优点。另有 145 条淘宝记录，因标题普遍挂多 SKU、价格口径只有 41 条可信，
+        不参与排序，仅在京东池为空时作补充提示。
+      </p>
+
+      <div class="scenes" id="scenes">
+        <div class="sc" data-q="学设计的，预算 5100，要带去教室">
+          <div class="t"><i>A</i>学设计<span class="arr">→</span></div>
+          <div class="d">Ps / Pr / 建模，最怕买错屏幕</div>
+        </div>
+        <div class="sc" data-q="5000 的轻薄本，就上课写作业">
+          <div class="t"><i>B</i>上课写作业<span class="arr">→</span></div>
+          <div class="d">文科商科，够用就行</div>
+        </div>
+        <div class="sc" data-q="想买个游戏本，8000 左右，主要打游戏">
+          <div class="t"><i>C</i>打游戏<span class="arr">→</span></div>
+          <div class="d">先算清楚宿舍限电够不够</div>
+        </div>
+        <div class="sc" data-q="华为MateBook D16怎么样">
+          <div class="t"><i>D</i>指名问某台<span class="arr">→</span></div>
+          <div class="d">已经看好型号，让你评一下</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="dock">
+  <div class="dock-in">
+    <div class="field">
+      <textarea id="inp" rows="1"
+        placeholder="比如：学设计的，预算 5100，要带去教室"></textarea>
+      <button id="send">发送</button>
+    </div>
+    <div class="hint"><kbd>Enter</kbd> 发送 · <kbd>Shift</kbd>+<kbd>Enter</kbd> 换行</div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const scroll = $('#scroll'), col = $('#col'), inp = $('#inp'), sendBtn = $('#send');
+
+let slots = {}, asked = [], lastStage = null, seen = [], focus = null, busy = false;
+
+/* ── 状态 ── */
+async function boot() {
+  try {
+    const h = await (await fetch('/api/health')).json();
+    const dot = $('#dot'), tx = $('#stx');
+    if (h.ok) { dot.classList.add('on'); tx.textContent = '模型就绪'; }
+    else { dot.classList.add('off'); tx.textContent = 'Ollama 未启动'; }
+  } catch { $('#dot').classList.add('off'); $('#stx').textContent = '服务未响应'; }
+
+  try {
+    const s = await (await fetch('/api/stats')).json();
+    if (s.ok) {
+      $('#fTotal').textContent = s.total;
+      if ($('#fTotal2')) $('#fTotal2').textContent = s.total;
+      // 「写过评测」和「只有参数」必须分开显示。
+      // 只报总数会让人以为 100 台都能答"值不值得买" —— 实际只有 22 台能。
+      if ($('#fReview')) $('#fReview').textContent = s.reviewed ?? '—';
+      if ($('#fReview2')) $('#fReview2').textContent = s.reviewed ?? '—';
+      if ($('#fNoReview')) $('#fNoReview').textContent = s.noReview ?? '—';
+      $('#fCat').textContent = s.byCat.length + ' 类';
+      $('#dataAsOf').textContent = '数据 ' + s.dataAsOf;
+    }
+  } catch {}
+}
+boot();
+
+/* ── 输入 ── */
+const autoGrow = () => {
+  inp.style.height = 'auto';
+  inp.style.height = Math.min(inp.scrollHeight, 120) + 'px';
+};
+inp.addEventListener('input', autoGrow);
+inp.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+});
+sendBtn.onclick = () => send();
+
+document.querySelectorAll('.sc').forEach(el => {
+  el.onclick = () => { inp.value = el.dataset.q; autoGrow(); send(); };
+});
+
+const toBottom = () => { scroll.scrollTop = scroll.scrollHeight; };
+
+/* ── 工具 ── */
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+/* 回复里的换行要保留成段落，不能压成一行 */
+function para(s) {
+  return esc(s).split(/\n+/).filter(Boolean)
+    .map(p => '<p style="margin:0 0 9px">' + p + '</p>').join('');
+}
+
+function addUser(text) {
+  const d = document.createElement('div');
+  d.className = 'turn u fadein';
+  d.innerHTML = '<div class="ubb">' + esc(text) + '</div>';
+  col.appendChild(d); toBottom();
+}
+
+function addLoading() {
+  const d = document.createElement('div');
+  d.className = 'turn fadein';
+  d.innerHTML = '<div class="typing"><i></i><i></i><i></i></div>';
+  col.appendChild(d); toBottom();
+  return d;
+}
+
+const CHIP_MAP = {
+  Q1: ['计算机相关', '设计相关', '工商管理', '医学 / 其他'],
+  Q2: ['宿舍不限电', '限电 500W', '限电 800W', '限电 1000W'],
+  Q3: ['要带去教室', '不用带，放宿舍'],
+  Q5: ['四年内不换', '两三年就换']
+};
+const MISS_MAP = {
+  '品类': ['笔记本', '台式整机'],
+  '预算': ['预算 4000 以内', '预算 5000 左右', '预算 8000 左右', '预算 1 万左右'],
+  '用途': ['办公学习', '打游戏', '剪视频', '写代码']
+};
+
+/* ── 渲染 ── */
+function render(d) {
+  const t = document.createElement('div');
+  t.className = 'turn fadein';
+  let h = '';
+
+  if (d.stage === 'refuse') {
+    h += '<div class="banner"><b>不在覆盖范围</b>' + esc(d.reply) + '</div>';
+
+  } else if (d.stage === 'followup' || d.stage === 'fit') {
+    h += '<div class="say">' + para(d.reply) + '</div>';
+    if (d.focusName) {
+      h += '<div class="focuschip">' +
+        (d.stage === 'fit' ? '正在评估 ' : '正在讨论 ') + esc(d.focusName) + '</div>';
+    }
+
+  } else if (d.stage === 'exhausted') {
+    h += '<div class="say">' + para(d.reply) + '</div>';
+
+  } else if (d.stage === 'clarify') {
+    h += '<div class="say">' + para(d.reply) + '</div>';
+    const chips = (d.missing || []).flatMap(m => MISS_MAP[m] || []);
+    h += chipBox('还差一点信息', d.reply, chips);
+
+  } else {
+    const k = d.kernel || {};
+    const top = (k.ranked || [])[0];
+    h += '<div class="say">' + para(d.reply) + '</div>';
+
+    if (top) {
+      h += '<div class="card">';
+      h += '<div class="card-hd"><div>' +
+           '<div class="card-nm">' + esc(top.name) + '</div>' +
+           '<div class="card-sp">' + esc(top.spec) + '</div></div>' +
+           '<div class="badge' + (top.overBudget ? ' over' : '') + '">' +
+           (top.overBudget ? '超预算' : '首选') + '</div></div>';
+
+      h += '<div class="price-row"><div class="price"><small>¥</small>' +
+           top.price + '</div><div class="price-lb">到手价</div></div>';
+      h += '<div class="price-sub">原价 ¥' + (top.original || '—') +
+           ' · 其中含国补 ¥' + (top.subsidy || '—') + '</div>';
+
+      /* 短板分两档：
+         hard = 数据明说这块不行（"色域是明显短板"）→ 红
+         soft = 不算突出但仍能用（"屏幕素质不算突出"）→ 灰
+         把 soft 也标红等于替用户判了"不能买"，数据里写的不是这个意思。 */
+      const hard = (top.blockers || []).filter(b => b.level === 'hard');
+      const soft = (top.blockers || []).filter(b => b.level !== 'hard');
+
+      if (hard.length) {
+        h += '<div class="note-hard"><b>按你的用途，这台的短板</b>' +
+          hard.map(b => '<div class="li">' + esc(b.why) + '</div>').join('') + '</div>';
+      }
+      if (soft.length) {
+        h += '<div class="note-soft"><b>不算强，但够用</b>' +
+          soft.map(b => '<div class="li">' + esc(b.why) + '</div>').join('') + '</div>';
+      }
+      if (top.noPerfData) {
+        h += '<div class="note-nil">库里没有这台的性能实测数据 —— 它是按价格和配置排进来的，不是按跑分</div>';
+      }
+      if (top.caution) {
+        h += '<div class="note-warn"><b>注意</b><span>' + esc(top.caution) + '</span></div>';
+      }
+
+      if ((k.ranked || []).length > 1) {
+        h += '<div class="alts">其他候选 ' +
+          k.ranked.slice(1).map(r =>
+            '<b>' + esc(r.name) + '</b> ¥' + r.price).join('<span class="dotsep">·</span>') +
+          '</div>';
+      }
+      h += '</div>';
+    }
+
+    if ((k.warnings || []).length) {
+      h += '<div class="warnbar">' + k.warnings.map(esc).join('；') + '</div>';
+    }
+    if ((k.questions || []).length) {
+      const q = k.questions[0];
+      h += chipBox('还需确认', q.q, CHIP_MAP[q.id] || []);
+    }
+    h += proofBlock(k, d);
+  }
+
+  t.innerHTML = h;
+  col.appendChild(t);
+  bindChips(t, d.slots, d.asked);
+  toBottom();
+}
+
+function chipBox(label, q, chips) {
+  if (!chips || !chips.length) return '';
+  return '<div class="askbox"><div class="lbl">' + esc(label) + '</div>' +
+    '<div class="q">' + esc(q) + '</div><div class="chips">' +
+    chips.map(c => '<button data-t="' + esc(c) + '">' + esc(c) + '</button>').join('') +
+    '</div></div>';
+}
+
+function proofBlock(k, d) {
+  const s = d.slots || {};
+  const rows = Object.entries(s)
+    .filter(([_, v]) => v !== null && v !== undefined && !(Array.isArray(v) && !v.length))
+    .map(([key, v]) => {
+      const val = Array.isArray(v) ? v.join(' / ')
+        : v === true ? '是' : v === false ? '否' : v;
+      return '<div class="kv"><span>' + esc(key) + '</span><span>' + esc(val) + '</span></div>';
+    }).join('') || '<div style="color:var(--ink3)">（本轮无新增槽位）</div>';
+
+  const noNum = (k.untraceable || []).length === 0;
+  const noOut = (k.outside || []).length === 0;
+  const checks =
+    '<div class="chk ' + (noNum ? 'ok' : 'no') + '"><i>' + (noNum ? '✓' : '✕') + '</i>' +
+      '<span>数字全部可追溯' + (noNum ? '' : '：' + esc(k.untraceable.join('、'))) + '</span></div>' +
+    '<div class="chk ' + (noOut ? 'ok' : 'no') + '"><i>' + (noOut ? '✓' : '✕') + '</i>' +
+      '<span>无库外机型' + (noOut ? '' : '：' + esc(k.outside.join('、'))) + '</span></div>' +
+    '<div class="chk ok"><i>✓</i><span>推荐锁定内核，模型无排序权与数字写权</span></div>';
+
+  return '<details class="proof"><summary>查看决策依据</summary><div class="body">' +
+    '<div class="sec">解析出的槽位</div>' + rows +
+    '<div class="sec">校验</div>' + checks +
+    '<div class="sec">数据</div><div class="kv"><span>快照日期</span><span>' +
+      esc(k.dataAsOf || '—') + '</span></div>' +
+    '<div class="kv"><span>排序侧重</span><span>' + esc(k.mode || '—') + '</span></div>' +
+    '</div></details>';
+}
+
+function bindChips(root, slotsAt, askedAt) {
+  root.querySelectorAll('.chips button').forEach(b => {
+    b.onclick = () => {
+      const txt = b.dataset.t;
+      root.querySelectorAll('.chips button').forEach(x => x.disabled = true);
+      inp.value = txt; autoGrow();
+      send(slotsAt, askedAt);
+    };
+  });
+}
+
+function mergeSlots(a, b) {
+  const o = { ...a };
+  for (const k in b) {
+    const v = b[k];
+    if (v !== null && v !== undefined && !(Array.isArray(v) && !v.length)) o[k] = v;
+  }
+  return o;
+}
+
+/* ── 发送 ── */
+async function send(knownOverride, askedOverride) {
+  const text = inp.value.trim();
+  if (!text || busy) return;
+
+  busy = true; sendBtn.disabled = true;
+  const hero = $('#hero'); if (hero) hero.remove();
+
+  inp.value = ''; autoGrow();
+  addUser(text);
+  const ph = addLoading();
+
+  /* 空对象是 truthy —— 必须显式判长度，否则会把累积的槽位丢掉 */
+  const hasKnown = knownOverride && Object.keys(knownOverride).length;
+  const known = hasKnown ? knownOverride : slots;
+  const askedNow = askedOverride || asked;
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, known, asked: askedNow, last_stage: lastStage, seen, focus })
+    });
+    const d = await res.json();
+    ph.remove();
+    if (d.error) throw new Error(d.error);
+
+    if (d.slots) slots = mergeSlots(slots, d.slots);
+    if (d.asked) asked = d.asked;
+    lastStage = d.stage;
+    if (d.focus !== undefined) focus = d.focus;
+    if (d.kernel && d.kernel.ranked && d.kernel.ranked.length) {
+      const id = d.kernel.ranked[0].id;
+      if (id && seen.indexOf(id) < 0) seen.push(id);
+    }
+    render(d);
+
+  } catch (e) {
+    ph.remove();
+    const t = document.createElement('div');
+    t.className = 'turn fadein';
+    t.innerHTML = '<div class="banner"><b>请求失败</b>' + esc(e.message) + '</div>';
+    col.appendChild(t); toBottom();
+  } finally {
+    busy = false; sendBtn.disabled = false; inp.focus();
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,737 @@
+{
+  "meta": {
+    "version": "0.1",
+    "updated": "2026-11-09",
+    "purpose": "推荐判定的反面清单。每一条都是本项目真实踩过或核实过的坑，不是通用建议。",
+    "howToUse": [
+      "① 对话层：作为系统提示的反面清单注入，生成推荐前自检",
+      "② 数据层：automated=true 的条目由构建脚本拦截，不许人工兜底",
+      "③ 评审层：新机型入库、新政策入库、新专业进组时逐条对照",
+      "④ 缺口层：automated=false 的条目就是待建设的能力，tools/audit_data.py 会统计"
+    ],
+    "severityLevels": {
+      "blocker": "会直接给出错误结论，且错得自洽，肉眼难发现",
+      "high": "结论方向错，或金额错，用户会因此多花钱",
+      "medium": "结论不至于错，但会误导判断或泄漏信任"
+    },
+    "stats": {
+      "total": 35,
+      "automated": 4,
+      "manual": 31,
+      "bySeverity": {
+        "blocker": 8,
+        "high": 17,
+        "medium": 10
+      },
+      "note": "自动化的只有 4 条。这个数字本身就是现状：能拦住的很少，大部分坑靠人记。"
+    },
+    "count": 42
+  },
+  "pitfalls": [
+    {
+      "id": "bench-cb-version-mix",
+      "category": "bench",
+      "severity": "blocker",
+      "automated": true,
+      "title": "把 Cinebench 2024 / 2026 的分数填进 R23 字段",
+      "symptom": "一台旗舰被算成 5 分，榜单整体乱序，但数据内部完全自洽",
+      "cause": "三代用不同渲染器与场景，量级差约 15 倍（R23 多核 1e4~4e4，2024 约 800~2000）",
+      "detection": "cb23 单核限 800-2600、多核限 3000-45000、多核必须大于单核",
+      "fix": "跑分记录必须带 bench 版本字段；换版本整体迁移，不做换算",
+      "where": "tools/build.py",
+      "evidence": "Cinebench 官网：score values are readjusted to a new range so they should not be compared to scores from previous versions",
+      "affects": [
+        "perf",
+        "排名",
+        "结论"
+      ]
+    },
+    {
+      "id": "bench-gb-version-mix",
+      "category": "bench",
+      "severity": "blocker",
+      "automated": false,
+      "title": "Geekbench 6 与 Geekbench 7 混填",
+      "symptom": "新机型分数普遍偏低 9-15%，看起来像「这代芯片退步了」",
+      "cause": "GB7 换了基准机（Ryzen 7 7700 取代 i7-12700）与负载，单核普遍降 9-15%，多核有升有降",
+      "detection": "gb6 字段无版本标签，无法自动识别来源版本",
+      "fix": "字段改名为 gb7 / gb6 两列并存，perf 换算时必须声明用哪一列",
+      "where": "data/prices.json（手机 12 台全部基于 GB6）",
+      "evidence": "Primate Labs 2026-07-23 发布 GB7；Signal65 实测四平台单核降 9-15%",
+      "affects": [
+        "手机 perf",
+        "手机排名"
+      ]
+    },
+    {
+      "id": "bench-gpu-api",
+      "category": "bench",
+      "severity": "high",
+      "automated": false,
+      "title": "GPU 跑分不记 API",
+      "symptom": "同一张卡两个分数，差出一大截，无法判断哪个对",
+      "cause": "Geekbench GPU 换 API 差异极大：RTX 4070 在 CUDA 下 236,094，OpenCL 163,749，差约 44%",
+      "detection": "gpu 记录缺 api 字段即视为不可比",
+      "fix": "GPU 基准必须记 api（CUDA / OpenCL / Vulkan / Metal）+ 版本",
+      "where": "data/bench.json",
+      "evidence": "Notebookcheck 援引 Primate Labs 初步数据",
+      "affects": [
+        "GPU 评分",
+        "视频组与三维组推荐"
+      ]
+    },
+    {
+      "id": "bench-sn-formula",
+      "category": "bench",
+      "severity": "high",
+      "automated": false,
+      "title": "Steel Nomad 与 Steel Nomad Light 混用",
+      "symptom": "轻薄本的显卡分数看起来和游戏本接近",
+      "cause": "两者计分公式不同：Steel Nomad 是帧率×100，Light 是帧率×135",
+      "detection": "字段名必须区分 steelNomad / steelNomadLight，不许只写 3DMark",
+      "fix": "分列两个字段；说「3DMark 分数」时无意义，必须说测的是哪一项",
+      "where": "data/bench.json",
+      "evidence": "UL Solutions 官方说明（Steel Nomad 系列发布说明）",
+      "affects": [
+        "GPU 评分"
+      ]
+    },
+    {
+      "id": "bench-overall-vs-graphics",
+      "category": "bench",
+      "severity": "high",
+      "automated": false,
+      "title": "用 Time Spy 总分（Overall）判断显卡",
+      "symptom": "同一张显卡在不同机器上分数差很多，误判为显卡质量差异",
+      "cause": "Overall 含 CPU 权重，CPU 弱会把总分拉低",
+      "detection": "GPU 记录只接受 graphics 分；出现 overall 作为唯一分数即报警",
+      "fix": "判断 GPU 一律用 Graphics Score",
+      "where": "data/bench.json",
+      "evidence": "UL / 评测通行做法；3DMark 结果页分列 Graphics 与 Overall",
+      "affects": [
+        "GPU 评分"
+      ]
+    },
+    {
+      "id": "bench-tgp",
+      "category": "bench",
+      "severity": "blocker",
+      "automated": false,
+      "title": "按显卡型号名判断性能，不记功耗（TGP）",
+      "symptom": "「RTX 4070」推荐给视频专业，买回来发现剪 4K 卡顿",
+      "cause": "同型号在不同机器上 35W–115W，Time Spy 图形分 5,012–13,391，差 2.7 倍；RTX 5060 Laptop（11,637）与 4070 Laptop（11,609）几乎打平",
+      "detection": "机型缺 tgpW，或 gpu 缺 tgpRangeW，即不可用于推荐",
+      "fix": "GPU 表按 TGP 分档存（55 / 80 / 115W），机型表存自己的 tgpW",
+      "where": "data/bench.json / 未来价格库",
+      "evidence": "Notebookcheck 跨 64 个 5060 配置的平均值；4070 离散区间 5,012–13,391",
+      "affects": [
+        "GPU 评分",
+        "视频组",
+        "三维组",
+        "引擎组"
+      ]
+    },
+    {
+      "id": "bench-throttle",
+      "category": "bench",
+      "severity": "high",
+      "automated": false,
+      "title": "用单轮峰值跑分代表持续性能",
+      "symptom": "前十分钟很流畅，剪两小时视频开始卡，但参数表上完全看不出来",
+      "cause": "R23 单轮只测前 10 分钟峰值；轻薄本半小时后可能掉到 45%",
+      "detection": "必须有 throttle10run（第 10 轮 / 第 1 轮）；缺失则不能承诺「长时间负载」",
+      "fix": "连跑 10 轮记录衰减系数，与 CPU 基准分相乘才是真实体验",
+      "where": "data/bench.json（todo.addFields）",
+      "evidence": "ROG Zephyrus G16 实测：静音模式 CPU 多核约为最大性能的 65%；3DMark 静音模式低 30-35%",
+      "affects": [
+        "所有高性能组"
+      ]
+    },
+    {
+      "id": "price-subsidy-base",
+      "category": "price",
+      "severity": "high",
+      "automated": false,
+      "title": "补贴金额按标价算，而不是券后实付",
+      "symptom": "告诉用户「能省 1349」，实际只补 1199，差 150",
+      "cause": "国补在扣减链最后一道，基数 = 直降后、券后、红包后的实付金额",
+      "detection": "补贴计算函数的入参必须是 net_price，不是 list_price；传 list_price 即报警",
+      "fix": "四字段分开存：list_price / net_price / subsidy_amount / final_price",
+      "where": "data/prices.json",
+      "evidence": "商务部等部门 2026 年通知：按扣除各环节优惠后最终销售价格的 15%",
+      "affects": [
+        "国补计算",
+        "到手价",
+        "预算匹配"
+      ]
+    },
+    {
+      "id": "price-efficiency-gate",
+      "category": "price",
+      "severity": "high",
+      "automated": false,
+      "title": "忽略家电线（含电脑）的一级能效前置条件",
+      "symptom": "推荐一台非一级能效的机型并算出补贴，实际一分不补",
+      "cause": "电脑归家电线，硬性要求 1 级能效 / 水效",
+      "detection": "机型 efficiency 字段缺失或 ≠1 时，补贴必须算 0",
+      "fix": "机型表加 efficiency 字段；补贴函数先判门槛再算比例",
+      "where": "未来 sku 表",
+      "evidence": "商务部通知与多地商务局实施细则",
+      "affects": [
+        "国补计算"
+      ]
+    },
+    {
+      "id": "price-6000-line",
+      "category": "price",
+      "severity": "blocker",
+      "automated": false,
+      "title": "错用 6000 红线（把手机规则套到电脑，或反之）",
+      "symptom": "5999 与 6001 只差 2 块，补贴差 500；或给一万五的笔记本按 500 算",
+      "cause": "数码线才有 6000 门槛，家电线无门槛但封顶 1500",
+      "detection": "手机 price>6000 必须 subsidy=0 且文案明示；电脑不得套 6000 门槛",
+      "fix": "两条线分开建模（policy.kind），计算前先判 kind",
+      "where": "data/prices.json",
+      "evidence": "现网数据：手机 5999 可补、6001 不可补",
+      "affects": [
+        "国补计算",
+        "手机推荐"
+      ]
+    },
+    {
+      "id": "price-split-order",
+      "category": "price",
+      "severity": "medium",
+      "automated": false,
+      "title": "不提示「一件一单」导致补贴作废",
+      "symptom": "用户把两件国补商品并一单，只核销一次，白丢 500~1500",
+      "cause": "一个资格对应一件商品、一份订单、一张发票；并单系统只认一次",
+      "detection": "无法从数据检测，只能靠输出文案强制提示",
+      "fix": "推荐结果里固定附一条「分开下单」提示",
+      "where": "输出层",
+      "evidence": "平台国补细则：一个资格、一件商品、一份订单、一次支付、一张发票",
+      "affects": [
+        "输出文案"
+      ]
+    },
+    {
+      "id": "price-policy-expiry",
+      "category": "price",
+      "severity": "blocker",
+      "automated": false,
+      "title": "政策到期未做处理，全站价格假涨 15%",
+      "symptom": "2027-01-01 起涨幅榜全红、「现在买还是等」结论全部翻转，而市场一分没涨",
+      "cause": "补贴 2026-12-31 截止；到手价含补贴，政策一退坡到手价跳涨",
+      "detection": "政策表 effective_to 到期后 subsidy 必须归 0，且涨幅计算切到净价",
+      "fix": "涨幅只用 net_price；政策变化单独标注，不进涨幅",
+      "where": "未来 policy 表 / 涨幅计算",
+      "evidence": "政策执行期 2026-01-01 至 2026-12-31，额度用完提前结束",
+      "affects": [
+        "涨幅",
+        "买点判断",
+        "全部结论"
+      ]
+    },
+    {
+      "id": "price-final-vs-net",
+      "category": "price",
+      "severity": "high",
+      "automated": false,
+      "title": "用「到手价」算涨幅",
+      "symptom": "把政策退坡、券的变化读成市场涨跌",
+      "cause": "到手价 = 净价 − 补贴，混入了政策与优惠变量",
+      "detection": "涨幅函数入参必须是 net_price",
+      "fix": "比价用净价，展示用到手价，两个字段永不合并",
+      "where": "数据模型层",
+      "evidence": "本项目 priceBasis 现为「含国补到手价」，sameModel 涨幅需复核是否跨政策期",
+      "affects": [
+        "涨幅",
+        "sameModel"
+      ]
+    },
+    {
+      "id": "price-coupon-vs-list",
+      "category": "price",
+      "severity": "medium",
+      "automated": false,
+      "title": "券前券后混口径",
+      "symptom": "「涨了 300」实际是券没了，不是涨价",
+      "cause": "同一台机器有标价、券后价、补贴后价三种数",
+      "detection": "每条价格必须带 basis 标签（list / net / final）",
+      "fix": "价格记录强制 basis 字段，缺则不入库",
+      "where": "未来 price_point 表",
+      "evidence": "历史踩坑：小新 Pro14 同一台机器出现 4138→6557、4000 出头→6500、优惠前 7799 三种说法",
+      "affects": [
+        "涨幅",
+        "同款比价"
+      ]
+    },
+    {
+      "id": "spec-ram-soldered",
+      "category": "spec",
+      "severity": "blocker",
+      "automated": false,
+      "title": "把「16G」当成可升级的 16G",
+      "symptom": "推荐一台板载 16G 的轻薄本给编程专业，三年后无解",
+      "cause": "LPDDR5 / LPDDR5X 是焊死，DDR5 SO-DIMM 才有插槽；内存涨 5 倍的年份这是致命差异",
+      "detection": "spec 里出现 LPDDR5X 且 upgrade=0 时，编程/设计/视频组必须报警",
+      "fix": "规格页搜「内存」字段；机型表存 ramType 与 upgrade 档位",
+      "where": "data/prices.json",
+      "evidence": "README 关键发现：2026 年买电脑的核心变量不是价格，是内存焊没焊死",
+      "affects": [
+        "编程组",
+        "设计组",
+        "视频组"
+      ]
+    },
+    {
+      "id": "spec-brand-not-model",
+      "category": "spec",
+      "severity": "high",
+      "automated": false,
+      "title": "按品牌判断可加装 / 性能，而不按型号",
+      "symptom": "「ThinkPad 能加内存」——E14 能加，X1C 不能",
+      "cause": "同品牌内部差异大于跨品牌差异",
+      "detection": "推荐理由里出现纯品牌判断即为可疑",
+      "fix": "所有结论必须落到型号级证据",
+      "where": "输出层",
+      "evidence": "README：同一个品牌里 E14 能加、X1C 不能——别按品牌判断，按型号判断",
+      "affects": [
+        "全部推荐"
+      ]
+    },
+    {
+      "id": "spec-revit-16g",
+      "category": "spec",
+      "severity": "high",
+      "automated": false,
+      "title": "用 Revit 官方「入门 16G」给建筑专业定配置",
+      "symptom": "大一够用，期末作业模型翻倍就卡死",
+      "cause": "官方 16G 对应约 300MB 单模型；课程作业常见 600MB 以上，对应「均衡」档 32G",
+      "detection": "三维组推荐低于 32G 时必须给出课程强度说明",
+      "fix": "门槛取官方「均衡」档而非「入门」档；把档位含义写进理由",
+      "where": "data/majors.json",
+      "evidence": "Autodesk Revit 2026 系统要求：16G / 32G / 64G 三档对应不同模型规模",
+      "affects": [
+        "三维组"
+      ]
+    },
+    {
+      "id": "spec-sw-certified",
+      "category": "spec",
+      "severity": "high",
+      "automated": false,
+      "title": "用显存大小判断能不能跑 SOLIDWORKS",
+      "symptom": "推荐高显存游戏本，跑 SW 反而不如同价移动工作站稳",
+      "cause": "官方只要求认证显卡 + 认证驱动，不看显存数字",
+      "detection": "三维组涉及 SW 时必须提认证要求",
+      "fix": "门槛写「认证显卡」而非「显存 ≥ xG」",
+      "where": "data/majors.json",
+      "evidence": "Dassault 官方系统要求：经过认证的显卡和驱动程序",
+      "affects": [
+        "三维组（机械/工业设计）"
+      ]
+    },
+    {
+      "id": "spec-ae-hidden",
+      "category": "spec",
+      "severity": "high",
+      "automated": false,
+      "title": "按专业名判断，不看课表里的 AE / C4D",
+      "symptom": "给视觉传达学生推荐核显轻薄本，结果课表有 AE，跑不动",
+      "cause": "平面组门槛由 Photoshop 定（8G/1.5G 显存），但课表常含 AE（16G/4G 显存/必须独显）",
+      "detection": "平面组未追问课表即给结论 → 标记为不完整推荐",
+      "fix": "平面组必须追问一句「课表里有 AE 或 C4D 吗」，有则按视频档",
+      "where": "data/majors.json",
+      "evidence": "江西科技师范大学视觉传达培养方案含《AE 视频特效与剪辑》《C4D 三维图形设计》",
+      "affects": [
+        "平面组"
+      ]
+    },
+    {
+      "id": "spec-audio-gpu",
+      "category": "spec",
+      "severity": "medium",
+      "automated": false,
+      "title": "把音频专业推成游戏本",
+      "symptom": "钱花在完全用不上的显卡上，硬盘反而不够",
+      "cause": "Cubase 官方 8G 内存、不要独显，但完整安装 75G、采样库几百 G",
+      "detection": "音频组推荐含独显且存储 <1T 时必须报警",
+      "fix": "音频组门槛放在存储与 CPU 单核，显卡明确写「不需要」",
+      "where": "data/majors.json",
+      "evidence": "Steinberg 官方：内存最低 8G，不对显卡作要求",
+      "affects": [
+        "音乐音频组"
+      ]
+    },
+    {
+      "id": "spec-screen-missing",
+      "category": "spec",
+      "severity": "medium",
+      "automated": false,
+      "title": "平面设计不校验屏幕色域",
+      "symptom": "配置够但屏幕 45% NTSC，做印刷作业颜色全偏",
+      "cause": "色域与 ΔE 是平面组的真实瓶颈，而电商标题几乎从不写",
+      "detection": "平面组推荐缺 colorGamut 数据时，必须声明「屏幕素质未核实」",
+      "fix": "色域数据只能从官网规格页取（华为详情页有 100% sRGB / ΔE<1）",
+      "where": "data/catalog.json",
+      "evidence": "官网实测：MateBook GT 14 标注 100% sRGB / 100% DCI-P3 / 95% Adobe RGB / ΔE<1，电商标题不写",
+      "affects": [
+        "平面组",
+        "视频组"
+      ]
+    },
+    {
+      "id": "spec-gpu-ram-type",
+      "category": "spec",
+      "severity": "medium",
+      "automated": false,
+      "title": "把「独立显卡」当成统一标准",
+      "symptom": "4G 显存的入门独显也被算作满足要求",
+      "cause": "显存 2G / 4G / 6G / 8G 对应完全不同的软件门槛",
+      "detection": "gpu 维度必须分档（0 核显 / 1 入门 4G / 2 中端 6-8G / 3 高端 12G+）",
+      "fix": "机型表存 gpuTier 与 vramGB，不用布尔值",
+      "where": "data/majors.json",
+      "evidence": "AE 要 4G 起、PR 4K 要 8G、达芬奇 AI 要 16G",
+      "affects": [
+        "视频组",
+        "三维组",
+        "引擎组"
+      ]
+    },
+    {
+      "id": "source-official-no-price",
+      "category": "source",
+      "severity": "medium",
+      "automated": false,
+      "title": "指望官网给价格和全量 SKU",
+      "symptom": "建库计划按「官网一份数据就够了」推进，结果拿不到价",
+      "cause": "官网给规格，不给到手价与在售 SKU 组合",
+      "detection": "catalog 条目 officialPrice 为 null 的比例",
+      "fix": "双层数据源：官网出规格，电商出 SKU 与价格，靠 master SKU 对齐",
+      "where": "data/official_sources.json",
+      "evidence": "实测：华为可抓规格无价；惠普仅系列级；华硕 JS 外壳；小米 404；联想风控跳转",
+      "affects": [
+        "数据采集"
+      ]
+    },
+    {
+      "id": "source-noisy-policy",
+      "category": "source",
+      "severity": "high",
+      "automated": false,
+      "title": "政策条款采信自媒体",
+      "symptom": "电脑补贴封顶按 800 算，实际 1500；或被告知「10 月 15 日国补下线」而仓促下单",
+      "cause": "同一政策在网媒有 1500 与 800 两种说法，且有商家催单话术制造的假截止日",
+      "detection": "政策记录缺 source_id 或 source 非政府/部委来源即拒绝入库",
+      "fix": "政策只采信部委原文或权威转述，带 checked_at，30 天复核",
+      "where": "未来 policy 表",
+      "evidence": "本次核实：主流与地方政府网站均为 1500；「10 月 15 日下线」已被多地商务部门辟谣",
+      "affects": [
+        "国补计算",
+        "买点判断"
+      ]
+    },
+    {
+      "id": "source-no-score-db",
+      "category": "source",
+      "severity": "medium",
+      "automated": false,
+      "title": "以为跑分有官方数据库可抓",
+      "symptom": "计划「抓 Cinebench 官网分数」，实际无此数据",
+      "cause": "Maxon 与 UL 只提供软件与规则，不提供逐芯片分数库",
+      "detection": "跑分来源必须记 source + tier（自测 / 第三方 / 厂商稿）",
+      "fix": "跑分靠自测优先，第三方评测次之，厂商稿不可用于取数",
+      "where": "data/bench.json",
+      "evidence": "maxon.net 产品页与技术信息页均无逐 CPU 分数列表",
+      "affects": [
+        "跑分采集"
+      ]
+    },
+    {
+      "id": "logic-single-score",
+      "category": "logic",
+      "severity": "high",
+      "automated": false,
+      "title": "用一个综合性能分服务所有专业",
+      "symptom": "视频专业和三维专业拿到同一份排名，都不准",
+      "cause": "视频吃多核，三维吃单核（Revit 官方建议最高单核频率），编程几乎只看单核",
+      "detection": "推荐未覆盖组级侧重（mode）即视为不完整",
+      "fix": "存原始跑分，权重由专业组在调用时给；不存唯一综合分",
+      "where": "data/bench.json / data/majors.json groups.mode",
+      "evidence": "Revit 官方：建议采用最高的单核基本时钟频率",
+      "affects": [
+        "全部推荐"
+      ]
+    },
+    {
+      "id": "logic-na-as-zero",
+      "category": "logic",
+      "severity": "high",
+      "automated": true,
+      "title": "把「不适用」判成 0 分",
+      "symptom": "内存条被排到最后，并被说成「性能最差」",
+      "cause": "0 分的语义是「最弱」，而内存条没有 CPU，语义是「不成立」",
+      "detection": "perf 为 null 时从权重中剔除并重新归一，不参与排序",
+      "fix": "null 与 0 严格区分；显示「不涉及」",
+      "where": "tools/template.html",
+      "evidence": "历史修复：内存条/固态的 perf 由 25/30/40/42 改为 null",
+      "affects": [
+        "排序",
+        "显示"
+      ]
+    },
+    {
+      "id": "logic-price-as-quality",
+      "category": "logic",
+      "severity": "medium",
+      "automated": false,
+      "title": "越贵越好 / 越便宜越好",
+      "symptom": "推荐结果看起来像价格排序，没有决策含量",
+      "cause": "单一维度排序，忽略硬门槛与专业需求",
+      "detection": "榜单第一名与「按价格排序第一名」完全重合时，检查是否门槛失效",
+      "fix": "先过硬门槛（requirements），再按专业侧重加权",
+      "where": "排序层",
+      "evidence": "现有「省钱优先」也不等于最便宜：战 66 八代 5059 排在 3786 的小新 Air15 之前，因为留插槽",
+      "affects": [
+        "排序"
+      ]
+    },
+    {
+      "id": "logic-primary-vote",
+      "category": "logic",
+      "severity": "high",
+      "automated": true,
+      "title": "主维度靠加权「拉票」赢不了",
+      "symptom": "点「性能优先」，榜首却不是性能最强的",
+      "cause": "加权平均表达不了「性能是硬门槛」；权重给到 50% 仍会被别的维度翻盘",
+      "detection": "每种侧重必须有 primary 硬门槛或三个 AND 条件",
+      "fix": "分档硬门槛（池内跨度三等分）+ 同档内按主维度原始分排序",
+      "where": "tools/template.html",
+      "evidence": "历史修复：加 primary 字段后各侧重才排出不同第一名",
+      "affects": [
+        "排序"
+      ]
+    },
+    {
+      "id": "logic-tie-is-fact",
+      "category": "logic",
+      "severity": "medium",
+      "automated": true,
+      "title": "把「同分」当精度丢失去修",
+      "symptom": "为了让榜首独一无二，去改数据或改算法",
+      "cause": "同款 CPU 在不同机型上 R23 多核都在 15500~16400，换算后就是同分，这是事实",
+      "detection": "测试验「头名性能分 == 池内最高」，不验「头名是某台特定机器」",
+      "fix": "接受平局；用 id 兜底保证排序稳定可复现",
+      "where": "tools/test.js",
+      "evidence": "五台轻薄本同拿 62 分（R7 H255 / Ultra 5 225H / Ultra 5 338H）",
+      "affects": [
+        "测试",
+        "排序"
+      ]
+    },
+    {
+      "id": "source-energy-mktname",
+      "category": "source",
+      "severity": "high",
+      "automated": false,
+      "title": "用营销名去能效标识网查能效等级",
+      "symptom": "搜「天选」返回「暂无数据」，于是判定该机型没有备案、或不是一级能效",
+      "cause": "能效网索引的是厂商备案型号。联想恰好在备案里写了中文（小新、拯救者能查到），华硕惠普只登记字母码（FA608 / TPN-I145A3），中文名一条都搜不到",
+      "detection": "查询前先确认手里有「能效网规格型号」字段；只有营销名时一律标 pending，不得判定为不合格",
+      "fix": "从商品详情页抄「能效网规格型号」这一行，再用它精确查；拿不到就标 unknown",
+      "where": "data/crawl/*.jsonl 的 energyModel / tools/match_energy.py",
+      "evidence": "天选→0 条、FA506→0 条；而 FA608→7 条、TPN-I145A3→1 条、S5450A→1 条，全部一级",
+      "affects": [
+        "efficiency",
+        "国补金额",
+        "推荐结论"
+      ]
+    },
+    {
+      "id": "source-energy-fuzzy-match",
+      "category": "source",
+      "severity": "blocker",
+      "automated": false,
+      "title": "用型号片段模糊匹配能效备案",
+      "symptom": "12/29 的机型「匹配成功」，覆盖率看起来涨了",
+      "cause": "营销名里的 Pro / Air / Plus 会命中整个系列：「小新 Pro 14」的 Pro 命中所有「小新Pro 27」，「小新 Air 15」的 Air 命中所有「小新Air 14」——型号与尺寸全错",
+      "detection": "只允许 norm(能效网规格型号) == norm(备案型号) 严格相等才算命中；片段匹配只能进 candidates 供人工核对",
+      "fix": "match_energy.py 分 EXACT / SERIES 两级，SERIES 不写 efficiency",
+      "where": "tools/match_energy.py",
+      "evidence": "模糊匹配 12/29 全是假命中；严格匹配 0/29 才是当时的真相（库内无一机型有 energyModel）",
+      "affects": [
+        "efficiency",
+        "结论可信度"
+      ]
+    },
+    {
+      "id": "source-energy-type-filter",
+      "category": "source",
+      "severity": "medium",
+      "automated": false,
+      "title": "查能效时不限定「产品类型」",
+      "symptom": "搜「华硕」出 500 条，前几条是显示器和机架服务器，误以为电脑有几百款",
+      "cause": "能效网把显示器、服务器、打印机、投影机、微型计算机放同一个库，靠产品类型区分",
+      "detection": "查询必须先选 办公电子 → 微型计算机（2025版 / 2012版）",
+      "fix": "限定后华硕微型计算机 306 条；再叠加型号前缀可精确到个位数",
+      "where": "能效标识网查询页 / 采集流程",
+      "evidence": "未限定时混入 XG32WCMSR 显示器、RS300-E12-PS4 服务器",
+      "affects": [
+        "efficiency",
+        "台账质量"
+      ]
+    },
+    {
+      "id": "source-energy-regs-number",
+      "category": "source",
+      "severity": "high",
+      "automated": false,
+      "title": "只认一种备案号格式，静默丢掉 2012 版老备案",
+      "symptom": "页面写「共 11 条」，解析出来只有 8 条，少掉的正好是最老那几条",
+      "cause": "备案号两套格式：2025 版 20261012-CEL0272025-445480；2012 版 20220914-301100-678046999313097（无 CEL 段）",
+      "detection": "解析后必须比对「页面声明总数」与「实际解析条数」，不等即报警",
+      "fix": "正则同时容纳两种格式，并记录 regScheme 区分体系",
+      "where": "tools/parse_energy_raw.py",
+      "evidence": "拯救者 11 条首解析只出 8 条，漏的 3 条全是 2012 版",
+      "affects": [
+        "台账完整性",
+        "efficiency"
+      ]
+    },
+    {
+      "id": "source-clipboard-fake-success",
+      "category": "source",
+      "severity": "blocker",
+      "automated": false,
+      "title": "把剪贴板旧内容当成复制成功",
+      "symptom": "每次「复制」都能读到数据，但内容永远是上一次查询的",
+      "cause": "Ctrl+C 没真正执行时（标签在后台、焦点在输入框、误点进别的页面），剪贴板保留旧值，读取照常返回成功",
+      "detection": "复制前先写哨兵值，复制后比对；值未变即为失败",
+      "fix": "每次复制前写哨兵；确认标签 selected=true；点击必须落在正文而非输入框",
+      "where": "采集流程（PowerShell + cua_execute）",
+      "evidence": "两次真故障：一次坐标误点进「联系我们」页、一次新标签 selected=false 导致按键全丢；两次都表现为「读到数据但内容还是旧的」",
+      "affects": [
+        "采集数据真实性"
+      ]
+    },
+    {
+      "id": "join-duplicate-snapshot",
+      "category": "data-quality",
+      "severity": "high",
+      "automated": true,
+      "title": "同一台机器被采两次，推荐列表里同一款出现两遍",
+      "symptom": "推荐结果里「拯救者 Y7000P 2026」重复出现，价格一模一样，用户第一眼就怀疑数据",
+      "cause": "同一 SKU 跨日采集会生成不同记录 id（...20261107 / ...20261108）；且早期记录没有 platformSkuId。用记录 id 或时间戳去重都不成立",
+      "detection": "去重键用「型号 + 实付价」，而不是记录 id；合并时优先保留带 platformSkuId、字段更全的那条",
+      "fix": "build_pool.load_crawl 以 modelHint+net 为键去重；第二条按 platformSkuId、energyModel 完整度择优保留",
+      "where": "tools/build_pool.py",
+      "evidence": "实际数据：jd-lenovo-legion-y7000p2026-...-20261107 与 ...-20261108 两条，net 同为 14999，前者无 platformSkuId",
+      "affects": [
+        "推荐列表",
+        "用户信任"
+      ]
+    },
+    {
+      "id": "join-identity-conflict",
+      "category": "data-quality",
+      "severity": "blocker",
+      "automated": true,
+      "title": "把两个不同 SKU 的规格与价格拼成一台不存在的机器",
+      "symptom": "列表里出现「暗影精灵 11（Ultra7-251HX）」但参数写着 R9-8945HX + 32G + 2T，这个配置在京东买不到",
+      "cause": "specs 记录用的是京东参数区的另一个 SKU（R9 版），采集记录是 Ultra7 版，两者 modelHint 相同。只按型号名挂价格就会串",
+      "detection": "specs 的 conflicts 里有 adopted=null 且字段属于身份类（cpu.model / gpu.model / cpu.cores / storageGB）时，禁止挂价格",
+      "fix": "build_pool.unattached_reason 拦下身份冲突的记录，lib_judge.judge 把它判为 VIOLATE 并说明「规格与在售 SKU 不是同一台」",
+      "where": "tools/build_pool.py + tools/lib_judge.py",
+      "evidence": "specs_verified.json 的 spec-omen11-2026 已记录该冲突，adopted 为 null",
+      "affects": [
+        "推荐结论",
+        "价格"
+      ]
+    },
+    {
+      "id": "coverage-igpu-as-missing",
+      "category": "method",
+      "severity": "high",
+      "automated": true,
+      "title": "把「核显没有显存」统计成「缺显存数据」",
+      "symptom": "缺口报告显示「显存容量缺 27 台，卡住 4 个专业组」，据此会安排一次大范围采集，但采回来仍然是空",
+      "cause": "核显共享系统内存，物理上没有独立显存。它不是「没查到」，而是「确定不满足」。两者在统计时混在一起，缺口被放大 13 倍",
+      "detection": "统计缺口时逐台跑一次判定，只统计 verdict 真的为 UNKNOWN 的机器；VIOLATE 是一句结论，不是缺口",
+      "fix": "gaps.py 在算每个字段的缺口前先调 judge()，把 VIOLATE / OK 排除",
+      "where": "tools/gaps.py",
+      "evidence": "显存缺口修正前 27 台 → 修正后 2 台",
+      "affects": [
+        "采集优先级",
+        "缺口估算"
+      ]
+    },
+    {
+      "id": "reason-duplicate-same-fact",
+      "category": "ux",
+      "severity": "medium",
+      "automated": true,
+      "title": "同一个事实在理由里说三遍，看起来像错了三处",
+      "symptom": "「核显没有独立显存；要求独立显卡，这台是核显；硬门槛要求独立显卡，这台是核显」",
+      "cause": "vramMin 检查、req.gpu 检查、hardGates 检查各自独立追加理由，三条规则描述的是同一件事",
+      "detection": "看单台机器的 reasons 长度；同一根因出现 2 次以上即合并",
+      "fix": "lib_judge.merge_reasons 按根因（核显 / 内存 / 存储 / 焊死）归并",
+      "where": "tools/lib_judge.py",
+      "evidence": "广播电视编导组，28 台全被判 VIOLATE，改前每台 5-6 条理由",
+      "affects": [
+        "可读性",
+        "严重程度判断"
+      ]
+    },
+    {
+      "id": "judge-two-implementations",
+      "category": "method",
+      "severity": "blocker",
+      "automated": false,
+      "title": "判定逻辑写两份，覆盖率与推荐结论会分叉",
+      "symptom": "覆盖率报「能推荐 89 台」，推荐工具却给出另一批机器，且无法判断哪个对",
+      "cause": "coverage.py 里有一套 judge()，pick.py 又要用同一套判断，各自实现必然漂移",
+      "detection": "搜索项目里出现两个以上 judge( 定义",
+      "fix": "判定逻辑收敛到 lib_judge.judge，coverage 与 pick 都 import 它",
+      "where": "tools/lib_judge.py",
+      "evidence": "本轮 coverage.py 已改为转发 lib_judge.judge",
+      "affects": [
+        "结论一致性"
+      ]
+    },
+    {
+      "id": "vram-threshold-vs-official",
+      "category": "method",
+      "severity": "high",
+      "automated": false,
+      "title": "组门槛比官方要求更严，把整档机型误杀",
+      "symptom": "平面视觉组 24 台被判「不够用」，其中 23 台仅因「核显没有独立显存」；而该组 trap 原文写的是「平面设计不吃独显」",
+      "cause": "graphic.req.vramMin=2 一票否决核显，但唯一依据 Photoshop 的 gpuNeed 是 any、vramMin 1.5。req.gpu 又写 either，三条规则互相架空",
+      "detection": "把每组的 req 与 derivedFrom 软件的官方值逐项对照，看是否有项比官方更严",
+      "fix": "待裁决：确认该组是否会用到 AE/C4D，再决定 vramMin 取 0 还是提到 6",
+      "where": "data/majors.json",
+      "evidence": "software.ps.note：「4G 显存只在 4K 及以上显示器时才是推荐值」",
+      "affects": [
+        "专业适配结论",
+        "能推荐数量"
+      ]
+    },
+    {
+      "id": "ports-as-r-without-need",
+      "category": "method",
+      "severity": "medium",
+      "automated": false,
+      "title": "接口被设为 R 级，但专业需求里没写清「需要哪种口」",
+      "symptom": "音乐音频组 13 台、电气组 18 台卡在「缺接口」，可这些组的 req 里完全没提接口要求",
+      "cause": "field_matrix 把 ports 标为 audio/electric 的 R，但需求实质是「能不能接声卡 / 开发板」，不是「有几个 USB-A」",
+      "detection": "对比字段矩阵的 R 级与 majors.req/hardGates 里是否真有对应约束",
+      "fix": "待裁决：ports 要么降为 H，要么把门槛改成结构化判断（是否有雷电/全功能 Type-C）",
+      "where": "data/field_matrix.json",
+      "evidence": "audio.req 无 ports 相关字段；gates 只有 storage",
+      "affects": [
+        "覆盖率",
+        "采集优先级"
+      ]
+    }
+  ]
+}

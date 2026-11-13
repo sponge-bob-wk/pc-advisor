@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2026 买电脑 · 先看内存焊没焊死</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23f4f1e8'/%3E%3Crect x='9' y='9' width='14' height='14' fill='%23ab3323' transform='rotate(45 16 16)'/%3E%3C/svg%3E">
+<meta name="description" content="基于 80 台在售机型实采价与 43 条公开来源：按专业算硬件门槛，按到手价排序，含国补计算与设计缺陷清单。">
+<style>
+/* ---------- tokens ---------- */
+:root{
+  --paper:#f4f1e8; --paper2:#eae6da; --card:#fdfbf4;
+  --ink:#17160f; --ink2:#4e4a3f; --ink3:#87816f;
+  --line:rgba(23,22,15,.12); --line2:rgba(23,22,15,.26);
+  --red:#ab3323; --redbg:#f7e6e1; --redline:rgba(171,51,35,.28);
+  --green:#1a6a52; --greenbg:#e6f1ec;
+  --amber:#8a5f0f; --amberbg:#f8efd9;
+  --blue:#2b5b84; --bluebg:#e7eef4;
+  --serif:"Songti SC","Noto Serif SC","Source Han Serif SC",Georgia,"Times New Roman",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:"SF Mono",ui-monospace,"JetBrains Mono","Cascadia Mono",Consolas,monospace;
+  --shadow:0 1px 2px rgba(23,22,15,.05),0 8px 24px -18px rgba(23,22,15,.35);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.65;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body.locked{overflow:hidden}
+::selection{background:rgba(171,51,35,.16)}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+h1,h2,h3,h4{margin:0;font-weight:600;letter-spacing:.005em}
+p{margin:0}
+ul{margin:0;padding:0;list-style:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:60;background:rgba(244,241,232,.86);backdrop-filter:saturate(180%) blur(14px);
+  border-bottom:1px solid var(--line)}
+.top-in{display:flex;align-items:center;gap:18px;height:58px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand i{width:9px;height:9px;background:var(--red);display:block;flex:none;transform:rotate(45deg)}
+.brand b{font-family:var(--serif);font-size:16.5px;font-weight:600;letter-spacing:.01em;white-space:nowrap}
+.brand span{font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.06em;border-left:1px solid var(--line2);
+  padding-left:10px;margin-left:2px;white-space:nowrap}
+.top-nav{margin-left:auto;display:flex;align-items:center;gap:2px}
+.top-nav a{font-size:13px;color:var(--ink2);padding:7px 11px;border-radius:2px;position:relative;white-space:nowrap}
+.top-nav a:hover{color:var(--ink);background:rgba(23,22,15,.05)}
+.top-nav a.on{color:var(--ink)}
+.top-nav a.on::after{content:"";position:absolute;left:11px;right:11px;bottom:1px;height:1.5px;background:var(--red)}
+.top-meta{font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.04em;padding-left:14px;
+  border-left:1px solid var(--line2);white-space:nowrap}
+
+/* ---------- hero ---------- */
+.hero{padding:64px 0 0;border-bottom:1px solid var(--line)}
+.hero-grid{display:grid;grid-template-columns:1.42fr .88fr;gap:52px;align-items:start;padding-bottom:52px}
+.eyebrow{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
+  color:var(--ink3);text-transform:uppercase;margin-bottom:20px}
+.eyebrow s{width:22px;height:1px;background:var(--line2);display:block}
+.hero h1{font-family:var(--serif);font-size:clamp(32px,4.4vw,52px);line-height:1.16;letter-spacing:-.01em;font-weight:600}
+.hero h1 em{font-style:normal;color:var(--red);white-space:nowrap}
+.dek{margin-top:20px;font-size:16px;line-height:1.85;color:var(--ink2);max-width:36em}
+.dek b{color:var(--ink);font-weight:600}
+.points{margin-top:30px;border-top:1px solid var(--line)}
+.points li{display:grid;grid-template-columns:26px 1fr;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);align-items:start}
+.points .idx{font-family:var(--mono);font-size:10.5px;color:var(--red);padding-top:4px;letter-spacing:.04em}
+.points b{font-weight:600}
+.points span{font-size:13.8px;line-height:1.7;color:var(--ink2)}
+
+.panel{border:1px solid var(--line);background:var(--card);box-shadow:var(--shadow)}
+.panel-h{display:flex;align-items:baseline;justify-content:space-between;padding:16px 18px 12px;border-bottom:1px solid var(--line)}
+.panel-h b{font-size:13px;letter-spacing:.02em}
+.panel-h span{font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:.06em}
+.bars{padding:8px 18px 14px}
+.bar-row{display:grid;grid-template-columns:1fr auto;gap:6px 10px;padding:9px 0 7px;border-bottom:1px dotted var(--line)}
+.bar-row:last-child{border-bottom:0}
+.bar-row .lbl{font-size:12.5px;color:var(--ink2)}
+.bar-row .val{font-family:var(--mono);font-size:12.5px;color:var(--red);font-variant-numeric:tabular-nums}
+.bar-track{grid-column:1/-1;height:3px;background:var(--paper2);position:relative;overflow:hidden}
+.bar-track i{position:absolute;inset:0 auto 0 0;background:var(--red);opacity:.85}
+.bar-note{grid-column:1/-1;font-size:10.5px;color:var(--ink3);margin-top:1px}
+.panel-f{padding:11px 18px;border-top:1px solid var(--line);font-size:11.5px;line-height:1.6;color:var(--ink3);background:rgba(23,22,15,.012)}
+
+/* decision strip */
+.decide{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line)}
+.decide div{padding:16px 18px;border-right:1px solid var(--line);border-left:2px solid transparent}
+.decide div:last-child{border-right:0}
+.decide h5{margin:0 0 5px;font-size:11.5px;font-weight:500;color:var(--ink3);letter-spacing:.04em}
+.decide b{font-size:14px;font-weight:600;display:block;line-height:1.45}
+.decide div[data-tone="now"]{border-left-color:var(--red)}
+.decide div[data-tone="stop"]{border-left-color:var(--red)}
+.decide div[data-tone="mixed"]{border-left-color:var(--amber)}
+.decide div[data-tone="think"]{border-left-color:var(--blue)}
+
+/* ---------- section shell ---------- */
+.sec{padding:64px 0;border-bottom:1px solid var(--line)}
+section[id]{scroll-margin-top:74px}
+.sec-head{display:grid;grid-template-columns:86px 1fr;gap:20px;align-items:start;margin-bottom:34px}
+.sec-no{font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.08em;padding-top:10px;white-space:nowrap}
+.sec-head h2{font-family:var(--serif);font-size:clamp(23px,3vw,31px);line-height:1.3;font-weight:600}
+.sec-sub{margin-top:11px;font-size:14.5px;line-height:1.8;color:var(--ink2);max-width:74ch}
+.sec-sub b{color:var(--ink);font-weight:600}
+
+/* ---------- majors ---------- */
+.search{position:relative;margin-bottom:22px;max-width:520px}
+.search input{width:100%;padding:12px 14px 12px 38px;border:1px solid var(--line2);background:var(--card);
+  font:inherit;font-size:14px;color:var(--ink);border-radius:2px;outline:none}
+.search input::placeholder{color:var(--ink3)}
+.search input:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(23,22,15,.06)}
+.search .ico{position:absolute;left:13px;top:12px;width:14px;height:14px;border:1.5px solid var(--ink3);border-radius:50%}
+.search .ico::after{content:"";position:absolute;left:11px;top:9px;width:6px;height:1.5px;background:var(--ink3);transform:rotate(45deg)}
+.sug{position:absolute;left:0;right:0;top:calc(100% + 4px);background:var(--card);border:1px solid var(--line2);
+  box-shadow:0 16px 40px -20px rgba(23,22,15,.45);z-index:40;display:none;max-height:300px;overflow:auto}
+.sug.on{display:block}
+.sug button{display:flex;width:100%;align-items:center;justify-content:space-between;gap:12px;padding:10px 13px;
+  border-bottom:1px solid var(--line);text-align:left}
+.sug button:last-child{border-bottom:0}
+.sug button:hover,.sug button.hl{background:var(--paper2)}
+.sug b{font-weight:500;font-size:13.5px}
+.sug span{font-size:11.5px;color:var(--ink3);white-space:nowrap}
+
+.major-layout{display:grid;grid-template-columns:272px minmax(0,1fr);gap:34px;align-items:start}
+.mlist{position:sticky;top:74px;border-top:1px solid var(--line)}
+.mbtn{display:block;width:100%;text-align:left;padding:13px 14px 12px;border-bottom:1px solid var(--line);
+  border-left:2px solid transparent;position:relative;transition:background .16s}
+.mbtn:hover{background:rgba(23,22,15,.032)}
+.mbtn b{display:block;font-size:14px;font-weight:600;letter-spacing:.01em}
+.mbtn span{display:block;font-size:11.5px;color:var(--ink3);margin-top:3px;line-height:1.5;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.mbtn .gates{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
+.mbtn .gates i{font-style:normal;font-family:var(--mono);font-size:9.5px;letter-spacing:.02em;color:var(--ink2);
+  background:var(--paper2);padding:2px 5px;border-radius:2px}
+.mbtn.on{background:var(--card);border-left-color:var(--red);box-shadow:var(--shadow)}
+.mbtn.on b{color:var(--red)}
+.mbtn.on .gates i{background:var(--redbg);color:var(--red)}
+
+.result{background:var(--card);border:1px solid var(--line);padding:26px 26px 22px;box-shadow:var(--shadow)}
+.rg-top{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.rg-top h3{font-family:var(--serif);font-size:25px;line-height:1.3;font-weight:600}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 8px;border-radius:2px;
+  border:1px solid transparent;white-space:nowrap;line-height:1.5}
+.chip.official{background:var(--bluebg);color:var(--blue)}
+.chip.judge{background:var(--amberbg);color:var(--amber)}
+.chip.ghost{border-color:var(--line2);color:var(--ink2)}
+.chip.red{background:var(--redbg);color:var(--red)}
+.chip.green{background:var(--greenbg);color:var(--green)}
+.chip.amber{background:var(--amberbg);color:var(--amber)}
+.chip.blue{background:var(--bluebg);color:var(--blue)}
+.chip.mute{background:var(--paper2);color:var(--ink3)}
+.rg-tag{font-size:14px;color:var(--ink2);margin-top:8px}
+.rg-majors{margin-top:14px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.rg-majors .chip{background:transparent;border-color:var(--line);color:var(--ink2);font-size:11.5px}
+.rg-majors .chip.more{cursor:pointer;border-style:dashed}
+.rg-majors .chip.more:hover{border-color:var(--ink3);color:var(--ink)}
+
+.gates4{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:20px}
+.gates4 div{background:var(--paper);padding:13px 14px}
+.gates4 .k{font-size:11px;color:var(--ink3);letter-spacing:.04em}
+.gates4 .v{font-family:var(--mono);font-size:20px;letter-spacing:-.03em;margin-top:5px;line-height:1.1}
+.gates4 .v small{font-family:var(--sans);font-size:11px;color:var(--ink3);letter-spacing:0;margin-left:3px}
+.gates4 .d{font-size:10.5px;color:var(--ink3);margin-top:4px}
+
+.why{margin-top:20px;padding-left:13px;border-left:2px solid var(--line2);font-size:13px;line-height:1.8;color:var(--ink2)}
+.why b{color:var(--ink);font-weight:600}
+.trap{margin-top:16px;background:var(--redbg);border-left:2px solid var(--red);padding:11px 14px;font-size:12.8px;
+  line-height:1.75;color:#5d2a21}
+.trap b{color:var(--red);font-weight:600;display:block;margin-bottom:2px;font-size:11.5px;letter-spacing:.04em}
+.plat{margin-top:10px;background:var(--amberbg);border-left:2px solid var(--amber);padding:10px 14px;font-size:12.5px;
+  line-height:1.7;color:#5c440f}
+.plat b{font-weight:600}
+
+.res-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:24px 0 14px;padding-top:18px;border-top:1px solid var(--line)}
+.res-count{font-size:12.5px;color:var(--ink2)}
+.res-count b{font-family:var(--mono);font-size:15px;color:var(--ink);letter-spacing:-.02em}
+.filters{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.fbtn{font-size:11.5px;padding:5px 9px;border:1px solid var(--line2);border-radius:2px;color:var(--ink2);background:transparent}
+.fbtn:hover{border-color:var(--ink3);color:var(--ink)}
+.fbtn.on{background:var(--ink);border-color:var(--ink);color:var(--card)}
+select.sort{font-size:11.5px;padding:5px 8px;border:1px solid var(--line2);border-radius:2px;background:var(--card);
+  color:var(--ink2);outline:none;font-family:var(--sans)}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(292px,1fr));gap:12px}
+.mcard{border:1px solid var(--line);background:var(--card);padding:15px 15px 0;display:flex;flex-direction:column;
+  transition:box-shadow .18s,border-color .18s,transform .18s}
+.mcard:hover{border-color:var(--line2);box-shadow:0 10px 26px -20px rgba(23,22,15,.55);transform:translateY(-1px)}
+.mc-top{display:flex;gap:10px;align-items:flex-start}
+.mc-top h4{font-size:14.5px;line-height:1.45;font-weight:600;flex:1}
+.mc-sub{font-size:11px;color:var(--ink3);margin-top:3px;letter-spacing:.02em}
+.mc-price{display:flex;align-items:baseline;gap:7px;margin-top:11px}
+.mc-price .cur{font-size:12px;color:var(--ink3)}
+.mc-price b{font-family:var(--mono);font-size:23px;letter-spacing:-.04em;line-height:1}
+.mc-price s{font-family:var(--mono);font-size:11.5px;color:var(--ink3)}
+.mc-price em{font-style:normal;font-size:10px;color:var(--green);background:var(--greenbg);padding:2px 5px;border-radius:2px;margin-left:auto}
+.mc-specs{display:flex;flex-wrap:wrap;gap:4px;margin-top:12px}
+.mc-specs i{font-style:normal;font-size:10.5px;color:var(--ink2);background:var(--paper2);padding:2.5px 6px;border-radius:2px;
+  font-family:var(--mono);letter-spacing:-.01em}
+.mc-specs i.ram-ok{background:var(--greenbg);color:var(--green)}
+.mc-specs i.ram-no{background:var(--redbg);color:var(--red)}
+.mc-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+.mc-badges .chip{font-size:10px;padding:2px 6px}
+.mc-foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:13px;padding:9px 0;
+  border-top:1px solid var(--line);font-size:10.5px;color:var(--ink3)}
+.mc-foot button{font-size:11px;color:var(--ink);border-bottom:1px solid var(--line2);padding-bottom:1px}
+.mc-foot button:hover{color:var(--red);border-color:var(--red)}
+
+.more-wrap{padding:18px 0 4px;text-align:center}
+.more-btn{font-size:12.5px;padding:9px 18px;border:1px solid var(--line2);color:var(--ink);background:transparent;border-radius:2px}
+.more-btn:hover{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.tier-head{display:flex;align-items:center;gap:9px;margin:22px 0 12px}
+.tier-head span{font-size:12px;font-weight:600;letter-spacing:.02em}
+.tier-head i{flex:1;height:1px;background:var(--line)}
+.tier-head em{font-family:var(--mono);font-style:normal;font-size:10.5px;color:var(--ink3)}
+.fail-list{border-top:1px solid var(--line)}
+.fail-row{display:grid;grid-template-columns:1fr auto;gap:12px;padding:10px 2px;border-bottom:1px solid var(--line);
+  font-size:12.5px;color:var(--ink2)}
+.fail-row b{font-weight:500;color:var(--ink)}
+.fail-row span{font-family:var(--mono);font-size:11.5px;color:var(--red)}
+.empty{padding:30px 0;text-align:center;color:var(--ink3);font-size:13px}
+
+/* ---------- market ---------- */
+.market{display:grid;grid-template-columns:1.22fr .78fr;gap:36px;align-items:start}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl thead th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink3);
+  font-weight:400;padding:0 0 8px;border-bottom:1px solid var(--line2);text-transform:uppercase}
+.tbl td{padding:9px 0;border-bottom:1px solid var(--line);color:var(--ink2)}
+.tbl tr:hover td{background:rgba(23,22,15,.022)}
+.tbl td:first-child{color:var(--ink);width:44%;padding-right:12px}
+.tbl .r{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl .up{color:var(--red)}
+.tbl .huge{font-weight:600}
+.tbl .after{color:var(--ink)}
+.tbl-foot{padding-top:9px;font-size:10.5px;color:var(--ink3);line-height:1.6}
+
+.chart-box{border:1px solid var(--line);background:var(--card);padding:16px 16px 10px}
+.chart-box h5{margin:0;font-size:12.5px;font-weight:600}
+.chart-box .cap{font-size:10.5px;color:var(--ink3);margin-top:3px;line-height:1.6}
+.parts{margin-top:16px;border-top:1px solid var(--line)}
+.parts div{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.parts b{font-family:var(--mono);color:var(--red);font-size:12.5px}
+.parts span{color:var(--ink3);font-size:10.5px;margin-left:8px}
+.quote{margin-top:18px;background:var(--card);border:1px solid var(--line);border-left:2px solid var(--ink);
+  padding:16px 18px}
+.quote b{font-family:var(--serif);font-size:17px;display:block;line-height:1.5}
+.quote p{font-size:12.5px;color:var(--ink2);line-height:1.75;margin-top:8px}
+.quote p+p{margin-top:6px}
+.quote .src{font-family:var(--mono);font-size:10px;color:var(--ink3);margin-top:10px;letter-spacing:.03em}
+
+/* ---------- money ---------- */
+.money{display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:start}
+.calc{border:1px solid var(--line);background:var(--card);padding:22px}
+.calc label{display:block;font-size:11.5px;color:var(--ink3);letter-spacing:.04em;margin-bottom:8px}
+.calc-input{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line2);padding-bottom:10px}
+.calc-input span{font-size:18px;color:var(--ink3)}
+.calc-input input{flex:1;border:0;outline:none;background:none;font-family:var(--mono);font-size:30px;
+  letter-spacing:-.04em;color:var(--ink);width:100%;padding:0}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2px;background:var(--line2);margin:20px 0 6px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--ink);border-radius:50%;
+  cursor:grab;border:3px solid var(--card);box-shadow:0 0 0 1px var(--line2)}
+input[type=range]::-moz-range-thumb{width:13px;height:13px;background:var(--ink);border:0;border-radius:50%;cursor:grab}
+.quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.quick button{font-size:11px;padding:4px 8px;border:1px solid var(--line);border-radius:2px;color:var(--ink2)}
+.quick button:hover{border-color:var(--ink3);color:var(--ink)}
+.calc-out{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:18px}
+.calc-out>div{background:var(--paper);padding:14px}
+.calc-out .k{font-size:11px;color:var(--ink3);display:flex;justify-content:space-between;gap:6px}
+.calc-out .k em{font-style:normal;font-family:var(--mono);font-size:9.5px;background:var(--paper2);padding:1px 4px;border-radius:2px}
+.calc-out .v{font-family:var(--mono);font-size:26px;letter-spacing:-.04em;margin-top:6px;line-height:1.1}
+.calc-out .v.zero{color:var(--ink3)}
+.calc-out .s{font-size:10.5px;color:var(--ink3);margin-top:5px;line-height:1.5}
+.prog{height:3px;background:var(--line);margin-top:9px;position:relative;overflow:hidden}
+.prog i{position:absolute;inset:0 auto 0 0;background:var(--green)}
+.calc-note{margin-top:14px;font-size:12px;line-height:1.75;color:var(--ink2)}
+.calc-note b{color:var(--red)}
+.facts{margin-top:16px;border-top:1px solid var(--line)}
+.facts li{position:relative;padding:9px 0 9px 15px;border-bottom:1px solid var(--line);font-size:12.2px;line-height:1.7;color:var(--ink2)}
+.facts li::before{content:"—";position:absolute;left:0;color:var(--ink3);font-size:11px}
+.bands{border-top:1px solid var(--line)}
+.band{display:grid;grid-template-columns:88px 1fr;gap:16px;padding:14px 0;border-bottom:1px solid var(--line)}
+.band b{font-family:var(--mono);font-size:13px;letter-spacing:-.02em;color:var(--ink)}
+.band span{font-size:12.8px;line-height:1.7;color:var(--ink2)}
+
+/* ---------- risk ---------- */
+.risk-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:36px;align-items:start}
+details.def{border-bottom:1px solid var(--line)}
+details.def summary{list-style:none;cursor:pointer;padding:14px 0;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+details.def summary::-webkit-details-marker{display:none}
+details.def summary b{font-size:13.5px;font-weight:600}
+details.def summary .sym{font-size:11px;color:var(--ink3);font-family:var(--mono)}
+details.def summary .sym::after{content:' ＋';font-size:10px}
+details.def[open] summary .sym::after{content:' −'}
+details.def summary:hover b{color:var(--red)}
+details.def .body{padding:0 0 16px;font-size:12.5px;line-height:1.8;color:var(--ink2)}
+details.def .body dt{font-size:10.5px;letter-spacing:.06em;color:var(--ink3);margin-top:10px;font-family:var(--mono)}
+details.def .body dd{margin:2px 0 0}
+details.def .body .who{color:var(--ink);font-weight:500}
+.traps h5{font-size:12px;letter-spacing:.04em;color:var(--ink3);margin:0 0 10px;font-family:var(--mono)}
+.trap-item{padding:12px 0;border-bottom:1px solid var(--line)}
+.trap-item b{font-size:13px;font-weight:600;display:block;margin-bottom:4px}
+.trap-item p{font-size:12.5px;line-height:1.75;color:var(--ink2)}
+
+/* ---------- sources ---------- */
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px 34px;margin-bottom:32px}
+.meta-grid .wide{grid-column:1/-1;padding-top:18px;border-top:1px solid var(--line)}
+.meta-grid .wide p{column-count:2;column-gap:34px}
+.meta-grid h5{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--ink3);margin:0 0 7px;font-weight:400}
+.meta-grid p{font-size:12.3px;line-height:1.8;color:var(--ink2)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:30px}
+.stats div{background:var(--paper);padding:16px 18px}
+.stats b{display:block;font-family:var(--mono);font-size:26px;letter-spacing:-.04em;line-height:1.1}
+.stats span{font-size:11px;color:var(--ink3)}
+details.srcw{border-top:1px solid var(--line2)}
+details.srcw summary{list-style:none;cursor:pointer;padding:14px 0;font-size:12.5px;display:flex;justify-content:space-between;gap:10px}
+details.srcw summary::-webkit-details-marker{display:none}
+details.srcw summary:hover{color:var(--red)}
+.srclist{margin-top:6px;display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
+.srclist a{display:block;padding:9px 0;border-bottom:1px solid var(--line);font-size:12px;line-height:1.6;color:var(--ink2)}
+.srclist a:hover{color:var(--red)}
+.srclist a span{display:block;font-family:var(--mono);font-size:9.5px;color:var(--ink3);margin-top:2px;letter-spacing:.03em}
+
+/* ---------- footer ---------- */
+footer{padding:30px 0 46px}
+.foot-in{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-size:11.5px;color:var(--ink3);line-height:1.7}
+.foot-in b{color:var(--ink2);font-weight:500}
+
+/* ---------- drawer ---------- */
+.ov{position:fixed;inset:0;background:rgba(23,22,15,.34);opacity:0;pointer-events:none;transition:opacity .22s;z-index:80}
+.ov.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(470px,94vw);background:var(--paper);z-index:90;
+  transform:translateX(101%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;
+  box-shadow:-24px 0 60px -30px rgba(23,22,15,.5)}
+.drawer.on{transform:none}
+.dr-h{padding:18px 22px 14px;border-bottom:1px solid var(--line);display:flex;gap:14px;align-items:flex-start}
+.dr-h h3{font-family:var(--serif);font-size:21px;line-height:1.35;flex:1}
+.dr-h .x{width:30px;height:30px;border:1px solid var(--line2);display:grid;place-items:center;font-size:15px;color:var(--ink2);flex:none}
+.dr-h .x:hover{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.dr-b{overflow:auto;padding:18px 22px 40px;flex:1}
+.dr-b h6{margin:0 0 8px;font-family:var(--mono);font-size:10px;letter-spacing:.09em;color:var(--ink3);font-weight:400}
+.dr-price{display:flex;align-items:baseline;gap:9px;margin-bottom:4px}
+.dr-price b{font-family:var(--mono);font-size:30px;letter-spacing:-.04em}
+.dr-price s{font-family:var(--mono);font-size:12px;color:var(--ink3)}
+.dr-price em{font-style:normal;font-size:10.5px;background:var(--greenbg);color:var(--green);padding:2px 6px;border-radius:2px}
+.kv{margin-bottom:20px}
+.kv table{width:100%;border-collapse:collapse;font-size:12.5px}
+.kv td{padding:7px 0;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.6}
+.kv td:first-child{color:var(--ink3);width:35%;font-size:11.5px}
+.kv td:last-child{color:var(--ink);font-family:var(--mono);font-size:11.8px;letter-spacing:-.01em}
+.dr-note{background:var(--card);border:1px solid var(--line);padding:12px 14px;font-size:12px;line-height:1.75;color:var(--ink2);margin-bottom:18px}
+.dr-link{display:inline-block;font-size:11.5px;border-bottom:1px solid var(--line2);color:var(--ink2);margin-top:4px}
+.dr-link:hover{color:var(--red);border-color:var(--red)}
+.gap{display:inline-block;font-size:10px;background:var(--paper2);color:var(--ink2);padding:2px 6px;margin:0 4px 4px 0;border-radius:2px;font-family:var(--mono)}
+
+/* ---------- chat ---------- */
+.composer{margin-top:26px;border:1px solid var(--line2);background:var(--card);box-shadow:var(--shadow)}
+.cp-row{display:flex;align-items:stretch;border-bottom:1px solid var(--line)}
+.cp-row input{flex:1;min-width:0;border:0;outline:none;background:none;padding:16px 18px;font:inherit;font-size:14.5px;color:var(--ink)}
+.cp-row input::placeholder{color:var(--ink3)}
+.cp-row button{flex:none;margin:7px;padding:0 18px;background:var(--ink);color:var(--card);font-size:13px;border-radius:2px;letter-spacing:.02em}
+.cp-row button:hover{background:var(--red)}
+.cp-row button:disabled{opacity:.4;cursor:default;background:var(--ink)}
+.cp-hint{display:flex;align-items:center;gap:10px;padding:9px 14px;flex-wrap:wrap;background:rgba(23,22,15,.014)}
+.cp-status{font-family:var(--mono);font-size:10px;letter-spacing:.03em;color:var(--ink3);display:flex;align-items:center;gap:6px;cursor:default}
+.cp-status i{width:6px;height:6px;border-radius:50%;background:var(--ink3);display:block;flex:none}
+.cp-status.ok i{background:var(--green);box-shadow:0 0 0 3px rgba(26,106,82,.12)}
+.cp-status.bad i{background:var(--red);box-shadow:0 0 0 3px rgba(171,51,35,.12)}
+.cp-status.bad{cursor:pointer;color:var(--red)}
+.cp-ex{margin-left:auto;display:flex;gap:5px;flex-wrap:wrap}
+.cp-ex button{font-size:11px;color:var(--ink2);border:1px solid var(--line);padding:3px 8px;border-radius:2px;background:transparent}
+.cp-ex button:hover{border-color:var(--ink3);color:var(--ink)}
+
+.thread-wrap{display:grid;grid-template-columns:minmax(0,1fr) 288px;gap:34px;align-items:start}
+.thread{border-top:1px solid var(--line2)}
+.thread-empty{padding:24px 0 26px;color:var(--ink2);font-size:13.2px;line-height:1.95}
+.thread-empty b{color:var(--ink)}
+.thread-foot{padding-top:12px;font-size:10.5px;color:var(--ink3);line-height:1.6}
+.msg{padding:20px 0;border-bottom:1px solid var(--line)}
+.msg.u{display:flex;justify-content:flex-end}
+.msg.u .bubble{background:var(--ink);color:#f6f3e9;padding:10px 14px;max-width:80%;font-size:13.8px;line-height:1.75;border-radius:2px}
+.msg.a .who{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;
+  color:var(--ink3);margin-bottom:9px;text-transform:uppercase}
+.msg.a .who em{font-style:normal;background:var(--paper2);color:var(--ink2);padding:1.5px 5px;border-radius:2px;letter-spacing:.02em}
+.msg.a .prose{font-size:14.4px;line-height:1.95;color:var(--ink);max-width:64ch}
+.msg.a .prose p+p{margin-top:11px}
+.msg.a .prose b{font-weight:600}
+.recs{margin-top:15px;border:1px solid var(--line);background:var(--line);display:grid;gap:1px}
+.rec{background:var(--card);padding:12px 14px;display:grid;grid-template-columns:20px 1fr auto;gap:2px 10px;align-items:baseline}
+.rec .n{font-family:var(--mono);font-size:10.5px;color:var(--ink3)}
+.rec h5{font-size:13.6px;font-weight:600;line-height:1.45}
+.rec .p{font-family:var(--mono);font-size:13.5px;letter-spacing:-.03em;white-space:nowrap}
+.rec .spec{grid-column:2/4;font-family:var(--mono);font-size:10.2px;color:var(--ink3);line-height:1.55;margin-top:4px;letter-spacing:-.01em}
+.rec .tag{grid-column:2/4;font-size:11.5px;color:var(--ink2);line-height:1.65;margin-top:4px}
+.rec .cau{grid-column:2/4;font-size:11.4px;color:var(--red);line-height:1.65;margin-top:3px}
+.rec .sub{grid-column:2/4;font-family:var(--mono);font-size:10px;color:var(--ink3);margin-top:4px}
+.follow{display:flex;gap:6px;flex-wrap:wrap;margin-top:13px}
+.follow button{font-size:11.5px;border:1px solid var(--line2);padding:5px 10px;border-radius:2px;color:var(--ink2);background:transparent}
+.follow button:hover{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.audit{margin-top:11px;font-family:var(--mono);font-size:9.5px;color:var(--ink3);letter-spacing:.02em}
+.audit.bad{color:var(--red)}
+.thinking{display:flex;align-items:center;gap:9px;padding:18px 0;font-size:12px;color:var(--ink3);font-family:var(--mono)}
+.thinking span{display:inline-flex;gap:4px}
+.thinking span i{width:4px;height:4px;border-radius:50%;background:var(--ink3);animation:blink 1.3s infinite}
+.thinking span i:nth-child(2){animation-delay:.2s}
+.thinking span i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-2px)}}
+.msg.err .prose{color:var(--red)}
+.hintbox{margin-top:12px;border:1px solid var(--redline);background:var(--redbg);padding:12px 14px;font-size:12.4px;line-height:1.8;color:#5d2a21}
+.hintbox b{color:var(--red)}
+.hintbox code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,.55);padding:2px 6px;border-radius:2px;display:inline-block;margin:3px 0}
+.slot-rail{position:sticky;top:74px;border:1px solid var(--line);background:var(--card);padding:15px 16px;box-shadow:var(--shadow)}
+.rail-h{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink3);padding-bottom:10px;border-bottom:1px solid var(--line)}
+.slot{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:12px;align-items:baseline}
+.slot:last-child{border-bottom:0}
+.slot span{color:var(--ink3);flex:none}
+.slot b{font-family:var(--mono);font-size:11.5px;font-weight:500;text-align:right;color:var(--ink)}
+.slot b.dim{color:var(--ink3);font-weight:400}
+.slot-empty{font-size:11.5px;color:var(--ink3);line-height:1.75;padding:12px 0 4px}
+.rail-note{font-size:10.4px;line-height:1.7;color:var(--ink3);margin-top:12px;padding-top:11px;border-top:1px solid var(--line)}
+.fab{position:fixed;right:22px;bottom:22px;z-index:70;width:52px;height:52px;background:var(--ink);color:var(--card);
+  display:grid;place-items:center;box-shadow:0 12px 32px -14px rgba(23,22,15,.7);border-radius:2px;
+  opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .22s,transform .22s}
+.fab.on{opacity:1;pointer-events:auto;transform:none}
+.fab:hover{background:var(--red)}
+.fab b{font-family:var(--serif);font-size:12.5px;letter-spacing:.14em;writing-mode:vertical-rl}
+
+/* ---------- reveal & responsive ---------- */
+.rv{opacity:0;transform:translateY(10px);transition:opacity .5s ease,transform .5s ease}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}
+  .drawer{transition:none}.mcard{transition:none}}
+@media (max-width:1080px){
+  .hero-grid{grid-template-columns:1fr;gap:34px}
+  .major-layout{grid-template-columns:1fr}
+  .mlist{position:static;display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--line)}
+  .mbtn:nth-child(odd){border-right:1px solid var(--line)}
+  .market,.money,.risk-grid,.meta-grid{grid-template-columns:1fr;gap:30px}
+  .thread-wrap{grid-template-columns:1fr;gap:24px}
+  .slot-rail{position:static}
+  .decide{grid-template-columns:repeat(3,1fr)}
+  .decide div:nth-child(3){border-right:0}
+  .srclist{grid-template-columns:1fr}
+}
+@media (max-width:720px){
+  .wrap{padding:0 18px}
+  .hero{padding-top:38px}
+  .hero h1{font-size:31px}
+  .dek{font-size:14.5px}
+  .top-nav{display:none}
+  .top-meta{padding-left:10px}
+  .brand span{display:none}
+  .sec{padding:44px 0}
+  .sec-head{grid-template-columns:1fr;gap:8px}
+  .sec-no{padding-top:0}
+  .gates4{grid-template-columns:1fr 1fr}
+  .mlist{display:flex;overflow-x:auto;grid-template-columns:none;border-top:0;border-bottom:1px solid var(--line);
+    margin-bottom:18px;padding:8px 0;position:sticky;top:57px;z-index:40;background:var(--paper);
+    -webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .mlist::-webkit-scrollbar{display:none}
+  .mbtn{flex:0 0 auto;width:auto;padding:8px 13px;border:1px solid var(--line);border-bottom:0;margin-right:-1px;border-left-width:1px}
+  .mbtn b{font-size:13px;white-space:nowrap}
+  .mbtn span,.mbtn .gates{display:none}
+  .mbtn.on{background:var(--ink);border-color:var(--ink);box-shadow:none}
+  .mbtn.on b{color:var(--card)}
+  .result{scroll-margin-top:112px}
+  .result{padding:18px 16px}
+  .decide{grid-template-columns:1fr 1fr}
+  .decide div{padding:13px 14px}
+  .stats{grid-template-columns:1fr 1fr}
+  .calc-out{grid-template-columns:1fr}
+  .calc-out>div+div{border-top:1px solid var(--line)}
+  .cards{grid-template-columns:1fr}
+  .res-bar{gap:8px}
+  .filters{margin-left:0;width:100%}
+  .cp-row input{padding:13px 14px;font-size:14px}
+  .cp-row button{padding:0 14px;font-size:12.5px}
+  .cp-ex{margin-left:0;width:100%}
+  .msg.a .prose{font-size:14px}
+  .rec{grid-template-columns:18px 1fr auto;padding:11px 12px}
+  .fab{right:14px;bottom:14px;width:46px;height:46px}
+  .tbl td:first-child{width:50%;font-size:12px}
+  .tbl{font-size:12px}
+}
+@media print{.top,.drawer,.ov{display:none}body{background:#fff}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <div class="brand"><i></i><b>电脑涨价分析</b><span>2026 · 购机工作台</span></div>
+    <nav class="top-nav">
+      <a href="#chat" data-nav="chat">对话</a>
+      <a href="#majors" data-nav="majors">按专业选</a>
+      <a href="#market" data-nav="market">涨了多少</a>
+      <a href="#money" data-nav="money">国补与预算</a>
+      <a href="#risk" data-nav="risk">买前必查</a>
+      <a href="#sources" data-nav="sources">数据口径</a>
+    </nav>
+    <div class="top-meta" id="topMeta">数据截至 —</div>
+  </div>
+</header>
+
+<main>
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow"><s></s>2026 中国内地 · 购机结论</div>
+          <h1>今年买电脑，<br>先看内存<em>焊没焊死</em></h1>
+          <p class="dek">
+            内存涨了 5 倍，「先买 16G、以后再加」这条老路断了。所以这台机器<b>能不能换内存</b>，
+            比它便宜 300 块重要得多 —— 这是 80 台在售机型、43 条来源、311 个专业课程要求交叉出来的结论。
+          </p>
+          <div class="composer" id="composer">
+            <div class="cp-row">
+              <input id="askInput" type="text" autocomplete="off" spellcheck="false"
+                     placeholder="学什么、预算、要不要带走">
+              <button id="askBtn" type="button">问一句</button>
+            </div>
+            <div class="cp-hint">
+              <span class="cp-status" id="cpStatus"><i></i><span>检测本地模型中…</span></span>
+              <span class="cp-ex" id="cpExamples"></span>
+            </div>
+          </div>
+          <ul class="points" id="points"></ul>
+        </div>
+        <aside>
+          <div class="panel">
+            <div class="panel-h"><b>涨了多少</b><span>同比</span></div>
+            <div class="bars" id="heroBars"></div>
+            <div class="panel-f">「同款」指同一型号改价，比均价更接近你实际要付的钱。均价上涨里有一部分是配置被偷偷降了一档。</div>
+          </div>
+        </aside>
+      </div>
+      <div class="decide" id="decide"></div>
+    </div>
+  </section>
+
+
+  <!-- ============ CHAT ============ -->
+  <section class="sec" id="chat">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-no">01 / 对话</div>
+        <div>
+          <h2>说一句话，它按你的条件推一台</h2>
+          <p class="sec-sub">
+            本地跑的小模型（<b>qwen3.5-4b</b>，Ollama）只做两件事：<b>把你的话拆成条件</b>、<b>把排好的结果讲成人话</b>。
+            排序和数字由代码算，模型没有写数字的权限 —— 所以它可以直说「库里没记这台多重」，但不会编一个重量给你。
+          </p>
+        </div>
+      </div>
+      <div class="thread-wrap">
+        <div>
+          <div class="thread" id="thread">
+            <div class="thread-empty" id="threadEmpty">
+              <p>还没有对话。一句话说清三件事就够：<b>用途</b>、<b>预算</b>、<b>要不要带走</b>。</p>
+              <p style="margin-top:8px">比如「学设计的，预算 5100，要带去教室」。说完能直接拿到一台具体机型 + 短板 + 到手价。</p>
+            </div>
+          </div>
+          <div class="thread-foot">
+            <span id="threadNote">回答由本地模型生成，价格与参数来自项目数据；下单前请以商品页为准。</span>
+          </div>
+        </div>
+        <aside class="slot-rail">
+          <div class="rail-h">它读到的条件</div>
+          <div id="slotsBox"><div class="slot-empty">还没有条件。说一句话后这里会逐项亮起来。</div></div>
+          <div class="rail-note">条件不全时它会先反问，而不是拿默认值硬推 —— 少问一句，推荐就会错一档。</div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MAJORS ============ -->
+  <section class="sec" id="majors">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-no">02 / 选机</div>
+        <div>
+          <h2>先算你专业要什么，再谈价格</h2>
+          <p class="sec-sub">
+            门槛来自「专业 → 培养方案课程 → 课程对应软件 → 软件官方系统要求」这条链，<b>不是凭感觉定的</b>。
+            每组都标了口径来源：能追到 Adobe / Autodesk / MATLAB 官方要求的标「官方要求」，其余明写「人工判断」并给理由。
+          </p>
+        </div>
+      </div>
+
+      <div class="search">
+        <input id="majorSearch" type="text" placeholder="输入你的专业：会计、计算机、视觉传达、土木工程…" autocomplete="off" spellcheck="false">
+        <span class="ico"></span>
+        <div class="sug" id="sug"></div>
+      </div>
+
+      <div class="major-layout">
+        <nav class="mlist" id="mlist"></nav>
+        <div class="result" id="groupPanel"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MARKET ============ -->
+  <section class="sec" id="market">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-no">03 / 行情</div>
+        <div>
+          <h2>同款涨了多少，钱被谁赚走了</h2>
+          <p class="sec-sub">涨价不是促销周期，是成本推动：DRAM 与 NAND 的采购价直接压在整机价签上。下表每一行都能追到具体报道。</p>
+        </div>
+      </div>
+      <div class="market">
+        <div>
+          <table class="tbl">
+            <thead><tr><th>机型 / 部件</th><th class="r">去年</th><th class="r">现在</th><th class="r">涨幅</th></tr></thead>
+            <tbody id="sameBody"></tbody>
+          </table>
+          <div class="tbl-foot">价格为「到手价」口径（含国补与常见平台券）。同一型号不同报道口径冲突时保留区间，这里取中位数。</div>
+          <div class="quote" id="outlook"></div>
+        </div>
+        <div>
+          <div class="chart-box">
+            <h5>DRAM 合约价环比涨幅</h5>
+            <div class="cap">单位 %，26Q4 为预测值（虚线）</div>
+            <div id="dramChart"></div>
+          </div>
+          <div class="parts" id="parts"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MONEY ============ -->
+  <section class="sec" id="money">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-no">04 / 花钱</div>
+        <div>
+          <h2>国补：电脑和手机不是一套规则</h2>
+          <p class="sec-sub">这是最容易白亏的一块。<b>手机超过 6000 一分不补</b>，<b>电脑没有这条线</b> —— 一万五的笔记本照样能拿满 1500。用手机的规则套电脑，是最常见的错误。</p>
+        </div>
+      </div>
+      <div class="money">
+        <div class="calc">
+          <label for="priceInput">实付价（折扣后、补贴前）</label>
+          <div class="calc-input"><span>¥</span><input id="priceInput" type="number" value="6000" min="0" max="99999" step="100" inputmode="numeric"></div>
+          <input id="priceRange" type="range" min="1000" max="20000" step="100" value="6000">
+          <div class="quick" id="quick"></div>
+          <div class="calc-out" id="calcOut"></div>
+          <p class="calc-note" id="calcNote"></p>
+        </div>
+        <div>
+          <div class="sec-no" style="padding:0 0 10px">预算带 · 这个价能买到什么</div>
+          <div class="bands" id="bands"></div>
+          <div class="sec-no" style="padding:22px 0 0">国补细则</div>
+          <ul class="facts" id="facts"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RISK ============ -->
+  <section class="sec" id="risk">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-no">05 / 避坑</div>
+        <div>
+          <h2>比涨价更贵的，是买错型号</h2>
+          <p class="sec-sub" id="riskSub"></p>
+        </div>
+      </div>
+      <div class="risk-grid">
+        <div>
+          <div class="sec-no" style="padding:0 0 8px">电脑设计缺陷 · 点开看症状</div>
+          <div id="defects"></div>
+        </div>
+        <div class="traps">
+          <div id="trapsPc"></div>
+          <div id="trapsPhone" style="margin-top:26px"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="sec" id="sources">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-no">06 / 口径</div>
+        <div>
+          <h2>数字从哪来，哪些不确定</h2>
+          <p class="sec-sub">数据是老工具唯一的失效方式，所以这里把口径、置信度和来源全部摊开。不确定的地方标「待核」，不用看起来像样的假数字。</p>
+        </div>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="meta-grid" id="metaGrid"></div>
+      <details class="srcw" id="srcWrap">
+        <summary><span id="srcCount">展开全部来源</span><span>↓</span></summary>
+        <div class="srclist" id="srclist"></div>
+      </details>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot-in">
+    <div>只读前端 · 数据来自 <b>data/prices.json</b>、<b>data/machine_pool.json</b>、<b>data/majors.json</b>，本页未修改任何数据文件。</div>
+    <div id="footMeta"></div>
+  </div>
+</footer>
+
+<button class="fab" id="fab" type="button" aria-label="去对话"><b>对话</b></button>
+<div class="ov" id="ov"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="dr-h"><h3 id="drTitle"></h3><button class="x" id="drClose" aria-label="关闭">✕</button></div>
+  <div class="dr-b" id="drBody"></div>
+</aside>
+
+<script type="application/json" id="DATA">{"meta":{"version":"2.1","pricesUpdated":"2026-11-02","poolUpdated":"2026-11-11","scope":"中国大陆市场：Windows 整机、DIY 配件、手机","priceBasis":"到手价（已含国补与常见平台券）；标注「页面价」的为未叠加优惠的标价","perfBasis":"性能分 0-100，一律由实测跑分换算，不凭印象打分。手机用 Geekbench 6：perf = 100 ×（0.5×单核/4000 + 0.5×多核/12000）；电脑用 Cinebench R23：perf = 100 ×（0.5×单核/2400 + 0.5×多核/40000）。两把尺子的锚点都取「当季消费级上限」，所以手机 48 分和电脑 50 分在同一张表里可比，都表示「约为旗舰的一半」。单核管打开 App 与滑动，多核管多任务与渲染，各占一半。这是账面算力，不含系统调度、散热和降频的差异。内存条与固态没有 CPU，此项存 null、显示「不涉及」，并从加权里摘除后按比例重新归一，不判 0 分。","disclaimer":"所有数字均来自公开报道，逐条标注来源。不同来源口径不同，冲突时保留区间而不是取单一值。品牌分是「售后网点 × 保值率」的主观综合，来源有限，权重可自行调整。","subsidyNote":"到手价含 2026 年以旧换新补贴。电脑归「家电类」：实付 15% 立减、单台最高 1500 元、无价格门槛；手机归「数码类」：实付 15%、仅 ≤6000 元机型可补、封顶 500 元。补贴退出后同款回升约 15%，这是目前价格的最大变量。"},"sources":[{"id":"sina-impact","title":"内存和存储价格上涨对PC售价影响有多大?","publisher":"新浪财经","date":"2026-10","url":"https://www.sina.cn/gc/article/niviksc7965739.html"},{"id":"stcn-memory","title":"内存条价格持续「狂飙」，华强北一年涨超 300%","publisher":"证券时报","date":"2026-09","url":"https://stcn.com/article/detail/4207734.html"},{"id":"sina-howmuch","title":"现在买电脑比之前贵了多少?","publisher":"新浪财经","date":"2026-10","url":"https://www.sina.cn/gc/article/nivksmm7019399.html"},{"id":"techtimes-dram","title":"DRAM Prices Surge 17% as AI Gobbles Wafer Supply","publisher":"Tech Times","date":"2026-10-12","url":"https://www.techtimes.com/articles/328932/20261012/dram-prices-surge-17-ai-gobbles-wafer-supply-nanya-posts-record-857-margin.htm"},{"id":"startupfortune","title":"The AI Boom Just Made Your Next Laptop Up to 45 Percent Pricier","publisher":"Startup Fortune","date":"2026-08","url":"https://startupfortune.com/the-ai-boom-just-made-your-next-laptop-up-to-45-percent-pricier"},{"id":"smzdm-double11","title":"双 11 别的都在打折，只有内存和硬盘在涨：2026 年装机，该不该现在下手","publisher":"什么值得买","date":"2026-11","url":"https://post.smzdm.com/p/aomvnp29/"},{"id":"sohu-3x","title":"内存条一年涨 3 倍：双 11 装台电脑，比去年多花 2000 块","publisher":"搜狐","date":"2026-11","url":"https://m.sohu.com/a/1091439011_123020490"},{"id":"smzdm-config","title":"内存和固态吞了装机预算三分之一后，2026 双 11 的老配置单全失效了","publisher":"什么值得买","date":"2026-11","url":"https://post.smzdm.com/p/a03x3xw0/"},{"id":"vgover","title":"32G 内存卖三千五，9700X 才一千二！双十一只换板 U","publisher":"电玩帮","date":"2026-11","url":"https://www.vgover.com/zh-tw/news/242384"},{"id":"netease-monthly","title":"【2026 年 11 月】11 月装机走向与推荐（市场分析部分 / 总第 125 期）","publisher":"网易 · 电脑吧评测室","date":"2026-10-31","url":"https://www.163.com/dy/article/LAJP2AQ70512MJDN.html"},{"id":"smzdm-5060","title":"同样是 5060：笔记本八千多，台式装机六千多，今年双 11 怎么选","publisher":"什么值得买","date":"2026-11","url":"https://post.smzdm.com/p/axko67z2/"},{"id":"smzdm-dell","title":"「950 亿订单压在手里发不出」撞上「整机普涨 20%、出货跌 25%」","publisher":"什么值得买","date":"2026-11","url":"https://post.smzdm.com/p/am9306zz"},{"id":"smzdm-panther","title":"内存涨价撞上双十一：Panther Lake 轻薄本到底值不值得买","publisher":"什么值得买","date":"2026-11","url":"https://post.m.smzdm.com/p/awwol7rg"},{"id":"smzdm-asus","title":"涨价 5% 话刚放完，华硕产线已搬回中国：双 11 换机先看这两条消息","publisher":"什么值得买","date":"2026-11","url":"https://post.smzdm.com/p/aomql209"},{"id":"toutiao-6x","title":"等等党输麻了？内存飙涨 6 倍，2026 年双十一笔记本还能按老套路买吗","publisher":"今日头条","date":"2026-11","url":"https://m.toutiao.com/article/7695217723760034367"},{"id":"toutiao-soldered","title":"焊死 LPDDR5X 的笔记本买不买：内存涨 10 倍","publisher":"今日头条","date":"2026-11","url":"https://www.toutiao.com/a7696865766490063360"},{"id":"laptopcompat","title":"SO-DIMM vs Soldered RAM: Is Laptop RAM Soldered?","publisher":"Laptop Compat","date":"2026","url":"https://laptopcompat.com/guides/so-dimm-vs-soldered-ram"},{"id":"smzdm-thinkpad","title":"「去年四百多的 16G 内存条，现在一千八」撞上「X1C 内存焊死，买定没有回头路」","publisher":"什么值得买","date":"2026-11","url":"https://post.m.smzdm.com/p/agg523n6"},{"id":"wangbei-guide","title":"学生笔记本电脑怎么选？不同专业、预算和用途的购机指南","publisher":"网贝","date":"2026-11","url":"https://www.wangbei.net/articles/college-laptop-buying-guide"},{"id":"zol-air14","title":"双十一大学生入门笔记本推荐 联想小新 Air14 柔光版","publisher":"中关村在线","date":"2026-11","url":"https://pad.zol.com.cn/1268/12683642.html"},{"id":"zol-xiaoxin16","title":"联想小新 16 轻薄本促销到手低至 5192 元","publisher":"中关村在线","date":"2026-11","url":"https://nb.zol.com.cn/1267/12672808.html"},{"id":"zol-canglong","title":"机械革命苍龙 18 Pro 游戏本叠享多重优惠","publisher":"中关村在线","date":"2026-11","url":"https://nb.zol.com.cn/1267/12673953.html"},{"id":"smzdm-jiguangx","title":"机械革命极光 X 游戏本（U7-251HX、16GB、1TB、RTX5060）9286.78 元","publisher":"什么值得买","date":"2026-11","url":"https://www.smzdm.com/p/185220709"},{"id":"zol-yaoshi","title":"机械革命耀世系列电竞游戏本享多重超值优惠","publisher":"中关村在线","date":"2026-11","url":"https://nb.zol.com.cn/1267/12673003.html"},{"id":"cheche-asus","title":"双 11 轻薄本选购指南：价格惊喜，总有一款适合你","publisher":"汽车大本营","date":"2026-11","url":"http://www.cheche520.cn/aust/488994.html"},{"id":"sina-rounds","title":"手机一年涨价三轮：9 月 27 款机型调价，11 月底或再来一轮","publisher":"新浪财经","date":"2026-11","url":"https://www.sina.cn/gc/article/nivfwqv8246393.html"},{"id":"toutiao-account","title":"手机涨价 1000，国补只补 500：存储涨价怎么传到手机上","publisher":"今日头条","date":"2026-11","url":"https://www.toutiao.com/a7695917208840438282"},{"id":"smzdm-window","title":"手机集体涨价、越等越贵？这两个购机窗口还开着","publisher":"什么值得买","date":"2026-11","url":"https://post.smzdm.com/p/ae6qz3z3"},{"id":"qq-store","title":"内存越大涨价越狠：手机同型号不同存储版本差价被拉大","publisher":"腾讯新闻","date":"2026-10-26","url":"https://news.qq.com/rain/a/20261026A06LT800"},{"id":"subsidy-rule","title":"2026 年以旧换新补贴标准：家电 6 类封顶 1500，数码 4 类封顶 500","publisher":"北川羌族自治县人民政府","date":"2026-10","url":"https://www.beichuan.gov.cn/beichuan/c125502/202610/516d0d95e76a46dd97a8c47409159afa.shtml"},{"id":"toutiao-subsidy","title":"国补凑单怎么凑最划算：家电封顶 1500、手机超 6000 不补","publisher":"今日头条 · 寿光日报","date":"2026-10-09","url":"https://www.toutiao.com/article/7694496993283965459"},{"id":"smzdm-thinkbook14p","title":"8887 赞评测说「没有缺点」，1219 赞吐槽帖说「开俩 Word 卡死」：ThinkBook 14+ 2026 口碑分裂","publisher":"什么值得买社区","date":"2026-11","url":"https://post.smzdm.com/p/az8om4po"},{"id":"smzdm-thinkbook-ryzen","title":"99.9Wh 电池 + TGX + 85W 释放：新款 ThinkBook 14+/16+ 值得买？","publisher":"什么值得买社区","date":"2026-11","url":"https://post.m.smzdm.com/p/a6z43qgn"},{"id":"baixiu-tianxuan","title":"天选 CPU 虚焊通病：冷热交替黑屏","publisher":"百修网","date":"2026-10","url":"https://www.baixiu.org/repair/28484587.html"},{"id":"tousu-lowtin","title":"联想小新 Pro13 ARE 低温锡虚焊通病导致雪花屏 / 自动关机","publisher":"黑猫投诉","date":"2026-10-09","url":"https://sd.tousu.sina.com.cn/complaint/view/17402141246"},{"id":"zhinanshi-t9","title":"神舟战神 T9 的品控问题有哪些","publisher":"指南师","date":"2026-10","url":"https://www.zhinanshi.com/hasee-zhanshen-t9/5415355"},{"id":"stage1-thinkbook","title":"ThinkBook 16+ 长期使用反馈：噪音、色准、掉盘","publisher":"Stage1 论坛","date":"2026-10","url":"https://stage1st.com/2b/forum.php?mod=viewthread&tid=2290348"},{"id":"jd-zhan66","title":"惠普战 66 14 英寸 2026 商品规格与价格","publisher":"京东 · 惠普电脑整机旗舰店","date":"2026-11","url":"https://union-click.jd.com/jdc?e=&p=JF8BASwJK1olWAQGUVxbCUwXBV8IGlgXWQMBUl9YCE4UB19MRANLAjZbERscSkAJHTdNTwcKBlMdBgABFksWAG0MHlgTXAMCUV1ZFxJSXzI4Ex4PXHx_BDw-CTlsXTduGBJlK2V_NFJROE8RAGkMGloUXjYCVV9cCUIfCmcKK18TMwdsVFdYZksWVGtYE14cCVIKXQtYXEwnA244WjUWXQAHVVlaCHsWM28OE1kRVQcGVlpdD0snA2cMK4y889CO8orkopylgV84K1glbTYCZF1tViUXBG8NGAkdCGheExYcUQ8TRAEKHV0WXgUAV25fCUoVAV84KyNUPQFwUxYuVk5CeGhXRBJMWFBfL1kECANEd2gAezUXFk9JCTsJVEsefylMUix9FA4yVG5aDkonAl8"},{"id":"beebom-gb6","title":"Geekbench 6 vs 7：13 款手机芯片单核/多核实测对照","publisher":"Beebom Gadgets","date":"2026","url":"https://gadgets.beebom.com/stories/i-ran-geekbench-7-and-6-on-13-phones-mid-range-chips-took-biggest-hit"},{"id":"cpumonkey-8g5","title":"Snapdragon 8 Gen 5 vs Dimensity 8500：Geekbench 6 对照","publisher":"CPU-Monkey","date":"2026","url":"https://cpu-monkey.com/en/compare_cpu-qualcomm_snapdragon_8_gen_5-vs-mediatek_dimensity_8500"},{"id":"geekwan-9030","title":"麒麟 9030 实测：一颗「落后」芯片，打出了逆天战绩","publisher":"极客湾（公众号转载）","date":"2026-07","url":"http://mp.weixin.qq.com/s?__biz=MzYzNjk3MzQwMg==&mid=2247483682&idx=1&sn=53cf78909f3683ea811550da7ed240c9"},{"id":"zol-spec","title":"机型参数库：CPU 型号、电池容量与存储规格","publisher":"中关村在线","date":"2026","url":"https://wap.zol.com.cn/"},{"id":"csdn-tier","title":"手机处理器性能排行榜：Geekbench 6 单核/多核与 GPU 天梯图（典型区间）","publisher":"CSDN","date":"2025-11","url":"https://blog.csdn.net/weixin_32349093/article/details/166446831"}],"categoryChange":[{"key":"thin","kind":"pc","label":"轻薄本（同款）","value":58,"note":"小新 Pro14：4138 → 6557"},{"key":"gaming","kind":"pc","label":"游戏本（同款）","value":56,"note":"Y9000P：9000 → 14000"},{"key":"desktop","kind":"pc","label":"台式整机","value":25,"note":"8000 → 10000"},{"key":"avg","kind":"pc","label":"全网 PC 均价","value":17,"note":"Gartner 全年预测"},{"key":"phone-mate80","kind":"phone","label":"华为 Mate80","value":17,"note":"4699 → 5499"},{"key":"phone-mi17u","kind":"phone","label":"小米 17 Ultra","value":14,"note":"6999 → 7999"},{"key":"phone-nova16","kind":"phone","label":"nova16（256G）","value":13,"note":"2999 → 3399"},{"key":"phone-avg","kind":"phone","label":"手机均价","value":15,"note":"同比"}],"dramQoQ":[{"label":"25Q4","value":47.5,"forecast":false},{"label":"26Q1","value":92.5,"forecast":false},{"label":"26Q2","value":60.5,"forecast":false},{"label":"26Q3","value":60.0,"forecast":false},{"label":"26Q4","value":12.5,"forecast":true}],"sameModel":[{"kind":"pc","name":"联想小新 Pro14 锐龙版","before":4138,"after":6557,"change":58},{"kind":"pc","name":"联想拯救者 Y9000P（同配置）","before":9000,"after":14000,"change":56},{"kind":"pc","name":"ThinkBook 14+（Ultra X7 358H）","before":8299,"after":11489,"change":38},{"kind":"pc","name":"荣耀 X14 Plus（换代）","before":3199,"after":5099,"change":59},{"kind":"pc","name":"DDR5 16G 内存条","before":230,"after":1400,"change":509},{"kind":"pc","name":"1TB 固态硬盘","before":410,"after":950,"change":132},{"kind":"phone","name":"小米 17 Ultra（12+256G）","before":6999,"after":7999,"change":14},{"kind":"phone","name":"华为 Mate80（12+256G）","before":4699,"after":5499,"change":17},{"kind":"phone","name":"nova16（256G）","before":2999,"after":3399,"change":13},{"kind":"phone","name":"iPhone18 Pro（较上代）","before":8999,"after":9999,"change":11},{"kind":"phone","name":"12GB+256G 存储组合（采购价）","before":500,"after":2200,"change":340}],"partsChange":[{"label":"DDR5 16G 内存条","low":500,"high":500,"note":"230 → 1400 元","period":"近 12 个月"},{"label":"1TB 固态硬盘","low":130,"high":130,"note":"410 → 950 元","period":"近 12 个月"},{"label":"独立显卡","low":25,"high":50,"note":"全线溢价","period":"近期区间"},{"label":"CPU（酷睿 i 系）","low":-10,"high":-10,"note":"10 月单月","period":"近 1 个月"}],"decision":[{"key":"upgrade","label":"内存 / 固态","tag":"刚需现在买","tone":"now","kind":"pc"},{"key":"desktop","label":"台式整机","tag":"别买整机，换板 U","tone":"think","kind":"pc"},{"key":"thin","label":"轻薄本","tag":"先看内存焊没焊死","tone":"mixed","kind":"pc"},{"key":"gaming","label":"游戏本","tag":"非刚需别下手","tone":"stop","kind":"pc"},{"key":"phone","label":"手机","tag":"先看有没有卡进 6000","tone":"mixed","kind":"phone"}],"budgetBands":[{"max":3000,"text":"这个预算今年基本没有选择：3000 元档办公电脑已基本绝迹，2000 元级时代结束。"},{"max":5000,"text":"这个价位被挤压得最狠：同价位普遍降了一档配置，而且内存多为焊死。"},{"max":7000,"text":"出现第一个分水岭：能买到 32G+1TB，或者买到留内存槽的机型。"},{"max":10000,"text":"主流游戏本和高端轻薄本的区间，选择最多，也最需要比价。"},{"max":999999,"text":"绝对涨价金额最大，但占预算比例相对小；注意高端游戏本涨幅反而最猛。"}],"defects":{"title":"电脑的设计缺陷：买之前该查的那几项","cap":"涨价是一次性多花钱，设计缺陷是三年里反复折磨你。这一块比价格更该先看，因为价格能比，缺陷不能退货。","items":[{"name":"低温锡虚焊（CPU/显卡 BGA 焊点）","symptom":"开机正常，用一会儿花屏、雪花屏、死机、自动关机；冷机又能开","who":"联想小新 Pro13 ARE、小新 Air15 锐龙版、华硕天选系列","why":"出厂用低温锡膏焊接 BGA，长期冷热循环后焊球疲劳开裂。属于工艺缺陷，清灰、换硅脂、重装系统都无效。","fix":"只能 BGA 重植或换主板，过保后动辄上千。买之前搜「型号 + 虚焊 / 花屏」，有大量同类投诉的批次直接避开。"},{"name":"显卡供电模块烧毁","symptom":"高负载后黑屏、死机、显卡无法识别、反复重启","who":"神舟战神 T9 等公模游戏本","why":"公模方案在供电用料上压缩成本，显卡供电芯片长期高温工作后失效。部分机型返修率接近 15%。","fix":"过保后官方常要求整体换主板，报价接近半台新机。这类机器要么买延保，要么别买。"},{"name":"屏幕 / 屏轴问题","symptom":"单手开合时屏幕晃动、屏轴松动、右下角泛白、HDR 色阶断裂","who":"公模游戏本、部分轻薄本（ThinkBook 14+ 有右下角泛白反馈）","why":"屏轴阻尼和外壳刚性是省成本的重灾区。屏幕泛白属于面板均匀性问题，不是个体瑕疵。","fix":"到手先测：全白背景看四角色差，单手开合看晃动幅度。7 天内发现问题走无理由退货。"},{"name":"早期驱动导致的卡死 / 黑屏","symptom":"开两个 Word 就卡死、0x10E 黑屏、外接硬盘盒掉盘","who":"ThinkBook 14+ 2026 等首发新平台机型","why":"新平台首发驱动不成熟。这类问题九成能在到手第一天通过更新驱动绕过，但不会自己好。","fix":"属于「软件问题」，退货不占理，但你得会折腾。完全不想折腾的人，等上市三个月后再买同款更稳。"},{"name":"充电协议挑食","symptom":"手上的 100W 充电头插上没反应","who":"ThinkBook 14+ 2026（需要高于 60W 的 PD 才能触发）","why":"PD 策略做得激进，功率门槛高，杂牌线材虚标就触发不了。","fix":"买之前确认机器的最低 PD 功率要求，别指望旧充电头能通用。"},{"name":"只能换专有内存模组","symptom":"以为有插槽能自己加，结果发现是 LPCAMM2","who":"ThinkPad T14p 2026、T14 Gen7 酷睿版","why":"LPCAMM2 能换，但是专有模组，价格和渠道都不跟普通内存条走。而且部分机型升级前必须先更新 BIOS，否则新内存点不亮。","fix":"规格页写 LPCAMM2 的，按「一次性买够」规划，别当普通插槽机看。"}]},"trapsByKind":{"pc":[{"title":"低于市价一半的内存条","desc":"16G DDR5 均价 1400 上下，卖四五百的大概率是翻新、拆机或白片黑片颗粒。省下的钱不够救一次数据。"},{"title":"「同价更低配」","desc":"今年厂商常用 512G 换 256G、16G 换 8G 来代替直接涨价。看价格的同时必须看配置，否则你以为没涨价。"},{"title":"把国补当成常态","desc":"到手价里含 15% 国补（单台最高 1500）。补贴退出后同款回升约 15%，这是目前价格最大的单一变量。"}],"phone":[{"title":"为了大存储多花的钱，今年特别不划算","desc":"12GB+256GB 的存储组合采购价从 500 涨到 2200，涨了三倍多。厂商把这块成本几乎全额转到了大存储版本的价签上。256G + 云盘，比 512G 版本省下的钱今年格外多。"},{"title":"把 6000 当成「可以稍微超一点」","desc":"手机国补是硬门槛：6000 以内补 15% 封顶 500，超过 6000 一分不补。5999 和 6001 之间差的不是 2 块钱，是 500 块。而电脑没有这条线 —— 别拿手机的规则套电脑。"},{"title":"等下一轮降价","desc":"一年已经涨了三轮，11 月底还预计再涨 300 起。这不是促销周期，是成本推动。等的结果大概率是同样的钱买到更低的配置。"}]},"subsidyRules":{"pc":{"bucket":"家电类","rate":15,"cap":1500,"threshold":null,"saturate":10000,"note":"电脑归「家电类」：实付 15% 立减，单台最高 1500 元，没有价格门槛。实付 10000 元刚好把 1500 拿满，再贵也不会更多。"},"phone":{"bucket":"数码类","rate":15,"cap":500,"threshold":6000,"saturate":3333,"note":"手机归「数码类」：实付 15%，但只有售价 ≤6000 元的机型才补，封顶 500 元。实付 3333 元就吃满了，再往上加钱不增加补贴。"}},"subsidyFacts":["全国全年 2500 亿，分四批发放，第四批 625 亿已下达，覆盖 29 个省市。政策执行到 2026-12-31，额度先到先得。","电脑是这次的「漏网之鱼」：它归在家电类目里，不是数码类，所以不受手机那条 6000 元红线限制 —— 一万五的笔记本照样能拿满 1500。用手机的规则套电脑，是最常见的一处白亏。","国补按「折后实付价」算，不是标价。平台满减、店铺券、PLUS 折扣全扣完之后，再乘 15%。","同一身份证每类产品全年限 1 件；家电和数码名额互不冲突，所以「今年换手机 + 换电脑」两笔都能拿。","退单、取消订单、修改收货信息会作废本年度该品类的补贴资格。下单前把型号和地址核清楚。"],"outlook":{"verdict":"等，等的不是降价，是需求确认","points":["四季度 DRAM 合约价预计仍要环比涨 10%~15%：涨幅在放缓，但方向没变。","Counterpoint 判断这轮周期持续到 2027 年底；花旗认为拐点最快也要 2027 年四季度。","SK 海力士称 DRAM 与 HBM 到 2029 年的产能已售罄；戴尔 CEO 的说法更直接：2027 会更糟，新建晶圆厂要到 2029 或 2030 年才满产。"],"sources":["techtimes-dram","stcn-memory","smzdm-double11","smzdm-dell"]},"groups":[{"id":"office","name":"通识办公","tagline":"四年里最重的软件是 Office 和浏览器","stackText":"Office 三件套、浏览器、网课平台；心理学与医学类要跑 SPSS；医学类还要长时间看文献与影像","software":["ide"],"majors":["汉语言文学","汉语言","汉语国际教育","中国少数民族语言文学","秘书学","英语","俄语","德语","法语","西班牙语","日语","朝鲜语","阿拉伯语","翻译","商务英语","历史学","世界史","考古学","文物与博物馆学","哲学","逻辑学","宗教学","法学","知识产权","政治学与行政学","国际政治","外交学","社会学","社会工作","人类学","民族学","思想政治教育","马克思主义理论","经济学","国际经济与贸易","财政学","税收学","金融学","保险学","投资学","金融工程","工商管理","市场营销","会计学","财务管理","人力资源管理","审计学","物流管理","电子商务","旅游管理","酒店管理","会展经济与管理","行政管理","公共事业管理","劳动与社会保障","土地资源管理","文化产业管理","农林经济管理","教育学","学前教育","小学教育","特殊教育","体育教育","新闻学","传播学","编辑出版学","网络与新媒体","心理学","应用心理学","临床医学","口腔医学","麻醉学","医学影像学","预防医学","中医学","中西医临床医学","针灸推拿学","康复治疗学","医学检验技术","卫生检验与检疫","眼视光医学","精神医学","儿科学","护理学","健康服务与管理","运动训练","社会体育指导与管理","武术与民族传统体育","运动人体科学","舞蹈表演","舞蹈学","舞蹈编导","交通运输",{"name":"文秘","level":"专"},{"name":"法律事务","level":"专"},{"name":"会计","level":"专"},{"name":"市场营销","level":"专"},{"name":"电子商务","level":"专"},{"name":"旅游管理","level":"专"},{"name":"酒店管理","level":"专"},{"name":"物流管理","level":"专"},{"name":"商务英语","level":"专"},{"name":"学前教育","level":"专"},{"name":"小学教育","level":"专"},{"name":"行政管理","level":"专"},{"name":"社区管理与服务","level":"专"},{"name":"人力资源管理","level":"专"},{"name":"护理","level":"专"}],"req":{"ramMin":8,"ramRec":16,"vramMin":0,"vramRec":0,"gpu":"either","storageMinGB":512,"cpu":"无所谓，近三代 i5 / R5 都够","basis":"judgment","rationale":"这一组没有任何重负载软件，门槛由「四年后 Windows 和浏览器还跑得动」决定，而不是由某门课决定。8G 是下限，16G 是让它在第三年不至于卡。"},"hardGates":[],"mode":"value","preferCats":["thin"],"followups":["平时会剪视频、做海报吗？","要不要带来带去（教室 / 图书馆 / 宿舍三点一线）？"],"trap":"这个组最容易被「大学要用四年」推着买独显游戏本。按课程表算，它到毕业都用不满 16G 内存——多花的钱应该放在续航、屏幕和轻便上。医学类和法学要整天看文献，屏幕尺寸与护眼比算力重要；临床、护理还要带去见习，重量是硬指标。","evidence":"judgment"},{"id":"code","name":"编程数据","tagline":"显卡基本无用，内存是命门","stackText":"IDE、虚拟机、Docker、数据库、浏览器开几十个标签；不涉及 CUDA 训练","software":["ide"],"majors":["计算机科学与技术","软件工程","网络工程","信息安全","物联网工程","智能科学与技术","电子与计算机工程","数据科学与大数据技术","人工智能","网络空间安全","密码科学与技术","区块链工程","统计学","应用统计学","经济统计学","数据计算及应用","信息与计算科学","数学与应用数学","信息管理与信息系统","管理科学","大数据管理与应用",{"name":"计算机应用技术","level":"专"},{"name":"软件技术","level":"专"},{"name":"大数据技术","level":"专"},{"name":"信息安全技术应用","level":"专"},{"name":"云计算技术应用","level":"专"},{"name":"人工智能技术应用","level":"专"},{"name":"计算机网络技术","level":"专"},{"name":"移动应用开发","level":"专"}],"req":{"ramMin":16,"ramRec":32,"vramMin":0,"vramRec":4,"gpu":"either","storageMinGB":512,"cpu":"多核有用，但不是瓶颈","basis":"judgment","rationale":"本科阶段的编程课程（数据结构、操作系统、数据库、编译原理）没有一项吃显卡。真正的瓶颈是「同时开 IDE + 虚拟机 + 浏览器」，16G 在第三年会明显不够。显卡只在选人工智能方向、跑本地小模型时才有意义。"},"hardGates":[{"dim":"upgrade","min":2,"why":"内存焊死等于四年后没有后路，这一组最不能接受"}],"mode":"future","preferCats":["thin","gaming"],"followups":["打算走人工智能方向吗（要不要在本地跑模型）？","会同时开虚拟机吗？"],"trap":"「学计算机要买高配」是流传最广的误解。课程里没有一门课需要独显；把独显的钱换成 32G 内存和能加装的插槽，收益大得多。反过来，板载 16G 的轻薄本是这一组最危险的选项。","evidence":"judgment"},{"id":"graphic","name":"平面视觉","tagline":"吃色准和内存，不吃独显","stackText":"Photoshop、Illustrator、InDesign、Figma；部分学校加 AE 与 C4D","software":["ps","ai"],"majors":["视觉传达设计","广告学","数字媒体艺术","艺术设计学","包装设计","服装与服饰设计","服装设计与工程","工艺美术","公共艺术","美术学","绘画","雕塑","中国画","书法学","漫画","摄影","文物保护与修复","戏剧影视美术设计","珠宝首饰设计与工艺",{"name":"艺术设计","level":"专"},{"name":"视觉传达设计","level":"专"},{"name":"广告艺术设计","level":"专"},{"name":"数字媒体艺术设计","level":"专"},{"name":"产品艺术设计","level":"专"},{"name":"服装与服饰设计","level":"专"},{"name":"摄影摄像技术","level":"专"},{"name":"美术","level":"专"},{"name":"书画艺术","level":"专"},{"name":"包装艺术设计","level":"专"}],"req":{"ramMin":16,"ramRec":32,"vramMin":2,"vramRec":4,"gpu":"either","storageMinGB":512,"cpu":"单核重要，多核次要","basis":"official","rationale":"Photoshop 官方 8G 最低 / 16G 推荐，显存 1.5G 起。取 16G 作下限，是因为这一组的课表普遍要和 Illustrator、InDesign 同时开，加上浏览器找参考。"},"hardGates":[{"dim":"ram","min":16,"why":"PS 多图层叠加 AI 矢量文件，16G 是能干活的下限"}],"mode":"value","preferCats":["thin","gaming"],"followups":["课表里有 AE 或 C4D 吗？","要做印刷品（对色准要求高）吗？"],"trap":"平面设计不吃独显。给学生推一张 RTX 5070 是浪费——这笔钱换成 32G 内存和一块 100% sRGB 的屏更值。但注意一个转折：一旦课程表里出现 AE 和 C4D，门槛会跳到视频组那一档（AE 官方要 16G 内存、4G 显存且必须独显）。买之前先看课表。","evidence":"official"},{"id":"video","name":"视频影视","tagline":"全表最吃配置的本科方向","stackText":"Premiere Pro、After Effects、DaVinci Resolve、Audition；4K 素材是常态","software":["pr","ae","davinci"],"majors":["广播电视编导","广播电视学","影视摄影与制作","影视技术","戏剧影视文学","戏剧影视导演","戏剧学","电影学","动画","播音与主持艺术",{"name":"广播影视节目制作","level":"专"},{"name":"影视编导","level":"专"},{"name":"影视多媒体技术","level":"专"},{"name":"播音与主持","level":"专"},{"name":"动漫制作技术","level":"专"},{"name":"影视动画","level":"专"}],"req":{"ramMin":32,"ramRec":32,"vramMin":6,"vramRec":8,"gpu":"discrete","storageMinGB":1024,"cpu":"多核决定导出时间","basis":"official","rationale":"Premiere 4K 要 32G 内存、8G 显存；AE 最低 16G / 推荐 32G、必须独立 GPU；达芬奇 16G 起、Fusion 页面要 32G。三条取最严：32G 内存 + 独显。","preferActiveCooling":true},"hardGates":[{"dim":"gpu","min":2,"why":"AE 明确要求独立 GPU，核显无法满足"},{"dim":"ram","min":32,"why":"4K 素材加缓存，32G 是官方推荐值"}],"mode":"perf","preferCats":["gaming","desktop"],"followups":["主要是剪 1080P 还是 4K？","要做特效合成（AE）吗？"],"trap":"轻薄本的 32G 板载看起来够，实际剪 4K 加缓存会爆，而且这一组会长时间满载渲染——散热和风扇噪音比跑分更影响体验，而这两项参数表都不写。另外 1T 起步不是奢侈：一小时的 4K 素材就是几十 G。","evidence":"official"},{"id":"threeD","name":"三维建筑工业","tagline":"独显是入场券，32G 是及格线","stackText":"AutoCAD、Revit、SketchUp、Rhino、3ds Max、SOLIDWORKS、Lumion / Enscape","software":["revit","sw","rhino","cad","su","blender"],"majors":["建筑学","城乡规划","风景园林","历史建筑保护工程","土木工程","建筑环境与能源应用工程","给排水科学与工程","道路桥梁与渡河工程","城市地下空间工程","智能建造","工程管理","工程造价","环境设计","工业设计","产品设计","机械设计制造及其自动化","机械电子工程","材料成型及控制工程","车辆工程","汽车服务工程","过程装备与控制工程","能源与动力工程","船舶与海洋工程","飞行器设计与工程","农业机械化及其自动化","木材科学与工程",{"name":"建筑工程技术","level":"专"},{"name":"工程造价","level":"专"},{"name":"建筑设计","level":"专"},{"name":"建筑室内设计","level":"专"},{"name":"环境艺术设计","level":"专"},{"name":"机械制造及自动化","level":"专"},{"name":"模具设计与制造","level":"专"},{"name":"数控技术","level":"专"},{"name":"工业设计","level":"专"},{"name":"汽车检测与维修技术","level":"专"},{"name":"市政工程技术","level":"专"}],"req":{"ramMin":32,"ramRec":32,"vramMin":4,"vramRec":8,"gpu":"discrete","storageMinGB":1024,"cpu":"单核频率优先（Revit 官方原话）","basis":"official","rationale":"Revit 官方入门档 16G 只够约 300MB 的单模型，课程作业常见 600MB 以上，对应官方「均衡」档 32G；SOLIDWORKS 官方 16G、推荐 32G；Rhino 官方标 8G 是「能开」，实际建模要 32G。三条取最严：32G + 独显 4G 显存起。","platformUnfit":{"macos":"Revit 和 SolidWorks 都没有 macOS 版，这两门课的核心作业交不了（Rhino/SketchUp/Blender 有 Mac 版，但替代不了）"},"preferActiveCooling":true},"hardGates":[{"dim":"gpu","min":1,"why":"Revit 与 Rhino 都要求独立显卡与 OpenGL / DirectX 支持"},{"dim":"ram","min":32,"why":"Revit 均衡档即 32G；组内最容易被 16G 卡住"}],"mode":"perf","preferCats":["gaming","desktop"],"followups":["要做建筑（Revit）还是工业造型（Rhino / SolidWorks）？","要渲染效果图吗？"],"trap":"两个反直觉的点。① Revit 官方写 16G，但那是给 300MB 小模型的；课程做到期末，模型轻松翻倍，16G 会卡死。② SOLIDWORKS 只认认证显卡和认证驱动，显存大不等于能跑——一台游戏本跑 SW 可能不如同价位的移动工作站稳。","evidence":"official"},{"id":"audio","name":"音乐音频","tagline":"显卡无用，存储最贵","stackText":"Cubase、Logic Pro、Pro Tools、Ableton Live、Kontakt 采样库、外接声卡；理论方向用打谱软件","software":["cubase","sibelius"],"majors":["录音艺术","作曲与作曲技术理论","音乐学","音乐表演","艺术与科技",{"name":"音乐制作","level":"专"},{"name":"录音技术与艺术","level":"专"},{"name":"现代流行音乐","level":"专"},{"name":"音乐表演","level":"专"}],"req":{"ramMin":16,"ramRec":32,"vramMin":0,"vramRec":0,"gpu":"none","storageMinGB":1024,"cpu":"单核频率与低延迟驱动最关键","basis":"official","rationale":"Cubase 官方最低 8G 内存、不对显卡作要求、完整安装 75G。取 16G 与 1T，是加上采样音源后的实际需要（一套管弦乐采样库常在 100G 以上），这一项属判断，已在硬门槛里单独标出。","portNeeds":["usb-a"]},"hardGates":[{"dim":"storage","min":1024,"why":"Cubase 完整安装 75G，采样库动辄几百 G"}],"mode":"value","preferCats":["thin","desktop"],"followups":["要不要外接声卡 / MIDI 键盘？","装正版音源吗（采样库体积差别很大）？"],"trap":"唯一一个「显卡完全不重要、存储最重要」的组。Cubase 官方 8G 内存、不要独显，但采样库能把 512G 盘直接吃满。这一组最容易被销售推成游戏本——那是把钱花在完全用不上的地方。真正的瓶颈是 CPU 单核、ASIO 驱动延迟和硬盘速度。另外很多学校用 Mac 教学，买 Windows 要先问清楚课程要求。","evidence":"official"},{"id":"engine","name":"游戏与数字媒体技术","tagline":"专业课和娱乐需求在同一个预算里打架","stackText":"Unity、Unreal、Maya / Blender、After Effects；宿舍里还要打游戏","software":["gameengine","ae","blender","ide"],"majors":["数字媒体技术","虚拟现实技术","新媒体技术","智能交互设计",{"name":"电子竞技运动与管理","level":"专"},{"name":"游戏艺术设计","level":"专"},{"name":"虚拟现实技术应用","level":"专"},{"name":"数字媒体技术","level":"专"},{"name":"动漫设计","level":"专"}],"req":{"ramMin":32,"ramRec":32,"vramMin":8,"vramRec":8,"gpu":"discrete","storageMinGB":1024,"cpu":"多核（编译、烘焙、光照）","basis":"official","rationale":"引擎本身没有面向学生的统一系统要求，所以取本组唯一有官方依据的 AE 兜底（16G 最低 / 32G 推荐、4G 显存起、必须独显），再按「引擎编译 + 素材库 + 游戏」的经验上调到 32G / 8G 显存。","platformUnfit":{"macos":"Unity/Unreal 有 Mac 版，但国内课程与企业实习普遍按 Windows 环境走，插件与工具链在 Mac 上坑更多"},"preferActiveCooling":true},"hardGates":[{"dim":"gpu","min":2,"why":"引擎编辑器与游戏需求叠加"},{"dim":"ram","min":32,"why":"编辑器 + 素材 + 浏览器同时开"}],"mode":"perf","preferCats":["gaming"],"followups":["主要用 Unity 还是 Unreal？","宿舍里打游戏占多少比重？"],"trap":"这一组预算最容易失控，因为「学习需求」和「娱乐需求」会互相借力。但要说清一件事：虚幻引擎的编译和光照烘焙吃的是 CPU 和内存，光追显卡对编辑器的帮助远小于对游戏帧数。想清楚这笔钱是买学习效率还是买游戏体验。","evidence":"official"},{"id":"electric","name":"电气与自动化","tagline":"显卡不重要，CPU 和接口才是","stackText":"MATLAB / Simulink、Altium Designer、Proteus、Keil、Multisim；仿真跑在 CPU 上","software":["matlab","eda"],"majors":["电气工程及其自动化","自动化","电子信息工程","通信工程","微电子科学与工程","集成电路设计与集成系统","电子信息科学与技术","光电信息科学与工程","机器人工程","轨道交通信号与控制","测控技术与仪器","智能装备与系统","农业电气化","电气工程与智能控制",{"name":"电气自动化技术","level":"专"},{"name":"电子信息工程技术","level":"专"},{"name":"机电一体化技术","level":"专"},{"name":"工业机器人技术","level":"专"},{"name":"应用电子技术","level":"专"},{"name":"通信技术","level":"专"},{"name":"集成电路技术","level":"专"},{"name":"智能控制技术","level":"专"}],"req":{"ramMin":16,"ramRec":32,"vramMin":0,"vramRec":2,"gpu":"either","storageMinGB":512,"cpu":"多核，AVX2 指令集（MATLAB 官方推荐）","basis":"official","rationale":"MATLAB 官方 8G 最低 / 16G 推荐，CPU 推荐 4 逻辑核 + AVX2，显卡只要求支持 WebGL 2.0——也就是核显就够。取 16G / 32G 是因为仿真和 EDA 常常同时开，且 MATLAB 全产品安装 25G。","platformUnfit":{"macos":"EDA 环节的 Multisim / Proteus 只有 Windows 版，仿真课做不了；MATLAB 虽有 Mac 版，但课程通常按 Windows 版教学"},"portNeeds":["usb-a"]},"hardGates":[],"mode":"value","preferCats":["thin","gaming"],"followups":["要跑哪类仿真（电力系统 / 控制系统 / 电路）？","要接开发板做实验吗？"],"trap":"这一组是「工科就要独显」这句错的典型受害者。MATLAB 官方只要求显卡支持 WebGL 2.0，EDA 工具更是不吃显卡——钱应该花在 CPU 多核、内存和一块大屏上。另一个实际坑：很多 EDA 和烧录工具只支持 Windows，且对高分屏缩放支持差，买 Mac 或用 4K 小屏都会难受。","evidence":"official"},{"id":"science","name":"理工实验","tagline":"轻则核显够用，重则集群在机房","stackText":"ChemDraw、Origin、SPSS / R、Gaussian、Materials Studio；重计算通常连学校集群","software":["scisoft","matlab"],"majors":["化学","应用化学","化学工程与工艺","材料科学与工程","材料物理","材料化学","高分子材料与工程","新能源材料与器件","生物科学","生物技术","生物工程","生物制药","生物信息学","药学","药物制剂","制药工程","环境科学","环境工程","食品科学与工程","食品质量与安全","物理学","应用物理学","应用气象学","地质学","地球化学","海洋科学","轻化工程","纺织工程","农学","林学","园艺","植物保护","动物科学","动物医学","水产养殖学","中药学","法医学",{"name":"药品生产技术","level":"专"},{"name":"食品检验检测技术","level":"专"},{"name":"环境工程技术","level":"专"},{"name":"应用化工技术","level":"专"},{"name":"生物制药技术","level":"专"}],"req":{"ramMin":16,"ramRec":32,"vramMin":0,"vramRec":4,"gpu":"either","storageMinGB":512,"cpu":"多核（计算化学的并行求解）","basis":"judgment","rationale":"这一组没有单一的重型商业软件做锚点：ChemDraw / Origin / SPSS 都是轻负载，而 Gaussian、Materials Studio 这类计算化学软件真正跑起来通常上机房集群，不在自己电脑上跑满。所以门槛按「轻软件 + 偶尔本地小算例」定：16G 起、32G 舒服。显卡只在做分子动力学或生物信息交叉方向时才需要考虑。","platformUnfit":{"macos":"化学/材料常用的 Origin、部分仪器配套软件只有 Windows 版，实验数据导出与作图会受影响"},"portNeeds":["usb-a"]},"hardGates":[],"mode":"value","preferCats":["thin"],"followups":["要在自己电脑上跑计算（Gaussian / 分子模拟）吗？","偏实验还是偏计算方向？"],"trap":"这一组的常见误判是「学生物的要买高配」。实际情况相反：绝大多数本科实验课的软件很轻，重计算都在机房跑或者提交到集群。把钱花在内存和屏幕（长时间看图表很费眼）比花在显卡上合理得多。例外是生物信息学——它本质是编程方向，会用到 Docker 和较大内存。","evidence":"judgment"},{"id":"geo","name":"测绘与空间信息","tagline":"内存与显存双高，硬盘还要留缓存","stackText":"ArcGIS Pro、ENVI、QGIS、AutoCAD；遥感影像与三维场景吃内存和显存","software":["arcgis","cad"],"majors":["测绘工程","地理信息科学","遥感科学与技术","导航工程","地理空间信息工程","土地整治工程",{"name":"工程测量技术","level":"专"},{"name":"测绘地理信息技术","level":"专"},{"name":"摄影测量与遥感技术","level":"专"},{"name":"地籍测绘与土地管理","level":"专"}],"req":{"ramMin":32,"ramRec":32,"vramMin":4,"vramRec":8,"gpu":"discrete","storageMinGB":1024,"cpu":"4 核以上（官方推荐 4 核，最佳 10 核）","basis":"official","rationale":"ArcGIS Pro 官方 8G 最低 / 32G 推荐 / 64G 最佳，推荐独立显卡且独占显存 8G 以上，安装占 32G 之外另有多达 32G 的可视化缓存。取 32G + 独显，与官方推荐档一致。","platformUnfit":{"macos":"ArcGIS Pro 只有 Windows 版，这是测绘专业的核心工具；QGIS 有 Mac 版但教学不通用"},"portNeeds":["usb-a"]},"hardGates":[{"dim":"gpu","min":1,"why":"ArcGIS Pro 的三维视图与影像渲染推荐独立显卡"},{"dim":"ram","min":32,"why":"官方推荐值就是 32G，影像处理时 16G 会明显卡"}],"mode":"perf","preferCats":["gaming","desktop"],"followups":["要做遥感影像处理（ENVI）吗？","会做三维场景或点云吗？"],"trap":"这一组容易被当成「文科地理」而买轻薄本，结果大二跑 ArcGIS 的三维场景直接卡死。两个具体数字：官方推荐 32G 内存，另有多达 32G 的可视化缓存——所以 1T 盘不是浪费。不过也要说清：只做二维制图和属性表的话 16G 能用，别一上来就冲 64G。","evidence":"official"}],"majorAliases":{"计科":"计算机科学与技术","CS":"计算机科学与技术","计算机":"计算机科学与技术","软工":"软件工程","信安":"信息安全","网安":"网络空间安全","网工":"网络工程","大数据":"数据科学与大数据技术","信管":"信息管理与信息系统","信计":"信息与计算科学","数学":"数学与应用数学","数媒":"数字媒体艺术","数媒技术":"数字媒体技术","数字媒体":"数字媒体艺术","视传":"视觉传达设计","视觉传达":"视觉传达设计","广告":"广告学","平面设计":"视觉传达设计","环艺":"环境设计","室内设计":"环境设计","装潢":"视觉传达设计","服装":"服装与服饰设计","服设":"服装与服饰设计","摄影专业":"摄影","建院":"建筑学","建筑":"建筑学","城规":"城乡规划","规划":"城乡规划","园林":"风景园林","景观":"风景园林","土木工程专业":"土木工程","工设":"工业设计","产设":"产品设计","机械":"机械设计制造及其自动化","机制":"机械设计制造及其自动化","车辆":"车辆工程","汽车":"车辆工程","能动":"能源与动力工程","电气":"电气工程及其自动化","电气自动化":"电气工程及其自动化","自动化专业":"自动化","电信":"电子信息工程","通信":"通信工程","微电子":"微电子科学与工程","集成":"集成电路设计与集成系统","机器人":"机器人工程","测控":"测控技术与仪器","化学专业":"化学","化工":"化学工程与工艺","材料":"材料科学与工程","高材":"高分子材料与工程","生物":"生物科学","生工":"生物工程","生信":"生物信息学","药学专业":"药学","环境":"环境工程","食品":"食品科学与工程","物理":"物理学","测绘":"测绘工程","地信":"地理信息科学","GIS":"地理信息科学","遥感":"遥感科学与技术","编导":"广播电视编导","广编":"广播电视编导","影视":"影视摄影与制作","播音":"播音与主持艺术","主持":"播音与主持艺术","录音":"录音艺术","音制":"音乐制作","作曲":"作曲与作曲技术理论","音乐":"音乐学","电竞":"电子竞技运动与管理","VR":"虚拟现实技术","游戏":"游戏艺术设计","法学专业":"法学","法律":"法学","会专":"会计","会计专业":"会计学","金融":"金融学","国贸":"国际经济与贸易","工商":"工商管理","审计":"审计学","中文":"汉语言文学","对外汉语":"汉语国际教育","小教":"小学教育","学前":"学前教育","特教":"特殊教育","心理":"心理学","新闻":"新闻学","新传":"传播学","护理专业":"护理学","英语专业":"英语","日语专业":"日语","翻译专业":"翻译","历史":"历史学","哲学专业":"哲学","社会学专业":"社会学","工管":"工程管理","造价":"工程造价","建环":"建筑环境与能源应用工程","兽医":"动物医学","畜牧兽医":"动物医学","临床":"临床医学","口腔":"口腔医学","中医":"中医学","电气工程":"电气工程及其自动化","材料科学":"材料科学与工程","电子信息":"电子信息工程","土木":"土木工程","交运":"交通运输"},"majorsMeta":{"version":"0.2","updated":"2026-11-07","scope":"中国大陆本科 / 专科，面向准大学生入学购机（Windows 阵营为主）","basis":"专业 → 高校公开培养方案中的课程 → 课程对应的软件 → 软件厂商官方系统要求","coverage":"10 个软件栈组 / 311 个专业（本科 235 / 专科 76）；软件要求库 20 条，其中 10 条已取证、10 条待取证","disclaimer":"同一专业在不同学校的课程强度差异很大（同一门「三维建模」，有的学校教 Rhino，有的教 3ds Max）。本表给门槛与原因，不给「必须买某台」。学校不同、方向不同，请以本校培养方案为准。"},"machines":[{"id":"spec-legion-y9000p-2026","name":"拯救者 Y9000P 2026","brand":"联想","cat":"gaming","storageGB":1024,"batteryWh":80,"weightKg":2.5,"efficiency":1,"efficiencyStatus":"verified","confidence":"medium","priceCapturedAt":"2026-11-07T22:34:00+08:00","shopName":"联想京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100377405028.html","dataGaps":[],"cpu":{"model":"Core Ultra 9 290HX Plus","vendor":"Intel","cores":24,"threads":24},"ram":{"gb":16,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64,"config":"16GB×1"},"gpu":{"model":"RTX 5060","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":240,"panel":"OLED","colorGamut":{"dciP3":100},"brightnessNit":500},"price":{"list":16999,"net":16999,"subsidy":1500,"final":15499,"basisNote":"list=页面划线价¥16999；discounts=无；net=16999；subsidy=「国家补贴｜领后减￥1500」；final=「国补领后价」与「新人到手价」均¥15499；校验：16999−1500=15499 成立。","discounts":[]},"throttle":null,"ports":["雷电 4 ×1","USB-C ×1","USB-A ×3","HDMI 2.1"]},{"id":"spec-omen11-2026","name":"暗影精灵 11（2026，Ultra7-251HX/RTX5060）","brand":"惠普","cat":"gaming","storageGB":2048,"batteryWh":83,"weightKg":2.46,"efficiency":1,"efficiencyStatus":"verified","confidence":"medium","priceCapturedAt":"2026-11-07T22:48:00+08:00","shopName":"惠普笔记本旗舰店","shopType":"self","url":"https://item.jd.com/10230684199053.html","dataGaps":[],"cpu":{"model":"Ultra7-251HX","vendor":"AMD","cores":16,"threads":32},"ram":{"gb":32,"type":"DDR5-5600","form":"sodimm","slots":2,"maxGB":32},"gpu":{"model":"RTX 5060","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":240,"panel":"IPS","colorGamut":{"sRGB":100},"brightnessNit":1100},"price":{"list":12599,"net":12399,"subsidy":1500,"final":10899,"basisNote":"list=页面划线价¥12599；discounts=单品立减200；net=12399；subsidy=「国家补贴｜领后减￥1500」；final=「国补领后价」¥10899；校验：12599−200=12399，12399−1500=10899 成立。","discounts":[{"name":"单品立减","amount":200}]},"throttle":null,"ports":["HDMI 2.1","RJ45"]},{"id":"spec-tuf-a16-2026","name":"天选7 2026（锐龙7 H260/RTX5050）","brand":"华硕","cat":"gaming","storageGB":512,"batteryWh":90,"weightKg":2.1,"efficiency":1,"efficiencyStatus":"verified","confidence":"high","priceCapturedAt":"2026-11-07T23:35:00+08:00","shopName":"华硕京东自营官方旗舰店","shopType":"self","url":"https://item.jd.com/100264042589.html","dataGaps":[],"cpu":{"model":"Ryzen 7 H260","vendor":"AMD","cores":8,"threads":16},"ram":{"gb":16,"type":"DDR5-5600","form":"sodimm","slots":2,"maxGB":64,"config":"16GB×1"},"gpu":{"model":"RTX 5050","vendor":"NVIDIA","type":"discrete","vramGB":8,"vramType":"GDDR7"},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":165,"panel":"OLED","colorGamut":{"dciP3":100,"sRGB":100},"brightnessNit":1100},"price":{"list":11199,"net":10499,"subsidy":1500,"final":8999,"basisNote":"list=详情页划线价¥11199；discounts=满8000减700（详情页明写）；net=11199−700=10499；subsidy=页面明写「国家补贴｜领后减￥1500」；final=详情页主价/「新人到手价」¥8999；校验：10499−1500=8999 成立。卡片图角标另写「11199−1200−1500=8499」，与实时价不一致，未采用。","discounts":[{"name":"店铺券 满8000减700","amount":700}]},"throttle":null,"ports":["电源方口","RJ45","HDMI 2.1","USB4（DP1.4）","USB-C（DP2.1，100W PD）","USB-A ×3","3.5mm"]},{"id":"spec-legion-y7000p-2026","name":"拯救者 Y7000P 2026","brand":"联想","cat":"gaming","storageGB":1024,"batteryWh":80,"weightKg":2.35,"efficiency":1,"efficiencyStatus":"verified","confidence":"high","priceCapturedAt":"2026-11-07T22:34:00+08:00","shopName":"联想京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100319918295.html","dataGaps":[],"cpu":{"model":"Core Ultra 7 251HX","vendor":"Intel","cores":18,"threads":18},"ram":{"gb":16,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64,"config":"16GB×1"},"gpu":{"model":"RTX 5060","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":240,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":500},"price":{"list":14999,"net":14999,"subsidy":1500,"final":13499,"basisNote":"list=详情页划线价¥14999；net=页面无可领券，等于list；subsidy=页面明写「国家补贴 领后减¥1500」；final=详情页「国补领后价」¥13499，未登录未进结算页","discounts":[]},"throttle":null,"ports":["雷电 4 / USB4 ×1","USB-C ×1","USB-A ×3","HDMI 2.1","RJ45"]},{"id":"spec-hp-starbookpro14-2026","name":"星 Book Pro 14 2026 锐龙版","brand":"惠普","cat":"thin","storageGB":1024,"batteryWh":68,"weightKg":1.54,"efficiency":1,"efficiencyStatus":"verified","confidence":"medium","priceCapturedAt":"2026-11-07T22:48:00+08:00","shopName":"惠普京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100346311456.html","dataGaps":[],"cpu":{"model":"Ryzen 7 H255","vendor":"AMD","cores":8,"threads":16},"ram":{"gb":32,"type":"LPDDR5X-8533","form":"lpddr","slots":0,"maxGB":32,"config":"板载"},"gpu":{"model":"Radeon 780M","vendor":"AMD","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":14,"widthPx":2880,"heightPx":1800,"refreshHz":120,"panel":"OLED","colorGamut":{"dciP3":100},"brightnessNit":1100},"price":{"list":7998,"net":7298,"subsidy":1094.7,"final":6203.3,"basisNote":"list=详情页「日常价」¥7998；discounts=店铺券满5000减500、已补200（均页面明写），Σ=700；net=7998−700=7298；subsidy=页面明写「领后减￥1094.7」；final=「国补领后价」¥6203.3；校验：7298−1094.7=6203.3 成立。","discounts":[{"name":"店铺券 满5000减500","amount":500},{"name":"已补","amount":200}]},"throttle":null,"ports":["USB-A ×2","USB-C ×2","HDMI 2.1"]},{"id":"spec-hp-66g8-amd","name":"战66 八代 14 英寸（2026 款锐龙版）","brand":"惠普","cat":"thin","storageGB":1024,"batteryWh":68,"weightKg":1.48,"efficiency":1,"efficiencyStatus":"verified","confidence":"medium","priceCapturedAt":"2026-11-07T22:48:00+08:00","shopName":"惠普（HP）京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100252158679.html","dataGaps":[],"cpu":{"model":"Ryzen 7 H255","vendor":"AMD","cores":8,"threads":16},"ram":{"gb":16,"type":"DDR5-6400","form":"sodimm","slots":2,"maxGB":64,"config":"双插槽"},"gpu":{"model":"Radeon 780M","vendor":"AMD","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":14,"widthPx":2560,"heightPx":1600,"refreshHz":120,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":400},"price":{"list":5499,"net":5499,"subsidy":824.85,"final":4674.15,"basisNote":"list=详情页划线价¥5499；net=页面无优惠券，等于list；subsidy=页面明写「国家补贴｜领后减￥824.85」；final=详情页「国补领后价」¥4674.15，未登录未进结算页","discounts":[]},"throttle":null,"ports":["USB-A ×2","USB-C ×2","HDMI","RJ45"]},{"id":"spec-xiaoxin-pro14-2026-amd","name":"小新 Pro 14 2026（锐龙版）","brand":"联想","cat":"thin","storageGB":1024,"batteryWh":60,"weightKg":1.46,"efficiency":1,"efficiencyStatus":"verified","confidence":"medium","priceCapturedAt":"2026-11-07T21:20:00+08:00","shopName":"联想京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100241441971.html","dataGaps":[],"cpu":{"model":"Ryzen 7 H255","vendor":"AMD","cores":8,"threads":16},"ram":{"gb":24,"type":"DDR5-5600","form":"sodimm","slots":2,"maxGB":64,"config":"SO-DIMM 双槽"},"gpu":{"model":"Radeon 780M","vendor":"AMD","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":14,"widthPx":2880,"heightPx":1800,"refreshHz":120,"panel":"IPS","colorGamut":{"sRGB":100},"brightnessNit":1100},"price":{"list":7799,"net":7799,"subsidy":1169.85,"final":6629.15,"basisNote":"list=详情页划线价¥7799；net=页面无平台券可叠，等于list；subsidy=页面明写「领后减¥1169.85」；final=详情页主价「国补领后价」¥6629.15，未登录无法进结算页复核","discounts":[]},"throttle":null,"ports":["USB-A ×2","USB-C（DP）","HDMI 2.1","Micro SD"]},{"id":"spec-thinkbook16p-2026","name":"ThinkBook 16+ 2026（酷睿 Ultra5 338H）","brand":"联想","cat":"thin","storageGB":1024,"batteryWh":99.9,"weightKg":1.75,"efficiency":1,"efficiencyStatus":"verified","confidence":"high","priceCapturedAt":"2026-11-07T22:14:00+08:00","shopName":"ThinkPad京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100433748810.html","dataGaps":[],"cpu":{"model":"Core Ultra 5 338H","vendor":"Intel","cores":12,"threads":12},"ram":{"gb":32,"type":"LPCAMM2-8533","form":"lpcamm2","slots":1,"maxGB":null},"gpu":{"model":"Intel Arc B370","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":16,"widthPx":3200,"heightPx":2000,"refreshHz":165,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":500},"price":{"list":8699,"net":8699,"subsidy":1304.85,"final":7394.15,"basisNote":"list=详情页划线价¥8699；net=无平台券可叠，等于list；subsidy=页面明写「领后减¥1304.85」；final=详情页「国补领后价」¥7394.15","discounts":[]},"throttle":null,"ports":["雷电 4 ×2","USB-A 3.2 ×2","USB 2.0 隐藏式 ×1","HDMI 2.1 FRL","4 合 1 SD 读卡器","RJ45","3.5mm"]},{"id":"spec-thinkbook14p-2026","name":"ThinkBook 14+ 2026 锐龙版","brand":"联想","cat":"thin","storageGB":1024,"batteryWh":99.9,"weightKg":1.5,"efficiency":1,"efficiencyStatus":"verified","confidence":"medium","priceCapturedAt":"2026-11-07T22:08:00+08:00","shopName":"ThinkPad京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100429925578.html","dataGaps":[],"cpu":{"model":"Ryzen 7 H255","vendor":"AMD","cores":8,"threads":16},"ram":{"gb":32,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64},"gpu":{"model":"Radeon 780M","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":14.5,"widthPx":3072,"heightPx":1920,"refreshHz":120,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":500},"price":{"list":7999,"net":7999,"subsidy":1199.85,"final":6799.15,"basisNote":"list=搜索卡划线价¥7999（详情页未单独展示划线价）；net=无平台券可叠，等于list；subsidy=页面明写「领后减¥1199.85」；final=详情页「国补领后价」¥6799.15","discounts":[]},"throttle":null,"ports":["雷电 4 / USB4","USB-A","HDMI","SD 读卡器"]},{"id":"spec-parsed-jd-lenovo-xiaoxinpro14-u7-356h-32g-1t-20","name":"小新 Pro 14 2026（酷睿 Ultra 7 版）","brand":"联想","cat":"thin","storageGB":1024,"batteryWh":60,"weightKg":1.39,"efficiency":1,"efficiencyStatus":"verified","confidence":"low","priceCapturedAt":"2026-11-07T21:20:00+08:00","shopName":"联想京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100245296805.html","dataGaps":[],"cpu":{"model":"Ultra7 356H","vendor":null,"cores":16,"threads":16},"ram":{"gb":32,"type":"LPDDR5X","form":"soldered","slots":0,"maxGB":32},"gpu":{"model":"核显","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":14.0,"widthPx":2900,"heightPx":1800,"refreshHz":120,"panel":"OLED","colorGamut":{"sRGB":null,"dciP3":100,"adobeRGB":null},"brightnessNit":1100},"price":{"list":9799,"net":9799,"subsidy":1469.85,"final":8329.15,"basisNote":"list=搜索卡划线价¥9799；discounts=[]；net=9799（页面无券）；subsidy=null（卡片未写出补贴金额）；final=卡片「国补领后价」¥8329.15；net−final=1469.85，恰为 list 的 15%，疑似国补已生效但页面未标金额（观察，不是推算），故 subsidy 留空并标 pending；未进结算页。｜国补 1469.85 元由「券后价 − 页面到手价」反推，与 15%/封顶1500 口径吻合；原记录未单列","discounts":[]},"throttle":null,"ports":["雷电4 ×2","USB-A ×2","HDMI ×1","3.5mm 音频","SD 读卡器"]},{"id":"spec-parsed-jd-lenovo-xiaoxinpro16-u5-336h-24g-1t-20","name":"小新 Pro 16 2026（酷睿 Ultra 5 版）","brand":"联想","cat":"thin","storageGB":1024,"batteryWh":80,"weightKg":1.76,"efficiency":1,"efficiencyStatus":"verified","confidence":"medium","priceCapturedAt":"2026-11-07T21:32:00+08:00","shopName":"联想京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100415546708.html","dataGaps":[],"cpu":{"model":"Ultra5-336H","vendor":null,"cores":12,"threads":12},"ram":{"gb":24,"type":"DDR5","form":"sodimm","slots":2,"maxGB":96},"gpu":{"model":"核显","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":16.0,"widthPx":2880,"heightPx":1800,"refreshHz":120,"panel":"OLED","colorGamut":{"dciP3":100},"brightnessNit":1100},"price":{"list":8999,"net":8999,"subsidy":1349.85,"final":7649.15,"basisNote":"list=详情页划线价¥8999；net=页面无平台券可叠，等于list；subsidy=页面明写「领后减¥1349.85」；final=详情页主价「国补领后价」¥7649.15，未进结算页","discounts":[]},"throttle":null,"ports":["雷电4 ×2","USB-A ×2","HDMI ×1","3.5mm 音频","SD 读卡器"]},{"id":"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-yih","name":"小新 Pro 16 超能本（锐龙版）","brand":"联想","cat":"thin","storageGB":1024,"batteryWh":80,"weightKg":1.76,"efficiency":1,"efficiencyStatus":"verified","confidence":"medium","priceCapturedAt":"2026-11-07T21:32:00+08:00","shopName":"1号会员店","shopType":"self","url":"https://item.jd.com/100344858296.html","dataGaps":[],"cpu":{"model":"R7-H255","vendor":null,"cores":8,"threads":16},"ram":{"gb":24,"type":"DDR5","form":"sodimm","slots":2,"maxGB":96},"gpu":{"model":"核显","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":16.0,"widthPx":2880,"heightPx":1800,"refreshHz":120,"panel":"OLED","colorGamut":{"sRGB":null,"dciP3":null,"adobeRGB":null},"brightnessNit":1100},"price":{"list":7999,"net":7999,"subsidy":1199.85,"final":6799.15,"basisNote":"list=卡片划线价¥7999；discounts=[]；net=7999（无券可叠）；subsidy=null（卡片未写补贴金额）；final=卡片价¥6799.15；net−final=1199.85，恰为 list 的 15%，疑似国补已生效但未标金额（观察），标 pending；未进详情页。｜国补 1199.85 元由「券后价 − 页面到手价」反推，与 15%/封顶1500 口径吻合；原记录未单列","discounts":[]},"throttle":null,"ports":["USB-A 3.2 Gen1 ×2","USB-C 全功能 ×2","HDMI ×1","3.5mm 音频"]},{"id":"spec-parsed-jd-lenovo-xiaoxinpro16-u7-356h-32g-1t-20","name":"小新 Pro 16 超能本（酷睿 Ultra 7 版）","brand":"联想","cat":"thin","storageGB":1024,"batteryWh":80,"weightKg":1.76,"efficiency":1,"efficiencyStatus":"verified","confidence":"low","priceCapturedAt":"2026-11-07T21:32:00+08:00","shopName":"联想京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100245296781.html","dataGaps":[],"cpu":{"model":"Ultra7-356H","vendor":null,"cores":16,"threads":16},"ram":{"gb":32,"type":"LPDDR5X","form":"soldered","slots":0,"maxGB":32},"gpu":{"model":"核显","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":16.0,"widthPx":2900,"heightPx":1800,"refreshHz":120,"panel":"OLED","colorGamut":{"sRGB":null,"dciP3":100,"adobeRGB":null},"brightnessNit":1100},"price":{"list":9999,"net":9999,"subsidy":1499.85,"final":8499.15,"basisNote":"list=卡片划线价¥9999；discounts=[]；net=9999（无券可叠）；subsidy=null（卡片未写补贴金额）；final=卡片价¥8499.15；net−final=1499.85，恰为 list 的 15%，疑似国补已生效但未标金额（观察），标 pending；未进详情页。｜国补 1499.85 元由「券后价 − 页面到手价」反推，与 15%/封顶1500 口径吻合；原记录未单列","discounts":[]},"throttle":null,"ports":["雷电4 ×2","USB-A ×2","HDMI ×1","3.5mm 音频","SD 读卡器"]},{"id":"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-fla","name":"小新 Pro 16 2025（锐龙版）","brand":"联想","cat":"thin","storageGB":1024,"batteryWh":80,"weightKg":1.76,"efficiency":1,"efficiencyStatus":"verified","confidence":"medium","priceCapturedAt":"2026-11-07T21:32:00+08:00","shopName":"联想官方旗舰店","shopType":"flagship","url":"https://item.jd.com/10210827170896.html","dataGaps":[],"cpu":{"model":"R7-H255","vendor":null,"cores":8,"threads":16},"ram":{"gb":24,"type":"DDR5","form":"sodimm","slots":2,"maxGB":null},"gpu":{"model":"核显","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":16.0,"widthPx":2900,"heightPx":1800,"refreshHz":120,"panel":"OLED","colorGamut":{"sRGB":null,"dciP3":100,"adobeRGB":null},"brightnessNit":1100},"price":{"list":7999,"net":7799,"subsidy":1169.85,"final":6629.15,"basisNote":"list=商品卡划线价¥7999；discounts=店铺券满3000减200（商品卡标签原文）；net=7999−200=7799；subsidy=卡片明写「领国家补贴减￥1169.85」；final=卡片「国补领后价」¥6629.15；校验：7799−1169.85=6629.15 成立。回填时漏记该 200 券，已按截图 jd-联想-小新Pro16-20261107-官旗卡.png 补正。","discounts":[{"name":"店铺券 满3000减200","amount":200}]},"throttle":null,"ports":["USB-A 3.2 Gen1 ×2","USB-C 全功能 ×2","HDMI ×1","3.5mm 音频"]},{"id":"spec-parsed-jd-lenovo-xiaoxinair14-u5-226v-16g-512g-","name":"小新 Air 14 2026（酷睿 Ultra5 版）","brand":"联想","cat":"thin","storageGB":512,"batteryWh":65,"weightKg":1.14,"efficiency":1,"efficiencyStatus":"verified","confidence":"low","priceCapturedAt":"2026-11-07T21:52:00+08:00","shopName":"联想京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100382485146.html","dataGaps":[],"cpu":{"model":"Ultra5-226V","vendor":null,"cores":8,"threads":8},"ram":{"gb":16,"type":"LPDDR5X","form":"soldered","slots":0,"maxGB":16},"gpu":{"model":"核显","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":14.0,"widthPx":2600,"heightPx":1600,"refreshHz":120,"panel":"LCD","colorGamut":{"sRGB":100,"dciP3":null,"adobeRGB":null},"brightnessNit":400},"price":{"list":5999,"net":5999,"subsidy":899.85,"final":5099.15,"basisNote":"list=详情页划线价¥5999；net=页面无平台券可叠，等于list；subsidy=页面明写「领后减¥899.85」；final=详情页主价「国补领后价」¥5099.15，未进结算页","discounts":[]},"throttle":null,"ports":["USB-C 全功能 ×3（USB 5Gbps / PD / DP 1.2）"]},{"id":"spec-parsed-jd-lenovo-xiaoxinair14-u7-256v-16g-1t-20","name":"小新 Air 14（酷睿 Ultra7 版）","brand":"联想","cat":"thin","storageGB":1024,"batteryWh":65,"weightKg":1.14,"efficiency":1,"efficiencyStatus":"verified","confidence":"low","priceCapturedAt":"2026-11-07T21:52:00+08:00","shopName":"联想京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100389788454.html","dataGaps":[],"cpu":{"model":"Ultra7-256V","vendor":null,"cores":8,"threads":8},"ram":{"gb":16,"type":"LPDDR5X","form":"soldered","slots":0,"maxGB":16},"gpu":{"model":"核显","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":14.0,"widthPx":2600,"heightPx":1600,"refreshHz":120,"panel":"LCD","colorGamut":{"sRGB":100,"dciP3":null,"adobeRGB":null},"brightnessNit":400},"price":{"list":7999,"net":7999,"subsidy":1199.85,"final":6799.15,"basisNote":"list=卡片划线价¥7999；discounts=[]；net=7999（无券可叠）；subsidy=null（卡片未写补贴金额）；final=卡片价¥6799.15；net−final=1199.85，恰为 list 的 15%，疑似国补已生效但未标金额（观察），标 pending；未进详情页。｜国补 1199.85 元由「券后价 − 页面到手价」反推，与 15%/封顶1500 口径吻合；原记录未单列","discounts":[]},"throttle":null,"ports":["USB-C 全功能 ×3（USB 5Gbps / PD / DP 1.2）"]},{"id":"spec-parsed-jd-lenovo-xiaoxinair15-core5-320-16g-512","name":"小新 Air 15 2026（触控屏版）","brand":"联想","cat":"thin","storageGB":512,"batteryWh":54.7,"weightKg":1.49,"efficiency":1,"efficiencyStatus":"verified","confidence":"low","priceCapturedAt":"2026-11-07T22:02:00+08:00","shopName":"联想授权笔记本电脑专卖店","shopType":"authorized","url":"https://item.jd.com/10227370768311.html","dataGaps":[],"cpu":{"model":"Core5-320","vendor":null,"cores":14,"threads":18},"ram":{"gb":16,"type":"LPDDR5X","form":"soldered","slots":0,"maxGB":16},"gpu":{"model":"核显","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":15.3,"widthPx":1920,"heightPx":1200,"refreshHz":120,"panel":"LCD","colorGamut":{"sRGB":100,"dciP3":null,"adobeRGB":null},"brightnessNit":400},"price":{"list":6599,"net":5960,"subsidy":894,"final":5066,"basisNote":"list=划线价¥6599；discounts=限时立减20、单品立减511（均页面明写），Σ=531；net=6599−531=6068；subsidy=页面明写「领后减￥894」；final=「国补领后价」¥5066；校验：6068−894=5174，与页面 5066 差 108 未查明（可能还有未列出的优惠），标 pending，不硬凑；限时价带倒计时。｜另有 108 元优惠按差额补记｜另有 108 元优惠按差额补记","discounts":[{"name":"限时立减","amount":20},{"name":"单品立减","amount":511},{"name":"其他优惠（差额反推）","amount":108}]},"throttle":null,"ports":["USB-C 全功能 ×2","USB-A ×2","HDMI ×1","3.5mm 音频","MicroSD 读卡器"]},{"id":"spec-parsed-jd-lenovo-thinkbook14plus-u5-225h-16g-51","name":"ThinkBook 14+（酷睿 Ultra5 版）","brand":"联想","cat":"thin","storageGB":512,"batteryWh":85,"weightKg":1.42,"efficiency":1,"efficiencyStatus":"verified","confidence":"low","priceCapturedAt":"2026-11-07T22:08:00+08:00","shopName":"ThinkPad华中授权专卖店","shopType":"authorized","url":"https://item.jd.com/10237426611503.html","dataGaps":[],"cpu":{"model":"Ultra5-225H","vendor":null,"cores":14,"threads":18},"ram":{"gb":16,"type":"LPDDR5X","form":"soldered","slots":0,"maxGB":16},"gpu":{"model":"核显","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":14.0,"widthPx":2880,"heightPx":1800,"refreshHz":120,"panel":"IPS","colorGamut":{"sRGB":100},"brightnessNit":500},"price":{"list":6499,"net":6299,"subsidy":944.85,"final":5354.15,"basisNote":"list=划线价¥6499；discounts=首购礼金200（页面明写）；net=6499−200=6299；subsidy=页面明写「领后减￥944.85」；final=「国补领后价」¥5354.15；校验：6299−944.85=5354.15 成立。首购礼金属新人权益，已单列在 discounts。","discounts":[{"name":"首购礼金","amount":200}]},"throttle":null,"ports":["雷电4 ×1","USB-C 3.2 Gen2(全功能) ×1","USB-A 3.2 Gen1 ×2","USB-A 2.0(隐藏式) ×1","HDMI 2.1 TMDS ×1","RJ45 ×1","MicroSD 读卡器 ×1","TGX 显卡扩展坞接口 ×1"]},{"id":"spec-parsed-jd-lenovo-thinkbook16plus-r7h255-32g-1t-","name":"ThinkBook 16+ 锐龙版 2026","brand":"联想","cat":"thin","storageGB":1024,"batteryWh":99.9,"weightKg":1.75,"efficiency":1,"efficiencyStatus":"verified","confidence":"low","priceCapturedAt":"2026-11-07T22:14:00+08:00","shopName":"ThinkBook笔记本旗舰店","shopType":"thirdparty","url":"https://item.jd.com/10170569808797.html","dataGaps":[],"cpu":{"model":"R7-H255","vendor":null,"cores":8,"threads":16},"ram":{"gb":32,"type":"LPDDR5X","form":"soldered","slots":0,"maxGB":32},"gpu":{"model":"核显","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":16.0,"widthPx":3200,"heightPx":2000,"refreshHz":165,"panel":"IPS","colorGamut":{"sRGB":null,"dciP3":100,"adobeRGB":null},"brightnessNit":500},"price":{"list":11175.29,"net":9479,"subsidy":null,"final":9479,"basisNote":"list=划线价¥11175.29；discounts=满2026享8.5折1676.29（页面标8.5折，按划线价折算）+限时立减20，Σ=1696.29；net=11175.29−1696.29=9479；subsidy=null（标题写「2026补贴15%」但页面无国补金额原文）；final=详情页「到手价」¥9479；校验：9479−0=9479 成立。截图 jd-联想-ThinkBook16+-20261107-旗舰店价格.png 可见「已享受：限时立减20｜满2026享8.5折」与到手价¥9479。","discounts":[{"name":"满2026享8.5折","amount":1676.29},{"name":"限时立减","amount":20}]},"throttle":null,"ports":["USB4 ×2","USB-A 3.2 Gen1 ×2","USB-A 2.0(隐藏式) ×1","TGX 显卡扩展坞 ×1","RJ45 ×1","3.5mm 音频","SD 读卡器"]},{"id":"spec-parsed-jd-lenovo-thinkpade14-u5-336h-32g-1t-202","name":"ThinkPad E14 2026（Ultra 版）","brand":"联想","cat":"thin","storageGB":1024,"batteryWh":64,"weightKg":1.34,"efficiency":1,"efficiencyStatus":"verified","confidence":"low","priceCapturedAt":"2026-11-07T22:32:00+08:00","shopName":"ThinkPad京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100273798057.html","dataGaps":[],"cpu":{"model":"Ultra5-336H","vendor":null,"cores":12,"threads":12},"ram":{"gb":32,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64},"gpu":{"model":"核显","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":14.0,"widthPx":2900,"heightPx":1800,"refreshHz":120,"colorGamut":{"sRGB":100,"dciP3":null,"adobeRGB":null},"brightnessNit":500},"price":{"list":12999,"net":12999,"subsidy":1500,"final":11499,"basisNote":"list=详情页划线价¥12999；net=无平台券可叠，等于list；subsidy=页面明写「领后减￥1500」；final=详情页「国补领后价」¥11499","discounts":[]},"throttle":null,"ports":["雷电4/TBT4 ×1","USB-A 3.2 Gen1 ×1","USB-A 3.2 Gen2 ×1","HDMI 2.1 TMDS ×1","3.5mm 音频"]},{"id":"spec-parsed-jd-lenovo-thinkpade16-core5-320-16g-512g","name":"ThinkPad E16 2026","brand":"联想","cat":"thin","storageGB":512,"batteryWh":48,"weightKg":1.71,"efficiency":1,"efficiencyStatus":"verified","confidence":"low","priceCapturedAt":"2026-11-07T22:40:00+08:00","shopName":"ThinkPad京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100312925235.html","dataGaps":[],"cpu":{"model":"Core5-320","vendor":null,"cores":6,"threads":6},"ram":{"gb":16,"type":"DDR5","form":"sodimm","slots":1,"maxGB":32},"gpu":{"model":"核显","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":16.0,"widthPx":1920,"heightPx":1200,"refreshHz":60,"panel":"IPS","colorGamut":{"sRGB":100,"dciP3":null,"adobeRGB":null},"brightnessNit":400},"price":{"list":7499,"net":7499,"subsidy":1124.85,"final":6374.15,"basisNote":"list=详情页划线价¥7499；net=无平台券可叠，等于list；subsidy=页面明写「领后减￥1124.85」；final=详情页「国补领后价」¥6374.15","discounts":[]},"throttle":null,"ports":["雷电4/TBT4 ×1","USB-A 3.2 Gen1 ×1","USB-A 3.2 Gen2 ×1","HDMI 2.1 TMDS ×1","3.5mm 音频"]},{"id":"spec-parsed-jd-lenovo-thinkpade16-u5-32g-1t-authoriz","name":"ThinkPad E16 Gen 2（Ultra5 版）","brand":"联想","cat":"thin","storageGB":1024,"batteryWh":57,"weightKg":1.77,"efficiency":1,"efficiencyStatus":"verified","confidence":"low","priceCapturedAt":"2026-11-07T22:40:00+08:00","shopName":"ThinkPad山东授权专卖店","shopType":"authorized","url":"https://item.jd.com/10143602866442.html","dataGaps":["throttle","batteryWh、weightKg 仍缺（psref 有值但本轮未取证，不填）","cpu.model 记为『Ultra5（第1代）』= Ultra 5 125U/125H，cpuId 待补（属 cpuId 批次任务）"],"cpu":{"model":"Ultra5（第1代）","vendor":null,"cores":14,"threads":18},"ram":{"gb":32,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64},"gpu":{"model":"核显","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":16.0,"widthPx":2560,"heightPx":1600,"refreshHz":60,"panel":"IPS","colorGamut":{"sRGB":100,"dciP3":null,"adobeRGB":null},"brightnessNit":400},"price":{"list":10199,"net":8868,"subsidy":1330.2,"final":7537.8,"basisNote":"list=划线价¥10199；discounts=首购礼金1311、限时立减20（均页面明写），Σ=1331；net=10199−1331=8868；subsidy=页面明写「领后减¥1330.2」；final=「国补领后价」¥7537.8；校验：8868−1330.2=7537.8 成立。","discounts":[{"name":"首购礼金","amount":1311},{"name":"限时立减","amount":20}]},"throttle":null,"ports":["雷电4/USB4 ×1","USB-C 3.2 Gen2x2 20Gbps ×1","USB-A 3.2 Gen2 10Gbps(Always On) ×1","USB-A 3.2 Gen1 5Gbps ×1","HDMI 2.1 ×1","RJ45 ×1","3.5mm 音频"]},{"id":"spec-parsed-jd-lenovo-legion-r7000p2026-r9-8940hx-16","name":"拯救者 R7000P 2026（R7000 系列自营在售款）","brand":"联想","cat":"thin","storageGB":1024,"batteryWh":80,"weightKg":2.35,"efficiency":1,"efficiencyStatus":"verified","confidence":"low","priceCapturedAt":"2026-11-07T22:34:00+08:00","shopName":"联想京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100418894814.html","dataGaps":[],"cpu":{"model":"R9-8940HX","vendor":null,"cores":16,"threads":32},"ram":{"gb":16,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64},"gpu":{"model":"RTX5060","type":"discrete","vramGB":8},"screen":{"sizeInch":16.0,"widthPx":2600,"heightPx":1600,"refreshHz":240,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":500},"price":{"list":14499,"net":14499,"subsidy":1500,"final":12999,"basisNote":"list=详情页划线价¥14499；net=页面无任何优惠券，等于list；subsidy=页面明写「国家补贴 领后减¥1500」；final=详情页「国补领后价」¥12999，未登录未进结算页","discounts":[]},"throttle":null,"ports":["USB-A ×3","USB-C ×2","HDMI ×1","RJ45 ×1"]},{"id":"spec-parsed-jd-dell-inspiron14plus-7440-core5-210h-1","name":"灵越 14 Plus 7440（自营最新款，未标 2026）","brand":"戴尔","cat":"thin","storageGB":1024,"batteryWh":64,"weightKg":1.6,"efficiency":null,"efficiencyStatus":"conflict","confidence":"medium","priceCapturedAt":"2026-11-07T22:55:00+08:00","shopName":"戴尔京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100241145026.html","dataGaps":["throttle","efficiencyStatus","⚠️ 内存形态裁定（2026-11-11）：戴尔官网『板载 LPDDR5x 6400 双通道，16G=2×8 板载 / 32G=2×16 板载』。京东参数区『插槽数量:7个』为明显的参数区错误数据，弃用。原库内『LPDDR5X 焊死 vs 1 插槽 vs 最大16G』自相矛盾已解：焊死、无插槽、最大 32G"],"cpu":{"model":"Core5-210H","vendor":null,"cores":8,"threads":12},"ram":{"gb":16,"type":"LPDDR5X","form":"soldered","slots":0,"maxGB":32},"gpu":{"model":"核显","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":14.0,"widthPx":2560,"heightPx":1600,"refreshHz":120,"panel":"IPS","colorGamut":{"sRGB":100},"brightnessNit":300},"price":{"list":6999,"net":6969,"subsidy":1045.35,"final":5923.65,"basisNote":"list=划线价¥6999；discounts=限时立减30（页面明写）；net=6969；subsidy=页面明写「领后减￥1045.35」；final=「国补领后价」¥5923.65；校验：6969−1045.35=5923.65 成立。限时立减30属限时价。","discounts":[{"name":"限时立减","amount":30}]},"throttle":null,"ports":["雷电4 ×1","USB-A 3.2 Gen1 ×2","HDMI 1.4 ×1","3.5mm 通用音频","MicroSD 读卡器","电源接口"]},{"id":"spec-parsed-jd-asus-wuwei16-2026-r7h260-16g-512g-202","name":"无畏16 2026 锐龙版（R7-H260/核显）","brand":"华硕","cat":"thin","storageGB":512,"batteryWh":70,"weightKg":1.69,"efficiency":1,"efficiencyStatus":"pending","confidence":"medium","priceCapturedAt":"2026-11-07T23:52:00+08:00","shopName":"华硕京东自营官方旗舰店","shopType":"self","url":"https://item.jd.com/100319957003.html","dataGaps":["throttle","efficiencyStatus","内存为混合形态：官网『板载 8GB/16GB DDR5 + 1×DDR5 SO-DIMM 扩展槽』，16G 版=板载16G+空槽可扩展。form 填 sodimm 指判定语义『可加内存』（lib_judge form_is_soldered 有插槽即可换）"],"cpu":{"model":"R7-H260","vendor":null,"cores":8,"threads":16},"ram":{"gb":16,"type":"DDR5","form":"sodimm","slots":1,"maxGB":40},"gpu":{"model":"核显","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":16.0,"widthPx":2560,"heightPx":1600,"refreshHz":144,"panel":"IPS","colorGamut":{"sRGB":100},"brightnessNit":400},"price":{"list":5999,"net":5799,"subsidy":869.85,"final":4929.15,"basisNote":"list=详情页划线价¥5999；discounts=满5900减200（详情页明写）；net=5999−200=5799；subsidy=页面明写「国家补贴｜领后减¥869.85」；final=详情页到手价¥4929.15；校验：5799−869.85=4929.15 成立。","discounts":[{"name":"店铺券 满5900减200","amount":200}]},"throttle":null,"ports":["USB-C 3.2 全功能 ×2","USB-A 3.2 ×2","HDMI ×1","3.5mm 音频","读卡器"]},{"id":"spec-parsed-jd-asus-wuwei-pro14-2026-u7-356h-32g-1t-","name":"无畏Pro14 酷睿版 2026（Ultra7-356H/核显）","brand":"华硕","cat":"thin","storageGB":1024,"batteryWh":80,"weightKg":1.39,"efficiency":1,"efficiencyStatus":"verified","confidence":"low","priceCapturedAt":"2026-11-07T23:50:30+08:00","shopName":"华硕京东自营官方旗舰店","shopType":"self","url":"https://item.jd.com/100315130636.html","dataGaps":[],"cpu":{"model":"Ultra7-356H","vendor":null,"cores":16,"threads":16},"ram":{"gb":32,"type":"LPDDR5X","form":"soldered","slots":0,"maxGB":32},"gpu":{"model":"核显","type":"integrated","vramGB":0,"vramType":"shared"},"screen":{"sizeInch":14.0,"widthPx":2880,"heightPx":1800,"refreshHz":120,"panel":"OLED","colorGamut":{"dciP3":100},"brightnessNit":1100},"price":{"list":9499,"net":9499,"subsidy":1424.85,"final":8074.15,"basisNote":"list=详情页划线价¥9499；discounts=无（页面「已享受」区仅国家补贴一项，无店铺券/立减）；net=9499；subsidy=页面明写「国家补贴｜领后减￥1424.85」；final=页面主价与购买按钮「新人到手价」均¥8074.15；校验：9499−1424.85=8074.15 成立。","discounts":[]},"throttle":null,"ports":["雷电4 ×1","USB-C 3.2 Gen2（DP/PD）×1","USB-A 3.2 Gen1 ×2","HDMI 2.1 TMDS ×1","3.5mm 音频"]},{"id":"jd-lenovo-xiaoxinair14-u5-226v-16g-512g-flagship-20261107","name":"小新 Air 14（酷睿 Ultra5 版）","brand":"联想","cat":"thin","storageGB":512,"batteryWh":65,"weightKg":1.14,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-07T21:52:00+08:00","shopName":"联想官方旗舰店","shopType":"flagship","url":"https://item.jd.com/10228821882553.html","dataGaps":[],"cpu":{"model":"Ultra5-226v","cores":8,"threads":8},"ram":{"gb":16,"type":"LPDDR5X","form":"soldered","slots":0,"maxGB":16},"gpu":{"model":"核显","type":"integrated","vramGB":0},"screen":{"sizeInch":14,"widthPx":2560,"heightPx":1600,"refreshHz":120,"panel":"LCD","colorGamut":{"sRGB":100,"dciP3":null,"adobeRGB":null},"brightnessNit":400},"price":{"list":5999,"net":5999,"subsidy":899.85,"final":5099.15,"basisNote":"list=卡片划线价¥5999；discounts=[]；net=5999（无券可叠）；subsidy=null（卡片未写补贴金额）；final=卡片价¥5099.15；net−final=899.85，恰为 list 的 15%，疑似国补已生效但未标金额（观察），标 pending；未进详情页。｜国补 899.85 元由「券后价 − 页面到手价」反推，与 15%/封顶1500 口径吻合；原记录未单列","discounts":[]},"throttle":null,"ports":["USB-C 全功能 ×3（USB 5Gbps / PD / DP 1.2）"]},{"id":"jd-asus-rog-zephyrus-g16air2026-u9-386h-rtx5070-32g-1t-20261108","name":"ROG幻16 Air 2026（Ultra9-386H/RTX5070/32G/1T）","brand":"华硕","cat":"gaming","storageGB":1024,"batteryWh":90,"weightKg":1.85,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-08T13:38:00+08:00","shopName":"ROG官方旗舰店","shopType":"flagship","url":"https://item.jd.com/10218319809016.html","dataGaps":[],"cpu":{"model":"Core Ultra 9 386H","cores":16,"threads":16},"ram":{"gb":32,"type":"LPDDR5X","form":"onboard","slots":0,"maxGB":32},"gpu":{"model":"RTX 5070","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":240,"panel":"OLED（ROG 星云原画屏，防反射）","colorGamut":{"sRGB":null,"dciP3":100,"adobeRGB":null},"brightnessNit":1100},"price":{"list":24999,"net":24999,"subsidy":1500,"final":23499,"basisNote":"list=页面价旁原价¥24999；discounts=无；net=24999；subsidy=「已享受：国家补贴｜领后减￥1500」；final=「国补领后价」与右下「新人到手价」均¥23499；校验：24999−1500=23499 成立。页面另有「大促国补后到手价 21631」横幅，为再叠加 Plus学生立减1868 的学生专属价（23499−1868=21631），不作为通用 final。","discounts":[]},"throttle":{"cpuSustainedW":55,"gpuSustainedW":110,"totalSustainedW":165,"ratedTgpW":120,"sustainedNote":"轻薄双烤 CPU 55W + GPU 110W；整机释放有 135W / 115W / 165W 三种口径（评测来源不同），保守按 165W 上限、115W 持续记录","note":"1.85kg 薄机身，冰川散热 3.0 三风扇 + 液金；液金长期使用有偏移风险——买前留意保修条款","source":"CSDN 2026年8月横评 + 太平洋知科技 + clove"},"ports":["雷电/USB4 ×1","USB-C ×1","HDMI 2.1","SD 读卡器"]},{"id":"jd-msi-xingying15max-i713620h-rtx5050-32g-1t-20261109","name":"星影15 MAX 2026（i7-13620H/RTX5050/32G/1T）","brand":"微星","cat":"gaming","storageGB":1024,"batteryWh":60,"weightKg":2.0,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-09T10:20:00+08:00","shopName":"微星电脑旗舰店","shopType":"flagship","url":"https://item.jd.com/10238215184189.html","dataGaps":[],"cpu":{"model":"i7-13620H","vendor":"Intel","cores":10,"threads":16},"ram":{"gb":32,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64},"gpu":{"model":"RTX5050","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":15.6,"widthPx":2560,"heightPx":1440,"refreshHz":165,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":null},"price":{"list":null,"net":10599,"subsidy":null,"final":10599,"basisNote":"主价 ¥10599，底部购买条『新人到手价 ¥10599.00』—— 两者一致，按实付 10599 记录；同 SKU 配置选项：16G/512G（无货）、16G/1T、套餐一 32G/1T（已选）、套餐二 32G/2T、套餐三 64G/1T、套餐四 64G/2T；主图标『国补到手价 7919 起 / 可用补贴1500元』，7919 对应 16G/512G 基准价 9199 的 15% 补贴后价，非本 32G/1T 配置；本配置国补后价格页面未单列，subsidy 留空","discounts":[]},"throttle":{"cpuSustainedW":40,"gpuSustainedW":100,"totalSustainedW":140,"ratedTgpW":100,"sustainedNote":"微星官方：狂暴模式整机 CPU+GPU 至高 140W，GPU 100W（Dynamic Boost 2.0）；2 风扇 3 热管 + 相变导热","note":"注意区分：同系列 HX 版（i7-14650HX）才是 170W/115W 满血；本机 i7-13620H 版 GPU 上限 100W，不是 115W 满血","source":"微星官网 Cyborg-15-MAX-C2WX 产品页"},"ports":["USB-A 3.2 Gen1 ×2（官方详情图标示）","USB-A 3.2 Gen2 ×1","USB-C 3.2 Gen2 ×1（支持视频输出/PD 充电）","HDMI 2.1（4K@60Hz）","RJ45 千兆","3.5mm 二合一音频","DC 电源口","无雷电端口（官方详情图未标雷电）"]},{"id":"jd-asus-tianxuan6-h260-rtx5050-32g-1t-20261109","name":"天选6 2026（锐龙7 H260/RTX5050/32G/1T）","brand":"华硕","cat":"gaming","storageGB":1024,"batteryWh":90,"weightKg":2.2,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-09T10:20:00+08:00","shopName":"华硕华南授权旗舰店","shopType":"authorized","url":"https://item.jd.com/10176572919699.html","dataGaps":[],"cpu":{"model":"锐龙7 H 260","vendor":"AMD","cores":8,"threads":16},"ram":{"gb":32,"type":"DDR5-5600","form":"sodimm","slots":2,"maxGB":64},"gpu":{"model":"RTX5050","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":1920,"heightPx":1200,"refreshHz":165,"panel":"IPS","colorGamut":{"sRGB":100},"brightnessNit":null},"price":{"list":null,"net":12899,"subsidy":null,"final":12898,"basisNote":"主价 ¥12899（页面大号红字，已选『32G内存/1T高速固态硬盘』配置）；底部购买条显示『到手价 ¥12898.00』，与主价差 1 元疑为微额券，未进结算页复核；同店 16G/512G 变体为 ¥10799（另查）；页面标『国家补贴』活动，但国补后的具体金额未在页面上单独列出，subsidy 留空不臆造。采价时间 2026-11-09 21:5x，正值双11大促，价格波动大","discounts":[]},"throttle":{"cpuSustainedW":68,"gpuSustainedW":115,"totalSustainedW":160,"ratedTgpW":115,"sustainedNote":"与天选7 同模具（冰川散热后出风内吹）：CPU SPL 80W、GPU 115W 满血；增强模式整机 160W，手动最高 170W","note":"天选6 32G/1T 版本，散热与天选7 相同","source":"华硕官方口径（天选7/6 系列散热一致）+ 今日头条实测"},"ports":["USB-A 3.2 ×3","USB-C ×2","HDMI 2.1","RJ45 千兆","无雷电端口（华南店参数明确无；注意：另一店铺 FA608UH260 版参数标 USB4×1，百度百科亦称含 USB4 —— 同系列接口标注冲突，以华南授权店在售 SKU 页面为准，待详情页复核）"]},{"id":"jd-mechrevo-kuangshix-i514450hx-rtx5050-32g-1t-20261109","name":"旷世X 2026（i5-14450HX/RTX5050/32G/1T）","brand":"机械革命","cat":"gaming","storageGB":1024,"batteryWh":80,"weightKg":2.2,"efficiency":1,"efficiencyStatus":null,"confidence":"medium","priceCapturedAt":"2026-11-09T22:20:00+08:00","shopName":"薄龙笔记本专营店","shopType":"thirdparty","url":"https://item.jd.com/10235128439583.html","dataGaps":["efficiency","throttle","weightKg 三个 SKU 分别写 2.45 / 2.3 / 2.2 kg，冲突待核","刷新率与色域存在批次分歧：IT之家 2026-07 报道写 180Hz/100%sRGB/500nit，京东现售 3 个 SKU 均写 240Hz（色域自营写 100% DCI-P3、两家官方旗舰店写 100%sRGB）。本记录取 240Hz + sRGB 100（3:1 多数），若实机为 180Hz 批次需回滚","⚠️ CPU/GPU 配置存疑：库内记 i5-14450HX/RTX5050，但 2026 款在售全部为 C7-245HX + RTX5060/5070（IT之家 2026-07-14），未找到 5050 版在售 SKU"],"cpu":{"model":"i5-14450HX","vendor":"Intel","cores":10,"threads":16},"ram":{"gb":32,"type":"DDR5","form":"sodimm","slots":2,"maxGB":null},"gpu":{"model":"RTX5050","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":null,"widthPx":2560,"heightPx":1600,"refreshHz":240,"panel":null,"colorGamut":{"srgb":100},"brightnessNit":null},"price":{"list":10999,"net":10599,"subsidy":1500,"final":9099,"basisNote":"划线 ¥10999；已享受『国家补贴｜领后减￥1500』+『首购礼金可减400元』；页面主价即『国补领后价 ¥9099』。校验：10999−400−1500=9099 完全对账。net 记为券后未补贴价 10599；采价 2026-11-09 双11 期间","discounts":[{"name":"首购礼金","amount":400}]},"throttle":{"cpuSustainedW":55,"gpuSustainedW":114,"totalSustainedW":169,"ratedTgpW":115,"sustainedNote":"狂暴模式双烤：CPU 55W + 显卡 114W（满血115W），CPU 81℃/GPU 83.2℃；多源实测 57+113 至 170W 稳定","note":"笔吧提示：表面温度偏高（键帽最高 45.7℃）；部分个体双烤时 CPU 功率骤降、批次有差异——买前留意售后","source":"笔吧评测室（今日头条 7676678186578543123，BIOS N.1.12MRO08）+ smzdm 多源"},"ports":["USB-A ×3（左侧1个5Gbps+右侧2个5Gbps）","USB-C ×2（1×10Gbps 140W PD/DP1.4，1×5Gbps 仅数据）","HDMI 2.1 FRL（独显输出）","MiniDP 2.1（80Gbps 独显输出）","RJ45 1GbE"]},{"id":"jd-mechrevo-wujie15x-r7h255-16g-1t-20261109","name":"无界15X Pro（R7-H255/16G/1T）","brand":"机械革命","cat":"thin","storageGB":1024,"batteryWh":99,"weightKg":1.77,"efficiency":1,"efficiencyStatus":null,"confidence":"medium","priceCapturedAt":"2026-11-09T23:20:00+08:00","shopName":"机械革命（MECHREVO）臻选专卖店","shopType":"thirdparty","url":"https://item.jd.com/10232234279921.html","dataGaps":["throttle","efficiencyStatus","ram.maxGB 有 64（京东详情表）与 96（闽南网 H255 版报道）两种说法，maxGB 不影响判定，不改","⚠️ 纠错说明：原记 refreshHz=240 来自第三方店详情表『配置名 2.5K/240Hz』，官网产品页、京东自营同模具版、海外官网、三方四来源全部为 120Hz，本次按多数+官方口径纠错为 120。原 batteryWh=80 同为第三方店详情表值，官方与全渠道为 99Wh，纠错为 99"],"cpu":{"model":"R7-H255","vendor":"AMD","cores":8,"threads":16},"ram":{"gb":16,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64},"gpu":{"model":"Radeon 780M","vendor":"AMD","type":"integrated","vramGB":0},"screen":{"sizeInch":15.3,"widthPx":2560,"heightPx":1600,"refreshHz":120,"panel":null,"colorGamut":{"sRGB":100},"brightnessNit":400},"price":{"list":6248,"net":5898,"subsidy":null,"final":5898,"basisNote":"页面主价 ¥5898 标注「首单到手价」，划线 ¥6248；未标国补金额，subsidy 留空；首单价是否人人可得未核实（真实到手可能 6248）｜350 元为首单/活动优惠，非国补（不符 15% 口径），按差额补记｜350 元为首单/活动优惠，非国补（不符 15% 口径），按差额补记","discounts":[{"name":"首单/活动优惠（差额反推）","amount":350}]},"throttle":null,"ports":["USB4 ×1（DP/充电）","USB-C 3.2 全功能 ×1","USB-A 3.2 Gen1 ×3","HDMI 2.1 ×1","RJ45 千兆 ×1","3.5mm 音频 ×1"]},{"id":"jd-mechrevo-wujie14-u5-226v-16g-1t-20261109","name":"无界14 2026（Ultra5-226V/16G/1T）","brand":"机械革命","cat":"thin","storageGB":1024,"batteryWh":60,"weightKg":1.07,"efficiency":1,"efficiencyStatus":null,"confidence":"medium","priceCapturedAt":"2026-11-09T23:15:00+08:00","shopName":"机械革命京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100331584964.html","dataGaps":["throttle","efficiencyStatus"],"cpu":{"model":"Ultra5-226V","vendor":"Intel","cores":8,"threads":8},"ram":{"gb":16,"type":"LPDDR5X","form":"soldered","slots":0,"maxGB":16},"gpu":{"model":"Intel Arc 130V","vendor":"Intel","type":"integrated","vramGB":0},"screen":{"sizeInch":14,"widthPx":2880,"heightPx":1800,"refreshHz":120,"panel":null,"colorGamut":{"sRGB":100},"brightnessNit":500},"price":{"list":5199,"net":4990.5,"subsidy":749.85,"final":4240.65,"basisNote":"详情页主价 ¥4240.65 标注「国补领后价」，划线 ¥5199；搜索卡标「领国家补贴减￥749.85」（5199−749.85≈4449，与 4240.65 不等，另有券，差额未逐项核）；按页面主价记 final｜另有 208.5 元优惠按差额补记｜另有 208.5 元优惠按差额补记","discounts":[{"name":"其他优惠（差额反推）","amount":208.5}]},"throttle":null,"ports":["USB-A ×3","USB-C ×2（双雷电4，标题明示）","详情表另有尺寸 309×217.75×15.95mm"]},{"id":"jd-apple-macbookair15-m4-16g-512g-20261109","name":"MacBook Air 15 M4（16G/512G）","brand":"苹果","cat":"thin","storageGB":512,"batteryWh":66.5,"weightKg":1.51,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-09T23:58:00+08:00","shopName":"Apple产品京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100127131036.html","dataGaps":[],"cpu":{"model":"Apple M4","vendor":"Apple","cores":10,"threads":10},"ram":{"gb":16,"type":"LPDDR5X 统一内存","form":"soldered","slots":0,"maxGB":16},"gpu":{"model":"Apple M4 10核GPU","vendor":"Apple","type":"unified","vramGB":null},"screen":{"sizeInch":15.3,"widthPx":2880,"heightPx":1864,"refreshHz":60,"panel":"Liquid Retina","colorGamut":{"dciP3":100},"brightnessNit":500},"price":{"list":10499,"net":10446.51,"subsidy":1500,"final":8946.51,"basisNote":"京东自营页面价 ¥10499；国补 15% 封顶 1500 → 减 1500；PLUS 专享立减 52.49。10499−52.49−1500=8946.51 与爆料实付一致。教育优惠价 ¥8749 再减国补 1312.35 = 7436.65（需学生认证）—— 两个价并存，本记录取常规自营价，教育优惠另记在 note","discounts":[{"name":"PLUS专享立减","amount":52.49}]},"throttle":{"note":"无风扇被动散热的实测代价。突发任务（编译、导出 10 分钟片子）感知不到，长片渲染能看出来","source":"comparedb 20 分钟 Cinebench R23 多核循环实测：峰值 12,919 → 持续约 11,400，衰减 12%"},"ports":["Thunderbolt 4 ×2","MagSafe 3 磁吸充电","3.5mm 耳机孔","无 USB-A（需扩展坞）","无 HDMI","无 RJ45"]},{"id":"jd-apple-macbookpro14-m5-16g-512g-20261109","name":"MacBook Pro 14 M5（16G/512G）","brand":"苹果","cat":"thin","storageGB":512,"batteryWh":72.4,"weightKg":1.55,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-09T23:59:00+08:00","shopName":"Apple产品京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100152613990.html","dataGaps":[],"cpu":{"model":"Apple M5","vendor":"Apple","cores":10,"threads":10},"ram":{"gb":16,"type":"LPDDR5X 统一内存","form":"soldered","slots":0,"maxGB":16},"gpu":{"model":"Apple M5 10核GPU","vendor":"Apple","type":"unified","vramGB":null},"screen":{"sizeInch":14.2,"widthPx":3024,"heightPx":1964,"refreshHz":120,"panel":"Liquid Retina XDR","colorGamut":{"dciP3":100},"brightnessNit":1600},"price":{"list":11549,"net":11549,"subsidy":1500,"final":10049,"basisNote":"京东页面价 ¥11549，国补减 1500 → 10049（爆落实付 10048，差 1 元为券）；同款另有 12249→10749、12999→11499 等不同活动档，价格波动大。教育优惠存在但未采到确切价","discounts":[]},"throttle":{"sustainedNote":"有风扇主动散热：30 分钟 Cinebench R23 多核循环保持峰值 92%（specforge 实测），无可见降频","source":"specforge.nl 评测"},"ports":["Thunderbolt 4 ×3","HDMI","SDXC 读卡器","MagSafe 3","3.5mm 耳机孔","无 USB-A"]},{"id":"jd-apple-macbookair13-m4-16g-256g-20261109","name":"MacBook Air 13 M4（16G/256G）","brand":"苹果","cat":"thin","storageGB":256,"batteryWh":53.8,"weightKg":1.24,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-10T00:20:00+08:00","shopName":"Apple产品京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100140000000.html","dataGaps":[],"cpu":{"model":"Apple M4","vendor":"Apple","cores":10,"threads":10},"ram":{"gb":16,"type":"LPDDR5X 统一内存","form":"soldered","slots":0,"maxGB":16},"gpu":{"model":"Apple M4 8核GPU","vendor":"Apple","type":"unified","vramGB":null},"screen":{"sizeInch":13.6,"widthPx":2560,"heightPx":1664,"refreshHz":60,"panel":"Liquid Retina","colorGamut":{"dciP3":100},"brightnessNit":500},"price":{"list":7249,"net":7249,"subsidy":1087.35,"final":6161.65,"basisNote":"京东活动价 ¥7249，国补 15% 减 1087.35 → 实付 6161.65（ZOL 行情与爆款口径一致）。同款另有 7999→6765.16 的活动档，价格随活动波动；教育优惠另有更低档","discounts":[]},"throttle":{"note":"无风扇被动散热的实测代价。突发任务（编译、导出 10 分钟片子）感知不到，长片渲染能看出来","source":"comparedb 20 分钟 Cinebench R23 多核循环实测：峰值 12,919 → 持续约 11,400，衰减 12%"},"ports":["Thunderbolt 4 ×2","MagSafe 3","3.5mm 耳机孔","无 USB-A","无 HDMI","无读卡器"]},{"id":"jd-apple-macbookpro14-m5-24g-1t-20261109","name":"MacBook Pro 14 M5（24G/1T）","brand":"苹果","cat":"thin","storageGB":1024,"batteryWh":72.4,"weightKg":1.6,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-10T00:22:00+08:00","shopName":"Apple产品京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100152613991.html","dataGaps":[],"cpu":{"model":"Apple M5","vendor":"Apple","cores":10,"threads":10},"ram":{"gb":24,"type":"LPDDR5X 统一内存","form":"soldered","slots":0,"maxGB":24},"gpu":{"model":"Apple M5 10核GPU","vendor":"Apple","type":"unified","vramGB":null},"screen":{"sizeInch":14.2,"widthPx":3024,"heightPx":1964,"refreshHz":120,"panel":"Liquid Retina XDR","colorGamut":{"dciP3":100},"brightnessNit":1600},"price":{"list":14999,"net":14999,"subsidy":1500,"final":13499,"basisNote":"京东标价 ¥14999，国补封顶减 1500 → 13499；教育优惠另有更低档但未采到确切价","discounts":[]},"throttle":{"sustainedNote":"同模具同散热（MacBook Pro 14 M5 有风扇），30 分钟循环保持峰值 92%","source":"specforge.nl 评测（16G 版实测，24G 版同散热设计）"},"ports":["Thunderbolt 4 ×3","HDMI","SDXC 读卡器","MagSafe 3","3.5mm","无 USB-A"]},{"id":"jd-mechrevo-jiaolong15k-r57640h-3050-16g-512g-20261109","name":"机械革命 蛟龙 15K（R5-7640H/16G/512G）","brand":"机械革命","cat":"gaming","storageGB":512,"batteryWh":null,"weightKg":2.0,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-10T01:10:00+08:00","shopName":"机械革命京东自营旗舰店","shopType":"self","url":null,"dataGaps":[],"cpu":{"model":"R5-7640H","vendor":"AMD","cores":6,"threads":12},"ram":{"gb":16,"type":"DDR5-4800","form":"sodimm","slots":2,"maxGB":32},"gpu":{"model":"RTX 3050","vendor":"NVIDIA","type":"discrete","vramGB":4},"screen":{"sizeInch":15.6,"widthPx":1920,"heightPx":1080,"refreshHz":144,"panel":"IPS","colorGamut":{"sRGB":92},"brightnessNit":null},"price":{"list":8499,"net":6499,"subsidy":null,"final":6499,"basisNote":"定价 8499、首发价 6499（IT之家 2026-07-26 上架稿，京东等平台同步开售）；差额 2000 元为首发立减，非国补；国补后价未单独采到｜2000 元为首单/活动优惠，非国补（不符 15% 口径），按差额补记","discounts":[{"name":"首单/活动优惠（差额反推）","amount":2000}]},"throttle":{"cpuSustainedW":54,"gpuSustainedW":95,"totalSustainedW":149,"ratedTgpW":95,"sustainedNote":"RTX3050 95W 满血释放；双烤显卡 82℃，WASD 区约 43℃；R7-7435H 版单烤 CPU 可 80W","note":"本机 R5-7640H 版；风险：smzdm 多位用户反馈长期使用后 CPU 虚焊/散热衰减——买前确认保修","source":"微信公众号横评 + smzdm 多源实测（蛟龙15K 同模具）"},"ports":["USB-A ×3","USB-C ×1","HDMI 2.1","Mini DP","SD 读卡器","RJ45"]},{"id":"jd-mechrevo-jiguangx-cw-i714650hx-32g-1t-5060-20261109","name":"极光X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz）","brand":"机械革命","cat":"gaming","storageGB":1024,"batteryWh":80,"weightKg":2.2,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-10T00:50:00+08:00","shopName":"机械革命京东自营旗舰店","shopType":"self","url":"http://m.bjbpc.com/view.php?aid=2400","dataGaps":[],"cpu":{"model":"i7-14650HX","vendor":"Intel","cores":16,"threads":24},"ram":{"gb":32,"type":"DDR5-5600","form":"sodimm","slots":2,"maxGB":64},"gpu":{"model":"RTX 5060","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":300,"panel":"IPS","colorGamut":{"sRGB":100},"brightnessNit":500},"price":{"list":7699,"net":7699,"subsidy":1540,"final":6159.2,"basisNote":"笔记本评测网潮玩版首发稿：标准版首发 7699，国补后 6159.2（差额 1539.8 为 20% 补贴口径——机械革命该 SKU 享 20% 而非 15%，与家电线 15% 不同，可能走数码补贴线）；同为 32G/1T/5060 的京东自营非潮玩版定价 9299→7904.15，价差需到店核实","discounts":[]},"throttle":{"cpuSustainedW":110,"gpuSustainedW":115,"totalSustainedW":170,"ratedTgpW":115,"sustainedNote":"双冰鲨散热：双烤整机 170W（CPU 110W + GPU 115W 满血），同稿实测","source":"笔记本评测网潮玩版首销稿"},"ports":["USB-A ×3","Type-C ×2","miniDP 2.1","HDMI 2.1","3.5mm"]},{"id":"jd-hasee-zhanshen-t8-i713650hx-16g-1t-5060-20261109","name":"神舟 战神T8（i7-13650HX/16G/1T/RTX5060/2.5K 180Hz）","brand":"神舟","cat":"gaming","storageGB":1024,"batteryWh":53,"weightKg":2.45,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-10T00:57:00+08:00","shopName":"神舟电脑京东自营旗舰店","shopType":"self","url":null,"dataGaps":[],"cpu":{"model":"i7-13650HX","vendor":"Intel","cores":14,"threads":20},"ram":{"gb":16,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64},"gpu":{"model":"RTX 5060","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":180,"panel":"IPS","colorGamut":{"sRGB":100},"brightnessNit":null},"price":{"list":8499.15,"net":8499.15,"subsidy":null,"final":8499.15,"basisNote":"京东自营常卖价 ¥8499.15（历史最低 8074.15）；国补后价未采到——同系列 i5 版 9299 有 15% 国补实付 7904.21 的爆料，本机按 15% 推算约 7224，但未采不填","discounts":[]},"throttle":null,"ports":["USB-A ×2","USB-C ×1","HDMI 2.1"]},{"id":"jd-xiaomi-redmibookpro16-u5338h-32g-1t-20261109","name":"REDMI Book Pro 16 2026（Ultra5-338H/32G/1T）","brand":"小米","cat":"thin","storageGB":1024,"batteryWh":99,"weightKg":1.88,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-10T01:02:00+08:00","shopName":"小米京东自营旗舰店","shopType":"self","url":null,"dataGaps":[],"cpu":{"model":"Ultra5-338H","vendor":"Intel","cores":12,"threads":12},"ram":{"gb":32,"type":"LPDDR5X-9600","form":"soldered","slots":0,"maxGB":32},"gpu":{"model":"Intel Arc 核显","vendor":"Intel","type":"integrated","vramGB":0},"screen":{"sizeInch":16,"widthPx":3200,"heightPx":2000,"refreshHz":165,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":500},"price":{"list":8199,"net":8199,"subsidy":null,"final":8199,"basisNote":"发布价 8199（IT之家 4/21：338H/32G/1T 档）；国补后价未单独采到——低配 325/24G 版有实付 6119.15（7199−国补1079.85，smzdm 实采），按 15% 口径本机推算约 6974，未采不填；2026 年 9 月中旬官方有轮调价（多型号 +400~700，IT之家 9/16）","discounts":[]},"throttle":null,"ports":["Thunderbolt 4 ×1","全功能 USB-C ×1","USB-A ×2","HDMI 2.1","3.5mm"]},{"id":"jd-honor-magicbookpro16-u5338h-32g-1t-20261109","name":"荣耀 MagicBook Pro 16 2026（Ultra5-338H/32G/1T）","brand":"荣耀","cat":"thin","storageGB":1024,"batteryWh":92,"weightKg":1.66,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-10T01:07:00+08:00","shopName":"荣耀京东自营旗舰店","shopType":"self","url":null,"dataGaps":[],"cpu":{"model":"Ultra5-338H","vendor":"Intel","cores":12,"threads":12},"ram":{"gb":32,"type":"LPDDR5X-9600","form":"soldered","slots":0,"maxGB":32},"gpu":{"model":"Intel Arc 核显","vendor":"Intel","type":"integrated","vramGB":0},"screen":{"sizeInch":16,"widthPx":3072,"heightPx":1920,"refreshHz":165,"panel":"LCD","colorGamut":{"dciP3":100},"brightnessNit":null},"price":{"list":10149,"net":9946.02,"subsidy":1491.9,"final":8455.02,"basisNote":"荣耀自营旗舰店页面价 ¥10149；PLUS 补贴 202.98 → 9946.02；国补 15%（1491.9）→ 8455.02。smzdm 爆料实付 8449（差 6 元为补贴口径取整）。其他店：设备旗舰店 8754.15 / 官方旗舰店常卖 8839.15","discounts":[{"name":"PLUS会员补贴","amount":202.98}]},"throttle":null,"ports":["USB-A ×2","USB-C ×1","Thunderbolt ×1","HDMI 2.1","无 RJ45"]},{"id":"jd-huawei-matebookd16-i513420h-16g-1t-20261109","name":"华为 MateBook D 16（i5-13420H/16G/1T，店铺预装 Win 未激活）","brand":"华为","cat":"thin","storageGB":1024,"batteryWh":56,"weightKg":1.7,"efficiency":1,"efficiencyStatus":null,"confidence":"medium","priceCapturedAt":"2026-11-10T01:12:00+08:00","shopName":"华为京东自营旗舰店","shopType":"self","url":null,"dataGaps":["efficiency","weightKg","色域已有 {ntsc:45}（Linux 版口径）。注意：Windows 预装版自营 SKU 写 72%NTSC（≈100%sRGB），两者面板可能不同；本机为 Linux 版改装 Windows，按 45%NTSC 保留。平面视觉组会被判不够——这是真实结论（低色域屏不适合设计），不要为好看改成 72%"],"cpu":{"model":"i5-13420H","vendor":"Intel","cores":8,"threads":12},"ram":{"gb":16,"type":"LPDDR4X","form":"soldered","slots":0,"maxGB":16},"gpu":{"model":"Intel 核显","vendor":"Intel","type":"integrated","vramGB":0},"screen":{"sizeInch":16,"widthPx":1920,"heightPx":1200,"refreshHz":60,"panel":null,"colorGamut":{"ntsc":45},"brightnessNit":300},"price":{"list":4299,"net":4299,"subsidy":644.85,"final":3654.15,"basisNote":"京东活动价 ¥4299，国补 15%（644.85）→ 3654.15（ZOL 两篇行情稿同口径，2026-02 月价）。另有 Linux 版 5690→4449.75。历史低价已进入 3654 区间，是全库最便宜的有独显…不对——是全库最便宜的 16 吋大屏办公本","discounts":[]},"throttle":null,"ports":["USB-A 3.2 Gen1 ×1","USB-A 2.0 ×1","USB-C 3.2 Gen1 ×1","HDMI ×1","3.5mm ×1"]},{"id":"jd-colorful-jiangxingx16pro-i514450hx-16g-512g-5050-20261109","name":"七彩虹 将星 X16 Pro（i5-14450HX/16G/512G/RTX5050/2.5K 180Hz）","brand":"七彩虹","cat":"gaming","storageGB":512,"batteryWh":60,"weightKg":2.7,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-10T01:00:00+08:00","shopName":"七彩虹电脑京东自营旗舰店","shopType":"self","url":null,"dataGaps":[],"cpu":{"model":"i5-14450HX","vendor":"Intel","cores":10,"threads":16},"ram":{"gb":16,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64},"gpu":{"model":"RTX 5050","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":180,"panel":"IPS","colorGamut":{"sRGB":100},"brightnessNit":null},"price":{"list":9289,"net":8499.15,"subsidy":null,"final":8499.15,"basisNote":"京东自营页面价 9289，实付 8499.15（smzdm 爆料全链）。首发价 7199（IT之家 5/30），历史最低 7699——当前价比首发贵 1300，买前比价｜更正：489.85 为京东补贴活动（已在 discounts 计），不是家电线国补，subsidy 置空；","discounts":[{"name":"满301减300券","amount":300},{"name":"15%起减500补贴","amount":489.85}]},"throttle":{"cpuSustainedW":55,"gpuSustainedW":115,"totalSustainedW":200,"ratedTgpW":115,"sustainedNote":"京东参数：CPU 性能释放 55W、GPU 115W；IT之家：双风扇 5 热管 4 出风口，支持 200W 高功耗释放","source":"京东参数区 + IT之家 5/30 上架稿"},"ports":["USB-A ×3","USB-C ×2","HDMI 2.1","DP 1.4","RJ45 千兆","无雷电端口"]},{"id":"jd-lenovo-r9000p2026-r98945hx-16g-1t-5060-20261110","name":"拯救者 R9000P 2026（R9-8945HX/16G/1T/RTX5060/240Hz）","brand":"联想","cat":"gaming","storageGB":1024,"batteryWh":80,"weightKg":2.5,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-10T01:20:00+08:00","shopName":"联想京东自营旗舰店","shopType":"self","url":"https://m.lenovo.com.cn/wiki/article-49882.html","dataGaps":[],"cpu":{"model":"R9-8945HX","vendor":"AMD","cores":16,"threads":32},"ram":{"gb":16,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64},"gpu":{"model":"RTX 5060","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":240,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":500},"price":{"list":14499,"net":14354,"subsidy":1500,"final":12854,"basisNote":"联想官方知识库（tier A）：自营页面标价 14,499，PLUS 减约 145，叠加政府补贴立减 1,500 → 约 12,854（2026-07 数据）。页面标明补贴金额 1500，非反推。32G/1T 版授权店常卖 14694.8","discounts":[{"name":"PLUS会员","amount":145}]},"throttle":null,"ports":["USB-A ×4","USB-C ×2（DP）","HDMI 2.1","RJ45 千兆","无雷电端口"]},{"id":"jd-asus-tianxuan7pro-u7255hx-16g-1t-5060-20261110","name":"华硕 天选7 Pro 酷睿版（U7-255HX/16G/1T/RTX5060/2.5K 300Hz）","brand":"华硕","cat":"gaming","storageGB":1024,"batteryWh":90,"weightKg":2.25,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-10T01:23:00+08:00","shopName":"华硕京东自营旗舰店","shopType":"self","url":"https://nb.zol.com.cn/1238/12380108.html","dataGaps":[],"cpu":{"model":"Ultra7-255HX","vendor":"Intel","cores":20,"threads":20},"ram":{"gb":16,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64},"gpu":{"model":"RTX 5060","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":300,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":500},"price":{"list":13998,"net":13898,"subsidy":1500,"final":12398,"basisNote":"京东自营活动价 13998，国补直减 1500 → 12398；另有 13499→11899 档（ZOL 另一篇）。历史最低 10299","discounts":[{"name":"种草补贴 e卡","amount":100}]},"throttle":{"cpuSustainedW":null,"gpuSustainedW":115,"totalSustainedW":180,"ratedTgpW":115,"sustainedNote":"pconline 2026 横评：天选7 Pro 整机双烤性能释放 180W；GPU 115W 满血。CPU 持续瓦数未单独给出","source":"太平洋科技 2026 横评"},"ports":["USB-A ×3","USB-C ×1","HDMI 2.1","RJ45 千兆","雷电 ×1"]},{"id":"jd-mechrevo-jiaolong16pro2026-r98945hx-16g-1t-5070-20261110","name":"蛟龙16 Pro 2026 新模具（R9-8945HX/16G/1T/RTX5070/2.5K 300Hz 白）","brand":"机械革命","cat":"gaming","storageGB":1024,"batteryWh":80,"weightKg":2.25,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-10T01:26:00+08:00","shopName":"机械革命京东自营旗舰店","shopType":"self","url":"https://www.ithome.com/1/023/664.htm","dataGaps":[],"cpu":{"model":"R9-8945HX","vendor":"AMD","cores":16,"threads":32},"ram":{"gb":16,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64},"gpu":{"model":"RTX 5070","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":300,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":500},"price":{"list":13499,"net":12999,"subsidy":null,"final":12999,"basisNote":"11-07 新增 SKU，京东首发券后 12,999（IT之家/凤凰/网易三家同口径）。页面未标国补金额，subsidy 置空（v2.0 纪律）","discounts":[{"name":"首发券","amount":500}]},"throttle":{"cpuSustainedW":null,"gpuSustainedW":null,"totalSustainedW":200,"ratedTgpW":115,"sustainedNote":"官方标注双烤性能释放 200W（冰霜散热 2.0：3 风扇后出风 + 纳米相变硅脂）；静音狂暴模式噪音约 43dB。CPU/GPU 分配瓦数官方未给","source":"IT之家 11-07 上架稿（官方口径）"},"ports":["Type-C ×2（10Gbps+PD140W+DP1.4）","MiniDP 2.1","HDMI 2.1","RJ45","USB-A（5Gbps）","3.5mm"]},{"id":"jd-hp-omen11amd-r98945hx-16g-1t-5060-20261110","name":"暗影精灵11 锐龙版（R9-8945HX/16G/1T/RTX5060/2.5K 240Hz）","brand":"惠普","cat":"gaming","storageGB":1024,"batteryWh":83,"weightKg":2.46,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-10T01:31:00+08:00","shopName":"惠普京东自营（活动渠道）","shopType":"self","url":"https://m.zol.com.cn/article/11304756.html","dataGaps":[],"cpu":{"model":"R9-8945HX","vendor":"AMD","cores":16,"threads":32},"ram":{"gb":16,"type":"DDR5-5600","form":"sodimm","slots":2,"maxGB":32},"gpu":{"model":"RTX 5060","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":240,"panel":"IPS","colorGamut":{"sRGB":100},"brightnessNit":null},"price":{"list":8698,"net":7867.53,"subsidy":1180.12,"final":6687.41,"basisNote":"ZOL 行情（tier A 全链）：京东活动价 8,698 → 券 700 → 国补 15%（1,180.12）→ PLUS 130.47 → 实付 6,687.41。电脑报 2025 合集另有「国补价 6,159」记录（不同时点）。历史最低 7,699（第三方常态价 8,399-12,099 区间波动大，买前比价）","discounts":[{"name":"满701减700券","amount":700},{"name":"PLUS会员专享","amount":130.47}]},"throttle":{"cpuSustainedW":null,"gpuSustainedW":115,"totalSustainedW":null,"ratedTgpW":115,"sustainedNote":"酷凉风暴Pro：双风扇四热管四出风口 + 7958 相变硅脂；Intel 版双烤实测 170W+（61+115，太平洋），锐龙版散热规格一致但未见单独双烤数据","note":"锐龙版双烤瓦数未单独实测，引用 Intel 版散热结论时已标注","source":"太平洋科技暗影精灵11 深度评测（Intel 版实测，散热规格同模具）"},"ports":["USB-A ×3","USB-C ×1（DP）","HDMI 2.1","RJ45 千兆","雷电/USB4 ×1"]},{"id":"jd-acer-shadowknight8-i714650hx-16g-1t-5060-20261110","name":"宏碁 暗影骑士·擎8 2026（i7-14650HX/16G/1T/RTX5060/2.5K 180Hz）","brand":"宏碁","cat":"gaming","storageGB":1024,"batteryWh":53,"weightKg":2.5,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-10T01:44:00+08:00","shopName":"宏碁京东自营旗舰店","shopType":"self","url":"https://www.ithome.com/1/023/664.htm","dataGaps":[],"cpu":{"model":"i7-14650HX","vendor":"Intel","cores":16,"threads":24},"ram":{"gb":16,"type":"DDR5-5600","form":"sodimm","slots":2,"maxGB":64},"gpu":{"model":"RTX 5060","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":180,"panel":"IPS","colorGamut":{"sRGB":100},"brightnessNit":400},"price":{"list":11999,"net":11999,"subsidy":null,"final":11999,"basisNote":"IT之家 8-17 首发稿（tier A）：定价 11,999，8-25 发售。国补后价未采到——按 15% 口径推算约 10,199，未采不填（v2.0 纪律）","discounts":[]},"throttle":null,"ports":["USB-A ×2（Gen1+Gen2）","USB-C ×2（Gen2）","RJ45","HDMI 2.1 FRL","3.5mm"]},{"id":"jd-msi-shenying16-r8840hx-16g-512g-5060-20261110","name":"微星 神影16 锐龙版 2026（R7-8840HX/16G/512G/RTX5060/2.5K 240Hz）","brand":"微星","cat":"gaming","storageGB":512,"batteryWh":80,"weightKg":2.3,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-10T01:50:00+08:00","shopName":"微星京东自营（独家首发）","shopType":"self","url":"https://item.jd.com/100436874764.html","dataGaps":[],"cpu":{"model":"R7-8840HX","vendor":"AMD","cores":12,"threads":24},"ram":{"gb":16,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64},"gpu":{"model":"RTX 5060","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":240,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":500},"price":{"list":10499,"net":9999,"subsidy":1499.8,"final":8499.2,"basisNote":"10-28 京东独家首发：定价 10,499 → 直播间券 500 → 9,999 → 15% 国补 1,499.8 → 8,499.2（快科技/泡泡网双源同口径）。页面标明补贴金额","discounts":[{"name":"京东电脑直播间券","amount":500}]},"throttle":{"cpuSustainedW":75,"gpuSustainedW":115,"totalSustainedW":190,"ratedTgpW":115,"sustainedNote":"双烤 CPU 75W + GPU 115W = 190W（酷寒散热：双风扇 5 热管 4 出风口 + 相变硅脂，无需液金维护）","source":"泡泡网评测 + 快科技首发稿"},"ports":["USB-A ×3","USB-C ×2（DP+PD3.0 100W）","HDMI 2.1（8K60/4K120）","RJ45 千兆"]},{"id":"jd-rog-strixscar18-u9275hx-16g-1t-5070ti-20261110","name":"ROG 枪神9 Plus 超竞版 18英寸（U9-275HX/16G/1T/RTX5070Ti 140W）","brand":"华硕","cat":"gaming","storageGB":1024,"batteryWh":90,"weightKg":3.42,"efficiency":1,"efficiencyStatus":null,"confidence":"unverified","priceCapturedAt":"2026-11-10T01:57:00+08:00","shopName":"玩家国度ROG京东自营旗舰店","shopType":"self","url":"https://rog.asus.com.cn/laptops/rog-strix/rog-strix-scar-18-2025/spec/?config=90NR0LI1-M00100","dataGaps":[],"cpu":{"model":"Ultra9-275HX","vendor":"Intel","cores":24,"threads":24},"ram":{"gb":16,"type":"DDR5-5600","form":"sodimm","slots":2,"maxGB":64},"gpu":{"model":"RTX 5070 Ti","vendor":"NVIDIA","type":"discrete","vramGB":16},"screen":{"sizeInch":18,"widthPx":2560,"heightPx":1600,"refreshHz":240,"panel":"MiniLED","colorGamut":{"dciP3":100},"brightnessNit":null},"price":{"list":16999,"net":14999,"subsidy":null,"final":14999,"basisNote":"笔记本评测网首发稿：首发价 16,999，参与国家以旧换新补贴后 14,999（差额 2,000 为以旧换新补贴，页面未标确切金额→subsidy 置空）。ZOL：另一 17,499 定价 SKU 券后 17,299；bjbpc 详评稿：17,499 → 部分地区国补 15,749。价格口径多，购前比价｜2000 元为首单/活动优惠，非国补（不符 15% 口径），按差额补记","discounts":[{"name":"首单/活动优惠（差额反推）","amount":2000}]},"throttle":{"cpuSustainedW":null,"gpuSustainedW":140,"totalSustainedW":220,"ratedTgpW":140,"sustainedNote":"冰川散热 3.0 增强版：三风扇 + 双液态金属 + VC 均热板，整机释放 220W；CPU 80℃内 / GPU 79℃；键盘面约 40℃；噪音 ≤55dB","source":"ROG 官网 + 笔记本评测网深评稿（bjbpc 3797）"},"ports":["雷电5 ×2（40Gbps）","USB-A ×3（Gen2×2+Gen1×1）","HDMI 2.1（8K60）","RJ45 千兆","3.5mm"]},{"id":"add-wuwei14se-2026","name":"无畏14 SE 2026","brand":"华硕","cat":"thin","storageGB":512,"batteryWh":52.5,"weightKg":1.29,"efficiency":1,"efficiencyStatus":"missing","confidence":"medium","priceCapturedAt":"2026-11-11T15:00:00+08:00","shopName":"华硕严选旗舰店","shopType":"self","url":null,"dataGaps":["USB-A 数量待核","batteryWh","efficiency","colorGamut"],"cpu":{"model":"Core 5 320","vendor":"Intel","cores":6,"threads":null},"ram":{"gb":16,"type":"LPDDR5X","form":"soldered","slots":0,"maxGB":16,"config":null},"gpu":{"model":"Intel Graphics Xe3 2-core","vendor":"Intel","type":"integrated","vramGB":0},"screen":{"sizeInch":14,"widthPx":2560,"heightPx":1600,"refreshHz":144,"panel":"IPS","colorGamut":{"srgb":100},"brightnessNit":null},"price":{"list":5699,"net":5699,"subsidy":855,"final":4844.15,"basisNote":"2026-11-11 京东商品页实抓：新人到手价 4844.15，Core5 320/16G+512G/2.5K 144Hz。原记 3654 是 1080p 低配版（4299×0.85），SKU 不同。","discounts":[]},"throttle":null,"ports":["USB-C ×2","HDMI 2.1","3.5mm"]},{"id":"add-xingbookplus14","name":"星Book Plus 14","brand":"惠普","cat":"thin","storageGB":512,"batteryWh":null,"weightKg":null,"efficiency":null,"efficiencyStatus":"missing","confidence":"unverified","priceCapturedAt":"2026-11-11T11:45:00+08:00","shopName":"京东自营","shopType":"self","url":null,"dataGaps":["ram.slots","batteryWh","weightKg","ports","efficiency","价格与CPU配置待京东商品页核实"],"cpu":{"model":"Core 5 320","vendor":"Intel","cores":6,"threads":null},"ram":{"gb":16,"type":"LPDDR5X","form":"soldered","slots":0,"maxGB":16,"config":null},"gpu":{"model":"Intel Graphics Xe3 2-core","vendor":"Intel","type":"integrated","vramGB":0},"screen":{"sizeInch":14,"widthPx":1920,"heightPx":1200,"refreshHz":60,"panel":"OLED","colorGamut":{"dciP3":100},"brightnessNit":null},"price":{"list":4400,"net":4400,"subsidy":250,"final":4150,"basisNote":"2026-11-11 采集，国补后价","discounts":[]},"throttle":null,"ports":[]},{"id":"add-honorx14-amd","name":"荣耀 X14 锐龙版","brand":"荣耀","cat":"thin","storageGB":512,"batteryWh":42,"weightKg":1.43,"efficiency":1,"efficiencyStatus":"missing","confidence":"unverified","priceCapturedAt":"2026-11-11T15:40:00+08:00","shopName":"京东自营","shopType":"self","url":null,"dataGaps":["batteryWh","efficiency"],"cpu":{"model":"R5-6600H","vendor":"AMD","cores":6,"threads":null},"ram":{"gb":16,"type":"LPDDR5","form":"soldered","slots":0,"maxGB":16,"config":null},"gpu":{"model":"Radeon 660M","vendor":"AMD","type":"integrated","vramGB":0},"screen":{"sizeInch":14,"widthPx":1920,"heightPx":1200,"refreshHz":60,"panel":"IPS","colorGamut":{"srgb":100},"brightnessNit":null},"price":{"list":4999,"net":4999,"subsidy":300,"final":4699,"basisNote":"2026-11-11 京东搜索页实抓：荣耀笔记本 X14 锐龙版/战斗版 14英寸 R5-6600H，京东自营到手价 4699（原价 4999）。另有官方旗舰店 4999、专卖店新人价 4688。原记 4399 来自学生机清单，偏低 300。","discounts":[]},"throttle":null,"ports":["USB-C 3.2 Gen2 10Gbps ×1","USB-A 3.2 Gen1 ×2","HDMI 1.4 ×1","3.5mm 音频 ×1"]},{"id":"add-matebook14-2026","name":"MateBook 14 2026","brand":"华为","cat":"thin","storageGB":512,"batteryWh":70,"weightKg":1.31,"efficiency":1,"efficiencyStatus":"missing","confidence":"unverified","priceCapturedAt":"2026-11-11T11:45:00+08:00","shopName":"京东自营","shopType":"self","url":null,"dataGaps":["batteryWh","weightKg","efficiency","系统为鸿蒙版，需标注","价格与CPU配置待京东商品页核实"],"cpu":{"model":"Ultra 7 255H","vendor":"Intel","cores":16,"threads":null},"ram":{"gb":16,"type":"LPDDR5X","form":"soldered","slots":0,"maxGB":16,"config":null},"gpu":{"model":"Intel Arc 140T","vendor":"Intel","type":"integrated","vramGB":0},"screen":{"sizeInch":14.2,"widthPx":2880,"heightPx":1920,"refreshHz":120,"panel":"OLED","colorGamut":{"dciP3":100},"brightnessNit":null},"price":{"list":6999,"net":6999,"subsidy":700,"final":6299,"basisNote":"2026-11-11 采集，国补后价","discounts":[]},"throttle":null,"ports":["USB-C 全功能 ×1","USB-A（USB3.2 Gen1）×2","HDMI ×1","3.5mm 音频 ×1"]},{"id":"add-magicbookpro14","name":"荣耀 MagicBook Pro 14 2026","brand":"荣耀","cat":"thin","storageGB":1024,"batteryWh":92,"weightKg":1.37,"efficiency":1,"efficiencyStatus":"missing","confidence":"medium","priceCapturedAt":"2026-11-11T15:10:00+08:00","shopName":"京东自营","shopType":"self","url":null,"dataGaps":["batteryWh","weightKg","ports","efficiency"],"cpu":{"model":"Ultra 5 338H","vendor":"Intel","cores":12,"threads":null},"ram":{"gb":32,"type":"LPDDR5X","form":"soldered","slots":0,"maxGB":32,"config":null},"gpu":{"model":"Intel Arc B370","vendor":"Intel","type":"integrated","vramGB":0},"screen":{"sizeInch":14,"widthPx":2560,"heightPx":1600,"refreshHz":120,"panel":"OLED","colorGamut":{"dciP3":100},"brightnessNit":700},"price":{"list":7904.15,"net":7904.15,"subsidy":0.0,"final":7904.15,"basisNote":"2026-11-11 京东商品页（荣耀智能设备旗舰店）实价 7904.15，Ultra5-338H/32G/1T/3.1K OLED 触控。原记 7000 来自学生机清单，偏低 904。","discounts":[]},"throttle":null,"ports":["USB-A 3.2 Gen1 ×2","USB-C ×2","HDMI 2.1","雷电4 ×1","3.5mm ×1"]},{"id":"add-laikuair16","name":"联想来酷 Air16 2026","brand":"联想来酷","cat":"thin","storageGB":512,"batteryWh":60,"weightKg":1.28,"efficiency":1,"efficiencyStatus":"missing","confidence":"medium","priceCapturedAt":"2026-11-11T15:45:00+08:00","shopName":"京东自营","shopType":"self","url":null,"dataGaps":["efficiency","HDMI 接口待核（京东结构化参数只列「显示端口 USB-C(DP)」，未列 HDMI，不排除漏填）","内存/硬盘容量跨 SKU，见 conflict"],"cpu":{"model":"Core 5 320","vendor":"Intel","cores":6,"threads":null},"ram":{"gb":16,"type":"LPDDR5X","form":"soldered","slots":0,"maxGB":16,"config":null},"gpu":{"model":"Intel Graphics Xe3 2-core","vendor":"Intel","type":"integrated","vramGB":0},"screen":{"sizeInch":16,"widthPx":1920,"heightPx":1200,"refreshHz":60,"panel":"IPS","colorGamut":{"srgb":100},"brightnessNit":null},"price":{"list":4588,"net":4588,"subsidy":688.1999999999998,"final":3899.8,"basisNote":"2026-11-11 京东搜索页实抓：来酷Air16 2026 国补后各授权店 3304.8~3899.8（常见 3899.8，联想授权笔记本专营店）。原记 4599 来自九机网销量榜，偏高 700~1300。","discounts":[]},"throttle":null,"ports":["USB-A ×2","USB-C ×2（支持 DP 视频输出）"]},{"id":"add-xingbookproair14","name":"星Book Pro Air 14","brand":"惠普","cat":"thin","storageGB":512,"batteryWh":60,"weightKg":1.09,"efficiency":1,"efficiencyStatus":"missing","confidence":"unverified","priceCapturedAt":"2026-11-11T15:45:00+08:00","shopName":"京东自营","shopType":"self","url":null,"dataGaps":["batteryWh","efficiency"],"cpu":{"model":"Ultra 5 225H","vendor":"Intel","cores":14,"threads":null},"ram":{"gb":16,"type":"LPDDR5X","form":"soldered","slots":0,"maxGB":16,"config":null},"gpu":{"model":"Intel Arc 130T","vendor":"Intel","type":"integrated","vramGB":0},"screen":{"sizeInch":14,"widthPx":2880,"heightPx":1800,"refreshHz":120,"panel":"OLED","colorGamut":{"dciP3":100},"brightnessNit":1100},"price":{"list":5999,"net":5999,"subsidy":899.8500000000004,"final":5099.15,"basisNote":"2026-11-11 京东搜索页实抓：惠普京东自营旗舰店「星Book Pro Air 14 / 酷睿Ultra5 225H / 2.8K」国补后价 5099.15。原记 6998 来自学生机清单，偏高 1899。另有 120Hz 高刷版 6373.3，属不同 SKU。","discounts":[]},"throttle":null,"ports":["USB-C 10Gbps ×2（PD + DP1.4）","USB-A 5Gbps ×2","HDMI 2.1 ×1","3.5mm 音频 ×1"]},{"id":"add-adou14air","name":"a豆 14 Air 2026","brand":"华硕","cat":"thin","storageGB":512,"batteryWh":70,"weightKg":0.99,"efficiency":1,"efficiencyStatus":"missing","confidence":"unverified","priceCapturedAt":"2026-11-11T11:45:00+08:00","shopName":"京东自营","shopType":"self","url":null,"dataGaps":["batteryWh","weightKg","efficiency","CPU 型号待核（锐龙版具体型号）","CPU 型号存疑（应为锐龙AI 9 H 465）","价格待核"],"cpu":{"model":"R7-8840H","vendor":"AMD","cores":8,"threads":null},"ram":{"gb":16,"type":"LPDDR5X","form":"soldered","slots":0,"maxGB":16,"config":null},"gpu":{"model":"Radeon 780M","vendor":"AMD","type":"integrated","vramGB":0},"screen":{"sizeInch":14,"widthPx":2560,"heightPx":1600,"refreshHz":120,"panel":"OLED","colorGamut":{"dciP3":100},"brightnessNit":null},"price":{"list":7299,"net":7299,"subsidy":700,"final":6599,"basisNote":"2026-11-11 采集，国补后价","discounts":[]},"throttle":null,"ports":["USB4 Gen3 Type-C ×1（40Gbps，显示 + PD）","USB-C 3.2 Gen1 ×1（显示 + PD）","USB-A 3.2 Gen1 ×2","HDMI 2.1 TMDS ×1","3.5mm 音频 ×1"]},{"id":"add-tianxuan6pro","name":"天选6 Pro 锐龙版","brand":"华硕","cat":"gaming","storageGB":1024,"batteryWh":90,"weightKg":2.25,"efficiency":1,"efficiencyStatus":"missing","confidence":"unverified","priceCapturedAt":"2026-11-11T15:10:00+08:00","shopName":"京东自营","shopType":"self","url":null,"dataGaps":["efficiency","throttle","ports 待核"],"cpu":{"model":"R9-8940HX","vendor":"AMD","cores":16,"threads":null},"ram":{"gb":16,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64,"config":null},"gpu":{"model":"RTX 5060","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":165,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":null},"price":{"list":11799,"net":11799,"subsidy":1500,"final":10299,"basisNote":"2026-11-11 京东搜索页实抓：RTX5060 版补贴后主流 10299（华硕威权专卖店），同系列区间 9799~12099。原记 6933 来自学生机清单的国补后参考价，偏低 3366，已作废。","discounts":[]},"throttle":null,"ports":["USB-A ×3","USB-C ×2","HDMI 2.1"]},{"id":"add-canglong16pro","name":"苍龙16 Pro","brand":"机械革命","cat":"gaming","storageGB":1024,"batteryWh":80,"weightKg":2.4,"efficiency":1,"efficiencyStatus":"missing","confidence":"medium","priceCapturedAt":"2026-11-11T15:50:00+08:00","shopName":"京东自营","shopType":"self","url":null,"dataGaps":["weightKg 待核","efficiency","throttle","价格待京东页面重核","电池 80Wh 为 8945HX 版数据，9955HX 版有报道为 99Wh，待核","色域 100%sRGB 为京东页数据，另有报道称 100% DCI-P3，待核"],"cpu":{"model":"R9-9955HX","vendor":"AMD","cores":16,"threads":null},"ram":{"gb":16,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64,"config":null},"gpu":{"model":"RTX 5070","vendor":"NVIDIA","type":"discrete","vramGB":12},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":300,"panel":"IPS","colorGamut":{"srgb":100},"brightnessNit":500},"price":{"list":14699,"net":14699,"subsidy":2200,"final":12499,"basisNote":"2026-11-11 京东搜索页实抓：9955HX + RTX5070 国补后 12499（机械革命游戏电脑旗舰店）。同系列 RTX5060 版 13999、5070Ti 版 14999~17499。原记 9799 来自学生机清单，偏低 2700。","discounts":[]},"throttle":null,"ports":["USB-A ×3","USB-C ×2（1个全功能140W PD / 1个仅数据）","HDMI 2.1","miniDP 2.1","RJ45 千兆","3.5mm 音频"]},{"id":"add-laiku-zhan7000","name":"联想来酷 斗战者 战7000","brand":"联想来酷","cat":"gaming","storageGB":1024,"batteryWh":80,"weightKg":2.5,"efficiency":null,"efficiencyStatus":"missing","confidence":"medium","priceCapturedAt":"2026-11-11T15:48:00+08:00","shopName":"京东自营","shopType":"self","url":null,"dataGaps":["efficiency","throttle","电池容量有 80Wh（京东在售 i7 版）与 60Wh（2026款首销配置）两种，本记录取京东在售 SKU 的 80Wh","重量有 2.5kg（京东）与 2.37kg（百科不含适配器）两种","CPU/刷新率/价格跨 SKU，见 conflict"],"cpu":{"model":"R9-8945HX","vendor":"AMD","cores":16,"threads":null},"ram":{"gb":16,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64,"config":null},"gpu":{"model":"RTX 5060","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":165,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":null},"price":{"list":10439,"net":10439,"subsidy":1551,"final":8888,"basisNote":"2026-11-11 京东搜索页实抓：来酷斗战者战7000 补贴15%旗舰版国补后 8888（联想领先官方授权专卖店）。同系列 RTX5050 版 8107.3、自营 RTX5070 版 10499，原记 9699 来自九机网销量榜偏高。注意显卡配置未与该价完全对应，下单前需核 SKU。","discounts":[]},"throttle":null,"ports":["USB-A 5Gbps ×4","USB-C ×1（全功能：10Gbps + DP 独显直连 + 100W PD）","HDMI 2.1 ×1","RJ45 千兆 ×1","3.5mm 音频 ×1"]},{"id":"add-legion-r7000x-2026","name":"拯救者 R7000X 2026","brand":"联想","cat":"gaming","storageGB":1024,"batteryWh":80,"weightKg":1.88,"efficiency":1,"efficiencyStatus":"missing","confidence":"unverified","priceCapturedAt":"2026-11-11T12:00:00+08:00","shopName":"京东自营","shopType":"self","url":null,"dataGaps":["efficiency","throttle"],"cpu":{"model":"Ryzen 7 H255","vendor":null,"cores":8,"threads":null},"ram":{"gb":32,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64,"config":null},"gpu":{"model":"RTX 5060","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":15.3,"widthPx":2560,"heightPx":1600,"refreshHz":165,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":null},"price":{"list":14988,"net":14488,"subsidy":500,"final":14488,"basisNote":"2026-11-11 采集，京东活动价","discounts":[]},"throttle":null,"ports":["USB-A ×3","USB-C ×2","HDMI 2.1","RJ45"]},{"id":"add-thunde-renjian16-13650","name":"雷神 猎刃16","brand":"雷神","cat":"gaming","storageGB":1024,"batteryWh":63,"weightKg":2.6,"efficiency":1,"efficiencyStatus":"missing","confidence":"medium","priceCapturedAt":"2026-11-11T12:00:00+08:00","shopName":"京东自营","shopType":"self","url":null,"dataGaps":["throttle","官网写高配屏为 sRGB 100% + DCI-P3 100% 双认证（NZL 认证），本记录取 sRGB 100%（京东参数口径）；官网另有 180Hz 版本，库内为 300Hz 版"],"cpu":{"model":"i7-13650HX","vendor":null,"cores":14,"threads":null},"ram":{"gb":32,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64,"config":null},"gpu":{"model":"RTX 5070","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":300,"panel":"IPS","colorGamut":{"srgb":100},"brightnessNit":null},"price":{"list":14799,"net":14799,"subsidy":0,"final":14799,"basisNote":"2026-11-11 采集，京东活动价","discounts":[]},"throttle":null,"ports":["USB-A ×3","USB-C ×1","HDMI 2.1","RJ45"]},{"id":"add-acer-predator-helios9","name":"宏碁 掠夺者 战斧9 Neo S","brand":"宏碁","cat":"gaming","storageGB":1024,"batteryWh":76,"weightKg":2.3,"efficiency":1,"efficiencyStatus":"missing","confidence":"unverified","priceCapturedAt":"2026-11-11T15:00:00+08:00","shopName":"京东自营","shopType":"self","url":null,"dataGaps":["batteryWh","weightKg","efficiency","throttle","tgpMaxW"],"cpu":{"model":"Ultra 9 275HX","vendor":null,"cores":24,"threads":null},"ram":{"gb":32,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64,"config":null},"gpu":{"model":"RTX 5070","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":240,"panel":"OLED","colorGamut":{"dciP3":100},"brightnessNit":null},"price":{"list":15999,"net":15999,"subsidy":1550,"final":14449,"basisNote":"2026-11-11 京东搜索页实抓：宏碁京东自营旗舰店补贴到手价 14449。原记 15199 来自 ZOL 报道，偏高 750。同系列另有 10499~15499 多档，此价对应 U9-275HX/32G/1T/RTX5070 配置。","discounts":[]},"throttle":null,"ports":["雷电 4 Type-C ×1","USB-C 3.2 Gen2 ×1","USB-A 3.2 Gen2 ×2","USB-A 3.2 Gen1 ×1","HDMI 2.1 ×1","RJ45 ×1","microSD 读卡器 ×1","3.5mm 音频 ×1","DC 电源口 ×1"]},{"id":"add-acer-predator-helios10","name":"宏碁 掠夺者 战斧10 Neo S","brand":"宏碁","cat":"gaming","storageGB":1024,"batteryWh":92,"weightKg":2.2,"efficiency":1,"efficiencyStatus":"pending_verify","confidence":"medium","priceCapturedAt":"2026-11-11T19:40:00+08:00","shopName":"宏碁京东自营旗舰店","shopType":"self","url":"https://item.jd.com/100341518130.html","dataGaps":["throttle","雷电口数量两来源分歧（自营参数页写2个，官方旗舰店与太平洋写1个，本记录采信1个）","能效网规格型号两写法（N25Q15C / N25Q15），采信自营页 N25Q15C"],"cpu":{"model":"Ultra 7 356H","vendor":null,"cores":16,"threads":null},"ram":{"gb":32,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64,"config":null},"gpu":{"model":"RTX 5070","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":165,"panel":"OLED","colorGamut":{"dciP3":100},"brightnessNit":null},"price":{"list":19999,"net":17999,"subsidy":1500,"final":16499,"basisNote":"2026-11-11 19:40 京东商品页实拍（宏碁京东自营旗舰店，pid 100341518130，规格 U7-356H/32G/1T/RTX5070/16英寸2.5K OLED）。list=页面划线价¥19999；discounts=「满18000减2000」；net=19999−2000=17999；subsidy=「国家补贴｜领后减¥1500」；final=页面「国补领后价」¥16499；校验：17999−1500=16499 成立。页面另显示「可再享最高返824京东」属返利非立减，不计入 net。库存仅剩 3 件。","discounts":[{"name":"满18000减2000","amount":0}]},"throttle":null,"ports":["USB-A 3.2 Gen1 ×3","USB-C ×2（1×雷电4/USB4 + 1×USB-C 3.2）","HDMI 2.1 ×1","RJ45 千兆 ×1","microSD 读卡器 ×1","3.5mm 音频 ×1"]},{"id":"add-yaoshi16-ultra","name":"机械革命 耀世16 Ultra","brand":"机械革命","cat":"gaming","storageGB":1024,"batteryWh":99,"weightKg":2.48,"efficiency":1,"efficiencyStatus":"missing","confidence":"medium","priceCapturedAt":"2026-11-11T15:05:00+08:00","shopName":"JDG京东电竞官方旗舰店","shopType":"self","url":null,"dataGaps":["throttle","色域为 100% DCI-P3：京东自营（5090 版）、1号会员店（5070Ti 版）、机械革命官方商城三处一致；官方新闻稿还写 miniLED/HDR1000/300Hz 为早期 275HX 版规格，现售 290HX Plus 版为 240Hz"],"cpu":{"model":"Ultra 9 290HX Plus","vendor":null,"cores":24,"threads":null},"ram":{"gb":32,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64,"config":null},"gpu":{"model":"RTX 5070 Ti","vendor":"NVIDIA","type":"discrete","vramGB":12},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":240,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":null},"price":{"list":17999,"net":17999,"subsidy":500,"final":17499,"basisNote":"2026-11-11 京东商品页实抓（sku 10215915946239）：页面显示「新人到手价 17499」，原价 17999。原记 17489 来自京东选购指南页，差 10 元。","discounts":[]},"throttle":null,"ports":["雷电/USB4 ×1","HDMI 2.1","RJ45 2.5G"]},{"id":"add-tianxuan-air-2026","name":"天选 Air 2026","brand":"华硕","cat":"gaming","storageGB":1024,"batteryWh":73,"weightKg":1.46,"efficiency":1,"efficiencyStatus":"missing","confidence":"unverified","priceCapturedAt":"2026-11-11T12:05:00+08:00","shopName":"京东","shopType":"self","url":null,"dataGaps":["batteryWh","ports 待核","efficiency","throttle","CPU 跑分缺失（锐龙AI 7 H 350）"],"cpu":{"model":"锐龙AI 7 H 350","vendor":null,"cores":8,"threads":null},"ram":{"gb":32,"type":"DDR5","form":"sodimm","slots":0,"maxGB":32,"config":null},"gpu":{"model":"RTX 5060","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":14,"widthPx":2560,"heightPx":1600,"refreshHz":165,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":null},"price":{"list":12999,"net":12999,"subsidy":0,"final":12999,"basisNote":"2026-11-11 京东页面价","discounts":[]},"throttle":null,"ports":["USB-A ×2","USB-C ×2","HDMI 2.1"]},{"id":"add-thunde-renjian-s","name":"雷神 猎刃S","brand":"雷神","cat":"gaming","storageGB":1024,"batteryWh":80,"weightKg":2.5,"efficiency":1,"efficiencyStatus":"verified","confidence":"medium","priceCapturedAt":"2026-11-11T12:05:00+08:00","shopName":"京东","shopType":"self","url":null,"dataGaps":["throttle","价格 12599 高于所有已知报价，来源不明","CPU/GPU/内存组合跨版本，见 conflict"],"cpu":{"model":"R7-7745HX","vendor":null,"cores":8,"threads":null},"ram":{"gb":32,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64,"config":null},"gpu":{"model":"RTX 5070","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":240,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":500},"price":{"list":12599,"net":12599,"subsidy":0,"final":12599,"basisNote":"2026-11-11 京东页面价","discounts":[]},"throttle":null,"ports":["USB-A ×3","USB-C ×2","HDMI 2.1 ×1","miniDP ×1","RJ45 2.5G ×1","3.5mm 音频 ×1"]},{"id":"add-canglong18pro-jd","name":"苍龙 18 Pro","brand":"机械革命","cat":"gaming","storageGB":1024,"batteryWh":80,"weightKg":2.8,"efficiency":1,"efficiencyStatus":"missing","confidence":"unverified","priceCapturedAt":"2026-11-11T15:00:00+08:00","shopName":"京东自营","shopType":"self","url":null,"dataGaps":["CPU 型号待核（京东页仅写「锐9」）","batteryWh","weightKg","efficiency","throttle","colorGamut"],"cpu":{"model":"R9-9955HX","vendor":null,"cores":16,"threads":null},"ram":{"gb":16,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64,"config":null},"gpu":{"model":"RTX 5060","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":18,"widthPx":2560,"heightPx":1600,"refreshHz":180,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":null},"price":{"list":12399,"net":12399,"subsidy":1500,"final":10899,"basisNote":"2026-11-11 京东搜索页实抓：16G/1T/8G 版补贴到手价 10899。原 C 盘工作区记 10499 来自 IT之家，偏低 400。同系列 5070 版 11099 起、顶配 14099。","discounts":[]},"throttle":null,"ports":["USB-C 10Gbps ×2","USB-A 5Gbps ×3","HDMI 2.1 ×1","Mini DP 2.1 ×1","RJ45 ×1","3.5mm 音频 ×1"]},{"id":"add-omen-pro15-jd","name":"暗影精灵 Pro 15","brand":"惠普","cat":"gaming","storageGB":1024,"batteryWh":70,"weightKg":2.52,"efficiency":1,"efficiencyStatus":"missing","confidence":"unverified","priceCapturedAt":"2026-11-11T15:00:00+08:00","shopName":"京东自营","shopType":"self","url":null,"dataGaps":["batteryWh","weightKg","efficiency","throttle"],"cpu":{"model":"Ultra 7 255HX","vendor":null,"cores":20,"threads":null},"ram":{"gb":16,"type":"DDR5","form":"sodimm","slots":2,"maxGB":64,"config":null},"gpu":{"model":"RTX 5060","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":15.3,"widthPx":2560,"heightPx":1600,"refreshHz":180,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":null},"price":{"list":11499,"net":11499,"subsidy":1500,"final":9999,"basisNote":"2026-11-11 京东搜索页实抓：U7-255HX + RTX5060 国补后价 9999。原 C 盘工作区记 9498 来自 IT之家，偏低 501。RTX5050 版另为 9199~9299。","discounts":[]},"throttle":null,"ports":["USB-C 10Gbps 全功能 ×1（PD + DP1.4）","USB-A 10Gbps ×2","HDMI 2.1 ×1","RJ45 千兆 ×1","3.5mm 音频 ×1","AC 电源口 ×1"]},{"id":"add-y9000x-2026","name":"拯救者 Y9000X 2026（Ultra9-290HX Plus/RTX5060/32G/1T）","brand":"联想","cat":"gaming","storageGB":1024,"batteryWh":null,"weightKg":1.98,"efficiency":null,"efficiencyStatus":"missing","confidence":"low","priceCapturedAt":"2026-11-11T21:50:00+08:00","shopName":"联想官网口径","shopType":"official","url":null,"dataGaps":["batteryWh","ram.form","efficiency","throttle","price.list","页面截图核对"],"cpu":{"model":"Ultra 9 290HX Plus","vendor":"Intel","cores":24,"threads":24},"ram":{"gb":32,"type":"DDR5-6400","form":null,"slots":null,"maxGB":null,"config":"16GB×2"},"gpu":{"model":"RTX 5060","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":240,"panel":"OLED","colorGamut":{"dciP3":100},"brightnessNit":1100},"price":{"list":null,"net":15499,"subsidy":null,"final":15499,"basisNote":"太平洋（联想官网上架稿）：RTX5060 版补贴到手价 15499。⚠️ 划线价未抓（反推 18234 非整数不采信），PENDING-VERIFY","discounts":[]},"throttle":null,"ports":["USB-A ×2","USB-C ×1","雷电4 ×1"]},{"id":"add-redmibookpro14-2026","name":"REDMI Book Pro 14 2026（Ultra5-338H/32G/1T）","brand":"小米","cat":"thin","storageGB":1024,"batteryWh":92,"weightKg":1.48,"efficiency":null,"efficiencyStatus":"missing","confidence":"low","priceCapturedAt":"2026-11-11T21:50:00+08:00","shopName":"京东 小米官方旗舰店","shopType":"self","url":null,"dataGaps":["efficiency","throttle","页面截图核对"],"cpu":{"model":"Ultra 5 338H","vendor":"Intel","cores":12,"threads":12},"ram":{"gb":32,"type":"LPDDR5X","form":"soldered","slots":0,"maxGB":32,"config":null},"gpu":{"model":"Intel Arc B370","vendor":"Intel","type":"integrated","vramGB":0},"screen":{"sizeInch":14,"widthPx":2880,"heightPx":1800,"refreshHz":120,"panel":"LCD","colorGamut":{"srgb":100},"brightnessNit":500},"price":{"list":8799,"net":7479.15,"subsidy":1319.85,"final":7479.15,"basisNote":"京东直读现价 7479.15（小米官方旗舰店，U5-338H/32+1T）；7479.15÷0.85=8799 整数 → list 为反推值。⚠️ 常卖价标签 8299 与反推 8799 不一致，PENDING-VERIFY 需回页面","discounts":[]},"throttle":null,"ports":["USB-A ×1","USB-C ×1","雷电4 ×1","HDMI 2.1"]},{"id":"add-magicbookpro16-2026","name":"荣耀 MagicBook Pro 16 2026（Ultra5-338H/32G/1T）","brand":"荣耀","cat":"thin","storageGB":1024,"batteryWh":92,"weightKg":1.8,"efficiency":null,"efficiencyStatus":"missing","confidence":"low","priceCapturedAt":"2026-11-11T21:50:00+08:00","shopName":"京东自营（多店）","shopType":"self","url":null,"dataGaps":["efficiency","throttle","页面截图核对","screen 120/165Hz 两 SKU 存差异"],"cpu":{"model":"Ultra 5 338H","vendor":"Intel","cores":12,"threads":12},"ram":{"gb":32,"type":"LPDDR5X-8533","form":"soldered","slots":0,"maxGB":32,"config":null},"gpu":{"model":"Intel Arc B370","vendor":"Intel","type":"integrated","vramGB":0},"screen":{"sizeInch":16,"widthPx":3072,"heightPx":1920,"refreshHz":120,"panel":"LCD","colorGamut":{"srgb":100},"brightnessNit":500},"price":{"list":8199,"net":6969.15,"subsidy":1229.85,"final":6969.15,"basisNote":"头条导购：338H 版京东国补后 6969；6969.15÷0.85=8199 整数 → list 反推。⚠️ 京东直读另一 338H SKU（星辰灰）标 9299/常卖9199，SKU 价差大，PENDING-VERIFY","discounts":[]},"throttle":null,"ports":["USB-A ×2","USB-C ×1","雷电4 ×1","HDMI 2.1"]},{"id":"add-tianxuan6pro-intel","name":"天选6 Pro 酷睿版（U9-275HX/RTX5070/16G/2T）","brand":"华硕","cat":"gaming","storageGB":2048,"batteryWh":90,"weightKg":2.27,"efficiency":1,"efficiencyStatus":"missing","confidence":"low","priceCapturedAt":"2026-11-11T21:50:00+08:00","shopName":"京东 京凡笔记本专营店","shopType":"thirdparty","url":null,"dataGaps":["页面截图核对","price 国补口径","throttle"],"cpu":{"model":"Ultra 9 275HX","vendor":"Intel","cores":24,"threads":24},"ram":{"gb":16,"type":"DDR5-5600","form":"sodimm","slots":2,"maxGB":64,"config":null},"gpu":{"model":"RTX 5070","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":165,"panel":"IPS","colorGamut":{"srgb":100},"brightnessNit":null},"price":{"list":15599,"net":15599,"subsidy":0,"final":15599,"basisNote":"京东第三方店（京凡笔记本专营店）U9-275HX/5070/16G/2T 标价 15599。⚠️ 第三方店、国补情况未核；低配 5060/1T 第三方 13599、smzdm 页面价 10199 国补后 8312（低配）。PENDING-VERIFY","discounts":[]},"throttle":null,"ports":["USB-A ×3","USB-C ×1","雷电4 ×1","HDMI 2.1","RJ45"]},{"id":"add-wuwei16pro-2026","name":"华硕 无畏Pro16 锐龙版 2026（锐龙AI 9 H465/16G/512G）","brand":"华硕","cat":"thin","storageGB":512,"batteryWh":80,"weightKg":1.65,"efficiency":1,"efficiencyStatus":"missing","confidence":"low","priceCapturedAt":"2026-11-11T21:50:00+08:00","shopName":"京东","shopType":"self","url":null,"dataGaps":["ports","screen.colorGamut","brightnessNit","efficiency 待单独直读","页面截图核对"],"cpu":{"model":"锐龙 AI 9 H 465","vendor":"AMD","cores":10,"threads":20},"ram":{"gb":16,"type":"LPDDR5X","form":"soldered","slots":0,"maxGB":null,"config":null},"gpu":{"model":"AMD Radeon 890M（核显）","vendor":"AMD","type":"integrated","vramGB":0},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":165,"panel":"OLED","colorGamut":null,"brightnessNit":null},"price":{"list":null,"net":7999,"subsidy":null,"final":7999,"basisNote":"smzdm 2026-10-11：京东到手价 7999（锐龙 AI9 H465/16G/512G）。⚠️ 划线价未抓，到手价口径，PENDING-VERIFY","discounts":[]},"throttle":null,"ports":[]},{"id":"add-yinxing-p16pro-xingfeng","name":"七彩虹 隐星P16 Pro 星风版 2026（U7-251HX/RTX5060/32G/1T）","brand":"七彩虹","cat":"gaming","storageGB":1024,"batteryWh":60,"weightKg":2.05,"efficiency":null,"efficiencyStatus":"missing","confidence":"low","priceCapturedAt":"2026-11-11T21:50:00+08:00","shopName":"京东 七彩虹游戏本旗舰店","shopType":"official","url":null,"dataGaps":["efficiency","throttle","页面截图核对","price 首发价与常卖价口径差异"],"cpu":{"model":"Ultra 7 251HX","vendor":"Intel","cores":18,"threads":18},"ram":{"gb":32,"type":"DDR5-5600","form":"sodimm","slots":2,"maxGB":null,"config":null},"gpu":{"model":"RTX 5060","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":300,"panel":"IPS","colorGamut":{"srgb":100},"brightnessNit":500},"price":{"list":13299,"net":11304.15,"subsidy":1994.85,"final":11304.15,"basisNote":"京东常卖价 11304.15（32G+1T 升级版，七彩虹游戏本旗舰店）；11304.15÷0.85=13299 整数 → 国补后价坐实（红旗口径①，list 为反推）。16G 版 10199.15÷0.85=11999 同坐实。首发口径 11499/国补后 9999（ZOL/vgover 测评），与常卖价有差，PENDING-VERIFY","discounts":[]},"throttle":null,"ports":["USB-A ×2","USB-C ×2","HDMI 2.1","RJ45"]},{"id":"add-r9000p-2026-32g","name":"拯救者 R9000P 2026 32G版（R9-8945HX/RTX5060/32G/1T）","brand":"联想","cat":"gaming","storageGB":1024,"batteryWh":80,"weightKg":2.55,"efficiency":null,"efficiencyStatus":"missing","confidence":"low","priceCapturedAt":"2026-11-11T21:50:00+08:00","shopName":"京东 星想联笔记本旗舰店","shopType":"thirdparty","url":null,"dataGaps":["efficiency","throttle","页面截图核对","price 国补口径"],"cpu":{"model":"R9-8945HX","vendor":"AMD","cores":16,"threads":32},"ram":{"gb":32,"type":"DDR5","form":"sodimm","slots":2,"maxGB":null,"config":null},"gpu":{"model":"RTX 5060","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":240,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":null},"price":{"list":null,"net":16999,"subsidy":null,"final":16999,"basisNote":"京东第三方店（星想联笔记本旗舰店）R9-8945HX/32G/1T/5060 常卖 16999；dir.jd 参考 17881.18；联想官方 wiki：32G 版比基础款贵约 3700（与 16G 版 final 12854 相洽）。⚠️ 第三方店、国补未计，PENDING-VERIFY","discounts":[]},"throttle":null,"ports":["USB-A ×3","USB-C ×2","HDMI 2.1","RJ45 2.5G"]},{"id":"add-thinkbook16p-2026","name":"ThinkBook 16p 2026（U7-255HX/RTX5060/32G/1T）","brand":"联想","cat":"gaming","storageGB":1024,"batteryWh":85,"weightKg":null,"efficiency":null,"efficiencyStatus":"missing","confidence":"low","priceCapturedAt":"2026-11-11T21:50:00+08:00","shopName":"联想官方口径","shopType":"official","url":null,"dataGaps":["weightKg","efficiency","throttle","页面截图核对","price 国补口径"],"cpu":{"model":"Ultra 7 255HX","vendor":"Intel","cores":20,"threads":20},"ram":{"gb":32,"type":"DDR5","form":"sodimm","slots":2,"maxGB":96,"config":null},"gpu":{"model":"RTX 5060","vendor":"NVIDIA","type":"discrete","vramGB":8},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":240,"panel":"IPS","colorGamut":{"dciP3":100},"brightnessNit":null},"price":{"list":15999,"net":15999,"subsidy":0,"final":15999,"basisNote":"联想官方 wiki：U7-255HX/32G/1T/RTX5060/2.5K 240Hz 参考价 15999；另一 wiki 基础创作版 14999 起；国补未计。PENDING-VERIFY","discounts":[]},"throttle":null,"ports":["雷电4 ×2","USB-A","HDMI","SD读卡器"]},{"id":"add-jiaolong16pro-5070ti","name":"蛟龙16 Pro 2026 旗舰版（R9-8945HX/RTX5070Ti/32G/1T）","brand":"机械革命","cat":"gaming","storageGB":1024,"batteryWh":80,"weightKg":2.25,"efficiency":null,"efficiencyStatus":"missing","confidence":"low","priceCapturedAt":"2026-11-11T21:50:00+08:00","shopName":"京东自营（国补 SKU）","shopType":"self","url":null,"dataGaps":["efficiency","throttle","页面截图核对","price dir.jd 14999 与 14499 口径差"],"cpu":{"model":"R9-8945HX","vendor":"AMD","cores":16,"threads":32},"ram":{"gb":32,"type":"DDR5-5600","form":"sodimm","slots":2,"maxGB":null,"config":null},"gpu":{"model":"RTX 5070 Ti","vendor":"NVIDIA","type":"discrete","vramGB":12},"screen":{"sizeInch":16,"widthPx":2560,"heightPx":1600,"refreshHz":300,"panel":"IPS","colorGamut":{"srgb":100},"brightnessNit":500},"price":{"list":14499,"net":12999,"subsidy":1500,"final":12999,"basisNote":"微信健圣 2026-11 规格表：页面价 14499 → 国补后 12999 → Plus 会员到手 12636.53（final 取国补后 12999）。⚠️ dir.jd 指南参考价 14999 与此不一致，PENDING-VERIFY","discounts":[{"name":"国补","amount":1500}]},"throttle":null,"ports":["USB-A ×3","USB-C ×2（后置 140W PD）","Mini DP 2.1","HDMI 2.1","RJ45 千兆"]}],"coverage":{"pairs":800,"ok":351,"degraded":98,"violate":348,"unknown":3,"usable":797,"recommendable":449,"usableRate":0.9962,"recommendRate":0.5613},"generated":"2026-11-12 10:00"}</script>
+<script>
+(function(){
+"use strict";
+var D = JSON.parse(document.getElementById('DATA').textContent);
+var MACHINES = D.machines, GROUPS = D.groups;
+var $ = function(s,c){return (c||document).querySelector(s)};
+var $$ = function(s,c){return Array.prototype.slice.call((c||document).querySelectorAll(s))};
+var esc = function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+var yuan = function(n){return (n==null||isNaN(n))?'—':Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,',')};
+var yuan2 = function(n){ if(n==null||isNaN(n)) return '—'; var r=Math.round(n*10)/10; return r.toFixed(1).replace(/\.0$/,'').replace(/\B(?=(\d{3})+(?!\d))/g,','); };
+var pct = function(n){return (n>0?'+':'')+n+'%'};
+var CATNAME = {thin:'轻薄本',gaming:'游戏本',desktop:'台式整机'};
+var FORM = {sodimm:{t:'可换内存',c:'ram-ok'},lpcamm2:{t:'LPCAMM2 专有',c:'ram-no'},soldered:{t:'内存焊死',c:'ram-no'},lpddr:{t:'内存焊死',c:'ram-no'},onboard:{t:'内存焊死',c:'ram-no'}};
+var RES = {1920:'FHD',2160:'2K',2240:'2.2K',2560:'2.5K',2880:'2.8K',3000:'3K',3072:'3K',3200:'3.2K',3456:'3.4K',3840:'4K'};
+var resLabel = function(w){ if(!w) return ''; return RES[w] || (Math.round(w/100)/10+'K'); };
+var fmt = function(n){ return n==null?'—':n; };
+
+/* ---------- hero ---------- */
+function renderHero(){
+  var bars = D.categoryChange.filter(function(c){
+    return c.key==='thin'||c.key==='gaming'||c.key==='desktop'||c.key==='avg'||c.key==='phone-avg';
+  });
+  var max = Math.max.apply(null, bars.map(function(b){return b.value}));
+  $('#heroBars').innerHTML = bars.map(function(b){
+    return '<div class="bar-row">'
+      +'<span class="lbl">'+esc(b.label)+'</span>'
+      +'<span class="val">'+pct(b.value)+'</span>'
+      +'<span class="bar-track"><i style="width:'+Math.max(3,b.value/max*100).toFixed(1)+'%"></i></span>'
+      +'<span class="bar-note">'+esc(b.note)+'</span></div>';
+  }).join('');
+
+  var points = [
+    ['同款最高涨 58%','联想小新 Pro14 4138 → 6557 元；荣耀 X14 Plus 换代 3199 → 5099 元。'],
+    ['内存条涨了 5 倍','DDR5 16G 从 230 涨到 1400 元。这条成本最终全部落在整机价签上。'],
+    ['国补：电脑 1500 / 手机 500','电脑归家电类、无门槛；手机归数码类、超 6000 一分不补。']
+  ];
+  $('#points').innerHTML = points.map(function(p,i){
+    return '<li><span class="idx">0'+(i+1)+'</span><span><b>'+esc(p[0])+'</b>　'+esc(p[1])+'</span></li>';
+  }).join('');
+
+  $('#decide').innerHTML = D.decision.map(function(d){
+    return '<div data-tone="'+esc(d.tone)+'"><h5>'+esc(d.label)+'</h5><b>'+esc(d.tag)+'</b></div>';
+  }).join('');
+
+  var a = D.meta.pricesUpdated || '', b = D.meta.poolUpdated || '';
+  $('#topMeta').textContent = '行情 '+a+' · 机型池 '+b;
+  $('#footMeta').innerHTML = '行情数据 '+esc(a)+' · 机型池 '+esc(b)+' · 生成于 '+esc(D.generated);
+}
+
+/* ---------- majors ---------- */
+var state = {gid:'office', onlyUpgradable:false, onlyDiscrete:false, onlyEff:false, sort:'price', expanded:false};
+
+function gatesOf(g){
+  var r = g.req, out = [];
+  out.push((r.ramMin||0)+'G 起');
+  if(r.gpu==='discrete') out.push('独显'+(r.vramMin||0)+'G');
+  out.push((r.storageMinGB||512)+'G 硬盘');
+  return out;
+}
+function majorName(m){ return typeof m==='string'? m : (m && m.name) || ''; }
+
+function renderMajorList(){
+  $('#mlist').innerHTML = GROUPS.map(function(g){
+    return '<button class="mbtn" data-g="'+g.id+'" type="button">'
+      +'<b>'+esc(g.name)+'</b><span>'+esc(g.tagline)+'</span>'
+      +'<span class="gates">'+gatesOf(g).map(function(x){return '<i>'+esc(x)+'</i>'}).join('')+'</span>'
+      +'</button>';
+  }).join('');
+  $$('.mbtn').forEach(function(b){ b.addEventListener('click', function(){ selectGroup(b.dataset.g, false, true); }) });
+}
+
+function tierOf(g,m){
+  var req=g.req, fails=[], soft=[];
+  var gpu=m.gpu||{}, ram=m.ram||{}, st=m.storageGB;
+  if(ram.gb==null) fails.push('内存容量缺失');
+  else if(ram.gb < req.ramMin) fails.push('内存 '+ram.gb+'G < 门槛 '+req.ramMin+'G');
+  if(req.storageMinGB && st && st < req.storageMinGB) fails.push('存储 '+(st>=1024?(st/1024)+'T':st+'G')+' < 门槛 '+(req.storageMinGB>=1024?(req.storageMinGB/1024)+'T':req.storageMinGB+'G'));
+  if(req.gpu==='discrete' && gpu.type==='integrated') fails.push('核显，达不到独显要求');
+  var vram = gpu.vramGB||0;
+  if(req.vramMin && vram < req.vramMin) fails.push('显存 '+vram+'G < 门槛 '+req.vramMin+'G');
+  (g.hardGates||[]).forEach(function(h){
+    if(h.dim==='upgrade'){
+      var can = (ram.form==='sodimm') || (ram.slots>=2);
+      if(!can) fails.push('内存不可加装');
+    }
+    if(h.dim==='storage' && st && st < h.min) fails.push('存储不够 '+h.min+'G');
+  });
+  if(!fails.length){
+    if(ram.gb < req.ramRec) soft.push('内存 '+ram.gb+'G 只到最低线，建议 '+(req.ramRec||req.ramMin)+'G');
+    if(req.vramRec && vram < req.vramRec && vram>=req.vramMin) soft.push('显存 '+vram+'G，建议 '+req.vramRec+'G');
+  }
+  return {fails:fails, soft:soft, tier: fails.length?'no':(soft.length?'ok':'best')};
+}
+
+function filtered(g){
+  var list = MACHINES.map(function(m){ var t=tierOf(g,m); return {m:m, t:t}; });
+  if(state.onlyUpgradable) list = list.filter(function(x){ var f=(x.m.ram||{}).form; return f==='sodimm'||(x.m.ram||{}).slots>=2; });
+  if(state.onlyDiscrete) list = list.filter(function(x){ return (x.m.gpu||{}).type==='discrete'||(x.m.gpu||{}).type==='unified'; });
+  if(state.onlyEff) list = list.filter(function(x){ return x.m.efficiency===1; });
+  var key = state.sort;
+  list.sort(function(a,b){
+    if(key==='price') return (a.m.price.final||1e9)-(b.m.price.final||1e9);
+    if(key==='priceDesc') return (b.m.price.final||0)-(a.m.price.final||0);
+    if(key==='ram') return ((b.m.ram||{}).gb||0)-((a.m.ram||{}).gb||0) || (a.m.price.final-b.m.price.final);
+    if(key==='vram') return ((b.m.gpu||{}).vramGB||0)-((a.m.gpu||{}).vramGB||0) || (a.m.price.final-b.m.price.final);
+    if(key==='weight') return ((a.m.weightKg||99)-(b.m.weightKg||99));
+    return 0;
+  });
+  return list;
+}
+
+function specChips(m){
+  var out=[], cpu=(m.cpu||{}).model||'', gpu=m.gpu||{}, ram=m.ram||{}, sc=m.screen||{};
+  if(cpu) out.push(esc(cpu.replace(/^(Intel|AMD)\s+/,'')));
+  if(ram.gb!=null){
+    var f = FORM[ram.form];
+    out.push({t:ram.gb+'G'+(ram.type?' '+ram.type.replace('-',' '):''), c:f?f.c:'', ram:true});
+  }
+  if(m.storageGB) out.push((m.storageGB>=1024?(m.storageGB/1024)+'T':m.storageGB+'G'));
+  if(gpu.model){
+    var gs = gpu.model + (gpu.type==='discrete'&&gpu.vramGB? ' '+gpu.vramGB+'G':'');
+    out.push(esc(gs));
+  }
+  if(sc.sizeInch) out.push(sc.sizeInch+'″'+(resLabel(sc.widthPx)?' '+resLabel(sc.widthPx):'')+(sc.refreshHz&&sc.refreshHz>100?' '+sc.refreshHz+'Hz':''));
+  if(m.weightKg) out.push(m.weightKg+'kg');
+  return out.map(function(x){
+    if(typeof x==='string') return '<i>'+x+'</i>';
+    return '<i class="'+(x.c||'')+'">'+esc(x.t)+'</i>';
+  }).join('');
+}
+
+function cardHTML(x, idx, showRank){
+  var m=x.m, t=x.t, ram=m.ram||{}, gpu=m.gpu||{}, f=FORM[ram.form];
+  var badges=[];
+  if(f) badges.push('<span class="chip '+(f.c==='ram-ok'?'green':'red')+'">'+f.t+'</span>');
+  if(m.efficiency===1) badges.push('<span class="chip amber">1 级能效</span>');
+  else if(m.efficiency===2) badges.push('<span class="chip mute">2 级能效</span>');
+  if(t.tier==='ok' && t.soft.length) badges.push('<span class="chip blue">'+esc(t.soft[0])+'</span>');
+  if(m.confidence==='low'||m.confidence==='unverified') badges.push('<span class="chip mute">参数待核</span>');
+  var cap = m.price.capturedAt ? m.price.capturedAt.slice(5,10)+' 采价' : '';
+  return '<article class="mcard" data-id="'+esc(m.id)+'">'
+    +'<div class="mc-top"><div style="flex:1"><h4>'+esc(m.name)+'</h4>'
+    +'<div class="mc-sub">'+esc(m.brand)+' · '+esc(CATNAME[m.cat]||m.cat)+(showRank?' · #'+(idx+1):'')+'</div></div></div>'
+    +'<div class="mc-price"><span class="cur">¥</span><b>'+yuan(Math.round(m.price.final))+'</b>'
+      +(m.price.list&&m.price.list>m.price.final?'<s>'+yuan(m.price.list)+'</s>':'')
+      +'<em>国补后</em></div>'
+    +'<div class="mc-specs">'+specChips(m)+'</div>'
+    +(badges.length?'<div class="mc-badges">'+badges.join('')+'</div>':'')
+    +'<div class="mc-foot"><span>'+esc(m.shopName||'平台自营')+(cap?' · '+cap:'')+'</span>'
+      +'<button type="button" data-detail="'+esc(m.id)+'">详情 →</button></div>'
+    +'</article>';
+}
+
+function selectGroup(gid, fromSearch, fromUser){
+  state.gid = gid; state.expanded=false;
+  $$('.mbtn').forEach(function(b){ b.classList.toggle('on', b.dataset.g===gid) });
+  var g = GROUPS.filter(function(x){return x.id===gid})[0];
+  if(!g) return;
+  renderPanel(g);
+  if(fromSearch) $('#groupPanel').scrollIntoView({behavior:'smooth',block:'center'});
+  else if(fromUser && window.innerWidth<=720) $('#groupPanel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderPanel(g){
+  var list = filtered(g);
+  var best = list.filter(function(x){return x.t.tier==='best'});
+  var ok = list.filter(function(x){return x.t.tier==='ok'});
+  var no = list.filter(function(x){return x.t.tier==='no'});
+  var allGood = best.concat(ok);
+  var LIMIT = 6;
+  var bestShown = state.expanded? best : best.slice(0, LIMIT);
+  var okShown = state.expanded? ok : ok.slice(0, Math.max(0, LIMIT-bestShown.length));
+  var cheapest = allGood.length? Math.min.apply(null, allGood.map(function(x){return x.m.price.final})) : null;
+
+  var ev = g.evidence==='official'
+    ? '<span class="chip official">官方软件要求推导</span>'
+    : '<span class="chip judge">人工判断 + 理由</span>';
+  var majors = g.majors.map(majorName).filter(Boolean);
+  var shown = majors.slice(0, 12), rest = majors.length-12;
+
+  var r=g.req, gates = [
+    ['内存','≥'+(r.ramMin||8)+'G','建议 '+(r.ramRec||r.ramMin)+'G'],
+    ['显存', r.vramMin? '≥'+r.vramMin+'G':'不限', r.gpu==='discrete'?'必须独显':(r.gpu==='none'?'核显即可':'核显/独显皆可')],
+    ['存储','≥'+(r.storageMinGB>=1024?(r.storageMinGB/1024)+'T':(r.storageMinGB||512)+'G'), '素材/工程文件'],
+    ['显卡', r.gpu==='discrete'?'独显':(r.gpu==='none'?'无关':'不限'),
+      r.gpu==='discrete' ? ('建议 '+(r.vramRec||r.vramMin)+'G 显存') : (r.vramMin?('建议 '+r.vramMin+'G 显存'):'核显就够')]
+  ];
+
+  var h = '<div class="rg-top"><h3>'+esc(g.name)+'</h3>'+ev
+    +'<span class="chip ghost">'+majors.length+' 个专业</span>'
+    +(g.preferCats&&g.preferCats.indexOf('desktop')>-1?'<span class="chip ghost">可选台式</span>':'')
+    +'</div>'
+    +'<div class="rg-tag">'+esc(g.tagline)+'　·　'+esc(g.stackText)+'</div>'
+    +'<div class="rg-majors">'+shown.map(function(m){return '<span class="chip">'+esc(m)+'</span>'}).join('')
+      +(rest>0?'<span class="chip more" id="moreMajor">还有 '+rest+' 个 →</span>':'')+'</div>';
+
+  h += '<div class="gates4">'+gates.map(function(x){
+      return '<div><div class="k">'+esc(x[0])+'</div><div class="v">'+esc(x[1])+'</div><div class="d">'+esc(x[2])+'</div></div>';
+    }).join('')+'</div>';
+
+  h += '<div class="why"><b>为什么是这个门槛：</b>'+esc(r.rationale)+'</div>';
+  if(g.trap) h += '<div class="trap"><b>最容易踩的坑</b>'+esc(g.trap)+'</div>';
+  if(r.platformUnfit && r.platformUnfit.macos) h += '<div class="plat"><b>Mac 提示：</b>'+esc(r.platformUnfit.macos)+'</div>';
+
+  h += '<div class="res-bar"><div class="res-count">满足门槛 <b>'+allGood.length+'</b> 台 / 池内 '+MACHINES.length+' 台'
+    +(cheapest!=null?'　最便宜 <b>¥'+yuan(cheapest)+'</b>':'')+'</div>'
+    +'<div class="filters">'
+    +'<button class="fbtn'+(state.onlyUpgradable?' on':'')+'" data-f="onlyUpgradable" type="button">可换内存</button>'
+    +'<button class="fbtn'+(state.onlyDiscrete?' on':'')+'" data-f="onlyDiscrete" type="button">独立显卡</button>'
+    +'<button class="fbtn'+(state.onlyEff?' on':'')+'" data-f="onlyEff" type="button">1 级能效</button>'
+    +'<select class="sort" id="sortSel">'
+      +'<option value="price">价格 低→高</option><option value="priceDesc">价格 高→低</option>'
+      +'<option value="ram">内存 大→小</option><option value="vram">显存 大→小</option><option value="weight">重量 轻→重</option>'
+    +'</select></div></div>';
+
+  if(bestShown.length){
+    h += '<div class="tier-head"><span>直接达标（到建议值）</span><i></i><em>'+best.length+' 台</em></div>';
+    h += '<div class="cards">'+bestShown.map(function(x,i){return cardHTML(x,i,false)}).join('')+'</div>';
+  }
+  if(okShown.length){
+    h += '<div class="tier-head"><span>够用但没余量</span><i></i><em>'+ok.length+' 台</em></div>';
+    h += '<div class="cards">'+okShown.map(function(x,i){return cardHTML(x,i,false)}).join('')+'</div>';
+  }
+  if(allGood.length > LIMIT){
+    h += '<div class="more-wrap"><button class="more-btn" id="moreCards" type="button">'
+      + (state.expanded? '收起' : '展开全部 '+allGood.length+' 台 →') + '</button></div>';
+  }
+  if(!best.length && !ok.length){
+    h += '<div class="empty">这个专业组在机型池里没有达标机型 —— 说明门槛确实高，别被「差不多够用」说服。</div>';
+  }
+  if(no.length){
+    h += '<div class="tier-head"><span>不达标（差在哪）</span><i></i><em>'+no.length+' 台</em></div><div class="fail-list">';
+    h += no.slice(0,12).map(function(x){
+      return '<div class="fail-row"><b>'+esc(x.m.name)+' <span style="color:var(--ink3);font-weight:400">¥'+yuan(x.m.price.final)+'</span></b><span>'+esc(x.t.fails[0])+'</span></div>';
+    }).join('');
+    if(no.length>12) h += '<div class="fail-row"><b style="color:var(--ink3)">还有 '+(no.length-12)+' 台…</b><span></span></div>';
+    h += '</div>';
+  }
+  if(g.followups && g.followups.length){
+    h += '<div class="why" style="margin-top:22px"><b>买之前先问自己：</b>'+g.followups.map(esc).join('　/　')+'</div>';
+  }
+
+  var panel = $('#groupPanel'); panel.innerHTML = h;
+  var sel = $('#sortSel'); if(sel){ sel.value = state.sort; sel.addEventListener('change', function(){ state.sort=this.value; renderPanel(g); }); }
+  $$('.fbtn',panel).forEach(function(b){ b.addEventListener('click', function(){ state[b.dataset.f]=!state[b.dataset.f]; renderPanel(g); }) });
+  $$('[data-detail]',panel).forEach(function(b){ b.addEventListener('click', function(){ openDrawer(b.dataset.detail) }) });
+  var more = $('#moreCards');
+  if(more) more.addEventListener('click', function(){ state.expanded = !state.expanded; renderPanel(g); });
+  var mm = $('#moreMajor'); if(mm) mm.addEventListener('click', function(){ this.outerHTML = majors.slice(12).map(function(m){return '<span class="chip">'+esc(m)+'</span>'}).join('') });
+}
+
+/* major search index */
+var NAME2G = {}, ALIAS = D.majorAliases||{};
+GROUPS.forEach(function(g){ g.majors.forEach(function(m){ NAME2G[majorName(m)] = g.id; }) });
+(function(){
+  var input=$('#majorSearch'), sug=$('#sug');
+  function run(q){
+    q=q.trim(); if(!q){ sug.classList.remove('on'); sug.innerHTML=''; return; }
+    var hits=[], seen={};
+    Object.keys(NAME2G).forEach(function(n){
+      if(n.indexOf(q)>-1 && !seen[n]){ seen[n]=1; hits.push({n:n,g:NAME2G[n],alias:false}) }
+    });
+    Object.keys(ALIAS).forEach(function(a){
+      var n=ALIAS[a];
+      if((a.indexOf(q)>-1||n.indexOf(q)>-1) && seen[n]!==2){ seen[n]=2; hits.unshift({n:n,g:NAME2G[n],alias:true,a:a}) }
+    });
+    hits = hits.filter(function(h){return h.g}).slice(0,7);
+    if(!hits.length){ sug.innerHTML='<button disabled style="color:var(--ink3)">没找到这个专业，可以按上面的分组手动选</button>'; sug.classList.add('on'); return; }
+    sug.innerHTML = hits.map(function(h){
+      var gname=(GROUPS.filter(function(g){return g.id===h.g})[0]||{}).name||'';
+      return '<button data-g="'+h.g+'" type="button"><b>'+esc(h.alias&&h.a!==h.n?h.a+' → '+h.n:h.n)+'</b><span>'+esc(gname)+'</span></button>';
+    }).join('');
+    sug.classList.add('on');
+    $$('button',sug).forEach(function(b){ b.addEventListener('click', function(){
+      if(!b.dataset.g) return;
+      input.value=''; sug.classList.remove('on'); selectGroup(b.dataset.g, true);
+    })});
+  }
+  input.addEventListener('input', function(){ run(this.value) });
+  input.addEventListener('focus', function(){ if(this.value.trim()) run(this.value) });
+  document.addEventListener('click', function(e){ if(!e.target.closest('.search')) sug.classList.remove('on') });
+  input.addEventListener('keydown', function(e){
+    if(e.key==='Escape'){ sug.classList.remove('on'); this.blur() }
+    if(e.key==='Enter'){ var f=$('button[data-g]',sug); if(f){ f.click() } }
+  });
+})();
+
+/* ---------- market ---------- */
+function renderMarket(){
+  $('#sameBody').innerHTML = D.sameModel.map(function(s){
+    var cls = s.change>=100?'huge':'';
+    return '<tr><td>'+esc(s.name)+(s.kind==='phone'?' <span style="color:var(--ink3);font-size:10px">手机</span>':'')+'</td>'
+      +'<td class="r">¥'+yuan(s.before)+'</td><td class="r after">¥'+yuan(s.after)+'</td>'
+      +'<td class="r up '+cls+'">'+pct(s.change)+'</td></tr>';
+  }).join('');
+
+  // DRAM bars
+  var d=D.dramQoQ, w=340, hgt=150, pad=26, bw=(w-pad*2)/d.length*0.52, gap=(w-pad*2)/d.length;
+  var max=Math.max.apply(null,d.map(function(x){return x.value}))*1.18;
+  var svg='<svg viewBox="0 0 '+w+' '+hgt+'" style="width:100%;height:auto;margin-top:10px" role="img" aria-label="DRAM 合约价环比涨幅">';
+  svg+='<line x1="'+pad+'" y1="'+(hgt-24)+'" x2="'+(w-pad+6)+'" y2="'+(hgt-24)+'" stroke="rgba(23,22,15,.22)" stroke-width="1"/>';
+  d.forEach(function(x,i){
+    var bh=(x.value/max)*(hgt-54);
+    var bx=pad+gap*i+(gap-bw)/2, by=hgt-24-bh;
+    var col = x.forecast? 'none':'rgba(171,51,35,.82)';
+    svg+='<rect x="'+bx.toFixed(1)+'" y="'+by.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" fill="'+col+'" stroke="'+(x.forecast?'rgba(171,51,35,.5)':'none')+'" stroke-width="1" stroke-dasharray="'+(x.forecast?'3 2':'0')+'"/>';
+    svg+='<text x="'+(bx+bw/2).toFixed(1)+'" y="'+(by-6).toFixed(1)+'" font-size="9.5" font-family="ui-monospace,monospace" fill="'+(x.forecast?'#8a5f0f':'#ab3323')+'" text-anchor="middle">'+x.value+'%</text>';
+    svg+='<text x="'+(bx+bw/2).toFixed(1)+'" y="'+(hgt-11)+'" font-size="9" font-family="ui-monospace,monospace" fill="#87816f" text-anchor="middle">'+x.label+'</text>';
+  });
+  svg+='</svg>';
+  $('#dramChart').innerHTML = svg;
+
+  $('#parts').innerHTML = D.partsChange.map(function(p){
+    var mm = String(p.note||'').match(/([\d.]+)\s*→\s*([\d.]+)/), v = null;
+    if(mm){ var a=+mm[1], b=+mm[2]; if(a>0) v = Math.round((b-a)/a*100); }
+    var txt, style='';
+    if(v!==null){ txt=(v>0?'+':'')+v+'%'; if(v<0) style=' style="color:var(--green)"'; }
+    else { txt = p.low===p.high? pct(p.low) : pct(p.low)+' ~ '+pct(p.high); if(p.low<0) style=' style="color:var(--green)"'; }
+    return '<div><div>'+esc(p.label)+'<span>'+esc(p.note)+'</span></div><b'+style+'>'+txt+'</b></div>';
+  }).join('');
+
+  var o=D.outlook;
+  $('#outlook').innerHTML = '<b>'+esc(o.verdict)+'</b>'+o.points.map(function(p){return '<p>'+esc(p)+'</p>'}).join('')
+    +'<div class="src">来源 '+o.sources.length+' 篇 · 见页面底部</div>';
+}
+
+/* ---------- money ---------- */
+function renderMoney(){
+  $('#quick').innerHTML=[3000,3333,5000,6000,6001,10000].map(function(v){
+    return '<button type="button" data-v="'+v+'">¥'+yuan(v)+'</button>';
+  }).join('');
+  var pi=$('#priceInput'), pr=$('#priceRange');
+  function calc(){
+    var p=Math.max(0,Math.min(99999, parseInt(pi.value,10)||0));
+    var pc=D.subsidyRules.pc, ph=D.subsidyRules.phone;
+    var pcSub=Math.min(p*pc.rate/100, pc.cap);
+    var phSub = (ph.threshold && p>ph.threshold) ? 0 : Math.min(p*ph.rate/100, ph.cap);
+    var pcPct=Math.min(100, pcSub/pc.cap*100);
+    var phPct=Math.min(100, phSub/ph.cap*100);
+    $('#calcOut').innerHTML =
+      '<div><div class="k"><span>电脑能补</span><em>家电类</em></div>'
+      +'<div class="v'+(pcSub?'':' zero')+'">¥'+yuan2(pcSub)+'</div>'
+      +'<div class="s">到手 ¥'+yuan2(p-pcSub)+'　封顶 1500</div>'
+      +'<div class="prog"><i style="width:'+pcPct.toFixed(1)+'%;background:var(--red)"></i></div></div>'
+      +'<div><div class="k"><span>手机能补</span><em>数码类</em></div>'
+      +'<div class="v'+(phSub?'':' zero')+'">'+(phSub?'¥'+yuan2(phSub):'¥0')+'</div>'
+      +'<div class="s">'+(phSub?'到手 ¥'+yuan2(p-phSub)+'　封顶 500':'超过 6000，一分不补')+'</div>'
+      +'<div class="prog"><i style="width:'+phPct.toFixed(1)+'%;background:'+(phSub?'var(--green)':'var(--line2)')+'"></i></div></div>';
+
+    var note;
+    if(p>ph.threshold && p<=pc.cap*2){ note='这台价买<b>电脑</b>能补 ¥'+yuan2(pcSub)+'；买<b>手机</b>一分没有 —— 同一笔钱，差 '+yuan2(pcSub)+' 元。'; }
+    else if(p<=ph.threshold && pcSub>=pc.cap*0.999){ note='两台都吃满了：电脑 +1500、手机 +500。'; }
+    else if(p<=ph.threshold){ note='这个价位手机还能补，电脑补 '+yuan2(pcSub)+'。注意手机封顶 500，到 ¥3,333 就不再涨了。'; }
+    else { note='手机已过 6000 红线，补贴为 0；电脑不受这条线限制。'; }
+    $('#calcNote').innerHTML=note;
+  }
+  pi.addEventListener('input', function(){ pr.value=Math.min(20000,parseInt(pi.value,10)||1000); calc() });
+  pr.addEventListener('input', function(){ pi.value=this.value; calc() });
+  $$('#quick button').forEach(function(b){ b.addEventListener('click',function(){ pi.value=b.dataset.v; pr.value=Math.min(20000,parseInt(b.dataset.v,10)); calc() }) });
+  calc();
+
+  $('#facts').innerHTML = D.subsidyFacts.map(function(f){return '<li>'+esc(f)+'</li>'}).join('');
+  $('#bands').innerHTML = D.budgetBands.map(function(b){
+    return '<div class="band"><b>'+(b.max>100000?'¥10,000 以上':'≤ ¥'+yuan(b.max))+'</b><span>'+esc(b.text)+'</span></div>';
+  }).join('');
+}
+
+/* ---------- risk ---------- */
+function renderRisk(){
+  $('#riskSub').textContent = D.defects.cap;
+  $('#defects').innerHTML = D.defects.items.map(function(d,i){
+    return '<details class="def"'+(i===0?' open':'')+'><summary><b>'+esc(d.name)+'</b><span class="sym">'+(i+1)+'</span></summary>'
+      +'<div class="body"><dl style="margin:0">'
+      +'<dt>症状</dt><dd>'+esc(d.symptom)+'</dd>'
+      +'<dt>涉及</dt><dd class="who">'+esc(d.who)+'</dd>'
+      +'<dt>原因</dt><dd>'+esc(d.why)+'</dd>'
+      +'<dt>怎么办</dt><dd>'+esc(d.fix)+'</dd>'
+      +'</dl></div></details>';
+  }).join('');
+  var tp=D.trapsByKind;
+  function block(arr,title){
+    return '<h5>'+title+'</h5>'+arr.map(function(t){
+      return '<div class="trap-item"><b>'+esc(t.title)+'</b><p>'+esc(t.desc)+'</p></div>';
+    }).join('');
+  }
+  $('#trapsPc').innerHTML = block(tp.pc,'电脑');
+  $('#trapsPhone').innerHTML = block(tp.phone,'手机');
+}
+
+/* ---------- sources ---------- */
+function renderSources(){
+  var st=D.coverage;
+  $('#stats').innerHTML = [
+    [MACHINES.length,'台在售机型（实采到手价）'],
+    [D.sources.length,'条公开来源（可点开核对）'],
+    [GROUPS.reduce(function(a,g){return a+g.majors.length},0),'个专业覆盖'],
+    [Math.round((st.recommendRate||0)*100)+'%','判定可推荐比例']
+  ].map(function(x){return '<div><b>'+x[0]+'</b><span>'+x[1]+'</span></div>'}).join('');
+
+  $('#metaGrid').innerHTML =
+    '<div><h5>价格口径</h5><p>'+esc(D.meta.priceBasis)+'</p></div>'
+    +'<div><h5>不确定的地方</h5><p>'+esc(D.meta.disclaimer)+'</p></div>'
+    +'<div class="wide"><h5>性能 / 规格口径</h5><p>'+esc(D.meta.perfBasis)+'</p></div>';
+
+  $('#srcCount').textContent = '展开全部 '+D.sources.length+' 条来源';
+  $('#srclist').innerHTML = D.sources.map(function(s){
+    return '<a href="'+esc(s.url)+'" target="_blank" rel="noopener">'+esc(s.title)
+      +'<span>'+esc(s.publisher)+' · '+esc(s.date)+'</span></a>';
+  }).join('');
+}
+
+/* ---------- drawer ---------- */
+function openDrawer(id){
+  var m = MACHINES.filter(function(x){return x.id===id})[0]; if(!m) return;
+  var gpu=m.gpu||{}, ram=m.ram||{}, cpu=m.cpu||{}, sc=m.screen||{}, p=m.price||{}, f=FORM[ram.form];
+  $('#drTitle').textContent = m.name;
+  var rows = [
+    ['品牌 / 品类', m.brand+' · '+(CATNAME[m.cat]||m.cat)],
+    ['处理器', cpu.model || '—'],
+    ['核心 / 线程', (cpu.cores?cpu.cores+'C / '+cpu.threads+'T':'—')],
+    ['内存', (ram.gb!=null? ram.gb+'GB '+ (ram.type||'') : '—') + (f? '（'+f.t+'）':'')],
+    ['内存插槽', (ram.slots!=null? ram.slots+' 个 · 最大 '+(ram.maxGB||'?')+'G':'—')],
+    ['显卡', (gpu.model||'—')+(gpu.type==='discrete'?'（独显 '+(gpu.vramGB||'?')+'G）':gpu.type==='unified'?'（统一内存）':'（核显）')],
+    ['硬盘', m.storageGB? (m.storageGB>=1024?(m.storageGB/1024)+'TB':m.storageGB+'GB') : '—'],
+    ['屏幕', sc.sizeInch? sc.sizeInch+'″ '+sc.widthPx+'×'+sc.heightPx+(sc.refreshHz?' '+sc.refreshHz+'Hz':'')+(sc.panel?' '+sc.panel:'') : '—'],
+    ['色域', sc.colorGamut? Object.keys(sc.colorGamut).map(function(k){return k.toUpperCase()+' '+sc.colorGamut[k]+'%'}).join(' · ') : '—'],
+    ['电池 / 重量', (m.batteryWh?m.batteryWh+'Wh':'—')+' · '+(m.weightKg?m.weightKg+'kg':'—')],
+    ['能效', m.efficiency? m.efficiency+' 级'+(m.efficiencyStatus==='verified'?'（已核）':''):'待核'],
+    ['接口', (m.ports&&m.ports.length)? m.ports.join(' · ') : '—']
+  ];
+  var html = '<div class="dr-price"><b>¥'+yuan2(p.final)+'</b>'+(p.list&&p.list>p.final?'<s>¥'+yuan(p.list)+'</s>':'')
+    +'<em>国补后到手</em></div>'
+    +'<div class="kv"><h6>价格怎么来的</h6><table><tbody>'
+    +'<tr><td>页面价 / 划线价</td><td>¥'+(p.list?yuan(p.list):'—')+'</td></tr>'
+    +'<tr><td>优惠券合计</td><td>'+(p.discounts&&p.discounts.length? '−¥'+yuan(p.discounts.reduce(function(a,b){return a+(b.amount||0)},0)) : '无')+'</td></tr>'
+    +'<tr><td>实付</td><td>¥'+(p.net?yuan2(p.net):'—')+'</td></tr>'
+    +'<tr><td>国补</td><td>'+(p.subsidy? '−¥'+yuan2(p.subsidy):'—')+'</td></tr>'
+    +'<tr><td>到手价</td><td><b>¥'+yuan2(p.final)+'</b></td></tr>'
+    +'</tbody></table>'
+    +(p.basisNote?'<div class="dr-note" style="margin-top:10px">'+esc(p.basisNote)+'</div>':'')
+    +'</div>'
+    +'<div class="kv"><h6>规格</h6><table><tbody>'
+    +rows.map(function(r){return '<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td></tr>'}).join('')
+    +'</tbody></table></div>';
+
+  if(m.throttle){
+    html += '<div class="kv"><h6>持续功耗（实测口径）</h6><div class="dr-note">'
+      +'CPU 持续 '+fmt(m.throttle.cpuSustainedW)+'W · GPU '+fmt(m.throttle.gpuSustainedW)+'W · 整机 '+fmt(m.throttle.totalSustainedW)+'W'
+      +(m.throttle.sustainedNote?'<br>'+esc(m.throttle.sustainedNote):'')
+      +(m.throttle.note?'<br><b>注意：</b>'+esc(m.throttle.note):'')+'</div></div>';
+  }
+  html += '<div class="kv"><h6>数据来源与置信度</h6>'
+    +'<div class="dr-note">置信度：'+esc(m.confidence||'—')+'　·　采价时间：'+esc((m.priceCapturedAt||'').replace('T',' ').slice(0,16)||'—')
+    +'<br>'+esc(m.shopName||'')+'</div>'
+    +(m.dataGaps&&m.dataGaps.length?'<div style="margin-bottom:8px">'+m.dataGaps.map(function(g){return '<span class="gap">缺口 '+esc(g)+'</span>'}).join('')+'</div>':'')
+    +(m.url?'<a class="dr-link" href="'+esc(m.url)+'" target="_blank" rel="noopener">打开商品页核对 →</a>':'')
+    +'</div>'
+    +'<div class="dr-note" style="border-left:2px solid var(--amber);background:var(--amberbg);color:#5c440f">'
+    +'价格随平台活动实时变动，这里是快照。下单前请以商品页显示的国补后价为准。</div>';
+
+  $('#drBody').innerHTML = html;
+  $('#drBody').scrollTop = 0;
+  $('#drawer').classList.add('on'); $('#ov').classList.add('on');
+  $('#drawer').setAttribute('aria-hidden','false'); document.body.classList.add('locked');
+}
+function closeDrawer(){
+  $('#drawer').classList.remove('on'); $('#ov').classList.remove('on');
+  $('#drawer').setAttribute('aria-hidden','true'); document.body.classList.remove('locked');
+}
+$('#drClose').addEventListener('click', closeDrawer);
+$('#ov').addEventListener('click', closeDrawer);
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDrawer() });
+
+/* ---------- nav & reveal ---------- */
+(function(){
+  var secs = $$('section[id]'), links = $$('[data-nav]');
+  function spy(){
+    var y = window.scrollY + 120, cur=null;
+    secs.forEach(function(s){ if(s.offsetTop <= y) cur = s.id });
+    links.forEach(function(a){ a.classList.toggle('on', a.dataset.nav===cur) });
+  }
+  window.addEventListener('scroll', spy, {passive:true}); spy();
+  var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target) } }) },{rootMargin:'0px 0px -8% 0px'});
+  $$('.sec-head, .panel, .result, .calc, .chart-box, .quote').forEach(function(el){ el.classList.add('rv'); io.observe(el) });
+})();
+
+/* ---------- chat：接本地小模型（Ollama · qwen3.5-4b） ---------- */
+var API={base:'',ok:false,ver:'',total:null,busy:false};
+var CS={known:null,seen:[],focus:null,stage:null,asked:[]};
+var PURPOSE_CN={design:'设计/视觉',video:'视频剪辑',gaming:'游戏',dev:'编程',office:'办公',threeD:'三维',audio:'音频',ai:'本地模型',light:'轻度办公'};
+var CAT_CN={thin:'轻薄本',gaming:'游戏本',desktop:'台式整机',upgrade:'内存/固态'};
+var EX=['学设计的 5100 要带教室','计算机 1 万 打游戏','会计 5000 能加内存'];
+
+function fetchT(url,opt,ms){
+  var ctl=new AbortController(), t=setTimeout(function(){ctl.abort()}, ms||8000);
+  var o=Object.assign({},opt||{},{signal:ctl.signal});
+  return fetch(url,o).then(function(r){clearTimeout(t);return r}, function(e){clearTimeout(t);throw e});
+}
+function paintStatus(){
+  var el=$('#cpStatus'); if(!el) return;
+  el.className='cp-status'+(API.ok?' ok':' bad');
+  el.innerHTML='<i></i><span>'+(API.ok
+    ? '已连上本地模型 · '+esc(API.ver||'Ollama')+(API.total?(' · 库内 '+API.total+' 台'):'')
+    : '未连上本地模型 · 点这里看怎么启动')+'</span>';
+}
+function probe(){
+  var bases=['','http://127.0.0.1:7860'];
+  var i=0;
+  function tryNext(){
+    if(i>=bases.length){ API.ok=false; paintStatus(); return Promise.resolve(false) }
+    var b=bases[i++];
+    return fetchT(b+'/api/health',{cache:'no-store'},3000).then(function(r){
+      if(!r.ok) return tryNext();
+      return r.json().then(function(j){
+        if(j&&j.ok){ API.base=b; API.ok=true; API.ver='Ollama '+j.ollama; paintStatus(); loadStats(); return true }
+        return tryNext();
+      });
+    }).catch(function(){ return tryNext() });
+  }
+  return tryNext();
+}
+function loadStats(){
+  fetchT(API.base+'/api/stats',{cache:'no-store'},4000).then(function(r){return r.json()}).then(function(j){
+    if(j&&j.ok){ API.total=j.total; paintStatus() }
+  }).catch(function(){});
+}
+function threadEl(){ return $('#thread') }
+function para(t){
+  if(!t) return '';
+  return String(t).split(/\n{2,}/).map(function(x){
+    return '<p>'+esc(x).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>')+'</p>';
+  }).join('');
+}
+function addUser(text){
+  var e=$('#threadEmpty'); if(e) e.remove();
+  var d=document.createElement('div'); d.className='msg u';
+  d.innerHTML='<div class="bubble">'+esc(text)+'</div>';
+  threadEl().appendChild(d);
+  var sec=$('#chat');
+  if(sec && sec.getBoundingClientRect().top>window.innerHeight*0.45) sec.scrollIntoView({behavior:'smooth',block:'start'});
+  else { var r=d.getBoundingClientRect(); if(r.bottom>window.innerHeight-20) d.scrollIntoView({behavior:'smooth',block:'center'}); }
+}
+function addThinking(){
+  var d=document.createElement('div'); d.className='thinking'; d.id='thinking';
+  d.innerHTML='<span><i></i><i></i><i></i></span>正在读你的条件、排序候选…';
+  threadEl().appendChild(d);
+}
+function dropThinking(){ var t=$('#thinking'); if(t) t.remove() }
+function recHTML(x,i){
+  var s='<div class="rec"><span class="n">'+(i+1)+'</span><h5>'+esc(x.name)+'</h5><span class="p">¥'+yuan(Math.round(x.price))+'</span>';
+  if(x.spec) s+='<div class="spec">'+esc(x.spec)+'</div>';
+  if(x.tag) s+='<div class="tag">'+esc(x.tag)+'</div>';
+  if(x.caution) s+='<div class="cau">注意：'+esc(x.caution)+'</div>';
+  (x.blockers||[]).forEach(function(b){
+    if(b&&b.why&&b.why!==x.caution) s+='<div class="cau">'+(b.level==='hard'?'硬伤：':'提醒：')+esc(b.why)+'</div>';
+  });
+  var extra=[];
+  if(x.original) extra.push('页面 ¥'+yuan(x.original));
+  if(x.subsidy) extra.push('国补 −¥'+yuan(Math.round(x.subsidy)));
+  if(x.overBudget) extra.push('略超预算');
+  if(extra.length) s+='<div class="sub">'+esc(extra.join(' · '))+'</div>';
+  return s+'</div>';
+}
+function addAssistant(d,ms){
+  var k=d.kernel||{}, ranked=(k.ranked||[]).slice(0,4);
+  var tag=d.stage==='clarify'?'先补条件':d.stage==='followup'?'细节追问':d.stage==='recommend'?'给出推荐':'回答';
+  var h='<div class="who"><span>助手</span><em>'+esc(tag)+'</em><span>'+(ms/1000).toFixed(1)+'s</span><span>'+esc(d.focusName||'')+'</span></div>';
+  h+='<div class="prose">'+para(d.reply)+'</div>';
+  if(ranked.length) h+='<div class="recs">'+ranked.map(recHTML).join('')+'</div>';
+  var flags=[];
+  if((k.untraceable||[]).length) flags.push('不可追溯数字 '+k.untraceable.length);
+  if((k.fabricated||[]).length) flags.push('疑似编造 '+k.fabricated.length);
+  if((k.outside||[]).length) flags.push('库外机型 '+k.outside.length);
+  if(flags.length) h+='<div class="audit bad">出口审计：'+esc(flags.join(' · '))+'</div>';
+  else if(d.stage==='recommend') h+='<div class="audit">出口审计：数字 0 处不可追溯 · 推荐对象均来自库内</div>';
+  var qs=[]; (k.questions||[]).forEach(function(q){ if(q&&q.q) qs.push(q.q) });
+  ['这台行不行','还有别的吗','保修几年'].forEach(function(t){ if(qs.length<4&&qs.indexOf(t)<0) qs.push(t) });
+  h+='<div class="follow">'+qs.slice(0,4).map(function(t){return '<button type="button" data-ask="'+esc(t)+'">'+esc(t)+'</button>'}).join('')+'</div>';
+  var el=document.createElement('div'); el.className='msg a'; el.innerHTML=h;
+  threadEl().appendChild(el); bindAsk(el);
+}
+function addError(e){
+  var el=document.createElement('div'); el.className='msg a err';
+  el.innerHTML='<div class="who"><span>助手</span><em>连接失败</em></div><div class="prose">本地模型服务没响应（已自动重试一次）。可能是模型正在冷启动，或服务还没起来。</div>'
+   +'<div class="hintbox"><b>启动方法（两步）：</b><br>① 双击 <code>tools\\agent\\启动测试.bat</code> 拉起本地模型（7860）<br>'
+   +'② 在项目根目录运行 <code>python web/serve.py</code>，打开 <code>http://127.0.0.1:8088</code><br>'
+   +'<span style="opacity:.75">别直接双击 html —— file:// 页面跨域调不到本地服务，只能走离线规则。</span><br>'
+   +'<span style="opacity:.75">报错：'+esc(String((e&&e.message)||e))+'</span></div>';
+  threadEl().appendChild(el);
+}
+function groupName(gid){ var g=GROUPS.filter(function(x){return x.id===gid})[0]; return g?g.name:'对应专业组' }
+function addLocal(text){
+  var num=text.match(/(\d{3,6})/), budget=num?parseInt(num[1],10):null, gid=null;
+  Object.keys(NAME2G).forEach(function(n){ if(!gid&&n.length>=2&&text.indexOf(n)>-1) gid=NAME2G[n] });
+  if(!gid) Object.keys(ALIAS).forEach(function(a){ if(!gid&&text.indexOf(a)>-1) gid=NAME2G[ALIAS[a]] });
+  var el=document.createElement('div'); el.className='msg a';
+  var h='<div class="who"><span>助手</span><em>离线规则</em></div><div class="prose">';
+  if(gid) h+='<p>没连上模型，先用规则给你定位：听起来是<b>'+esc(groupName(gid))+'</b>'+(budget?('，预算 ¥'+yuan(budget)):'')+'。这一组的门槛已经套上，往下就是筛出来的机型。</p>';
+  else if(budget) h+='<p>没连上模型。只读到预算 ¥'+yuan(budget)+'，没认出用途 —— 挑一个专业组，我按那组的门槛筛。</p>';
+  else h+='<p>没连上模型，也没读到预算或用途。可以直接点下面的专业组，或启动本地服务后再问。</p>';
+  h+='</div>';
+  if(gid) h+='<div class="follow"><button type="button" data-goto="'+gid+'">看「'+esc(groupName(gid))+'」的机型 ↓</button></div>';
+  h+='<div class="audit bad">离线模式：未调用模型，结论来自规则表</div>';
+  el.innerHTML=h; threadEl().appendChild(el);
+  el.addEventListener('click',function(ev){ var b=ev.target.closest('[data-goto]'); if(b) selectGroup(b.dataset.goto,false,true) });
+  if(gid) selectGroup(gid);
+}
+function paintSlots(s){
+  var box=$('#slotsBox'); s=s||{}; var any=false;
+  var rows=[
+    ['预算', s.budget?('¥'+yuan(s.budget)):null],
+    ['用途', (s.purpose&&s.purpose.length)?s.purpose.map(function(x){return PURPOSE_CN[x]||x}).join(' / '):null],
+    ['品类', s.cat?(CAT_CN[s.cat]||s.cat):null],
+    ['带出门', s.carry===true?'要带':(s.carry===false?'不用带':null)],
+    ['用几年', s.years?('≥'+s.years+' 年'):null],
+    ['宿舍功耗', s.dormWatt?('≤'+s.dormWatt+'W'):null]
+  ];
+  var html=rows.map(function(r){
+    if(r[1]) any=true;
+    return '<div class="slot"><span>'+r[0]+'</span><b class="'+(r[1]?'':'dim')+'">'+(r[1]?esc(r[1]):'—')+'</b></div>';
+  }).join('');
+  box.innerHTML = any? html : '<div class="slot-empty">还没有条件。说一句话后这里会逐项亮起来。</div>';
+}
+function bindAsk(el){
+  el.addEventListener('click',function(ev){
+    var b=ev.target.closest('[data-ask]'); if(b) ask(b.dataset.ask);
+  });
+}
+function ask(text){
+  text=(text||'').trim();
+  if(!text||API.busy) return;
+  addUser(text);
+  var input=$('#askInput'); if(input) input.value='';
+  API.busy=true; var btn=$('#askBtn'); if(btn) btn.disabled=true;
+  addThinking();
+  var t0=Date.now();
+  var payload=JSON.stringify({text:text,known:CS.known,asked:CS.asked,last_stage:CS.stage,seen:CS.seen,focus:CS.focus});
+  function postChat(){
+    return fetchT(API.base+'/api/chat',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:payload
+    },150000).then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      return r.json();
+    });
+  }
+  (API.ok?Promise.resolve(true):probe()).then(function(ok){
+    if(!ok) throw new Error('offline');
+    return postChat().catch(function(e){
+      // 502/网络抖动：模型可能正在冷启动，等 1.2 秒重试一次
+      if(String(e.message).indexOf('offline')>-1) throw e;
+      return new Promise(function(res){ setTimeout(res,1200) }).then(postChat);
+    });
+  }).then(function(d){
+    dropThinking();
+    CS.known=d.slots||CS.known; CS.stage=d.stage||CS.stage; CS.asked=d.asked||CS.asked;
+    CS.focus=d.focus||CS.focus;
+    ((d.kernel&&d.kernel.ranked)||[]).forEach(function(x){ if(x&&x.id&&CS.seen.indexOf(x.id)<0) CS.seen.push(x.id) });
+    addAssistant(d,Date.now()-t0);
+    paintSlots(d.slots||CS.known);
+  }).catch(function(e){
+    dropThinking();
+    if(e&&e.message==='offline'||!API.ok) addLocal(text); else addError(e);
+    API.ok = API.ok && !(e&&e.message==='offline');
+    paintStatus();
+  }).then(function(){
+    API.busy=false; if(btn) btn.disabled=false;
+  });
+}
+function initChat(){
+  var input=$('#askInput'), btn=$('#askBtn');
+  if(!input||!btn) return;
+  btn.addEventListener('click',function(){ ask(input.value) });
+  input.addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.isComposing){ e.preventDefault(); ask(input.value) } });
+  $('#cpExamples').innerHTML=EX.map(function(t){return '<button type="button" data-ask="'+esc(t)+'">'+esc(t)+'</button>'}).join('');
+  bindAsk($('#cpExamples'));
+  $('#cpStatus').addEventListener('click',function(){ if(!API.ok) addError('未连接') });
+  paintStatus();
+  probe();
+  var fab=$('#fab');
+  fab.addEventListener('click',function(){
+    $('#chat').scrollIntoView({behavior:'smooth',block:'start'});
+    setTimeout(function(){ try{input.focus({preventScroll:true})}catch(e){} },420);
+  });
+  function fabState(){
+    var r=$('#chat').getBoundingClientRect();
+    var inChat = r.top < window.innerHeight*0.62 && r.bottom > 140;
+    fab.classList.toggle('on', window.scrollY>560 && !inChat);
+  }
+  window.addEventListener('scroll',fabState,{passive:true});
+  window.addEventListener('resize',fabState);
+  fabState();
+}
+
+/* ---------- boot ---------- */
+renderHero(); renderMajorList(); selectGroup('office'); initChat(); renderMarket(); renderMoney(); renderRisk(); renderSources();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "steps": [
+    {"tool": "get_app_state", "args": {"pid": 14672, "disableScreenshot": true, "disableDiff": true}, "max": 300},
+    {"tool": "click", "args": {"pid": 14672, "element_id": "45"}, "max": 600},
+    {"tool": "get_app_state", "args": {"pid": 14672, "disableScreenshot": true}, "max": 300}
+  ]
+}

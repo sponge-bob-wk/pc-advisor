@@ -1,0 +1,174 @@
+{
+  "meta": {
+    "version": "0.1",
+    "capturedAt": "2026-11-11T21:40+08:00",
+    "method": "WebSearch 快照（京东/天猫/淘宝/SMZDM/ZOL 转录），非页面直抓",
+    "status": "PENDING-VERIFY",
+    "warning": "本文件所有价格均为搜索快照级，未回京东/天猫商品页截图核对。仅作后续专门核对的参考，不得直接覆盖 machine_pool.json 的 price 字段。核对通过后由人工确认再落库。",
+    "howToVerify": "逐台打开 evidence 中的商城页面，截屏划线价/国补标签/到手价，对照本快照后改库"
+  },
+  "snapshots": [
+    {
+      "machineId": "jd-hasee-zhanshen-t8-i713650hx-16g-1t-5060-20261109",
+      "machine": "神舟 战神T8（i7-13650HX/16G/1T/RTX5060/2.5K 180Hz）",
+      "poolNow": {"list": 8499.15, "final": 8499.15, "sub": 0},
+      "snapshot": {
+        "pagePrice": 9489,
+        "subsidy": 1423.35,
+        "final": 8065.65,
+        "jdTag": {"常卖价": 8244.15, "反推原价": 9699, "说明": "8244.15=9699×0.85，.15 结尾坐实 list 记的是国补后价"},
+        "smzdmEvidence": "页面价¥9489（神舟电脑京东自营旗舰店），国补15%减1423.35，实付8065.65（2026-09-03 爆料）",
+        "conclusion": "A类坐实：list/net 应为页面价（9999 或 9489，随时间波动），sub=15%，final≈8065~8499 区间；现库 final=8499.15 恰为 9999 国补后价，源头错"
+      },
+      "sources": ["m.smzdm.com/p/181599261", "京东直读 CV36S04 SKU 价格标签"]
+    },
+    {
+      "machineId": "add-magicbookpro14",
+      "machine": "荣耀 MagicBook Pro 14 2026（Ultra5-338H/32G/1T）",
+      "poolNow": {"list": 7904.15, "final": 7904.15, "sub": 0},
+      "snapshot": {
+        "pagePrice": 9299,
+        "subsidy": 1394.85,
+        "final": 7904.15,
+        "jdTag": {"常卖价": 7904.15, "反推原价": 9299, "说明": "7904.15=9299×0.85 坐实；ZOL 版本：8999−100−1349.85=7649.15"},
+        "smzdmEvidence": "京东荣耀智能设备旗舰店 32G/1T 月光白 7904.15；ZOL：活动价 8999 立减100 国补1349.85 实付7649.15",
+        "conclusion": "A类坐实：list/net 应为 9299（或 8999），sub=15%，final=7904.15 不变"
+      },
+      "sources": ["京东直读 ZQC-P SKU", "nb.zol.com.cn/1238/12382702.html"]
+    },
+    {
+      "machineId": "jd-mechrevo-jiaolong15k-r57640h-3050-16g-512g-20261109",
+      "machine": "机械革命 蛟龙15K（R5-7640H/16G/512G）",
+      "poolNow": {"list": 8499, "final": 6499, "sub": 0},
+      "snapshot": {
+        "jdTags": [
+          {"店": "1号会员店", "现价": 4971.65, "常卖价": 5269.15, "反推原价": 6199},
+          {"店": "机械革命游戏本旗舰店", "现价": 6246.65, "常卖价": 6459.15, "反推原价": 7599},
+          {"店": "亘古笔记本旗舰店", "现价": 5949.15, "常卖价": 5949.15, "反推原价": 6999}
+        ],
+        "smzdmEvidence": "活动售价 6759 满减600 实付 6159；另一条 7199 实付 7169",
+        "conclusion": "B类坐实：现 market 区间国补后 4971~6459，页面价 6199~7599。库内 list=8499 偏高，final=6499 落在合理区间但来源（2000 差额）无记录，需回页面确认当前 SKU 实价"
+      },
+      "sources": ["京东直读 3 店铺", "smzdm.com/p/185090604", "smzdm.com/p/185667171"]
+    },
+    {
+      "machineId": "jd-rog-strixscar18-u9275hx-16g-1t-5070ti-20261110",
+      "machine": "ROG 枪神9 Plus 超竞版（U9-275HX/RTX5070Ti/18寸）",
+      "poolNow": {"list": 16999, "final": 14999, "sub": 0},
+      "snapshot": {
+        "launchPrice": 16999,
+        "launchSubsidyFinal": 14999,
+        "laterPagePrice": 17499,
+        "laterFinal": 15749,
+        "conclusion": "⚠️ 撤销漏券嫌疑：bjbpc/新浪双源证实「首发价 16999，参与国家以旧换新补贴后 14999」——库内记录的正是首发快照，2000 差额=首发期国补。若按最新页面则应为 17499/15749（×0.85 验证通过）。标注：快照时效旧，需决定用首发价还是现价口径"
+      },
+      "sources": ["m.bjbpc.com/view.php?aid=2286", "news.sina.cn 2025-05-31", "m.bjbpc.com/view.php?aid=3797"]
+    },
+    {
+      "machineId": "jd-acer-shadowknight8-i714650hx-16g-1t-5060-20261110",
+      "machine": "宏碁 暗影骑士·擎8（i7-14650HX/16G/1T/RTX5060）",
+      "poolNow": {"list": 11999, "final": 11999, "sub": 0},
+      "snapshot": {
+        "pagePrice": "11999~12299",
+        "final": "10199~11349",
+        "evidence": [
+          "smzdm：活动售价12299，领300券+国补15%，实付10399",
+          "ZOL：活动价11999，满1500减150券+国补，实付11349",
+          "天猫宏碁瑞畅专卖店：11049.15（常卖价12999×0.85 坐实国补后价）"
+        ],
+        "conclusion": "B类坐实：库内 final=11999 把页面价当成了到手价。真实到手价区间 10199~11349"
+      },
+      "sources": ["m.smzdm.com/p/184995675", "zol 文章 12584319", "uland.taobao.com 天猫精选"]
+    },
+    {
+      "machineId": "jd-xiaomi-redmibookpro16-u5338h-32g-1t-20261109",
+      "machine": "REDMI Book Pro 16 2026（Ultra5-338H/32G/1T）",
+      "poolNow": {"list": 8199, "final": 8199, "sub": 0},
+      "snapshot": {
+        "launchPagePrice": 8199,
+        "launchFinal": 6969.15,
+        "recentPrices": [
+          {"smzdm 11-04": "活动价8999，国补减1328.85，实付7530.17"},
+          {"ZOL": "活动价8499，国补1274.85，实付7224.15"},
+          {"发布稿 mtvccc": "8199 国补后 6969.15"}
+        ],
+        "conclusion": "B类坐实：8199×0.85=6969.15 与发布稿国补价吻合。库内 final=8199 漏记国补，真实到手 6969~7530"
+      },
+      "sources": ["mtvccc.com", "smzdm.com/p/185440684", "nb.zol.com.cn/1239/12390156.html"]
+    },
+    {
+      "machineId": "add-canglong16pro",
+      "machine": "苍龙16 Pro（R9-8945HX/RTX5070）",
+      "poolNow": {"list": 14699, "final": 12499, "sub": 2200},
+      "snapshot": {"note": "本台 sub=2200（15%应为2204.85），接近满额但非精确15%，列入待核清单但优先级低"},
+      "sources": []
+    },
+    {
+      "machineId": "add-thunde-renjian-s",
+      "machine": "雷神 猎刃16（2026）",
+      "poolNow": {"list": 14799, "final": 14799, "sub": 0},
+      "snapshot": {
+        "jdDirect": {"i7-13650HX/RTX5070/300Hz 版": "现价10199.15，常卖10199.15（=11999×0.85 坐实国补后价），页面价11999"},
+        "smzdmEvidence": [
+          "i7-13650HX/5070：活动价11699 − 券200 − 国补1500 = 9999",
+          "i9-13900HX/5060：11899 − 券300 − 新人100 − 国补1500 = 9999",
+          "i9-13900HX/5070Ti：13499 − 国补1500 = 11999"
+        ],
+        "zolEvidence": "11699 → 9579（多重叠加）",
+        "conclusion": "B类坐实：库内 14799 远高于所有在售版本实价（9579~11999）。需先确认库内猎刃16 的具体配置对应哪个版本，再定 list/final"
+      },
+      "sources": ["京东直读 雷神R16 SKU", "m.smzdm.com/p/184255742", "m.smzdm.com/p/184256493", "ucwap.zol.com.cn 12691049"]
+    },
+    {
+      "machineId": "add-tianxuan-air-2026",
+      "machine": "天选 Air 2026（锐龙AI Max+388/32G/1T）",
+      "poolNow": {"list": 12999, "final": 12999, "sub": 0},
+      "snapshot": {
+        "evidence": [
+          "smzdm：京东自营 11998 − 50 − PLUS119.98 − 国补1500 = 10328.02",
+          "太平洋导购：日常价12999 − 渠道1000 − 国补1500 = 10499（华硕京东自营）"
+        ],
+        "conclusion": "B类坐实：12999 是日常价没错，但漏记国补+渠道优惠，真实到手 10328~10499"
+      },
+      "sources": ["smzdm.com/p/185051917", "g.pconline.com.cn/x/2185/21851161.html"]
+    },
+    {
+      "machineId": "add-honorx14-amd",
+      "machine": "荣耀 X14 锐龙版（R5-6600H/16G/512G）",
+      "poolNow": {"list": 4999, "final": 4699, "sub": 300},
+      "snapshot": {
+        "jdTags": [
+          "荣耀笔记本旗舰店：现价 4079.15，常卖 4499",
+          "荣耀泽林专卖店：现价 4164.15（=4899×0.85），常卖 4499"
+        ],
+        "smzdmEvidence": "页面价 4999，国补15%起减500，实付 4051.1",
+        "conclusion": "C类升级坐实：库内 sub=300/final=4699 偏高。真实到手区间 4051~4164，国补按页面实标（15%起减500）而非固定 300"
+      },
+      "sources": ["京东直读 GDH-X 2 SKU", "m.smzdm.com/p/183335490"]
+    },
+    {
+      "machineId": "add-matebook14-2026",
+      "machine": "MateBook 14 2026（Ultra7 255H）",
+      "poolNow": {"list": 6999, "final": 6299, "sub": 700},
+      "snapshot": {
+        "note": "⚠️ 未找到直配页面：搜索命中均为 MateBook GT 14（另一机型，Ultra5 32G 版 7499 国补后 6374.15，不可套用）。库内 sub=700（10%）仍存疑，保留待核，需定向搜 FLMH 型号页面",
+        "gt14Ref": "GT14 不可混用，仅记录排除"
+      },
+      "sources": ["nb.zol.com.cn/1143/11433958_all.html（GT14，排除用）"]
+    },
+    {
+      "machineId": "add-adou14air",
+      "machine": "a豆14 Air 2026（M5451 系列）",
+      "poolNow": {"list": 7299, "final": 6599, "sub": 700},
+      "snapshot": {
+        "jdTags": [
+          "R7-260/16G/512G 版：现价 4759.15，常卖 4844.15（=5699×0.85）",
+          "AI 9 H 465/32G/1T 版：页面价 8499，PLUS 减500 + 国补 → 6799.15（ZAKER/腾讯双11稿）",
+          "天猫 R9 版：7861.65，常卖 8111.55"
+        ],
+        "conclusion": "价格高度依赖配置：库内 CPU 本身 conflict 待拍板（R7-8840H 查无此配）。若实为 AI 9 H 465/32G/1T 则页面价 8499、到手 6799.15（vs 库内 6599 来源不同）；若低配则 4759.15。先拍板 CPU 再核价格"
+      },
+      "sources": ["京东直读 M5451UADOL SKU", "app.myzaker.com 6aecac27", "news.qq.com 20261104A06MCG00"]
+    }
+  ]
+}

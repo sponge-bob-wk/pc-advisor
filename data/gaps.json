@@ -1,0 +1,190 @@
+{
+  "meta": {
+    "updated": "2026-11-09",
+    "purpose": "按杠杆率排序的数据缺口清单。杠杆 = 卡的组数 × 缺的台数",
+    "why": "不能按「缺得多」排优先级：补 1 个 throttle 字段能解锁视频+引擎两个组，比补 19 台 ramType 更值"
+  },
+  "fieldGaps": [
+    {
+      "field": "ramGB",
+      "name": "内存容量",
+      "groups": [
+        "office",
+        "code",
+        "graphic",
+        "video",
+        "threeD",
+        "engine",
+        "geo"
+      ],
+      "machines": [
+        "机械革命 蛟龙 15K"
+      ],
+      "groupCount": 7,
+      "machineCount": 1,
+      "leverage": 7
+    },
+    {
+      "field": "storageGB",
+      "name": "存储容量",
+      "groups": [
+        "video",
+        "audio",
+        "engine",
+        "geo"
+      ],
+      "machines": [
+        "机械革命 蛟龙 15K"
+      ],
+      "groupCount": 4,
+      "machineCount": 1,
+      "leverage": 4
+    },
+    {
+      "field": "vramGB",
+      "name": "显存容量",
+      "groups": [
+        "video",
+        "threeD",
+        "engine",
+        "geo"
+      ],
+      "machines": [
+        "机械革命 蛟龙 15K"
+      ],
+      "groupCount": 4,
+      "machineCount": 1,
+      "leverage": 4
+    },
+    {
+      "field": "ramType",
+      "name": "内存形态/类型",
+      "groups": [
+        "code",
+        "graphic"
+      ],
+      "machines": [
+        "机械革命 蛟龙 15K"
+      ],
+      "groupCount": 2,
+      "machineCount": 1,
+      "leverage": 2
+    },
+    {
+      "field": "tgpW",
+      "name": "显卡功耗释放",
+      "groups": [
+        "video",
+        "engine"
+      ],
+      "machines": [
+        "机械革命 蛟龙 15K"
+      ],
+      "groupCount": 2,
+      "machineCount": 1,
+      "leverage": 2
+    },
+    {
+      "field": "throttle",
+      "name": "持续性能衰减",
+      "groups": [
+        "video",
+        "engine"
+      ],
+      "machines": [
+        "机械革命 蛟龙 15K"
+      ],
+      "groupCount": 2,
+      "machineCount": 1,
+      "leverage": 2
+    },
+    {
+      "field": "colorGamut",
+      "name": "色域",
+      "groups": [
+        "graphic"
+      ],
+      "machines": [
+        "机械革命 蛟龙 15K"
+      ],
+      "groupCount": 1,
+      "machineCount": 1,
+      "leverage": 1
+    },
+    {
+      "field": "cores",
+      "name": "CPU 核心数",
+      "groups": [
+        "science"
+      ],
+      "machines": [
+        "ThinkPad E16 Gen 2（Ultra5 版）"
+      ],
+      "groupCount": 1,
+      "machineCount": 1,
+      "leverage": 1
+    }
+  ],
+  "nonBlocking": {
+    "efficiencyMissing": [
+      "星 Book Pro 14 2026 锐龙版",
+      "小新 Pro 14 2026（锐龙版）",
+      "小新 Air 15 2026",
+      "ThinkBook 16+ 2026（酷睿 Ultra5 338H）",
+      "ThinkBook 14+ 2026 锐龙版",
+      "小新 Pro 14 2026（酷睿 Ultra 7 版）",
+      "小新 Pro 16 2026（酷睿 Ultra 5 版）",
+      "小新 Pro 16 超能本（锐龙版）",
+      "小新 Pro 16 超能本（酷睿 Ultra 7 版）",
+      "小新 Pro 16 2025（锐龙版）",
+      "小新 Air 14 2026（酷睿 Ultra5 版）",
+      "小新 Air 14（酷睿 Ultra7 版）",
+      "小新 Air 14（酷睿 Ultra5 版）",
+      "小新 Air 15 2026（触控屏版）",
+      "ThinkBook 14+（酷睿 Ultra5 版）",
+      "ThinkBook 16+ 锐龙版 2026",
+      "ThinkPad E14 2026（Ultra 版）",
+      "ThinkPad E16 2026",
+      "ThinkPad E16 Gen 2（Ultra5 版）",
+      "灵越 14 Plus 7440（自营最新款，未标 2026）",
+      "无畏16 2026 锐龙版（R7-H260/核显）",
+      "机械革命 蛟龙 15K",
+      "ROG幻16 Air 2026（Ultra9-386H/RTX5070/32G/1T）",
+      "星影15 MAX 2026（i7-13620H/RTX5050/32G/1T）",
+      "天选6 2026（锐龙7 H260/RTX5050/32G/1T）"
+    ],
+    "priceMissing": [
+      "暗影精灵 11（2026，Ultra7-251HX/RTX5060）",
+      "小新 Air 15 2026",
+      "机械革命 蛟龙 15K",
+      "天选6 2026（锐龙7 H260/RTX5050/32G/1T）"
+    ],
+    "note": "这两类不影响「够不够用」的判定，只影响国补金额与预算筛选"
+  },
+  "confirmedNoData": [
+    {
+      "query": "天选",
+      "productType": "办公电子 / 微型计算机 2025版",
+      "result": "暂无数据",
+      "why": "中文营销名不是备案型号。华硕在能效网只登记字母码，中文名一条都搜不到。",
+      "checkedAt": "2026-11-09",
+      "lesson": "不要用营销名查能效，要用「能效网规格型号」"
+    },
+    {
+      "query": "FA506",
+      "productType": "办公电子 / 微型计算机 2025版",
+      "result": "暂无数据",
+      "why": "FA506 是 2022 年前后的天选 3 系列型号，2025 版体系下无备案；老机型备案在 2012 版体系里，且型号后缀不同。",
+      "checkedAt": "2026-11-09",
+      "lesson": "老机型要切到「微型计算机 2012版」再查一次"
+    },
+    {
+      "query": "GU606AP",
+      "productType": "办公电子 / 微型计算机 2025版",
+      "result": "暂无数据",
+      "why": "同系列的 GU606 与 GU606A 都有备案且均 1 级；GU606AP 查不到，判断为采集时把型号抄多了后缀，实际备案型号应是 GU606A。",
+      "checkedAt": "2026-11-09",
+      "lesson": "同系列能查到相邻型号却查不到目标型号时，优先怀疑抄错，而不是立刻判「无备案」"
+    }
+  ]
+}

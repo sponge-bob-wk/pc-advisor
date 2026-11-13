@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2026 买电脑 · 先看内存焊没焊死</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23f4f1e8'/%3E%3Crect x='9' y='9' width='14' height='14' fill='%23ab3323' transform='rotate(45 16 16)'/%3E%3C/svg%3E">
+<meta name="description" content="基于 80 台在售机型实采价与 43 条公开来源：按专业算硬件门槛，按到手价排序，含国补计算与设计缺陷清单。">
+<style>
+/* ---------- tokens ---------- */
+:root{
+  --paper:#f4f1e8; --paper2:#eae6da; --card:#fdfbf4;
+  --ink:#17160f; --ink2:#4e4a3f; --ink3:#87816f;
+  --line:rgba(23,22,15,.12); --line2:rgba(23,22,15,.26);
+  --red:#ab3323; --redbg:#f7e6e1; --redline:rgba(171,51,35,.28);
+  --green:#1a6a52; --greenbg:#e6f1ec;
+  --amber:#8a5f0f; --amberbg:#f8efd9;
+  --blue:#2b5b84; --bluebg:#e7eef4;
+  --serif:"Songti SC","Noto Serif SC","Source Han Serif SC",Georgia,"Times New Roman",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:"SF Mono",ui-monospace,"JetBrains Mono","Cascadia Mono",Consolas,monospace;
+  --shadow:0 1px 2px rgba(23,22,15,.05),0 8px 24px -18px rgba(23,22,15,.35);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.65;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body.locked{overflow:hidden}
+::selection{background:rgba(171,51,35,.16)}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+h1,h2,h3,h4{margin:0;font-weight:600;letter-spacing:.005em}
+p{margin:0}
+ul{margin:0;padding:0;list-style:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:60;background:rgba(244,241,232,.86);backdrop-filter:saturate(180%) blur(14px);
+  border-bottom:1px solid var(--line)}
+.top-in{display:flex;align-items:center;gap:18px;height:58px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand i{width:9px;height:9px;background:var(--red);display:block;flex:none;transform:rotate(45deg)}
+.brand b{font-family:var(--serif);font-size:16.5px;font-weight:600;letter-spacing:.01em;white-space:nowrap}
+.brand span{font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.06em;border-left:1px solid var(--line2);
+  padding-left:10px;margin-left:2px;white-space:nowrap}
+.top-nav{margin-left:auto;display:flex;align-items:center;gap:2px}
+.top-nav a{font-size:13px;color:var(--ink2);padding:7px 11px;border-radius:2px;position:relative;white-space:nowrap}
+.top-nav a:hover{color:var(--ink);background:rgba(23,22,15,.05)}
+.top-nav a.on{color:var(--ink)}
+.top-nav a.on::after{content:"";position:absolute;left:11px;right:11px;bottom:1px;height:1.5px;background:var(--red)}
+.top-meta{font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.04em;padding-left:14px;
+  border-left:1px solid var(--line2);white-space:nowrap}
+
+/* ---------- hero ---------- */
+.hero{padding:64px 0 0;border-bottom:1px solid var(--line)}
+.hero-grid{display:grid;grid-template-columns:1.42fr .88fr;gap:52px;align-items:start;padding-bottom:52px}
+.eyebrow{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
+  color:var(--ink3);text-transform:uppercase;margin-bottom:20px}
+.eyebrow s{width:22px;height:1px;background:var(--line2);display:block}
+.hero h1{font-family:var(--serif);font-size:clamp(32px,4.4vw,52px);line-height:1.16;letter-spacing:-.01em;font-weight:600}
+.hero h1 em{font-style:normal;color:var(--red);white-space:nowrap}
+.dek{margin-top:20px;font-size:16px;line-height:1.85;color:var(--ink2);max-width:36em}
+.dek b{color:var(--ink);font-weight:600}
+.points{margin-top:30px;border-top:1px solid var(--line)}
+.points li{display:grid;grid-template-columns:26px 1fr;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);align-items:start}
+.points .idx{font-family:var(--mono);font-size:10.5px;color:var(--red);padding-top:4px;letter-spacing:.04em}
+.points b{font-weight:600}
+.points span{font-size:13.8px;line-height:1.7;color:var(--ink2)}
+
+.panel{border:1px solid var(--line);background:var(--card);box-shadow:var(--shadow)}
+.panel-h{display:flex;align-items:baseline;justify-content:space-between;padding:16px 18px 12px;border-bottom:1px solid var(--line)}
+.panel-h b{font-size:13px;letter-spacing:.02em}
+.panel-h span{font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:.06em}
+.bars{padding:8px 18px 14px}
+.bar-row{display:grid;grid-template-columns:1fr auto;gap:6px 10px;padding:9px 0 7px;border-bottom:1px dotted var(--line)}
+.bar-row:last-child{border-bottom:0}
+.bar-row .lbl{font-size:12.5px;color:var(--ink2)}
+.bar-row .val{font-family:var(--mono);font-size:12.5px;color:var(--red);font-variant-numeric:tabular-nums}
+.bar-track{grid-column:1/-1;height:3px;background:var(--paper2);position:relative;overflow:hidden}
+.bar-track i{position:absolute;inset:0 auto 0 0;background:var(--red);opacity:.85}
+.bar-note{grid-column:1/-1;font-size:10.5px;color:var(--ink3);margin-top:1px}
+.panel-f{padding:11px 18px;border-top:1px solid var(--line);font-size:11.5px;line-height:1.6;color:var(--ink3);background:rgba(23,22,15,.012)}
+
+/* decision strip */
+.decide{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line)}
+.decide div{padding:16px 18px;border-right:1px solid var(--line);border-left:2px solid transparent}
+.decide div:last-child{border-right:0}
+.decide h5{margin:0 0 5px;font-size:11.5px;font-weight:500;color:var(--ink3);letter-spacing:.04em}
+.decide b{font-size:14px;font-weight:600;display:block;line-height:1.45}
+.decide div[data-tone="now"]{border-left-color:var(--red)}
+.decide div[data-tone="stop"]{border-left-color:var(--red)}
+.decide div[data-tone="mixed"]{border-left-color:var(--amber)}
+.decide div[data-tone="think"]{border-left-color:var(--blue)}
+
+/* ---------- section shell ---------- */
+.sec{padding:64px 0;border-bottom:1px solid var(--line)}
+section[id]{scroll-margin-top:74px}
+.sec-head{display:grid;grid-template-columns:86px 1fr;gap:20px;align-items:start;margin-bottom:34px}
+.sec-no{font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.08em;padding-top:10px;white-space:nowrap}
+.sec-head h2{font-family:var(--serif);font-size:clamp(23px,3vw,31px);line-height:1.3;font-weight:600}
+.sec-sub{margin-top:11px;font-size:14.5px;line-height:1.8;color:var(--ink2);max-width:74ch}
+.sec-sub b{color:var(--ink);font-weight:600}
+
+/* ---------- majors ---------- */
+.search{position:relative;margin-bottom:22px;max-width:520px}
+.search input{width:100%;padding:12px 14px 12px 38px;border:1px solid var(--line2);background:var(--card);
+  font:inherit;font-size:14px;color:var(--ink);border-radius:2px;outline:none}
+.search input::placeholder{color:var(--ink3)}
+.search input:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(23,22,15,.06)}
+.search .ico{position:absolute;left:13px;top:12px;width:14px;height:14px;border:1.5px solid var(--ink3);border-radius:50%}
+.search .ico::after{content:"";position:absolute;left:11px;top:9px;width:6px;height:1.5px;background:var(--ink3);transform:rotate(45deg)}
+.sug{position:absolute;left:0;right:0;top:calc(100% + 4px);background:var(--card);border:1px solid var(--line2);
+  box-shadow:0 16px 40px -20px rgba(23,22,15,.45);z-index:40;display:none;max-height:300px;overflow:auto}
+.sug.on{display:block}
+.sug button{display:flex;width:100%;align-items:center;justify-content:space-between;gap:12px;padding:10px 13px;
+  border-bottom:1px solid var(--line);text-align:left}
+.sug button:last-child{border-bottom:0}
+.sug button:hover,.sug button.hl{background:var(--paper2)}
+.sug b{font-weight:500;font-size:13.5px}
+.sug span{font-size:11.5px;color:var(--ink3);white-space:nowrap}
+
+.major-layout{display:grid;grid-template-columns:272px minmax(0,1fr);gap:34px;align-items:start}
+.mlist{position:sticky;top:74px;border-top:1px solid var(--line)}
+.mbtn{display:block;width:100%;text-align:left;padding:13px 14px 12px;border-bottom:1px solid var(--line);
+  border-left:2px solid transparent;position:relative;transition:background .16s}
+.mbtn:hover{background:rgba(23,22,15,.032)}
+.mbtn b{display:block;font-size:14px;font-weight:600;letter-spacing:.01em}
+.mbtn span{display:block;font-size:11.5px;color:var(--ink3);margin-top:3px;line-height:1.5;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.mbtn .gates{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
+.mbtn .gates i{font-style:normal;font-family:var(--mono);font-size:9.5px;letter-spacing:.02em;color:var(--ink2);
+  background:var(--paper2);padding:2px 5px;border-radius:2px}
+.mbtn.on{background:var(--card);border-left-color:var(--red);box-shadow:var(--shadow)}
+.mbtn.on b{color:var(--red)}
+.mbtn.on .gates i{background:var(--redbg);color:var(--red)}
+
+.result{background:var(--card);border:1px solid var(--line);padding:26px 26px 22px;box-shadow:var(--shadow)}
+.rg-top{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.rg-top h3{font-family:var(--serif);font-size:25px;line-height:1.3;font-weight:600}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 8px;border-radius:2px;
+  border:1px solid transparent;white-space:nowrap;line-height:1.5}
+.chip.official{background:var(--bluebg);color:var(--blue)}
+.chip.judge{background:var(--amberbg);color:var(--amber)}
+.chip.ghost{border-color:var(--line2);color:var(--ink2)}
+.chip.red{background:var(--redbg);color:var(--red)}
+.chip.green{background:var(--greenbg);color:var(--green)}
+.chip.amber{background:var(--amberbg);color:var(--amber)}
+.chip.blue{background:var(--bluebg);color:var(--blue)}
+.chip.mute{background:var(--paper2);color:var(--ink3)}
+.rg-tag{font-size:14px;color:var(--ink2);margin-top:8px}
+.rg-majors{margin-top:14px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.rg-majors .chip{background:transparent;border-color:var(--line);color:var(--ink2);font-size:11.5px}
+.rg-majors .chip.more{cursor:pointer;border-style:dashed}
+.rg-majors .chip.more:hover{border-color:var(--ink3);color:var(--ink)}
+
+.gates4{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:20px}
+.gates4 div{background:var(--paper);padding:13px 14px}
+.gates4 .k{font-size:11px;color:var(--ink3);letter-spacing:.04em}
+.gates4 .v{font-family:var(--mono);font-size:20px;letter-spacing:-.03em;margin-top:5px;line-height:1.1}
+.gates4 .v small{font-family:var(--sans);font-size:11px;color:var(--ink3);letter-spacing:0;margin-left:3px}
+.gates4 .d{font-size:10.5px;color:var(--ink3);margin-top:4px}
+
+.why{margin-top:20px;padding-left:13px;border-left:2px solid var(--line2);font-size:13px;line-height:1.8;color:var(--ink2)}
+.why b{color:var(--ink);font-weight:600}
+.trap{margin-top:16px;background:var(--redbg);border-left:2px solid var(--red);padding:11px 14px;font-size:12.8px;
+  line-height:1.75;color:#5d2a21}
+.trap b{color:var(--red);font-weight:600;display:block;margin-bottom:2px;font-size:11.5px;letter-spacing:.04em}
+.plat{margin-top:10px;background:var(--amberbg);border-left:2px solid var(--amber);padding:10px 14px;font-size:12.5px;
+  line-height:1.7;color:#5c440f}
+.plat b{font-weight:600}
+
+.res-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:24px 0 14px;padding-top:18px;border-top:1px solid var(--line)}
+.res-count{font-size:12.5px;color:var(--ink2)}
+.res-count b{font-family:var(--mono);font-size:15px;color:var(--ink);letter-spacing:-.02em}
+.filters{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.fbtn{font-size:11.5px;padding:5px 9px;border:1px solid var(--line2);border-radius:2px;color:var(--ink2);background:transparent}
+.fbtn:hover{border-color:var(--ink3);color:var(--ink)}
+.fbtn.on{background:var(--ink);border-color:var(--ink);color:var(--card)}
+select.sort{font-size:11.5px;padding:5px 8px;border:1px solid var(--line2);border-radius:2px;background:var(--card);
+  color:var(--ink2);outline:none;font-family:var(--sans)}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(292px,1fr));gap:12px}
+.mcard{border:1px solid var(--line);background:var(--card);padding:15px 15px 0;display:flex;flex-direction:column;
+  transition:box-shadow .18s,border-color .18s,transform .18s}
+.mcard:hover{border-color:var(--line2);box-shadow:0 10px 26px -20px rgba(23,22,15,.55);transform:translateY(-1px)}
+.mc-top{display:flex;gap:10px;align-items:flex-start}
+.mc-top h4{font-size:14.5px;line-height:1.45;font-weight:600;flex:1}
+.mc-sub{font-size:11px;color:var(--ink3);margin-top:3px;letter-spacing:.02em}
+.mc-price{display:flex;align-items:baseline;gap:7px;margin-top:11px}
+.mc-price .cur{font-size:12px;color:var(--ink3)}
+.mc-price b{font-family:var(--mono);font-size:23px;letter-spacing:-.04em;line-height:1}
+.mc-price s{font-family:var(--mono);font-size:11.5px;color:var(--ink3)}
+.mc-price em{font-style:normal;font-size:10px;color:var(--green);background:var(--greenbg);padding:2px 5px;border-radius:2px;margin-left:auto}
+.mc-specs{display:flex;flex-wrap:wrap;gap:4px;margin-top:12px}
+.mc-specs i{font-style:normal;font-size:10.5px;color:var(--ink2);background:var(--paper2);padding:2.5px 6px;border-radius:2px;
+  font-family:var(--mono);letter-spacing:-.01em}
+.mc-specs i.ram-ok{background:var(--greenbg);color:var(--green)}
+.mc-specs i.ram-no{background:var(--redbg);color:var(--red)}
+.mc-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+.mc-badges .chip{font-size:10px;padding:2px 6px}
+.mc-foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:13px;padding:9px 0;
+  border-top:1px solid var(--line);font-size:10.5px;color:var(--ink3)}
+.mc-foot button{font-size:11px;color:var(--ink);border-bottom:1px solid var(--line2);padding-bottom:1px}
+.mc-foot button:hover{color:var(--red);border-color:var(--red)}
+
+.more-wrap{padding:18px 0 4px;text-align:center}
+.more-btn{font-size:12.5px;padding:9px 18px;border:1px solid var(--line2);color:var(--ink);background:transparent;border-radius:2px}
+.more-btn:hover{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.tier-head{display:flex;align-items:center;gap:9px;margin:22px 0 12px}
+.tier-head span{font-size:12px;font-weight:600;letter-spacing:.02em}
+.tier-head i{flex:1;height:1px;background:var(--line)}
+.tier-head em{font-family:var(--mono);font-style:normal;font-size:10.5px;color:var(--ink3)}
+.fail-list{border-top:1px solid var(--line)}
+.fail-row{display:grid;grid-template-columns:1fr auto;gap:12px;padding:10px 2px;border-bottom:1px solid var(--line);
+  font-size:12.5px;color:var(--ink2)}
+.fail-row b{font-weight:500;color:var(--ink)}
+.fail-row span{font-family:var(--mono);font-size:11.5px;color:var(--red)}
+.empty{padding:30px 0;text-align:center;color:var(--ink3);font-size:13px}
+
+/* ---------- market ---------- */
+.market{display:grid;grid-template-columns:1.22fr .78fr;gap:36px;align-items:start}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl thead th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink3);
+  font-weight:400;padding:0 0 8px;border-bottom:1px solid var(--line2);text-transform:uppercase}
+.tbl td{padding:9px 0;border-bottom:1px solid var(--line);color:var(--ink2)}
+.tbl tr:hover td{background:rgba(23,22,15,.022)}
+.tbl td:first-child{color:var(--ink);width:44%;padding-right:12px}
+.tbl .r{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl .up{color:var(--red)}
+.tbl .huge{font-weight:600}
+.tbl .after{color:var(--ink)}
+.tbl-foot{padding-top:9px;font-size:10.5px;color:var(--ink3);line-height:1.6}
+
+.chart-box{border:1px solid var(--line);background:var(--card);padding:16px 16px 10px}
+.chart-box h5{margin:0;font-size:12.5px;font-weight:600}
+.chart-box .cap{font-size:10.5px;color:var(--ink3);margin-top:3px;line-height:1.6}
+.parts{margin-top:16px;border-top:1px solid var(--line)}
+.parts div{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.parts b{font-family:var(--mono);color:var(--red);font-size:12.5px}
+.parts span{color:var(--ink3);font-size:10.5px;margin-left:8px}
+.quote{margin-top:18px;background:var(--card);border:1px solid var(--line);border-left:2px solid var(--ink);
+  padding:16px 18px}
+.quote b{font-family:var(--serif);font-size:17px;display:block;line-height:1.5}
+.quote p{font-size:12.5px;color:var(--ink2);line-height:1.75;margin-top:8px}
+.quote p+p{margin-top:6px}
+.quote .src{font-family:var(--mono);font-size:10px;color:var(--ink3);margin-top:10px;letter-spacing:.03em}
+
+/* ---------- money ---------- */
+.money{display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:start}
+.calc{border:1px solid var(--line);background:var(--card);padding:22px}
+.calc label{display:block;font-size:11.5px;color:var(--ink3);letter-spacing:.04em;margin-bottom:8px}
+.calc-input{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line2);padding-bottom:10px}
+.calc-input span{font-size:18px;color:var(--ink3)}
+.calc-input input{flex:1;border:0;outline:none;background:none;font-family:var(--mono);font-size:30px;
+  letter-spacing:-.04em;color:var(--ink);width:100%;padding:0}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2px;background:var(--line2);margin:20px 0 6px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--ink);border-radius:50%;
+  cursor:grab;border:3px solid var(--card);box-shadow:0 0 0 1px var(--line2)}
+input[type=range]::-moz-range-thumb{width:13px;height:13px;background:var(--ink);border:0;border-radius:50%;cursor:grab}
+.quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.quick button{font-size:11px;padding:4px 8px;border:1px solid var(--line);border-radius:2px;color:var(--ink2)}
+.quick button:hover{border-color:var(--ink3);color:var(--ink)}
+.calc-out{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:18px}
+.calc-out>div{background:var(--paper);padding:14px}
+.calc-out .k{font-size:11px;color:var(--ink3);display:flex;justify-content:space-between;gap:6px}
+.calc-out .k em{font-style:normal;font-family:var(--mono);font-size:9.5px;background:var(--paper2);padding:1px 4px;border-radius:2px}
+.calc-out .v{font-family:var(--mono);font-size:26px;letter-spacing:-.04em;margin-top:6px;line-height:1.1}
+.calc-out .v.zero{color:var(--ink3)}
+.calc-out .s{font-size:10.5px;color:var(--ink3);margin-top:5px;line-height:1.5}
+.prog{height:3px;background:var(--line);margin-top:9px;position:relative;overflow:hidden}
+.prog i{position:absolute;inset:0 auto 0 0;background:var(--green)}
+.calc-note{margin-top:14px;font-size:12px;line-height:1.75;color:var(--ink2)}
+.calc-note b{color:var(--red)}
+.facts{margin-top:16px;border-top:1px solid var(--line)}
+.facts li{position:relative;padding:9px 0 9px 15px;border-bottom:1px solid var(--line);font-size:12.2px;line-height:1.7;color:var(--ink2)}
+.facts li::before{content:"—";position:absolute;left:0;color:var(--ink3);font-size:11px}
+.bands{border-top:1px solid var(--line)}
+.band{display:grid;grid-template-columns:88px 1fr;gap:16px;padding:14px 0;border-bottom:1px solid var(--line)}
+.band b{font-family:var(--mono);font-size:13px;letter-spacing:-.02em;color:var(--ink)}
+.band span{font-size:12.8px;line-height:1.7;color:var(--ink2)}
+
+/* ---------- risk ---------- */
+.risk-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:36px;align-items:start}
+details.def{border-bottom:1px solid var(--line)}
+details.def summary{list-style:none;cursor:pointer;padding:14px 0;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+details.def summary::-webkit-details-marker{display:none}
+details.def summary b{font-size:13.5px;font-weight:600}
+details.def summary .sym{font-size:11px;color:var(--ink3);font-family:var(--mono)}
+details.def summary .sym::after{content:' ＋';font-size:10px}
+details.def[open] summary .sym::after{content:' −'}
+details.def summary:hover b{color:var(--red)}
+details.def .body{padding:0 0 16px;font-size:12.5px;line-height:1.8;color:var(--ink2)}
+details.def .body dt{font-size:10.5px;letter-spacing:.06em;color:var(--ink3);margin-top:10px;font-family:var(--mono)}
+details.def .body dd{margin:2px 0 0}
+details.def .body .who{color:var(--ink);font-weight:500}
+.traps h5{font-size:12px;letter-spacing:.04em;color:var(--ink3);margin:0 0 10px;font-family:var(--mono)}
+.trap-item{padding:12px 0;border-bottom:1px solid var(--line)}
+.trap-item b{font-size:13px;font-weight:600;display:block;margin-bottom:4px}
+.trap-item p{font-size:12.5px;line-height:1.75;color:var(--ink2)}
+
+/* ---------- sources ---------- */
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px 34px;margin-bottom:32px}
+.meta-grid .wide{grid-column:1/-1;padding-top:18px;border-top:1px solid var(--line)}
+.meta-grid .wide p{column-count:2;column-gap:34px}
+.meta-grid h5{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--ink3);margin:0 0 7px;font-weight:400}
+.meta-grid p{font-size:12.3px;line-height:1.8;color:var(--ink2)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:30px}
+.stats div{background:var(--paper);padding:16px 18px}
+.stats b{display:block;font-family:var(--mono);font-size:26px;letter-spacing:-.04em;line-height:1.1}
+.stats span{font-size:11px;color:var(--ink3)}
+details.srcw{border-top:1px solid var(--line2)}
+details.srcw summary{list-style:none;cursor:pointer;padding:14px 0;font-size:12.5px;display:flex;justify-content:space-between;gap:10px}
+details.srcw summary::-webkit-details-marker{display:none}
+details.srcw summary:hover{color:var(--red)}
+.srclist{margin-top:6px;display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
+.srclist a{display:block;padding:9px 0;border-bottom:1px solid var(--line);font-size:12px;line-height:1.6;color:var(--ink2)}
+.srclist a:hover{color:var(--red)}
+.srclist a span{display:block;font-family:var(--mono);font-size:9.5px;color:var(--ink3);margin-top:2px;letter-spacing:.03em}
+
+/* ---------- footer ---------- */
+footer{padding:30px 0 46px}
+.foot-in{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-size:11.5px;color:var(--ink3);line-height:1.7}
+.foot-in b{color:var(--ink2);font-weight:500}
+
+/* ---------- drawer ---------- */
+.ov{position:fixed;inset:0;background:rgba(23,22,15,.34);opacity:0;pointer-events:none;transition:opacity .22s;z-index:80}
+.ov.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(470px,94vw);background:var(--paper);z-index:90;
+  transform:translateX(101%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;
+  box-shadow:-24px 0 60px -30px rgba(23,22,15,.5)}
+.drawer.on{transform:none}
+.dr-h{padding:18px 22px 14px;border-bottom:1px solid var(--line);display:flex;gap:14px;align-items:flex-start}
+.dr-h h3{font-family:var(--serif);font-size:21px;line-height:1.35;flex:1}
+.dr-h .x{width:30px;height:30px;border:1px solid var(--line2);display:grid;place-items:center;font-size:15px;color:var(--ink2);flex:none}
+.dr-h .x:hover{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.dr-b{overflow:auto;padding:18px 22px 40px;flex:1}
+.dr-b h6{margin:0 0 8px;font-family:var(--mono);font-size:10px;letter-spacing:.09em;color:var(--ink3);font-weight:400}
+.dr-price{display:flex;align-items:baseline;gap:9px;margin-bottom:4px}
+.dr-price b{font-family:var(--mono);font-size:30px;letter-spacing:-.04em}
+.dr-price s{font-family:var(--mono);font-size:12px;color:var(--ink3)}
+.dr-price em{font-style:normal;font-size:10.5px;background:var(--greenbg);color:var(--green);padding:2px 6px;border-radius:2px}
+.kv{margin-bottom:20px}
+.kv table{width:100%;border-collapse:collapse;font-size:12.5px}
+.kv td{padding:7px 0;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.6}
+.kv td:first-child{color:var(--ink3);width:35%;font-size:11.5px}
+.kv td:last-child{color:var(--ink);font-family:var(--mono);font-size:11.8px;letter-spacing:-.01em}
+.dr-note{background:var(--card);border:1px solid var(--line);padding:12px 14px;font-size:12px;line-height:1.75;color:var(--ink2);margin-bottom:18px}
+.dr-link{display:inline-block;font-size:11.5px;border-bottom:1px solid var(--line2);color:var(--ink2);margin-top:4px}
+.dr-link:hover{color:var(--red);border-color:var(--red)}
+.gap{display:inline-block;font-size:10px;background:var(--paper2);color:var(--ink2);padding:2px 6px;margin:0 4px 4px 0;border-radius:2px;font-family:var(--mono)}
+
+/* ---------- chat ---------- */
+.composer{margin-top:26px;border:1px solid var(--line2);background:var(--card);box-shadow:var(--shadow)}
+.cp-row{display:flex;align-items:stretch;border-bottom:1px solid var(--line)}
+.cp-row input{flex:1;min-width:0;border:0;outline:none;background:none;padding:16px 18px;font:inherit;font-size:14.5px;color:var(--ink)}
+.cp-row input::placeholder{color:var(--ink3)}
+.cp-row button{flex:none;margin:7px;padding:0 18px;background:var(--ink);color:var(--card);font-size:13px;border-radius:2px;letter-spacing:.02em}
+.cp-row button:hover{background:var(--red)}
+.cp-row button:disabled{opacity:.4;cursor:default;background:var(--ink)}
+.cp-hint{display:flex;align-items:center;gap:10px;padding:9px 14px;flex-wrap:wrap;background:rgba(23,22,15,.014)}
+.cp-status{font-family:var(--mono);font-size:10px;letter-spacing:.03em;color:var(--ink3);display:flex;align-items:center;gap:6px;cursor:default}
+.cp-status i{width:6px;height:6px;border-radius:50%;background:var(--ink3);display:block;flex:none}
+.cp-status.ok i{background:var(--green);box-shadow:0 0 0 3px rgba(26,106,82,.12)}
+.cp-status.bad i{background:var(--red);box-shadow:0 0 0 3px rgba(171,51,35,.12)}
+.cp-status.bad{cursor:pointer;color:var(--red)}
+.cp-ex{margin-left:auto;display:flex;gap:5px;flex-wrap:wrap}
+.cp-ex button{font-size:11px;color:var(--ink2);border:1px solid var(--line);padding:3px 8px;border-radius:2px;background:transparent}
+.cp-ex button:hover{border-color:var(--ink3);color:var(--ink)}
+
+.thread-wrap{display:grid;grid-template-columns:minmax(0,1fr) 288px;gap:34px;align-items:start}
+.thread{border-top:1px solid var(--line2)}
+.thread-empty{padding:24px 0 26px;color:var(--ink2);font-size:13.2px;line-height:1.95}
+.thread-empty b{color:var(--ink)}
+.thread-foot{padding-top:12px;font-size:10.5px;color:var(--ink3);line-height:1.6}
+.msg{padding:20px 0;border-bottom:1px solid var(--line)}
+.msg.u{display:flex;justify-content:flex-end}
+.msg.u .bubble{background:var(--ink);color:#f6f3e9;padding:10px 14px;max-width:80%;font-size:13.8px;line-height:1.75;border-radius:2px}
+.msg.a .who{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;
+  color:var(--ink3);margin-bottom:9px;text-transform:uppercase}
+.msg.a .who em{font-style:normal;background:var(--paper2);color:var(--ink2);padding:1.5px 5px;border-radius:2px;letter-spacing:.02em}
+.msg.a .prose{font-size:14.4px;line-height:1.95;color:var(--ink);max-width:64ch}
+.msg.a .prose p+p{margin-top:11px}
+.msg.a .prose b{font-weight:600}
+.recs{margin-top:15px;border:1px solid var(--line);background:var(--line);display:grid;gap:1px}
+.rec{background:var(--card);padding:12px 14px;display:grid;grid-template-columns:20px 1fr auto;gap:2px 10px;align-items:baseline}
+.rec .n{font-family:var(--mono);font-size:10.5px;color:var(--ink3)}
+.rec h5{font-size:13.6px;font-weight:600;line-height:1.45}
+.rec .p{font-family:var(--mono);font-size:13.5px;letter-spacing:-.03em;white-space:nowrap}
+.rec .spec{grid-column:2/4;font-family:var(--mono);font-size:10.2px;color:var(--ink3);line-height:1.55;margin-top:4px;letter-spacing:-.01em}
+.rec .tag{grid-column:2/4;font-size:11.5px;color:var(--ink2);line-height:1.65;margin-top:4px}
+.rec .cau{grid-column:2/4;font-size:11.4px;color:var(--red);line-height:1.65;margin-top:3px}
+.rec .sub{grid-column:2/4;font-family:var(--mono);font-size:10px;color:var(--ink3);margin-top:4px}
+.follow{display:flex;gap:6px;flex-wrap:wrap;margin-top:13px}
+.follow button{font-size:11.5px;border:1px solid var(--line2);padding:5px 10px;border-radius:2px;color:var(--ink2);background:transparent}
+.follow button:hover{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.audit{margin-top:11px;font-family:var(--mono);font-size:9.5px;color:var(--ink3);letter-spacing:.02em}
+.audit.bad{color:var(--red)}
+.thinking{display:flex;align-items:center;gap:9px;padding:18px 0;font-size:12px;color:var(--ink3);font-family:var(--mono)}
+.thinking span{display:inline-flex;gap:4px}
+.thinking span i{width:4px;height:4px;border-radius:50%;background:var(--ink3);animation:blink 1.3s infinite}
+.thinking span i:nth-child(2){animation-delay:.2s}
+.thinking span i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-2px)}}
+.msg.err .prose{color:var(--red)}
+.hintbox{margin-top:12px;border:1px solid var(--redline);background:var(--redbg);padding:12px 14px;font-size:12.4px;line-height:1.8;color:#5d2a21}
+.hintbox b{color:var(--red)}
+.hintbox code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,.55);padding:2px 6px;border-radius:2px;display:inline-block;margin:3px 0}
+.slot-rail{position:sticky;top:74px;border:1px solid var(--line);background:var(--card);padding:15px 16px;box-shadow:var(--shadow)}
+.rail-h{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink3);padding-bottom:10px;border-bottom:1px solid var(--line)}
+.slot{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:12px;align-items:baseline}
+.slot:last-child{border-bottom:0}
+.slot span{color:var(--ink3);flex:none}
+.slot b{font-family:var(--mono);font-size:11.5px;font-weight:500;text-align:right;color:var(--ink)}
+.slot b.dim{color:var(--ink3);font-weight:400}
+.slot-empty{font-size:11.5px;color:var(--ink3);line-height:1.75;padding:12px 0 4px}
+.rail-note{font-size:10.4px;line-height:1.7;color:var(--ink3);margin-top:12px;padding-top:11px;border-top:1px solid var(--line)}
+.fab{position:fixed;right:22px;bottom:22px;z-index:70;width:52px;height:52px;background:var(--ink);color:var(--card);
+  display:grid;place-items:center;box-shadow:0 12px 32px -14px rgba(23,22,15,.7);border-radius:2px;
+  opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .22s,transform .22s}
+.fab.on{opacity:1;pointer-events:auto;transform:none}
+.fab:hover{background:var(--red)}
+.fab b{font-family:var(--serif);font-size:12.5px;letter-spacing:.14em;writing-mode:vertical-rl}
+
+/* ---------- reveal & responsive ---------- */
+.rv{opacity:0;transform:translateY(10px);transition:opacity .5s ease,transform .5s ease}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}
+  .drawer{transition:none}.mcard{transition:none}}
+@media (max-width:1080px){
+  .hero-grid{grid-template-columns:1fr;gap:34px}
+  .major-layout{grid-template-columns:1fr}
+  .mlist{position:static;display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--line)}
+  .mbtn:nth-child(odd){border-right:1px solid var(--line)}
+  .market,.money,.risk-grid,.meta-grid{grid-template-columns:1fr;gap:30px}
+  .thread-wrap{grid-template-columns:1fr;gap:24px}
+  .slot-rail{position:static}
+  .decide{grid-template-columns:repeat(3,1fr)}
+  .decide div:nth-child(3){border-right:0}
+  .srclist{grid-template-columns:1fr}
+}
+@media (max-width:720px){
+  .wrap{padding:0 18px}
+  .hero{padding-top:38px}
+  .hero h1{font-size:31px}
+  .dek{font-size:14.5px}
+  .top-nav{display:none}
+  .top-meta{padding-left:10px}
+  .brand span{display:none}
+  .sec{padding:44px 0}
+  .sec-head{grid-template-columns:1fr;gap:8px}
+  .sec-no{padding-top:0}
+  .gates4{grid-template-columns:1fr 1fr}
+  .mlist{display:flex;overflow-x:auto;grid-template-columns:none;border-top:0;border-bottom:1px solid var(--line);
+    margin-bottom:18px;padding:8px 0;position:sticky;top:57px;z-index:40;background:var(--paper);
+    -webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .mlist::-webkit-scrollbar{display:none}
+  .mbtn{flex:0 0 auto;width:auto;padding:8px 13px;border:1px solid var(--line);border-bottom:0;margin-right:-1px;border-left-width:1px}
+  .mbtn b{font-size:13px;white-space:nowrap}
+  .mbtn span,.mbtn .gates{display:none}
+  .mbtn.on{background:var(--ink);border-color:var(--ink);box-shadow:none}
+  .mbtn.on b{color:var(--card)}
+  .result{scroll-margin-top:112px}
+  .result{padding:18px 16px}
+  .decide{grid-template-columns:1fr 1fr}
+  .decide div{padding:13px 14px}
+  .stats{grid-template-columns:1fr 1fr}
+  .calc-out{grid-template-columns:1fr}
+  .calc-out>div+div{border-top:1px solid var(--line)}
+  .cards{grid-template-columns:1fr}
+  .res-bar{gap:8px}
+  .filters{margin-left:0;width:100%}
+  .cp-row input{padding:13px 14px;font-size:14px}
+  .cp-row button{padding:0 14px;font-size:12.5px}
+  .cp-ex{margin-left:0;width:100%}
+  .msg.a .prose{font-size:14px}
+  .rec{grid-template-columns:18px 1fr auto;padding:11px 12px}
+  .fab{right:14px;bottom:14px;width:46px;height:46px}
+  .tbl td:first-child{width:50%;font-size:12px}
+  .tbl{font-size:12px}
+}
+@media print{.top,.drawer,.ov{display:none}body{background:#fff}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <div class="brand"><i></i><b>电脑涨价分析</b><span>2026 · 购机工作台</span></div>
+    <nav class="top-nav">
+      <a href="#chat" data-nav="chat">对话</a>
+      <a href="#majors" data-nav="majors">按专业选</a>
+      <a href="#market" data-nav="market">涨了多少</a>
+      <a href="#money" data-nav="money">国补与预算</a>
+      <a href="#risk" data-nav="risk">买前必查</a>
+      <a href="#sources" data-nav="sources">数据口径</a>
+    </nav>
+    <div class="top-meta" id="topMeta">数据截至 —</div>
+  </div>
+</header>
+
+<main>
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow"><s></s>2026 中国内地 · 购机结论</div>
+          <h1>今年买电脑，<br>先看内存<em>焊没焊死</em></h1>
+          <p class="dek">
+            内存涨了 5 倍，「先买 16G、以后再加」这条老路断了。所以这台机器<b>能不能换内存</b>，
+            比它便宜 300 块重要得多 —— 这是 80 台在售机型、43 条来源、311 个专业课程要求交叉出来的结论。
+          </p>
+          <div class="composer" id="composer">
+            <div class="cp-row">
+              <input id="askInput" type="text" autocomplete="off" spellcheck="false"
+                     placeholder="学什么、预算、要不要带走">
+              <button id="askBtn" type="button">问一句</button>
+            </div>
+            <div class="cp-hint">
+              <span class="cp-status" id="cpStatus"><i></i><span>检测本地模型中…</span></span>
+              <span class="cp-ex" id="cpExamples"></span>
+            </div>
+          </div>
+          <ul class="points" id="points"></ul>
+        </div>
+        <aside>
+          <div class="panel">
+            <div class="panel-h"><b>涨了多少</b><span>同比</span></div>
+            <div class="bars" id="heroBars"></div>
+            <div class="panel-f">「同款」指同一型号改价，比均价更接近你实际要付的钱。均价上涨里有一部分是配置被偷偷降了一档。</div>
+          </div>
+        </aside>
+      </div>
+      <div class="decide" id="decide"></div>
+    </div>
+  </section>
+
+
+  <!-- ============ CHAT ============ -->
+  <section class="sec" id="chat">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-no">01 / 对话</div>
+        <div>
+          <h2>说一句话，它按你的条件推一台</h2>
+          <p class="sec-sub">
+            本地跑的小模型（<b>qwen3.5-4b</b>，Ollama）只做两件事：<b>把你的话拆成条件</b>、<b>把排好的结果讲成人话</b>。
+            排序和数字由代码算，模型没有写数字的权限 —— 所以它可以直说「库里没记这台多重」，但不会编一个重量给你。
+          </p>
+        </div>
+      </div>
+      <div class="thread-wrap">
+        <div>
+          <div class="thread" id="thread">
+            <div class="thread-empty" id="threadEmpty">
+              <p>还没有对话。一句话说清三件事就够：<b>用途</b>、<b>预算</b>、<b>要不要带走</b>。</p>
+              <p style="margin-top:8px">比如「学设计的，预算 5100，要带去教室」。说完能直接拿到一台具体机型 + 短板 + 到手价。</p>
+            </div>
+          </div>
+          <div class="thread-foot">
+            <span id="threadNote">回答由本地模型生成，价格与参数来自项目数据；下单前请以商品页为准。</span>
+          </div>
+        </div>
+        <aside class="slot-rail">
+          <div class="rail-h">它读到的条件</div>
+          <div id="slotsBox"><div class="slot-empty">还没有条件。说一句话后这里会逐项亮起来。</div></div>
+          <div class="rail-note">条件不全时它会先反问，而不是拿默认值硬推 —— 少问一句，推荐就会错一档。</div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MAJORS ============ -->
+  <section class="sec" id="majors">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-no">02 / 选机</div>
+        <div>
+          <h2>先算你专业要什么，再谈价格</h2>
+          <p class="sec-sub">
+            门槛来自「专业 → 培养方案课程 → 课程对应软件 → 软件官方系统要求」这条链，<b>不是凭感觉定的</b>。
+            每组都标了口径来源：能追到 Adobe / Autodesk / MATLAB 官方要求的标「官方要求」，其余明写「人工判断」并给理由。
+          </p>
+        </div>
+      </div>
+
+      <div class="search">
+        <input id="majorSearch" type="text" placeholder="输入你的专业：会计、计算机、视觉传达、土木工程…" autocomplete="off" spellcheck="false">
+        <span class="ico"></span>
+        <div class="sug" id="sug"></div>
+      </div>
+
+      <div class="major-layout">
+        <nav class="mlist" id="mlist"></nav>
+        <div class="result" id="groupPanel"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MARKET ============ -->
+  <section class="sec" id="market">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-no">03 / 行情</div>
+        <div>
+          <h2>同款涨了多少，钱被谁赚走了</h2>
+          <p class="sec-sub">涨价不是促销周期，是成本推动：DRAM 与 NAND 的采购价直接压在整机价签上。下表每一行都能追到具体报道。</p>
+        </div>
+      </div>
+      <div class="market">
+        <div>
+          <table class="tbl">
+            <thead><tr><th>机型 / 部件</th><th class="r">去年</th><th class="r">现在</th><th class="r">涨幅</th></tr></thead>
+            <tbody id="sameBody"></tbody>
+          </table>
+          <div class="tbl-foot">价格为「到手价」口径（含国补与常见平台券）。同一型号不同报道口径冲突时保留区间，这里取中位数。</div>
+          <div class="quote" id="outlook"></div>
+        </div>
+        <div>
+          <div class="chart-box">
+            <h5>DRAM 合约价环比涨幅</h5>
+            <div class="cap">单位 %，26Q4 为预测值（虚线）</div>
+            <div id="dramChart"></div>
+          </div>
+          <div class="parts" id="parts"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MONEY ============ -->
+  <section class="sec" id="money">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-no">04 / 花钱</div>
+        <div>
+          <h2>国补：电脑和手机不是一套规则</h2>
+          <p class="sec-sub">这是最容易白亏的一块。<b>手机超过 6000 一分不补</b>，<b>电脑没有这条线</b> —— 一万五的笔记本照样能拿满 1500。用手机的规则套电脑，是最常见的错误。</p>
+        </div>
+      </div>
+      <div class="money">
+        <div class="calc">
+          <label for="priceInput">实付价（折扣后、补贴前）</label>
+          <div class="calc-input"><span>¥</span><input id="priceInput" type="number" value="6000" min="0" max="99999" step="100" inputmode="numeric"></div>
+          <input id="priceRange" type="range" min="1000" max="20000" step="100" value="6000">
+          <div class="quick" id="quick"></div>
+          <div class="calc-out" id="calcOut"></div>
+          <p class="calc-note" id="calcNote"></p>
+        </div>
+        <div>
+          <div class="sec-no" style="padding:0 0 10px">预算带 · 这个价能买到什么</div>
+          <div class="bands" id="bands"></div>
+          <div class="sec-no" style="padding:22px 0 0">国补细则</div>
+          <ul class="facts" id="facts"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RISK ============ -->
+  <section class="sec" id="risk">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-no">05 / 避坑</div>
+        <div>
+          <h2>比涨价更贵的，是买错型号</h2>
+          <p class="sec-sub" id="riskSub"></p>
+        </div>
+      </div>
+      <div class="risk-grid">
+        <div>
+          <div class="sec-no" style="padding:0 0 8px">电脑设计缺陷 · 点开看症状</div>
+          <div id="defects"></div>
+        </div>
+        <div class="traps">
+          <div id="trapsPc"></div>
+          <div id="trapsPhone" style="margin-top:26px"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="sec" id="sources">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-no">06 / 口径</div>
+        <div>
+          <h2>数字从哪来，哪些不确定</h2>
+          <p class="sec-sub">数据是老工具唯一的失效方式，所以这里把口径、置信度和来源全部摊开。不确定的地方标「待核」，不用看起来像样的假数字。</p>
+        </div>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="meta-grid" id="metaGrid"></div>
+      <details class="srcw" id="srcWrap">
+        <summary><span id="srcCount">展开全部来源</span><span>↓</span></summary>
+        <div class="srclist" id="srclist"></div>
+      </details>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot-in">
+    <div>只读前端 · 数据来自 <b>data/prices.json</b>、<b>data/machine_pool.json</b>、<b>data/majors.json</b>，本页未修改任何数据文件。</div>
+    <div id="footMeta"></div>
+  </div>
+</footer>
+
+<button class="fab" id="fab" type="button" aria-label="去对话"><b>对话</b></button>
+<div class="ov" id="ov"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="dr-h"><h3 id="drTitle"></h3><button class="x" id="drClose" aria-label="关闭">✕</button></div>
+  <div class="dr-b" id="drBody"></div>
+</aside>
+
+<script type="application/json" id="DATA">__DATA__</script>
+<script>
+(function(){
+"use strict";
+var D = JSON.parse(document.getElementById('DATA').textContent);
+var MACHINES = D.machines, GROUPS = D.groups;
+var $ = function(s,c){return (c||document).querySelector(s)};
+var $$ = function(s,c){return Array.prototype.slice.call((c||document).querySelectorAll(s))};
+var esc = function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+var yuan = function(n){return (n==null||isNaN(n))?'—':Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,',')};
+var yuan2 = function(n){ if(n==null||isNaN(n)) return '—'; var r=Math.round(n*10)/10; return r.toFixed(1).replace(/\.0$/,'').replace(/\B(?=(\d{3})+(?!\d))/g,','); };
+var pct = function(n){return (n>0?'+':'')+n+'%'};
+var CATNAME = {thin:'轻薄本',gaming:'游戏本',desktop:'台式整机'};
+var FORM = {sodimm:{t:'可换内存',c:'ram-ok'},lpcamm2:{t:'LPCAMM2 专有',c:'ram-no'},soldered:{t:'内存焊死',c:'ram-no'},lpddr:{t:'内存焊死',c:'ram-no'},onboard:{t:'内存焊死',c:'ram-no'}};
+var RES = {1920:'FHD',2160:'2K',2240:'2.2K',2560:'2.5K',2880:'2.8K',3000:'3K',3072:'3K',3200:'3.2K',3456:'3.4K',3840:'4K'};
+var resLabel = function(w){ if(!w) return ''; return RES[w] || (Math.round(w/100)/10+'K'); };
+var fmt = function(n){ return n==null?'—':n; };
+
+/* ---------- hero ---------- */
+function renderHero(){
+  var bars = D.categoryChange.filter(function(c){
+    return c.key==='thin'||c.key==='gaming'||c.key==='desktop'||c.key==='avg'||c.key==='phone-avg';
+  });
+  var max = Math.max.apply(null, bars.map(function(b){return b.value}));
+  $('#heroBars').innerHTML = bars.map(function(b){
+    return '<div class="bar-row">'
+      +'<span class="lbl">'+esc(b.label)+'</span>'
+      +'<span class="val">'+pct(b.value)+'</span>'
+      +'<span class="bar-track"><i style="width:'+Math.max(3,b.value/max*100).toFixed(1)+'%"></i></span>'
+      +'<span class="bar-note">'+esc(b.note)+'</span></div>';
+  }).join('');
+
+  var points = [
+    ['同款最高涨 58%','联想小新 Pro14 4138 → 6557 元；荣耀 X14 Plus 换代 3199 → 5099 元。'],
+    ['内存条涨了 5 倍','DDR5 16G 从 230 涨到 1400 元。这条成本最终全部落在整机价签上。'],
+    ['国补：电脑 1500 / 手机 500','电脑归家电类、无门槛；手机归数码类、超 6000 一分不补。']
+  ];
+  $('#points').innerHTML = points.map(function(p,i){
+    return '<li><span class="idx">0'+(i+1)+'</span><span><b>'+esc(p[0])+'</b>　'+esc(p[1])+'</span></li>';
+  }).join('');
+
+  $('#decide').innerHTML = D.decision.map(function(d){
+    return '<div data-tone="'+esc(d.tone)+'"><h5>'+esc(d.label)+'</h5><b>'+esc(d.tag)+'</b></div>';
+  }).join('');
+
+  var a = D.meta.pricesUpdated || '', b = D.meta.poolUpdated || '';
+  $('#topMeta').textContent = '行情 '+a+' · 机型池 '+b;
+  $('#footMeta').innerHTML = '行情数据 '+esc(a)+' · 机型池 '+esc(b)+' · 生成于 '+esc(D.generated);
+}
+
+/* ---------- majors ---------- */
+var state = {gid:'office', onlyUpgradable:false, onlyDiscrete:false, onlyEff:false, sort:'price', expanded:false};
+
+function gatesOf(g){
+  var r = g.req, out = [];
+  out.push((r.ramMin||0)+'G 起');
+  if(r.gpu==='discrete') out.push('独显'+(r.vramMin||0)+'G');
+  out.push((r.storageMinGB||512)+'G 硬盘');
+  return out;
+}
+function majorName(m){ return typeof m==='string'? m : (m && m.name) || ''; }
+
+function renderMajorList(){
+  $('#mlist').innerHTML = GROUPS.map(function(g){
+    return '<button class="mbtn" data-g="'+g.id+'" type="button">'
+      +'<b>'+esc(g.name)+'</b><span>'+esc(g.tagline)+'</span>'
+      +'<span class="gates">'+gatesOf(g).map(function(x){return '<i>'+esc(x)+'</i>'}).join('')+'</span>'
+      +'</button>';
+  }).join('');
+  $$('.mbtn').forEach(function(b){ b.addEventListener('click', function(){ selectGroup(b.dataset.g, false, true); }) });
+}
+
+function tierOf(g,m){
+  var req=g.req, fails=[], soft=[];
+  var gpu=m.gpu||{}, ram=m.ram||{}, st=m.storageGB;
+  if(ram.gb==null) fails.push('内存容量缺失');
+  else if(ram.gb < req.ramMin) fails.push('内存 '+ram.gb+'G < 门槛 '+req.ramMin+'G');
+  if(req.storageMinGB && st && st < req.storageMinGB) fails.push('存储 '+(st>=1024?(st/1024)+'T':st+'G')+' < 门槛 '+(req.storageMinGB>=1024?(req.storageMinGB/1024)+'T':req.storageMinGB+'G'));
+  if(req.gpu==='discrete' && gpu.type==='integrated') fails.push('核显，达不到独显要求');
+  var vram = gpu.vramGB||0;
+  if(req.vramMin && vram < req.vramMin) fails.push('显存 '+vram+'G < 门槛 '+req.vramMin+'G');
+  (g.hardGates||[]).forEach(function(h){
+    if(h.dim==='upgrade'){
+      var can = (ram.form==='sodimm') || (ram.slots>=2);
+      if(!can) fails.push('内存不可加装');
+    }
+    if(h.dim==='storage' && st && st < h.min) fails.push('存储不够 '+h.min+'G');
+  });
+  if(!fails.length){
+    if(ram.gb < req.ramRec) soft.push('内存 '+ram.gb+'G 只到最低线，建议 '+(req.ramRec||req.ramMin)+'G');
+    if(req.vramRec && vram < req.vramRec && vram>=req.vramMin) soft.push('显存 '+vram+'G，建议 '+req.vramRec+'G');
+  }
+  return {fails:fails, soft:soft, tier: fails.length?'no':(soft.length?'ok':'best')};
+}
+
+function filtered(g){
+  var list = MACHINES.map(function(m){ var t=tierOf(g,m); return {m:m, t:t}; });
+  if(state.onlyUpgradable) list = list.filter(function(x){ var f=(x.m.ram||{}).form; return f==='sodimm'||(x.m.ram||{}).slots>=2; });
+  if(state.onlyDiscrete) list = list.filter(function(x){ return (x.m.gpu||{}).type==='discrete'||(x.m.gpu||{}).type==='unified'; });
+  if(state.onlyEff) list = list.filter(function(x){ return x.m.efficiency===1; });
+  var key = state.sort;
+  list.sort(function(a,b){
+    if(key==='price') return (a.m.price.final||1e9)-(b.m.price.final||1e9);
+    if(key==='priceDesc') return (b.m.price.final||0)-(a.m.price.final||0);
+    if(key==='ram') return ((b.m.ram||{}).gb||0)-((a.m.ram||{}).gb||0) || (a.m.price.final-b.m.price.final);
+    if(key==='vram') return ((b.m.gpu||{}).vramGB||0)-((a.m.gpu||{}).vramGB||0) || (a.m.price.final-b.m.price.final);
+    if(key==='weight') return ((a.m.weightKg||99)-(b.m.weightKg||99));
+    return 0;
+  });
+  return list;
+}
+
+function specChips(m){
+  var out=[], cpu=(m.cpu||{}).model||'', gpu=m.gpu||{}, ram=m.ram||{}, sc=m.screen||{};
+  if(cpu) out.push(esc(cpu.replace(/^(Intel|AMD)\s+/,'')));
+  if(ram.gb!=null){
+    var f = FORM[ram.form];
+    out.push({t:ram.gb+'G'+(ram.type?' '+ram.type.replace('-',' '):''), c:f?f.c:'', ram:true});
+  }
+  if(m.storageGB) out.push((m.storageGB>=1024?(m.storageGB/1024)+'T':m.storageGB+'G'));
+  if(gpu.model){
+    var gs = gpu.model + (gpu.type==='discrete'&&gpu.vramGB? ' '+gpu.vramGB+'G':'');
+    out.push(esc(gs));
+  }
+  if(sc.sizeInch) out.push(sc.sizeInch+'″'+(resLabel(sc.widthPx)?' '+resLabel(sc.widthPx):'')+(sc.refreshHz&&sc.refreshHz>100?' '+sc.refreshHz+'Hz':''));
+  if(m.weightKg) out.push(m.weightKg+'kg');
+  return out.map(function(x){
+    if(typeof x==='string') return '<i>'+x+'</i>';
+    return '<i class="'+(x.c||'')+'">'+esc(x.t)+'</i>';
+  }).join('');
+}
+
+function cardHTML(x, idx, showRank){
+  var m=x.m, t=x.t, ram=m.ram||{}, gpu=m.gpu||{}, f=FORM[ram.form];
+  var badges=[];
+  if(f) badges.push('<span class="chip '+(f.c==='ram-ok'?'green':'red')+'">'+f.t+'</span>');
+  if(m.efficiency===1) badges.push('<span class="chip amber">1 级能效</span>');
+  else if(m.efficiency===2) badges.push('<span class="chip mute">2 级能效</span>');
+  if(t.tier==='ok' && t.soft.length) badges.push('<span class="chip blue">'+esc(t.soft[0])+'</span>');
+  if(m.confidence==='low'||m.confidence==='unverified') badges.push('<span class="chip mute">参数待核</span>');
+  var cap = m.price.capturedAt ? m.price.capturedAt.slice(5,10)+' 采价' : '';
+  return '<article class="mcard" data-id="'+esc(m.id)+'">'
+    +'<div class="mc-top"><div style="flex:1"><h4>'+esc(m.name)+'</h4>'
+    +'<div class="mc-sub">'+esc(m.brand)+' · '+esc(CATNAME[m.cat]||m.cat)+(showRank?' · #'+(idx+1):'')+'</div></div></div>'
+    +'<div class="mc-price"><span class="cur">¥</span><b>'+yuan(Math.round(m.price.final))+'</b>'
+      +(m.price.list&&m.price.list>m.price.final?'<s>'+yuan(m.price.list)+'</s>':'')
+      +'<em>国补后</em></div>'
+    +'<div class="mc-specs">'+specChips(m)+'</div>'
+    +(badges.length?'<div class="mc-badges">'+badges.join('')+'</div>':'')
+    +'<div class="mc-foot"><span>'+esc(m.shopName||'平台自营')+(cap?' · '+cap:'')+'</span>'
+      +'<button type="button" data-detail="'+esc(m.id)+'">详情 →</button></div>'
+    +'</article>';
+}
+
+function selectGroup(gid, fromSearch, fromUser){
+  state.gid = gid; state.expanded=false;
+  $$('.mbtn').forEach(function(b){ b.classList.toggle('on', b.dataset.g===gid) });
+  var g = GROUPS.filter(function(x){return x.id===gid})[0];
+  if(!g) return;
+  renderPanel(g);
+  if(fromSearch) $('#groupPanel').scrollIntoView({behavior:'smooth',block:'center'});
+  else if(fromUser && window.innerWidth<=720) $('#groupPanel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderPanel(g){
+  var list = filtered(g);
+  var best = list.filter(function(x){return x.t.tier==='best'});
+  var ok = list.filter(function(x){return x.t.tier==='ok'});
+  var no = list.filter(function(x){return x.t.tier==='no'});
+  var allGood = best.concat(ok);
+  var LIMIT = 6;
+  var bestShown = state.expanded? best : best.slice(0, LIMIT);
+  var okShown = state.expanded? ok : ok.slice(0, Math.max(0, LIMIT-bestShown.length));
+  var cheapest = allGood.length? Math.min.apply(null, allGood.map(function(x){return x.m.price.final})) : null;
+
+  var ev = g.evidence==='official'
+    ? '<span class="chip official">官方软件要求推导</span>'
+    : '<span class="chip judge">人工判断 + 理由</span>';
+  var majors = g.majors.map(majorName).filter(Boolean);
+  var shown = majors.slice(0, 12), rest = majors.length-12;
+
+  var r=g.req, gates = [
+    ['内存','≥'+(r.ramMin||8)+'G','建议 '+(r.ramRec||r.ramMin)+'G'],
+    ['显存', r.vramMin? '≥'+r.vramMin+'G':'不限', r.gpu==='discrete'?'必须独显':(r.gpu==='none'?'核显即可':'核显/独显皆可')],
+    ['存储','≥'+(r.storageMinGB>=1024?(r.storageMinGB/1024)+'T':(r.storageMinGB||512)+'G'), '素材/工程文件'],
+    ['显卡', r.gpu==='discrete'?'独显':(r.gpu==='none'?'无关':'不限'),
+      r.gpu==='discrete' ? ('建议 '+(r.vramRec||r.vramMin)+'G 显存') : (r.vramMin?('建议 '+r.vramMin+'G 显存'):'核显就够')]
+  ];
+
+  var h = '<div class="rg-top"><h3>'+esc(g.name)+'</h3>'+ev
+    +'<span class="chip ghost">'+majors.length+' 个专业</span>'
+    +(g.preferCats&&g.preferCats.indexOf('desktop')>-1?'<span class="chip ghost">可选台式</span>':'')
+    +'</div>'
+    +'<div class="rg-tag">'+esc(g.tagline)+'　·　'+esc(g.stackText)+'</div>'
+    +'<div class="rg-majors">'+shown.map(function(m){return '<span class="chip">'+esc(m)+'</span>'}).join('')
+      +(rest>0?'<span class="chip more" id="moreMajor">还有 '+rest+' 个 →</span>':'')+'</div>';
+
+  h += '<div class="gates4">'+gates.map(function(x){
+      return '<div><div class="k">'+esc(x[0])+'</div><div class="v">'+esc(x[1])+'</div><div class="d">'+esc(x[2])+'</div></div>';
+    }).join('')+'</div>';
+
+  h += '<div class="why"><b>为什么是这个门槛：</b>'+esc(r.rationale)+'</div>';
+  if(g.trap) h += '<div class="trap"><b>最容易踩的坑</b>'+esc(g.trap)+'</div>';
+  if(r.platformUnfit && r.platformUnfit.macos) h += '<div class="plat"><b>Mac 提示：</b>'+esc(r.platformUnfit.macos)+'</div>';
+
+  h += '<div class="res-bar"><div class="res-count">满足门槛 <b>'+allGood.length+'</b> 台 / 池内 '+MACHINES.length+' 台'
+    +(cheapest!=null?'　最便宜 <b>¥'+yuan(cheapest)+'</b>':'')+'</div>'
+    +'<div class="filters">'
+    +'<button class="fbtn'+(state.onlyUpgradable?' on':'')+'" data-f="onlyUpgradable" type="button">可换内存</button>'
+    +'<button class="fbtn'+(state.onlyDiscrete?' on':'')+'" data-f="onlyDiscrete" type="button">独立显卡</button>'
+    +'<button class="fbtn'+(state.onlyEff?' on':'')+'" data-f="onlyEff" type="button">1 级能效</button>'
+    +'<select class="sort" id="sortSel">'
+      +'<option value="price">价格 低→高</option><option value="priceDesc">价格 高→低</option>'
+      +'<option value="ram">内存 大→小</option><option value="vram">显存 大→小</option><option value="weight">重量 轻→重</option>'
+    +'</select></div></div>';
+
+  if(bestShown.length){
+    h += '<div class="tier-head"><span>直接达标（到建议值）</span><i></i><em>'+best.length+' 台</em></div>';
+    h += '<div class="cards">'+bestShown.map(function(x,i){return cardHTML(x,i,false)}).join('')+'</div>';
+  }
+  if(okShown.length){
+    h += '<div class="tier-head"><span>够用但没余量</span><i></i><em>'+ok.length+' 台</em></div>';
+    h += '<div class="cards">'+okShown.map(function(x,i){return cardHTML(x,i,false)}).join('')+'</div>';
+  }
+  if(allGood.length > LIMIT){
+    h += '<div class="more-wrap"><button class="more-btn" id="moreCards" type="button">'
+      + (state.expanded? '收起' : '展开全部 '+allGood.length+' 台 →') + '</button></div>';
+  }
+  if(!best.length && !ok.length){
+    h += '<div class="empty">这个专业组在机型池里没有达标机型 —— 说明门槛确实高，别被「差不多够用」说服。</div>';
+  }
+  if(no.length){
+    h += '<div class="tier-head"><span>不达标（差在哪）</span><i></i><em>'+no.length+' 台</em></div><div class="fail-list">';
+    h += no.slice(0,12).map(function(x){
+      return '<div class="fail-row"><b>'+esc(x.m.name)+' <span style="color:var(--ink3);font-weight:400">¥'+yuan(x.m.price.final)+'</span></b><span>'+esc(x.t.fails[0])+'</span></div>';
+    }).join('');
+    if(no.length>12) h += '<div class="fail-row"><b style="color:var(--ink3)">还有 '+(no.length-12)+' 台…</b><span></span></div>';
+    h += '</div>';
+  }
+  if(g.followups && g.followups.length){
+    h += '<div class="why" style="margin-top:22px"><b>买之前先问自己：</b>'+g.followups.map(esc).join('　/　')+'</div>';
+  }
+
+  var panel = $('#groupPanel'); panel.innerHTML = h;
+  var sel = $('#sortSel'); if(sel){ sel.value = state.sort; sel.addEventListener('change', function(){ state.sort=this.value; renderPanel(g); }); }
+  $$('.fbtn',panel).forEach(function(b){ b.addEventListener('click', function(){ state[b.dataset.f]=!state[b.dataset.f]; renderPanel(g); }) });
+  $$('[data-detail]',panel).forEach(function(b){ b.addEventListener('click', function(){ openDrawer(b.dataset.detail) }) });
+  var more = $('#moreCards');
+  if(more) more.addEventListener('click', function(){ state.expanded = !state.expanded; renderPanel(g); });
+  var mm = $('#moreMajor'); if(mm) mm.addEventListener('click', function(){ this.outerHTML = majors.slice(12).map(function(m){return '<span class="chip">'+esc(m)+'</span>'}).join('') });
+}
+
+/* major search index */
+var NAME2G = {}, ALIAS = D.majorAliases||{};
+GROUPS.forEach(function(g){ g.majors.forEach(function(m){ NAME2G[majorName(m)] = g.id; }) });
+(function(){
+  var input=$('#majorSearch'), sug=$('#sug');
+  function run(q){
+    q=q.trim(); if(!q){ sug.classList.remove('on'); sug.innerHTML=''; return; }
+    var hits=[], seen={};
+    Object.keys(NAME2G).forEach(function(n){
+      if(n.indexOf(q)>-1 && !seen[n]){ seen[n]=1; hits.push({n:n,g:NAME2G[n],alias:false}) }
+    });
+    Object.keys(ALIAS).forEach(function(a){
+      var n=ALIAS[a];
+      if((a.indexOf(q)>-1||n.indexOf(q)>-1) && seen[n]!==2){ seen[n]=2; hits.unshift({n:n,g:NAME2G[n],alias:true,a:a}) }
+    });
+    hits = hits.filter(function(h){return h.g}).slice(0,7);
+    if(!hits.length){ sug.innerHTML='<button disabled style="color:var(--ink3)">没找到这个专业，可以按上面的分组手动选</button>'; sug.classList.add('on'); return; }
+    sug.innerHTML = hits.map(function(h){
+      var gname=(GROUPS.filter(function(g){return g.id===h.g})[0]||{}).name||'';
+      return '<button data-g="'+h.g+'" type="button"><b>'+esc(h.alias&&h.a!==h.n?h.a+' → '+h.n:h.n)+'</b><span>'+esc(gname)+'</span></button>';
+    }).join('');
+    sug.classList.add('on');
+    $$('button',sug).forEach(function(b){ b.addEventListener('click', function(){
+      if(!b.dataset.g) return;
+      input.value=''; sug.classList.remove('on'); selectGroup(b.dataset.g, true);
+    })});
+  }
+  input.addEventListener('input', function(){ run(this.value) });
+  input.addEventListener('focus', function(){ if(this.value.trim()) run(this.value) });
+  document.addEventListener('click', function(e){ if(!e.target.closest('.search')) sug.classList.remove('on') });
+  input.addEventListener('keydown', function(e){
+    if(e.key==='Escape'){ sug.classList.remove('on'); this.blur() }
+    if(e.key==='Enter'){ var f=$('button[data-g]',sug); if(f){ f.click() } }
+  });
+})();
+
+/* ---------- market ---------- */
+function renderMarket(){
+  $('#sameBody').innerHTML = D.sameModel.map(function(s){
+    var cls = s.change>=100?'huge':'';
+    return '<tr><td>'+esc(s.name)+(s.kind==='phone'?' <span style="color:var(--ink3);font-size:10px">手机</span>':'')+'</td>'
+      +'<td class="r">¥'+yuan(s.before)+'</td><td class="r after">¥'+yuan(s.after)+'</td>'
+      +'<td class="r up '+cls+'">'+pct(s.change)+'</td></tr>';
+  }).join('');
+
+  // DRAM bars
+  var d=D.dramQoQ, w=340, hgt=150, pad=26, bw=(w-pad*2)/d.length*0.52, gap=(w-pad*2)/d.length;
+  var max=Math.max.apply(null,d.map(function(x){return x.value}))*1.18;
+  var svg='<svg viewBox="0 0 '+w+' '+hgt+'" style="width:100%;height:auto;margin-top:10px" role="img" aria-label="DRAM 合约价环比涨幅">';
+  svg+='<line x1="'+pad+'" y1="'+(hgt-24)+'" x2="'+(w-pad+6)+'" y2="'+(hgt-24)+'" stroke="rgba(23,22,15,.22)" stroke-width="1"/>';
+  d.forEach(function(x,i){
+    var bh=(x.value/max)*(hgt-54);
+    var bx=pad+gap*i+(gap-bw)/2, by=hgt-24-bh;
+    var col = x.forecast? 'none':'rgba(171,51,35,.82)';
+    svg+='<rect x="'+bx.toFixed(1)+'" y="'+by.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" fill="'+col+'" stroke="'+(x.forecast?'rgba(171,51,35,.5)':'none')+'" stroke-width="1" stroke-dasharray="'+(x.forecast?'3 2':'0')+'"/>';
+    svg+='<text x="'+(bx+bw/2).toFixed(1)+'" y="'+(by-6).toFixed(1)+'" font-size="9.5" font-family="ui-monospace,monospace" fill="'+(x.forecast?'#8a5f0f':'#ab3323')+'" text-anchor="middle">'+x.value+'%</text>';
+    svg+='<text x="'+(bx+bw/2).toFixed(1)+'" y="'+(hgt-11)+'" font-size="9" font-family="ui-monospace,monospace" fill="#87816f" text-anchor="middle">'+x.label+'</text>';
+  });
+  svg+='</svg>';
+  $('#dramChart').innerHTML = svg;
+
+  $('#parts').innerHTML = D.partsChange.map(function(p){
+    var mm = String(p.note||'').match(/([\d.]+)\s*→\s*([\d.]+)/), v = null;
+    if(mm){ var a=+mm[1], b=+mm[2]; if(a>0) v = Math.round((b-a)/a*100); }
+    var txt, style='';
+    if(v!==null){ txt=(v>0?'+':'')+v+'%'; if(v<0) style=' style="color:var(--green)"'; }
+    else { txt = p.low===p.high? pct(p.low) : pct(p.low)+' ~ '+pct(p.high); if(p.low<0) style=' style="color:var(--green)"'; }
+    return '<div><div>'+esc(p.label)+'<span>'+esc(p.note)+'</span></div><b'+style+'>'+txt+'</b></div>';
+  }).join('');
+
+  var o=D.outlook;
+  $('#outlook').innerHTML = '<b>'+esc(o.verdict)+'</b>'+o.points.map(function(p){return '<p>'+esc(p)+'</p>'}).join('')
+    +'<div class="src">来源 '+o.sources.length+' 篇 · 见页面底部</div>';
+}
+
+/* ---------- money ---------- */
+function renderMoney(){
+  $('#quick').innerHTML=[3000,3333,5000,6000,6001,10000].map(function(v){
+    return '<button type="button" data-v="'+v+'">¥'+yuan(v)+'</button>';
+  }).join('');
+  var pi=$('#priceInput'), pr=$('#priceRange');
+  function calc(){
+    var p=Math.max(0,Math.min(99999, parseInt(pi.value,10)||0));
+    var pc=D.subsidyRules.pc, ph=D.subsidyRules.phone;
+    var pcSub=Math.min(p*pc.rate/100, pc.cap);
+    var phSub = (ph.threshold && p>ph.threshold) ? 0 : Math.min(p*ph.rate/100, ph.cap);
+    var pcPct=Math.min(100, pcSub/pc.cap*100);
+    var phPct=Math.min(100, phSub/ph.cap*100);
+    $('#calcOut').innerHTML =
+      '<div><div class="k"><span>电脑能补</span><em>家电类</em></div>'
+      +'<div class="v'+(pcSub?'':' zero')+'">¥'+yuan2(pcSub)+'</div>'
+      +'<div class="s">到手 ¥'+yuan2(p-pcSub)+'　封顶 1500</div>'
+      +'<div class="prog"><i style="width:'+pcPct.toFixed(1)+'%;background:var(--red)"></i></div></div>'
+      +'<div><div class="k"><span>手机能补</span><em>数码类</em></div>'
+      +'<div class="v'+(phSub?'':' zero')+'">'+(phSub?'¥'+yuan2(phSub):'¥0')+'</div>'
+      +'<div class="s">'+(phSub?'到手 ¥'+yuan2(p-phSub)+'　封顶 500':'超过 6000，一分不补')+'</div>'
+      +'<div class="prog"><i style="width:'+phPct.toFixed(1)+'%;background:'+(phSub?'var(--green)':'var(--line2)')+'"></i></div></div>';
+
+    var note;
+    if(p>ph.threshold && p<=pc.cap*2){ note='这台价买<b>电脑</b>能补 ¥'+yuan2(pcSub)+'；买<b>手机</b>一分没有 —— 同一笔钱，差 '+yuan2(pcSub)+' 元。'; }
+    else if(p<=ph.threshold && pcSub>=pc.cap*0.999){ note='两台都吃满了：电脑 +1500、手机 +500。'; }
+    else if(p<=ph.threshold){ note='这个价位手机还能补，电脑补 '+yuan2(pcSub)+'。注意手机封顶 500，到 ¥3,333 就不再涨了。'; }
+    else { note='手机已过 6000 红线，补贴为 0；电脑不受这条线限制。'; }
+    $('#calcNote').innerHTML=note;
+  }
+  pi.addEventListener('input', function(){ pr.value=Math.min(20000,parseInt(pi.value,10)||1000); calc() });
+  pr.addEventListener('input', function(){ pi.value=this.value; calc() });
+  $$('#quick button').forEach(function(b){ b.addEventListener('click',function(){ pi.value=b.dataset.v; pr.value=Math.min(20000,parseInt(b.dataset.v,10)); calc() }) });
+  calc();
+
+  $('#facts').innerHTML = D.subsidyFacts.map(function(f){return '<li>'+esc(f)+'</li>'}).join('');
+  $('#bands').innerHTML = D.budgetBands.map(function(b){
+    return '<div class="band"><b>'+(b.max>100000?'¥10,000 以上':'≤ ¥'+yuan(b.max))+'</b><span>'+esc(b.text)+'</span></div>';
+  }).join('');
+}
+
+/* ---------- risk ---------- */
+function renderRisk(){
+  $('#riskSub').textContent = D.defects.cap;
+  $('#defects').innerHTML = D.defects.items.map(function(d,i){
+    return '<details class="def"'+(i===0?' open':'')+'><summary><b>'+esc(d.name)+'</b><span class="sym">'+(i+1)+'</span></summary>'
+      +'<div class="body"><dl style="margin:0">'
+      +'<dt>症状</dt><dd>'+esc(d.symptom)+'</dd>'
+      +'<dt>涉及</dt><dd class="who">'+esc(d.who)+'</dd>'
+      +'<dt>原因</dt><dd>'+esc(d.why)+'</dd>'
+      +'<dt>怎么办</dt><dd>'+esc(d.fix)+'</dd>'
+      +'</dl></div></details>';
+  }).join('');
+  var tp=D.trapsByKind;
+  function block(arr,title){
+    return '<h5>'+title+'</h5>'+arr.map(function(t){
+      return '<div class="trap-item"><b>'+esc(t.title)+'</b><p>'+esc(t.desc)+'</p></div>';
+    }).join('');
+  }
+  $('#trapsPc').innerHTML = block(tp.pc,'电脑');
+  $('#trapsPhone').innerHTML = block(tp.phone,'手机');
+}
+
+/* ---------- sources ---------- */
+function renderSources(){
+  var st=D.coverage;
+  $('#stats').innerHTML = [
+    [MACHINES.length,'台在售机型（实采到手价）'],
+    [D.sources.length,'条公开来源（可点开核对）'],
+    [GROUPS.reduce(function(a,g){return a+g.majors.length},0),'个专业覆盖'],
+    [Math.round((st.recommendRate||0)*100)+'%','判定可推荐比例']
+  ].map(function(x){return '<div><b>'+x[0]+'</b><span>'+x[1]+'</span></div>'}).join('');
+
+  $('#metaGrid').innerHTML =
+    '<div><h5>价格口径</h5><p>'+esc(D.meta.priceBasis)+'</p></div>'
+    +'<div><h5>不确定的地方</h5><p>'+esc(D.meta.disclaimer)+'</p></div>'
+    +'<div class="wide"><h5>性能 / 规格口径</h5><p>'+esc(D.meta.perfBasis)+'</p></div>';
+
+  $('#srcCount').textContent = '展开全部 '+D.sources.length+' 条来源';
+  $('#srclist').innerHTML = D.sources.map(function(s){
+    return '<a href="'+esc(s.url)+'" target="_blank" rel="noopener">'+esc(s.title)
+      +'<span>'+esc(s.publisher)+' · '+esc(s.date)+'</span></a>';
+  }).join('');
+}
+
+/* ---------- drawer ---------- */
+function openDrawer(id){
+  var m = MACHINES.filter(function(x){return x.id===id})[0]; if(!m) return;
+  var gpu=m.gpu||{}, ram=m.ram||{}, cpu=m.cpu||{}, sc=m.screen||{}, p=m.price||{}, f=FORM[ram.form];
+  $('#drTitle').textContent = m.name;
+  var rows = [
+    ['品牌 / 品类', m.brand+' · '+(CATNAME[m.cat]||m.cat)],
+    ['处理器', cpu.model || '—'],
+    ['核心 / 线程', (cpu.cores?cpu.cores+'C / '+cpu.threads+'T':'—')],
+    ['内存', (ram.gb!=null? ram.gb+'GB '+ (ram.type||'') : '—') + (f? '（'+f.t+'）':'')],
+    ['内存插槽', (ram.slots!=null? ram.slots+' 个 · 最大 '+(ram.maxGB||'?')+'G':'—')],
+    ['显卡', (gpu.model||'—')+(gpu.type==='discrete'?'（独显 '+(gpu.vramGB||'?')+'G）':gpu.type==='unified'?'（统一内存）':'（核显）')],
+    ['硬盘', m.storageGB? (m.storageGB>=1024?(m.storageGB/1024)+'TB':m.storageGB+'GB') : '—'],
+    ['屏幕', sc.sizeInch? sc.sizeInch+'″ '+sc.widthPx+'×'+sc.heightPx+(sc.refreshHz?' '+sc.refreshHz+'Hz':'')+(sc.panel?' '+sc.panel:'') : '—'],
+    ['色域', sc.colorGamut? Object.keys(sc.colorGamut).map(function(k){return k.toUpperCase()+' '+sc.colorGamut[k]+'%'}).join(' · ') : '—'],
+    ['电池 / 重量', (m.batteryWh?m.batteryWh+'Wh':'—')+' · '+(m.weightKg?m.weightKg+'kg':'—')],
+    ['能效', m.efficiency? m.efficiency+' 级'+(m.efficiencyStatus==='verified'?'（已核）':''):'待核'],
+    ['接口', (m.ports&&m.ports.length)? m.ports.join(' · ') : '—']
+  ];
+  var html = '<div class="dr-price"><b>¥'+yuan2(p.final)+'</b>'+(p.list&&p.list>p.final?'<s>¥'+yuan(p.list)+'</s>':'')
+    +'<em>国补后到手</em></div>'
+    +'<div class="kv"><h6>价格怎么来的</h6><table><tbody>'
+    +'<tr><td>页面价 / 划线价</td><td>¥'+(p.list?yuan(p.list):'—')+'</td></tr>'
+    +'<tr><td>优惠券合计</td><td>'+(p.discounts&&p.discounts.length? '−¥'+yuan(p.discounts.reduce(function(a,b){return a+(b.amount||0)},0)) : '无')+'</td></tr>'
+    +'<tr><td>实付</td><td>¥'+(p.net?yuan2(p.net):'—')+'</td></tr>'
+    +'<tr><td>国补</td><td>'+(p.subsidy? '−¥'+yuan2(p.subsidy):'—')+'</td></tr>'
+    +'<tr><td>到手价</td><td><b>¥'+yuan2(p.final)+'</b></td></tr>'
+    +'</tbody></table>'
+    +(p.basisNote?'<div class="dr-note" style="margin-top:10px">'+esc(p.basisNote)+'</div>':'')
+    +'</div>'
+    +'<div class="kv"><h6>规格</h6><table><tbody>'
+    +rows.map(function(r){return '<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td></tr>'}).join('')
+    +'</tbody></table></div>';
+
+  if(m.throttle){
+    html += '<div class="kv"><h6>持续功耗（实测口径）</h6><div class="dr-note">'
+      +'CPU 持续 '+fmt(m.throttle.cpuSustainedW)+'W · GPU '+fmt(m.throttle.gpuSustainedW)+'W · 整机 '+fmt(m.throttle.totalSustainedW)+'W'
+      +(m.throttle.sustainedNote?'<br>'+esc(m.throttle.sustainedNote):'')
+      +(m.throttle.note?'<br><b>注意：</b>'+esc(m.throttle.note):'')+'</div></div>';
+  }
+  html += '<div class="kv"><h6>数据来源与置信度</h6>'
+    +'<div class="dr-note">置信度：'+esc(m.confidence||'—')+'　·　采价时间：'+esc((m.priceCapturedAt||'').replace('T',' ').slice(0,16)||'—')
+    +'<br>'+esc(m.shopName||'')+'</div>'
+    +(m.dataGaps&&m.dataGaps.length?'<div style="margin-bottom:8px">'+m.dataGaps.map(function(g){return '<span class="gap">缺口 '+esc(g)+'</span>'}).join('')+'</div>':'')
+    +(m.url?'<a class="dr-link" href="'+esc(m.url)+'" target="_blank" rel="noopener">打开商品页核对 →</a>':'')
+    +'</div>'
+    +'<div class="dr-note" style="border-left:2px solid var(--amber);background:var(--amberbg);color:#5c440f">'
+    +'价格随平台活动实时变动，这里是快照。下单前请以商品页显示的国补后价为准。</div>';
+
+  $('#drBody').innerHTML = html;
+  $('#drBody').scrollTop = 0;
+  $('#drawer').classList.add('on'); $('#ov').classList.add('on');
+  $('#drawer').setAttribute('aria-hidden','false'); document.body.classList.add('locked');
+}
+function closeDrawer(){
+  $('#drawer').classList.remove('on'); $('#ov').classList.remove('on');
+  $('#drawer').setAttribute('aria-hidden','true'); document.body.classList.remove('locked');
+}
+$('#drClose').addEventListener('click', closeDrawer);
+$('#ov').addEventListener('click', closeDrawer);
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDrawer() });
+
+/* ---------- nav & reveal ---------- */
+(function(){
+  var secs = $$('section[id]'), links = $$('[data-nav]');
+  function spy(){
+    var y = window.scrollY + 120, cur=null;
+    secs.forEach(function(s){ if(s.offsetTop <= y) cur = s.id });
+    links.forEach(function(a){ a.classList.toggle('on', a.dataset.nav===cur) });
+  }
+  window.addEventListener('scroll', spy, {passive:true}); spy();
+  var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target) } }) },{rootMargin:'0px 0px -8% 0px'});
+  $$('.sec-head, .panel, .result, .calc, .chart-box, .quote').forEach(function(el){ el.classList.add('rv'); io.observe(el) });
+})();
+
+/* ---------- chat：接本地小模型（Ollama · qwen3.5-4b） ---------- */
+var API={base:'',ok:false,ver:'',total:null,busy:false};
+var CS={known:null,seen:[],focus:null,stage:null,asked:[]};
+var PURPOSE_CN={design:'设计/视觉',video:'视频剪辑',gaming:'游戏',dev:'编程',office:'办公',threeD:'三维',audio:'音频',ai:'本地模型',light:'轻度办公'};
+var CAT_CN={thin:'轻薄本',gaming:'游戏本',desktop:'台式整机',upgrade:'内存/固态'};
+var EX=['学设计的 5100 要带教室','计算机 1 万 打游戏','会计 5000 能加内存'];
+
+function fetchT(url,opt,ms){
+  var ctl=new AbortController(), t=setTimeout(function(){ctl.abort()}, ms||8000);
+  var o=Object.assign({},opt||{},{signal:ctl.signal});
+  return fetch(url,o).then(function(r){clearTimeout(t);return r}, function(e){clearTimeout(t);throw e});
+}
+function paintStatus(){
+  var el=$('#cpStatus'); if(!el) return;
+  el.className='cp-status'+(API.ok?' ok':' bad');
+  el.innerHTML='<i></i><span>'+(API.ok
+    ? '已连上本地模型 · '+esc(API.ver||'Ollama')+(API.total?(' · 库内 '+API.total+' 台'):'')
+    : '未连上本地模型 · 点这里看怎么启动')+'</span>';
+}
+function probe(){
+  var bases=['','http://127.0.0.1:7860'];
+  var i=0;
+  function tryNext(){
+    if(i>=bases.length){ API.ok=false; paintStatus(); return Promise.resolve(false) }
+    var b=bases[i++];
+    return fetchT(b+'/api/health',{cache:'no-store'},3000).then(function(r){
+      if(!r.ok) return tryNext();
+      return r.json().then(function(j){
+        if(j&&j.ok){ API.base=b; API.ok=true; API.ver='Ollama '+j.ollama; paintStatus(); loadStats(); return true }
+        return tryNext();
+      });
+    }).catch(function(){ return tryNext() });
+  }
+  return tryNext();
+}
+function loadStats(){
+  fetchT(API.base+'/api/stats',{cache:'no-store'},4000).then(function(r){return r.json()}).then(function(j){
+    if(j&&j.ok){ API.total=j.total; paintStatus() }
+  }).catch(function(){});
+}
+function threadEl(){ return $('#thread') }
+function para(t){
+  if(!t) return '';
+  return String(t).split(/\n{2,}/).map(function(x){
+    return '<p>'+esc(x).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>')+'</p>';
+  }).join('');
+}
+function addUser(text){
+  var e=$('#threadEmpty'); if(e) e.remove();
+  var d=document.createElement('div'); d.className='msg u';
+  d.innerHTML='<div class="bubble">'+esc(text)+'</div>';
+  threadEl().appendChild(d);
+  var sec=$('#chat');
+  if(sec && sec.getBoundingClientRect().top>window.innerHeight*0.45) sec.scrollIntoView({behavior:'smooth',block:'start'});
+  else { var r=d.getBoundingClientRect(); if(r.bottom>window.innerHeight-20) d.scrollIntoView({behavior:'smooth',block:'center'}); }
+}
+function addThinking(){
+  var d=document.createElement('div'); d.className='thinking'; d.id='thinking';
+  d.innerHTML='<span><i></i><i></i><i></i></span>正在读你的条件、排序候选…';
+  threadEl().appendChild(d);
+}
+function dropThinking(){ var t=$('#thinking'); if(t) t.remove() }
+function recHTML(x,i){
+  var s='<div class="rec"><span class="n">'+(i+1)+'</span><h5>'+esc(x.name)+'</h5><span class="p">¥'+yuan(Math.round(x.price))+'</span>';
+  if(x.spec) s+='<div class="spec">'+esc(x.spec)+'</div>';
+  if(x.tag) s+='<div class="tag">'+esc(x.tag)+'</div>';
+  if(x.caution) s+='<div class="cau">注意：'+esc(x.caution)+'</div>';
+  (x.blockers||[]).forEach(function(b){
+    if(b&&b.why&&b.why!==x.caution) s+='<div class="cau">'+(b.level==='hard'?'硬伤：':'提醒：')+esc(b.why)+'</div>';
+  });
+  var extra=[];
+  if(x.original) extra.push('页面 ¥'+yuan(x.original));
+  if(x.subsidy) extra.push('国补 −¥'+yuan(Math.round(x.subsidy)));
+  if(x.overBudget) extra.push('略超预算');
+  if(extra.length) s+='<div class="sub">'+esc(extra.join(' · '))+'</div>';
+  return s+'</div>';
+}
+function addAssistant(d,ms){
+  var k=d.kernel||{}, ranked=(k.ranked||[]).slice(0,4);
+  var tag=d.stage==='clarify'?'先补条件':d.stage==='followup'?'细节追问':d.stage==='recommend'?'给出推荐':'回答';
+  var h='<div class="who"><span>助手</span><em>'+esc(tag)+'</em><span>'+(ms/1000).toFixed(1)+'s</span><span>'+esc(d.focusName||'')+'</span></div>';
+  h+='<div class="prose">'+para(d.reply)+'</div>';
+  if(ranked.length) h+='<div class="recs">'+ranked.map(recHTML).join('')+'</div>';
+  var flags=[];
+  if((k.untraceable||[]).length) flags.push('不可追溯数字 '+k.untraceable.length);
+  if((k.fabricated||[]).length) flags.push('疑似编造 '+k.fabricated.length);
+  if((k.outside||[]).length) flags.push('库外机型 '+k.outside.length);
+  if(flags.length) h+='<div class="audit bad">出口审计：'+esc(flags.join(' · '))+'</div>';
+  else if(d.stage==='recommend') h+='<div class="audit">出口审计：数字 0 处不可追溯 · 推荐对象均来自库内</div>';
+  var qs=[]; (k.questions||[]).forEach(function(q){ if(q&&q.q) qs.push(q.q) });
+  ['这台行不行','还有别的吗','保修几年'].forEach(function(t){ if(qs.length<4&&qs.indexOf(t)<0) qs.push(t) });
+  h+='<div class="follow">'+qs.slice(0,4).map(function(t){return '<button type="button" data-ask="'+esc(t)+'">'+esc(t)+'</button>'}).join('')+'</div>';
+  var el=document.createElement('div'); el.className='msg a'; el.innerHTML=h;
+  threadEl().appendChild(el); bindAsk(el);
+}
+function addError(e){
+  var el=document.createElement('div'); el.className='msg a err';
+  el.innerHTML='<div class="who"><span>助手</span><em>连接失败</em></div><div class="prose">本地模型服务没响应（已自动重试一次）。可能是模型正在冷启动，或服务还没起来。</div>'
+   +'<div class="hintbox"><b>启动方法（两步）：</b><br>① 双击 <code>tools\\agent\\启动测试.bat</code> 拉起本地模型（7860）<br>'
+   +'② 在项目根目录运行 <code>python web/serve.py</code>，打开 <code>http://127.0.0.1:8088</code><br>'
+   +'<span style="opacity:.75">别直接双击 html —— file:// 页面跨域调不到本地服务，只能走离线规则。</span><br>'
+   +'<span style="opacity:.75">报错：'+esc(String((e&&e.message)||e))+'</span></div>';
+  threadEl().appendChild(el);
+}
+function groupName(gid){ var g=GROUPS.filter(function(x){return x.id===gid})[0]; return g?g.name:'对应专业组' }
+function addLocal(text){
+  var num=text.match(/(\d{3,6})/), budget=num?parseInt(num[1],10):null, gid=null;
+  Object.keys(NAME2G).forEach(function(n){ if(!gid&&n.length>=2&&text.indexOf(n)>-1) gid=NAME2G[n] });
+  if(!gid) Object.keys(ALIAS).forEach(function(a){ if(!gid&&text.indexOf(a)>-1) gid=NAME2G[ALIAS[a]] });
+  var el=document.createElement('div'); el.className='msg a';
+  var h='<div class="who"><span>助手</span><em>离线规则</em></div><div class="prose">';
+  if(gid) h+='<p>没连上模型，先用规则给你定位：听起来是<b>'+esc(groupName(gid))+'</b>'+(budget?('，预算 ¥'+yuan(budget)):'')+'。这一组的门槛已经套上，往下就是筛出来的机型。</p>';
+  else if(budget) h+='<p>没连上模型。只读到预算 ¥'+yuan(budget)+'，没认出用途 —— 挑一个专业组，我按那组的门槛筛。</p>';
+  else h+='<p>没连上模型，也没读到预算或用途。可以直接点下面的专业组，或启动本地服务后再问。</p>';
+  h+='</div>';
+  if(gid) h+='<div class="follow"><button type="button" data-goto="'+gid+'">看「'+esc(groupName(gid))+'」的机型 ↓</button></div>';
+  h+='<div class="audit bad">离线模式：未调用模型，结论来自规则表</div>';
+  el.innerHTML=h; threadEl().appendChild(el);
+  el.addEventListener('click',function(ev){ var b=ev.target.closest('[data-goto]'); if(b) selectGroup(b.dataset.goto,false,true) });
+  if(gid) selectGroup(gid);
+}
+function paintSlots(s){
+  var box=$('#slotsBox'); s=s||{}; var any=false;
+  var rows=[
+    ['预算', s.budget?('¥'+yuan(s.budget)):null],
+    ['用途', (s.purpose&&s.purpose.length)?s.purpose.map(function(x){return PURPOSE_CN[x]||x}).join(' / '):null],
+    ['品类', s.cat?(CAT_CN[s.cat]||s.cat):null],
+    ['带出门', s.carry===true?'要带':(s.carry===false?'不用带':null)],
+    ['用几年', s.years?('≥'+s.years+' 年'):null],
+    ['宿舍功耗', s.dormWatt?('≤'+s.dormWatt+'W'):null]
+  ];
+  var html=rows.map(function(r){
+    if(r[1]) any=true;
+    return '<div class="slot"><span>'+r[0]+'</span><b class="'+(r[1]?'':'dim')+'">'+(r[1]?esc(r[1]):'—')+'</b></div>';
+  }).join('');
+  box.innerHTML = any? html : '<div class="slot-empty">还没有条件。说一句话后这里会逐项亮起来。</div>';
+}
+function bindAsk(el){
+  el.addEventListener('click',function(ev){
+    var b=ev.target.closest('[data-ask]'); if(b) ask(b.dataset.ask);
+  });
+}
+function ask(text){
+  text=(text||'').trim();
+  if(!text||API.busy) return;
+  addUser(text);
+  var input=$('#askInput'); if(input) input.value='';
+  API.busy=true; var btn=$('#askBtn'); if(btn) btn.disabled=true;
+  addThinking();
+  var t0=Date.now();
+  var payload=JSON.stringify({text:text,known:CS.known,asked:CS.asked,last_stage:CS.stage,seen:CS.seen,focus:CS.focus});
+  function postChat(){
+    return fetchT(API.base+'/api/chat',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:payload
+    },150000).then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      return r.json();
+    });
+  }
+  (API.ok?Promise.resolve(true):probe()).then(function(ok){
+    if(!ok) throw new Error('offline');
+    return postChat().catch(function(e){
+      // 502/网络抖动：模型可能正在冷启动，等 1.2 秒重试一次
+      if(String(e.message).indexOf('offline')>-1) throw e;
+      return new Promise(function(res){ setTimeout(res,1200) }).then(postChat);
+    });
+  }).then(function(d){
+    dropThinking();
+    CS.known=d.slots||CS.known; CS.stage=d.stage||CS.stage; CS.asked=d.asked||CS.asked;
+    CS.focus=d.focus||CS.focus;
+    ((d.kernel&&d.kernel.ranked)||[]).forEach(function(x){ if(x&&x.id&&CS.seen.indexOf(x.id)<0) CS.seen.push(x.id) });
+    addAssistant(d,Date.now()-t0);
+    paintSlots(d.slots||CS.known);
+  }).catch(function(e){
+    dropThinking();
+    if(e&&e.message==='offline'||!API.ok) addLocal(text); else addError(e);
+    API.ok = API.ok && !(e&&e.message==='offline');
+    paintStatus();
+  }).then(function(){
+    API.busy=false; if(btn) btn.disabled=false;
+  });
+}
+function initChat(){
+  var input=$('#askInput'), btn=$('#askBtn');
+  if(!input||!btn) return;
+  btn.addEventListener('click',function(){ ask(input.value) });
+  input.addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.isComposing){ e.preventDefault(); ask(input.value) } });
+  $('#cpExamples').innerHTML=EX.map(function(t){return '<button type="button" data-ask="'+esc(t)+'">'+esc(t)+'</button>'}).join('');
+  bindAsk($('#cpExamples'));
+  $('#cpStatus').addEventListener('click',function(){ if(!API.ok) addError('未连接') });
+  paintStatus();
+  probe();
+  var fab=$('#fab');
+  fab.addEventListener('click',function(){
+    $('#chat').scrollIntoView({behavior:'smooth',block:'start'});
+    setTimeout(function(){ try{input.focus({preventScroll:true})}catch(e){} },420);
+  });
+  function fabState(){
+    var r=$('#chat').getBoundingClientRect();
+    var inChat = r.top < window.innerHeight*0.62 && r.bottom > 140;
+    fab.classList.toggle('on', window.scrollY>560 && !inChat);
+  }
+  window.addEventListener('scroll',fabState,{passive:true});
+  window.addEventListener('resize',fabState);
+  fabState();
+}
+
+/* ---------- boot ---------- */
+renderHero(); renderMajorList(); selectGroup('office'); initChat(); renderMarket(); renderMoney(); renderRisk(); renderSources();
+})();
+</script>
+</body>
+</html>

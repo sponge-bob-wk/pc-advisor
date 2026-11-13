@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>选机助手 · 说清预算和用途，告诉你买哪一台</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FBFBF9'/%3E%3Crect x='6' y='6' width='20' height='20' rx='6' fill='%232E3438'/%3E%3C/svg%3E">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    /* 🎨 2026-11-13 第三次调色（用户：「色彩略显单一，饱和度高一点、多几个颜色」）
+       演进：墨绿（太沤）→ 石墨（太素）→ **这套**。
+
+       原则：给颜色，但每种颜色只认一个语义角色，不靠堆色块制造"丰富"。
+         · 蓝  accent  交互与主结构（按钮、链接、焦点、主数据）
+         · 青  teal    第二身份色（对比第二列、品类）
+         · 紫  violet  专业/规则这类"知识性"内容
+         · 橙  amber   提醒（不算强、超预算、警告）
+         · 砖红 price  钱 和 硬伤（只有这两件事配用红）
+         · 绿  ok      在线 / 通过
+       饱和度比石墨版明显提上来，但每个色都有活干 —— 不会回到"到处是绿"。 */
+    --bg:#FAFAFB; --surface:#FFFFFF; --soft:#F6F6F9;
+    --ink:#17181C; --ink2:#52545C; --ink3:#82848C;
+    --line:#E5E6EA; --line2:#EFF0F3;
+    --accent:#2D6CDF; --accent-hover:#1E57C0; --accent-soft:#EEF3FE; --accent-line:#C9D9F8;
+    --teal:#0F8B8D;   --teal-soft:#E6F5F5;   --teal-line:#BFE3E3;
+    --violet:#6B4FBB; --violet-soft:#F1EEFC; --violet-line:#D9CFF3;
+    --amber:#B0740E;  --amber-soft:#FCF3E0;  --amber-line:#EFDCB4;
+    --rose:#B5497C;   --rose-soft:#FBEDF3;   --rose-line:#EFC9DA;
+    --ok:#2F9E44;
+    --price:#C2532F;
+    --warn:#8A5B0B; --warn-bg:#FAF3E3;
+    --bad:#8E2F2F; --bad-bg:#F9EDEC;
+    --unknown:#D9D5C8;
+    --serif:"Source Serif Pro",Georgia,"Songti SC","Noto Serif SC",serif;
+    --m:62ch;
+  }
+  html,body{height:100%}
+  body{
+    background:var(--bg);color:var(--ink);font-size:14px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+    display:flex;flex-direction:column;overflow:hidden;
+  }
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  ::selection{background:rgba(45,108,223,.16)}
+
+  /* ── 顶栏 ── */
+  .top{
+    height:54px;flex:none;display:flex;align-items:center;justify-content:space-between;
+    padding:0 26px;border-bottom:1px solid var(--line);background:rgba(251,251,249,.92);
+    backdrop-filter:blur(12px);z-index:20;
+  }
+  .brand{display:flex;align-items:center;gap:11px}
+  .mark{width:22px;height:22px;border-radius:6px;background:var(--accent);position:relative;flex:none}
+  .mark::before{content:"";position:absolute;left:5.5px;top:6.5px;width:11px;height:2px;background:rgba(255,255,255,.94);border-radius:1px}
+  .mark::after{content:"";position:absolute;left:5.5px;top:11px;width:6px;height:2px;background:rgba(255,255,255,.55);border-radius:1px}
+  .brand b{font-size:14.5px;font-weight:600;letter-spacing:.2px}
+  .brand .ver{font-size:10px;color:var(--ink3);background:var(--line2);border-radius:4px;padding:2px 6px;letter-spacing:.3px}
+  .stat{display:flex;align-items:center;gap:13px;font-size:11.5px;color:var(--ink2);font-variant-numeric:tabular-nums}
+  .stat .sep{width:1px;height:11px;background:var(--line)}
+  .live{display:flex;align-items:center;gap:6px}
+  .dot{width:6px;height:6px;border-radius:50%;background:#CFCCC2;flex:none;transition:background .3s}
+  .dot.on{background:#4A9E33;box-shadow:0 0 0 3px rgba(74,158,51,.13)}
+  .dot.off{background:var(--bad);box-shadow:0 0 0 3px rgba(142,47,47,.1)}
+
+  /* ── 两栏骨架 ── */
+  .app{
+    flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,760px) 342px;
+    gap:36px;max-width:1200px;width:100%;margin:0 auto;padding:0 28px;
+  }
+  .chat{display:flex;flex-direction:column;min-height:0;min-width:0}
+  .stream{flex:1;overflow-y:auto;overflow-x:hidden;padding:34px 0 18px;
+    /* 滚到底不许把滚动传给别的容器/整页 —— 原来是"划上面带动下面"的主因 */
+    overscroll-behavior:contain}
+    /* 🔴 2026-11-13 去掉底部 mask 渐隐：输入区是独立的 flex 项、不压在内容上，
+       这层渐隐没有遮挡作用，反而把最后一行（对比表的"可加装"）洗成半透明，
+       看着像没渲染完。滚动提示由滚动条本身承担。 */
+  .stream::-webkit-scrollbar{width:9px}
+  .stream::-webkit-scrollbar-button{display:none;width:0;height:0}
+  .stream::-webkit-scrollbar-thumb{background:#D6D8DE;border-radius:6px;border:3px solid var(--bg)}
+  .rail{
+    min-height:0;overflow-y:auto;overscroll-behavior:contain;
+    padding:26px 0 40px 24px;border-left:1px solid var(--line);
+  }
+  .rail::-webkit-scrollbar{width:9px}
+  .rail::-webkit-scrollbar-button{display:none;width:0;height:0}
+  .rail::-webkit-scrollbar-thumb{background:#D6D8DE;border-radius:6px;border:3px solid var(--bg)}
+
+  /* ── 首屏 ── */
+  .hero{padding:12px 0 0;max-width:var(--m)}
+  .eyebrow{display:flex;align-items:center;gap:9px;font-size:10.5px;letter-spacing:1.5px;
+    text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:16px}
+  .eyebrow::after{content:"";width:46px;height:1px;background:var(--accent-line)}
+  .hero h1{font-family:var(--serif);font-size:34px;line-height:1.35;font-weight:600;letter-spacing:-.5px}
+  .hero h1 em{font-style:normal;color:var(--accent);
+    background:linear-gradient(to top,rgba(45,108,223,.12) 0 36%,transparent 36%)}
+  .lede{margin-top:15px;font-size:13.8px;line-height:1.92;color:var(--ink2);max-width:56ch}
+  .lede b{color:var(--ink);font-weight:600}
+
+  .facts{display:flex;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:26px 0 0}
+  .facts div{flex:1;padding:14px 0 13px;border-right:1px solid var(--line2)}
+  .facts div:last-child{border-right:0}
+  .facts b{display:block;font-size:25px;font-weight:600;letter-spacing:-.8px;font-variant-numeric:tabular-nums;line-height:1.1}
+  .facts span{display:block;font-size:10.8px;color:var(--ink3);margin-top:5px;letter-spacing:.2px}
+
+  .audit{display:flex;align-items:center;gap:7px;margin-top:14px;font-size:11.5px;color:var(--ink2)}
+  .audit i{font-style:normal;color:#3E8A2E;font-weight:700}
+  .audit b{font-weight:600;color:var(--ink)}
+
+  .scope{margin-top:12px;font-size:11.8px;line-height:1.85;color:var(--ink3);max-width:60ch;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .scope.open{display:block;-webkit-line-clamp:unset}
+  .scope b{color:var(--ink2);font-weight:600}
+  .scope-more{margin-top:6px;font-size:11.5px;color:var(--accent);border-bottom:1px solid var(--accent-line);padding-bottom:1px}
+  .scope-more:hover{color:var(--accent-hover)}
+
+  .acts{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:26px}
+  .act{text-align:left;border:1px solid var(--line);border-radius:10px;padding:13px 14px;background:var(--surface);
+    transition:.16s;display:flex;flex-direction:column;gap:4px;position:relative}
+  .act:hover{border-color:var(--accent-line);box-shadow:0 8px 20px -16px rgba(45,108,223,.45);transform:translateY(-1px)}
+  .act .t{font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px}
+  .act .t i{font-style:normal;font-size:9.5px;color:var(--accent);background:var(--accent-soft);
+    border-radius:4px;padding:2px 5px;font-weight:600}
+  .act .d{font-size:11.3px;color:var(--ink2);line-height:1.6}
+  .act .arr{position:absolute;right:12px;top:13px;color:var(--ink3);font-size:13px}
+  .act:hover .arr{color:var(--accent)}
+
+  /* ── 固定字段回答卡（2026-11-13） ── */
+  .ans{margin-top:14px;border:1px solid var(--accent-line);border-radius:12px;background:var(--surface);overflow:hidden}
+  .ans-hd{padding:14px 16px 13px;border-bottom:1px solid var(--line2);
+    background:linear-gradient(180deg,rgba(45,108,223,.07),rgba(45,108,223,.01))}
+  .ans-hd .lbl{font-size:9.6px;letter-spacing:.16em;color:var(--accent);text-transform:uppercase}
+  .ans-hd h3{margin:6px 0 0;font-size:14.6px;font-weight:600;line-height:1.62;letter-spacing:.1px}
+  .ans-kv{display:grid;grid-template-columns:82px 1fr}
+  .ans-kv .rk{padding:9px 0 9px 16px;font-size:11.4px;color:var(--ink3);
+    border-bottom:1px solid var(--line2);background:rgba(0,0,0,.012)}
+  .ans-kv .rv{padding:9px 16px 9px 12px;font-size:12.3px;color:var(--ink);
+    border-bottom:1px solid var(--line2);line-height:1.6;font-variant-numeric:tabular-nums}
+  .ans-sec{padding:12px 16px 13px;border-bottom:1px solid var(--line2)}
+  .ans-sec:last-child{border-bottom:0}
+  .ans-sec .st{font-size:10.4px;letter-spacing:.1em;color:var(--ink2);
+    margin-bottom:8px;font-weight:600}
+  .gap{display:flex;align-items:flex-start;gap:8px;font-size:12.1px;line-height:1.62;margin-top:6px}
+  .gap:first-of-type{margin-top:0}
+  .gap i{flex:none;font-style:normal;font-size:9.2px;font-weight:600;padding:2px 5px;
+    border-radius:4px;margin-top:2px;white-space:nowrap}
+  .gap.hard i{background:#F7E4DC;color:#A9512F}
+  .gap.soft i{background:#EDEDE8;color:#5F5F58;border:1px solid #DEDED7}
+  .gap.none i{background:var(--line2);color:var(--ink3)}
+  .blk{margin-top:8px}
+  .blk:first-of-type{margin-top:0}
+  .blk b{display:block;font-size:11.4px;color:var(--ink2);margin-bottom:2px}
+  .blk p{margin:0;font-size:12.1px;color:var(--ink2);line-height:1.66}
+  .cand{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+    padding:7px 0;border-top:1px dashed var(--line2);font-size:12.2px}
+  .cand:first-of-type{border-top:0;padding-top:0}
+  .cand em{font-style:normal;font-size:9.4px;color:var(--ink3);border:1px solid var(--line);
+    border-radius:4px;padding:1px 4px;margin-left:6px}
+  .cand b{font-variant-numeric:tabular-nums;font-weight:600}
+  .prose{margin-top:11px}
+  .prose summary{cursor:pointer;font-size:11.4px;color:var(--ink3);list-style:none}
+  .prose summary::-webkit-details-marker{display:none}
+  .prose summary:before{content:"▸ ";color:var(--accent)}
+  .prose[open] summary:before{content:"▾ "}
+  .prose summary:hover{color:var(--accent)}
+  .prose .say{font-size:12.4px}
+
+  /* ── 右栏：当前这台 / 全库统计（2026-11-13） ── */
+  .nowbox .ov{border-bottom:1px solid var(--line);padding-bottom:16px}
+  .nowbox .now h3{margin-bottom:2px}
+  .now-nm{font-size:14px;font-weight:600;line-height:1.5;margin-top:8px}
+  .now-pr{display:flex;align-items:baseline;gap:3px;margin-top:4px}
+  .now-pr span{font-size:12px;color:var(--ink3)}
+  .now-pr b{font-size:21px;font-weight:650;font-variant-numeric:tabular-nums;letter-spacing:-.2px}
+  .now-pr em{font-style:normal;font-size:10px;color:var(--ink3);margin-left:3px}
+  .now-sp{font-size:11.2px;color:var(--ink3);line-height:1.6;margin-top:6px}
+  .now-kv{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:11px;
+    background:var(--line2);border:1px solid var(--line2);border-radius:8px;overflow:hidden}
+  .now-kv>div{background:var(--surface);padding:7px 9px}
+  .now-kv span{display:block;font-size:9.6px;color:var(--ink3);letter-spacing:.06em}
+  .now-kv b{display:block;font-size:11.6px;font-weight:600;margin-top:2px}
+  .now-gaps{margin-top:10px}
+  .now-cau{margin-top:10px;padding:8px 10px;border-radius:8px;background:#FBF3EC;
+    font-size:11.2px;line-height:1.6}
+  .now-cau b{display:block;font-size:10px;letter-spacing:.1em;color:#A9512F;margin-bottom:2px}
+  .rail-global>summary{cursor:pointer;list-style:none;font-size:11px;letter-spacing:.12em;
+    color:var(--ink3);padding:14px 0 10px;border-top:1px solid var(--line);
+    display:flex;align-items:center;gap:7px}
+  .rail-global>summary::-webkit-details-marker{display:none}
+  .rail-global>summary:before{content:"▸";color:var(--accent)}
+  .rail-global[open]>summary:before{content:"▾"}
+  .rail-global>summary .n{margin-left:auto;font-size:10px;letter-spacing:0}
+
+  /* ── 消息 ── */
+  .turn{padding:22px 0;border-top:1px solid var(--line2)}
+  .turn:first-child{border-top:0;padding-top:4px}
+  .turn.u{border-top:0;padding:14px 0 4px;display:flex;justify-content:flex-end}
+  .ubb{background:var(--accent);color:#fff;border-radius:14px 14px 4px 14px;padding:9px 15px;
+    font-size:13.6px;line-height:1.7;max-width:76%;word-break:break-word}
+  .say{font-size:14.2px;line-height:1.94;letter-spacing:.1px;color:var(--ink);max-width:var(--m)}
+  .say + .say{margin-top:10px}
+
+  .majorq{margin:14px 0 0;border-left:2.5px solid var(--accent-line);background:var(--accent-soft);
+    border-radius:0 8px 8px 0;padding:11px 14px;max-width:var(--m)}
+  .majorq b{display:block;font-size:10.5px;letter-spacing:.6px;color:var(--accent);font-weight:600;margin-bottom:5px}
+  .majorq p{font-size:12.6px;line-height:1.85;color:var(--ink2)}
+
+  .numlist{margin:12px 0 0;padding-left:0;list-style:none;max-width:var(--m);counter-reset:none}
+  .numlist li{position:relative;padding:9px 0 9px 30px;border-top:1px solid var(--line2);font-size:13.4px;line-height:1.8;color:var(--ink2)}
+  .numlist li .n{position:absolute;left:0;top:9px;font-family:var(--serif);font-size:12.5px;color:var(--ink3);
+    width:20px;text-align:center}
+  .numlist li b{color:var(--ink);font-weight:600}
+
+  /* ── 首选卡 ── */
+  .card{margin-top:15px;border:1px solid var(--accent-line);border-radius:12px;background:var(--surface);
+    overflow:hidden;box-shadow:0 1px 2px rgba(23,23,15,.03);transition:box-shadow .2s,border-color .2s}
+  .card.hl{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,108,223,.1)}
+  .card-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:15px 17px 0}
+  .card-nm{font-size:15.5px;font-weight:600;line-height:1.45;letter-spacing:.1px}
+  .card-sp{font-size:11.4px;color:var(--ink3);line-height:1.6;margin-top:4px;font-variant-numeric:tabular-nums}
+  .tags{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;flex:none}
+  .tag{font-size:10.3px;padding:3px 8px;border-radius:100px;white-space:nowrap;letter-spacing:.2px;font-weight:500}
+  .tag.pick{background:var(--accent-soft);color:var(--accent)}
+  .tag.raw{background:#F2F2EF;color:#6C6C66;border:1px solid #E2E2DC}
+  .tag.over{background:var(--warn-bg);color:var(--warn)}
+
+  .price-row{display:flex;align-items:baseline;gap:8px;padding:12px 17px 2px}
+  .price-row .cur{font-size:14px;color:var(--price);font-weight:500}
+  .price-row b{font-family:var(--serif);font-size:30px;font-weight:600;color:var(--price);letter-spacing:-1px;line-height:1}
+  .price-row .lb{font-size:11px;color:var(--ink3)}
+  .price-sub{padding:6px 17px 14px;font-size:11.5px;color:var(--ink2);font-variant-numeric:tabular-nums}
+  .price-sub span{color:var(--ink3)}
+
+  .notes{padding:0 17px 15px}
+  .nh,.ns,.nn,.nw{border-radius:7px;padding:9px 12px;font-size:11.8px;line-height:1.75;margin-top:8px}
+  .nh{background:var(--bad-bg);border-left:2.5px solid var(--bad);color:#6F2424}
+  .nh b{display:block;font-size:10.6px;letter-spacing:.4px;color:var(--bad);margin-bottom:3px}
+  .ns{background:var(--soft);border-left:2.5px solid #CFCFC9;color:var(--ink2)}
+  .ns b{display:block;font-size:10.6px;letter-spacing:.4px;color:var(--ink2);margin-bottom:3px}
+  .nn{background:#F7F6F1;color:var(--ink2)}
+  .nw{background:var(--warn-bg);color:var(--warn);display:flex;gap:8px}
+  .nw b{flex:none;font-size:10.8px;letter-spacing:.3px}
+
+  /* ── 对比图 ── */
+  .cmp{margin-top:16px;border:1px solid var(--line);border-radius:11px;background:var(--surface);overflow:hidden}
+  .cmp-hd{display:block;padding:11px 14px 10px;border-bottom:1px solid var(--line);background:#FCFCF9}
+  .cmp-hd b{display:block;font-size:11.8px;font-weight:600;margin-bottom:3px}
+  .cmp-hd span{font-size:10.3px;color:var(--ink3)}
+  .cmp-tb{width:100%;border-collapse:collapse;table-layout:fixed}
+  .cmp-tb th,.cmp-tb td{padding:8px 10px;border-bottom:1px solid var(--line2);vertical-align:middle}
+  .cmp-tb tr:last-child td,.cmp-tb tr:last-child th{border-bottom:0}
+  .cmp-tb th:first-child,.cmp-tb td:first-child{width:62px;text-align:left;font-weight:400;
+    font-size:10.6px;color:var(--ink3);letter-spacing:.3px}
+  .cmp-tb thead th{font-weight:600;font-size:11px;color:var(--ink);text-align:left;padding-top:9px;padding-bottom:9px}
+  .cmp-tb thead th .mdot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:1px}
+  .cmp-tb thead th button{font:inherit;font-size:11px;font-weight:600;text-align:left;max-width:100%;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .cmp-tb thead th button:hover{color:var(--accent)}
+  .bar{height:5px;border-radius:3px;background:var(--line2);overflow:hidden;margin-bottom:4px}
+  .bar i{display:block;height:100%;border-radius:3px}
+  .cv{font-size:10.8px;color:var(--ink2);font-variant-numeric:tabular-nums}
+  .cv .u{font-size:9px;color:var(--ink3);margin-left:1px}
+  .cv.unk{color:var(--ink3);font-style:normal}
+  .sig{display:flex;gap:4px}
+  /* 空格子原来是 --line2，压在白卡上几乎看不见，读起来像"没有这一行"。
+     给一格浅描边，才能看出"这里有个位子但是空的"——这正是 0 档要表达的意思。 */
+  .sig i{width:9px;height:9px;border-radius:2px;background:#EDEAE0;
+    border:1px solid #DFDACB;display:block}
+  .sig i.f{background:var(--accent);border-color:var(--accent)}
+  .sig i.z{background:var(--bad-bg);border:1px solid rgba(142,47,47,.4)}
+  .sig-note{font-size:10.2px;color:var(--ink2);margin-top:6px;letter-spacing:.2px}
+
+  /* ── 其他候选 ── */
+  .alts{margin-top:12px;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:var(--surface)}
+  .alts-hd{padding:9px 14px;font-size:10.6px;color:var(--ink3);letter-spacing:.4px;
+    border-bottom:1px solid var(--line);background:#FCFCF9}
+  .alt{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:11px 14px;border-bottom:1px solid var(--line2)}
+  .alt:last-child{border-bottom:0}
+  .alt .l{min-width:0}
+  .alt .nm{font-size:12.8px;font-weight:600;line-height:1.5}
+  .alt .sp{font-size:10.6px;color:var(--ink3);line-height:1.55;margin-top:3px;font-variant-numeric:tabular-nums}
+  .alt .r{text-align:right;flex:none}
+  .alt .pr{font-family:var(--serif);font-size:15px;font-weight:600;color:var(--price);letter-spacing:-.3px;white-space:nowrap}
+  .alt .bg{font-size:9.8px;color:#6C6C66;background:#F2F2EF;border:1px solid #E2E2DC;border-radius:100px;
+    padding:2px 6px;display:inline-block;margin-top:5px}
+
+  .warnbar{margin-top:11px;border-radius:8px;background:var(--warn-bg);color:var(--warn);
+    padding:9px 13px;font-size:11.6px;line-height:1.75}
+
+  .askbox{margin-top:14px;background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:11px;padding:13px 15px}
+  .askbox .lbl{font-size:10.2px;letter-spacing:.8px;color:var(--accent);font-weight:600;margin-bottom:6px}
+  .askbox .q{font-size:12.8px;line-height:1.7;margin-bottom:11px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chips button{font-size:11.8px;padding:5px 12px;border-radius:100px;border:1px solid var(--accent-line);
+    background:var(--surface);color:var(--accent);transition:.14s;font-weight:500}
+  .chips button:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .chips button:disabled{opacity:.4;cursor:not-allowed}
+
+  .focuschip{display:inline-flex;align-items:center;gap:7px;margin-top:11px;font-size:11px;
+    color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent-line);
+    border-radius:100px;padding:4px 11px;font-weight:500}
+  .focuschip::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent)}
+
+  .banner{border-left:2.5px solid var(--bad);padding:3px 0 3px 14px;font-size:13.2px;line-height:1.9;color:var(--ink2);max-width:var(--m)}
+  .banner b{display:block;color:var(--bad);font-size:11.2px;letter-spacing:.3px;margin-bottom:4px}
+
+  /* ── 决策依据 ── */
+  .proof{margin-top:13px}
+  .proof summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+    font-size:11.3px;color:var(--ink3);user-select:none}
+  .proof summary::-webkit-details-marker{display:none}
+  .proof summary::before{content:"";width:0;height:0;border-left:4.5px solid currentColor;
+    border-top:3.5px solid transparent;border-bottom:3.5px solid transparent;transition:transform .18s}
+  .proof[open] summary::before{transform:rotate(90deg)}
+  .proof summary:hover{color:var(--accent)}
+  .proof .bd{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:13px 15px;
+    background:var(--surface);font-size:11.4px;line-height:1.8;color:var(--ink2);max-width:var(--m)}
+  .proof .sec{font-size:10px;letter-spacing:.6px;color:var(--ink3);font-weight:600;margin:0 0 6px;text-transform:uppercase}
+  .proof .sec + .sec{margin-top:13px}
+  .kv{display:flex;justify-content:space-between;gap:14px;padding:2px 0}
+  .kv span:first-child{color:var(--ink3);flex:none}
+  .kv span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+  .chk{display:flex;gap:7px;padding:2px 0}
+  .chk i{font-style:normal;flex:none;font-weight:700;width:10px}
+  .chk.ok i{color:#3E8A2E}
+  .chk.no i{color:var(--bad)}
+
+  /* ── 输入区 ── */
+  .dock{flex:none;padding:10px 0 16px;background:linear-gradient(to top,var(--bg) 62%,rgba(251,251,249,0))}
+  .dock .chips{margin-bottom:9px}
+  .field{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);
+    border-radius:13px;padding:7px 7px 7px 16px;transition:.18s;box-shadow:0 2px 12px -9px rgba(23,23,15,.2)}
+  .field:focus-within{border-color:var(--accent-line);box-shadow:0 7px 22px -16px rgba(45,108,223,.5)}
+  .field textarea{flex:1;border:0;outline:none;resize:none;background:none;font:inherit;font-size:13.6px;
+    line-height:1.65;padding:5px 0;color:var(--ink);font-family:inherit;
+    overflow-y:auto;overscroll-behavior:contain}
+  /* 🔴 2026-11-13 用户截图：「发送按钮左边的小图标是干嘛的，点了没反应」——
+     那是 textarea 自带的**原生滚动条**（Windows 那套带上下三角的），当时出现在
+     内容还没溢出的时候：高度取整差 1px 就让浏览器判定"有溢出"，画出一个点不动的滚动条。
+     两处一起修：
+       ① 换成细窄自定义滚动条（Chromium 一旦自定义就**不再画三角按钮**），样式和正文区一致；
+       ② autoGrow 里给 1px 余量，不再制造"假溢出"。 */
+  /* 窄屏时整页会滚动，body 用的是原生滚动条（同样带三角按钮）——一起换成细条 */
+  body::-webkit-scrollbar{width:10px}
+  body::-webkit-scrollbar-button{display:none;width:0;height:0}
+  body::-webkit-scrollbar-track{background:transparent}
+  body::-webkit-scrollbar-thumb{background:#D6D8DE;border-radius:8px;border:3px solid var(--bg)}
+  .field textarea::-webkit-scrollbar{width:8px}
+  /* 🔴 关键一行：自定义了 scrollbar 之后，Chromium **仍然会画上下两个三角按钮**
+     （就是用户截图里"点了没反应"的那个东西）。必须把 button 显式清零。 */
+  .field textarea::-webkit-scrollbar-button{display:none;width:0;height:0}
+  .field textarea::-webkit-scrollbar-track{background:transparent}
+  .field textarea::-webkit-scrollbar-thumb{background:#D6D8DE;border-radius:8px;border:2px solid var(--surface)}
+  .field textarea::-webkit-scrollbar-thumb:hover{background:#C2C6CF}
+  .field textarea::placeholder{color:var(--ink3)}
+  .field button{flex:none;background:var(--accent);color:#fff;border-radius:9px;padding:9px 18px;font-size:12.8px;font-weight:500}
+  .field button:hover{background:var(--accent-hover)}
+  .field button:disabled{background:#D8D5CB;cursor:not-allowed}
+  .hint{margin-top:7px;font-size:10.4px;color:var(--ink3);letter-spacing:.2px;display:flex;justify-content:space-between;gap:10px}
+  .hint kbd{font-family:inherit;font-size:9.6px;background:var(--line2);border:1px solid var(--line);
+    border-radius:3px;padding:1px 5px;color:var(--ink2)}
+  .offline{background:var(--warn-bg);color:var(--warn);border-radius:8px;padding:8px 12px;
+    font-size:11.5px;line-height:1.7;margin-bottom:9px}
+
+  .typing{display:flex;gap:4px;align-items:center;padding:6px 0}
+  .typing i{width:5.5px;height:5.5px;border-radius:50%;background:var(--ink3);animation:bl 1.3s infinite}
+  .typing i:nth-child(2){animation-delay:.16s}
+  .typing i:nth-child(3){animation-delay:.32s}
+  @keyframes bl{0%,62%,100%{opacity:.2}32%{opacity:1}}
+  .fadein{animation:fi .3s ease both}
+  @keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  /* ── 右栏数据 ── */
+  .rail-hd{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+    /* 侧栏内容很长，标题和「收起」要一直看得见，不然得滚回顶部才能收 */
+    position:sticky;top:0;z-index:2;background:var(--bg);
+    padding:2px 0 10px;margin-bottom:4px}
+  .rail-hd b{font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:.1px}
+  .rail-hd button{font-size:10.5px;color:var(--ink3);border-bottom:1px solid var(--line);padding-bottom:1px}
+  .rail-hd button:hover{color:var(--accent);border-color:var(--accent-line)}
+  .ov{padding:15px 0 0;border-top:1px solid var(--line);margin-top:15px}
+  .ov h3{display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+    font-size:11.4px;font-weight:600;letter-spacing:.2px;margin-bottom:3px}
+  .ov h3 span{font-size:10px;color:var(--ink3);font-weight:400;font-variant-numeric:tabular-nums}
+  .ov .cap{font-size:10.2px;color:var(--ink3);line-height:1.6;margin-bottom:10px}
+  .ov .cap b{color:var(--ink2);font-weight:600}
+
+  .sbar{display:flex;height:9px;border-radius:5px;overflow:hidden;background:var(--line2);margin:2px 0 8px}
+  .sbar i{display:block;height:100%}
+  .sbar .rv{background:var(--accent)}
+  .sbar .nr{background:#D3D7D9}
+  .sbar .unk{background:repeating-linear-gradient(135deg,var(--unknown) 0 3px,#EFEDE4 3px 6px)}
+  .lg{display:flex;flex-wrap:wrap;gap:10px;font-size:10.3px;color:var(--ink2)}
+  .lg span{display:flex;align-items:center;gap:5px}
+  .lg i{width:7px;height:7px;border-radius:2px;display:block}
+  .lg .rv{background:var(--accent)} .lg .nr{background:#D3D7D9}
+  .lg .unk{background:repeating-linear-gradient(135deg,var(--unknown) 0 2px,#EFEDE4 2px 4px)}
+  .big2{display:flex;gap:16px;margin:6px 0 2px}
+  .big2 div b{font-family:var(--serif);font-size:20px;font-weight:600;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+  .big2 div span{display:block;font-size:10px;color:var(--ink3);margin-top:2px}
+
+  .bk{display:block;width:100%;text-align:left;padding:5px 0;border-radius:5px}
+  .bk:hover{background:var(--accent-soft);box-shadow:0 0 0 4px var(--accent-soft)}
+  .bk .r1{display:flex;justify-content:space-between;gap:8px;font-size:10.7px;color:var(--ink2);margin-bottom:3px}
+  .bk .r1 em{font-style:normal;color:var(--ink3);font-variant-numeric:tabular-nums}
+  .bk .tr{height:6px;border-radius:3px;background:var(--line2);overflow:hidden;display:flex}
+  .bk .tr i{display:block;height:100%}
+  .bk .tr .rv{background:var(--accent)}
+  .bk .tr .nr{background:#D3D7D9}
+
+  .rng-row{padding:6px 0}
+  .rng-row .r1{display:flex;justify-content:space-between;gap:8px;font-size:10.7px;color:var(--ink2);margin-bottom:5px}
+  .rng-row .r1 em{font-style:normal;color:var(--ink3);font-variant-numeric:tabular-nums;font-size:10px}
+  .rng{position:relative;height:7px;background:var(--line2);border-radius:4px}
+  .rng i{position:absolute;top:0;bottom:0;background:var(--accent);border-radius:4px;opacity:.82}
+  .rng i.parts{background:repeating-linear-gradient(135deg,rgba(45,108,223,.5) 0 3px,rgba(45,108,223,.14) 3px 6px)}
+  .rng b{position:absolute;top:-2px;bottom:-2px;width:1.5px;background:var(--ink)}
+  .rng-note{font-size:9.8px;color:var(--ink3);margin-top:7px;line-height:1.6}
+
+  .up{display:flex;align-items:flex-end;gap:0;height:58px;margin-top:4px}
+  .up div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
+  .up div i{width:22px;background:var(--accent);border-radius:2px 2px 0 0;min-height:2px}
+  .up div i.z{background:repeating-linear-gradient(135deg,#C9A9A4 0 3px,#EFE7E5 3px 6px)}
+  .up div em{font-style:normal;font-size:9.5px;color:var(--ink3);font-variant-numeric:tabular-nums}
+  .up-x{display:flex;margin-top:4px}
+  .up-x span{flex:1;text-align:center;font-size:9.8px;color:var(--ink3)}
+
+  .conf summary{list-style:none;cursor:pointer;font-size:10.8px;color:var(--ink2);
+    display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .conf summary::-webkit-details-marker{display:none}
+  .conf summary em{font-style:normal;font-size:10px;color:var(--warn);background:var(--warn-bg);
+    border-radius:100px;padding:1.5px 7px}
+  .conf .li{padding:8px 0;border-bottom:1px solid var(--line2);font-size:10.4px;line-height:1.6;color:var(--ink2)}
+  .conf .li:last-child{border-bottom:0}
+  .conf .li b{display:block;font-size:10.6px;font-weight:500;color:var(--ink);margin-bottom:2px}
+  .conf .li span{font-variant-numeric:tabular-nums}
+  .conf .li u{text-decoration:none;color:var(--ink3)}
+
+  .rail-foot{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);
+    font-size:10.2px;line-height:1.75;color:var(--ink3)}
+
+  /* ── 侧边栏（可收纳） ──
+     2026-11-12 用户反馈：上下两块各自能滚，滚一个会带动另一个，很难用。
+     改法：① 两个滚动区都加 overscroll-behavior:contain（滚动不串联）
+           ② 右栏做成真正的侧边栏：能整块收走，收走后留一个明显的竖排把手
+           ③ 状态记在 localStorage，下次打开还记得 */
+  .app.mini{grid-template-columns:minmax(0,760px);justify-content:center;gap:0;max-width:1000px}
+  .app.mini .rail{display:none}
+  #railTab{
+    position:fixed;right:0;top:50%;transform:translateY(-50%);
+    writing-mode:vertical-rl;font-size:11px;letter-spacing:2px;color:var(--ink2);
+    background:var(--surface);border:1px solid var(--line);border-right:0;
+    border-radius:10px 0 0 10px;padding:12px 6px;cursor:pointer;z-index:25;
+    display:none;transition:color .18s,border-color .18s;
+  }
+  #railTab:hover{color:var(--accent);border-color:var(--accent-line)}
+  body.rail-mini #railTab{display:block}
+
+  /* ══════════════════════════════════════════════════════════════════
+     可点击性升级（2026-11-13）
+     用户原话：「按钮啥的看起来不明显，使用起来不友好，虽然鼠标放上去
+                会有颜色变化的交互响应 —— 功能设计没问题，美观度可以更完善」
+
+     ⇒ 诊断：问题不在 hover，在**静息态**。控件长得跟正文一样（浅灰边、
+       白底、小字号），用户不悬停就不知道它能点。这是 affordance 缺失，
+       不是配色调错。
+
+     ⇒ 做法：所有可点元素统一三件事 ——
+        ① 有可见边界（1px 实线，比 --line 深一档）
+        ② 有可见底色（微绿底，与页面米白区分开）
+        ③ 按下有位移（translateY(1px)，触觉上"按到了"）
+       外加统一 focus-visible 轮廓，键盘也能看出焦点在哪。
+
+     ⚠️ 只改外观：不动 DOM、不动事件绑定、不动任何数字。
+     ══════════════════════════════════════════════════════════════════ */
+  :root{
+    --line-strong:#D6D8DE;      /* 控件边界专用，比 --line 深一档 */
+    --ctrl-bg:#F2F6FD;          /* 控件静息底色：极淡蓝，和 page 分开 */
+    --ctrl-bg-h:#E7EEFB;
+    --ctrl-bd:#C6D8F5;          /* 控件边界：淡蓝，暗示"这是可操作区" */
+    --ctrl-ink:#1E4B9E;         /* 控件文字：比 --accent 深一点，保证小字号可读 */
+    --accent-2:#1E57C0;
+    --sh-1:0 1px 2px rgba(23,24,28,.06);
+    --sh-2:0 10px 26px -18px rgba(23,24,28,.55);
+    --sh-btn:0 1px 2px rgba(45,108,223,.12),0 2px 6px -4px rgba(45,108,223,.3);
+  }
+
+  /* 键盘可达：只在键盘聚焦时出现，不干扰鼠标用户 */
+  :where(button,summary,a,[data-mid],.bk):focus-visible{
+    outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+
+  /* ① 快捷问答 chip（示例、接着问、澄清、下一步）—— 最常点的东西 */
+  .chips button{
+    background:var(--ctrl-bg);border:1px solid var(--ctrl-bd);color:var(--ctrl-ink,#17513F);
+    padding:6px 13px;font-weight:500;box-shadow:var(--sh-btn);
+    transition:background .15s,border-color .15s,color .15s,box-shadow .15s,transform .08s}
+  .chips button:hover{background:var(--accent);border-color:var(--accent);color:#fff;
+    box-shadow:0 6px 16px -10px rgba(45,108,223,.75)}
+  .chips button:active{transform:translateY(1px);box-shadow:none}
+  .chips button:disabled{background:var(--line2);border-color:var(--line);color:var(--ink3)}
+
+  /* ② 发送按钮：主操作，实心且更大 */
+  .field{border-color:var(--line-strong);box-shadow:var(--sh-1)}
+  .field:hover{border-color:var(--ctrl-bd)}
+  .field:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,108,223,.1)}
+  .field button{padding:10px 20px;font-weight:600;letter-spacing:.4px;
+    box-shadow:var(--sh-btn);transition:background .15s,transform .08s,box-shadow .15s}
+  .field button:active{transform:translateY(1px);box-shadow:none}
+
+  /* ③ 首屏四张入口卡：它是"最该被点"的东西，静息态必须像卡片 */
+  .acts .act{background:#FDFDFB;border-color:var(--line-strong);box-shadow:var(--sh-1)}
+  .acts .act:hover{background:var(--surface);border-color:var(--accent);box-shadow:var(--sh-2)}
+  .acts .act .t i{background:var(--accent);color:#fff;font-weight:700;
+    min-width:16px;text-align:center;box-shadow:0 1px 2px rgba(45,108,223,.26)}
+  .acts .act .arr{color:var(--ctrl-bd);transition:color .16s,transform .16s}
+  .acts .act:hover .arr{color:var(--accent);transform:translateX(2px)}
+  .acts .act:active{transform:translateY(0)}
+
+  /* ④ 折叠类（决策依据 / 详细说明）—— 原来是灰色小字，像脚注 */
+  .proof summary,.prose summary{
+    padding:4px 10px;border:1px solid var(--line-strong);border-radius:8px;
+    background:var(--surface);color:var(--ink2);box-shadow:var(--sh-1);
+    transition:background .15s,border-color .15s,color .15s}
+  .proof summary:hover,.prose summary:hover{
+    background:var(--ctrl-bg);border-color:var(--ctrl-bd);color:var(--ctrl-ink,#17513F)}
+
+  /* ⑤ 侧栏「收起」/「数据概览」把手 */
+  .rail-hd button{
+    border:1px solid var(--line-strong);border-radius:8px;padding:3px 9px;
+    background:var(--surface);color:var(--ink2);box-shadow:var(--sh-1);
+    transition:background .15s,border-color .15s,color .15s}
+  .rail-hd button:hover{background:var(--ctrl-bg);border-color:var(--ctrl-bd);color:var(--ctrl-ink,#17513F)}
+  #railTab{border-color:var(--line-strong);box-shadow:-1px 0 8px -6px rgba(23,23,15,.5);
+    background:#FDFDFB;color:var(--ink2)}
+  #railTab:hover{background:var(--ctrl-bg);border-color:var(--ctrl-bd)}
+
+  /* ⑥ 价位段整行（点一下填预算）—— 原来只有 hover 才有反馈 */
+  .bk{border:1px solid transparent;border-radius:7px;padding:6px 7px;
+    transition:background .14s,border-color .14s}
+  .bk:hover{background:var(--ctrl-bg);border-color:var(--ctrl-bd);box-shadow:none}
+  .bk:active{transform:translateY(1px)}
+
+  /* ⑦ 对比表里的机名（点了高亮对应卡片）*/
+  .cmp-tb thead th button{border-bottom:1px dotted var(--line-strong);padding-bottom:1px}
+  .cmp-tb thead th button:hover{border-bottom-color:var(--accent);border-bottom-style:solid}
+
+  /* ⑧ 「展开口径说明」这类文字按钮：给个边框，别让它像普通正文 */
+  .scope-more{border:1px solid var(--line-strong);border-radius:7px;
+    padding:3px 9px;background:var(--surface);color:var(--ink2);box-shadow:var(--sh-1);
+    font-size:11px;transition:background .15s,border-color .15s,color .15s}
+  .scope-more:hover{background:var(--ctrl-bg);border-color:var(--ctrl-bd);color:var(--ctrl-ink,#17513F)}
+
+  /* ⑨ 全库统计的折叠头：整行可点，给底纹提示 */
+  .rail-global>summary{padding:11px 8px;margin:6px 0 0;border-radius:8px;
+    transition:background .15s}
+  .rail-global>summary:hover{background:var(--ctrl-bg);color:var(--ink2)}
+
+  /* ⑩ 色彩层次：页面加一层极淡的绿光，卡片阴影加深一档，
+       让"背景 / 卡片 / 控件"三级分得开（原来三级几乎同色） */
+  body{background:
+    radial-gradient(900px 420px at 78% -8%,rgba(45,108,223,.05),transparent 62%),
+    var(--bg)}
+  .card,.ans,.cmp,.alts,.proof .bd{box-shadow:var(--sh-1)}
+  .ans{border-color:var(--ctrl-bd)}
+  .ans-hd{background:linear-gradient(180deg,rgba(45,108,223,.07),rgba(45,108,223,.015))}
+  .cmp-hd{background:linear-gradient(180deg,#FAFBF7,#FCFCF9)}
+  .facts b{letter-spacing:-.9px}
+  .tag.pick{background:var(--accent);color:#fff;border:1px solid var(--accent)}
+  .tag.raw{background:#F2F2EF;color:#6C6C66;border-color:#E2E2DC}
+
+  /* ⑪ 小字可读性：字段卡的标签列、对比表的行名、右栏 kv 的标签，
+       原来是 --ink3（#8B8879）压在浅底上，10px 左右确实费眼。
+       调深一档并把字号提 0.3~0.4px —— 不动布局，只提对比度。 */
+  .ans-kv .rk{color:var(--ink2);font-weight:500;font-size:11.6px}
+  .ans-kv .rv.nm{font-weight:650;font-size:13.4px}
+  .ans-kv .rv.pr{font-family:var(--serif);font-weight:600;font-size:19px;color:var(--price);
+    letter-spacing:-.3px;line-height:1.35}
+  .ans-kv .rv{font-size:12.6px}
+  .ans-hd h3{font-size:15.2px}
+  .cmp-tb th:first-child,.cmp-tb td:first-child{color:var(--ink2);font-size:11px}
+  .cmp-tb .cv{color:var(--ink);font-weight:500}
+  .now-kv span{font-size:10px;color:var(--ink2)}
+  .now-kv b{font-size:12px}
+  .now-sp{color:var(--ink2)}
+  .ov .cap{color:var(--ink2);opacity:.92}
+  .rail-foot{color:var(--ink2);opacity:.8}
+
+  /* ⑬ 多色语义（2026-11-13 第三次调色）
+     用户要"多点颜色"，但颜色必须各司其职，否则比单色更乱。分配如下：
+       蓝=交互/主数据  青=第二身份  紫=规则与专业  橙=提醒  砖红=钱与硬伤  绿=通过 */
+
+  /* 首屏四张入口卡：A/B/C/D 各一个色，编号本身就是次序，不算乱用色 */
+  /* 四张卡用 蓝/青/紫/玫 四色：橙色留给"提醒"，不拿来当身份色，
+     否则用户会以为 C 卡是个警告。 */
+  .acts .act:nth-child(1) .t i{background:var(--accent)}
+  .acts .act:nth-child(2) .t i{background:var(--teal)}
+  .acts .act:nth-child(3) .t i{background:var(--violet)}
+  .acts .act:nth-child(4) .t i{background:var(--rose)}
+  .acts .act:nth-child(1):hover{border-color:var(--accent)}
+  .acts .act:nth-child(2):hover{border-color:var(--teal)}
+  .acts .act:nth-child(3):hover{border-color:var(--violet)}
+  .acts .act:nth-child(4):hover{border-color:var(--rose)}
+  .acts .act:nth-child(1) .arr,.acts .act:nth-child(1):hover .arr{color:var(--accent)}
+  .acts .act:nth-child(2) .arr,.acts .act:nth-child(2):hover .arr{color:var(--teal)}
+  .acts .act:nth-child(3) .arr,.acts .act:nth-child(3):hover .arr{color:var(--violet)}
+  .acts .act:nth-child(4) .arr,.acts .act:nth-child(4):hover .arr{color:var(--rose)}
+
+  /* 短板三档：硬伤=砖红、不算强=橙、未记录=灰 */
+  .gap.hard i{background:#FBEDE7;color:#A3441F;border:1px solid #EFD2C4}
+  .gap.soft i{background:var(--amber-soft);color:var(--amber);border:1px solid var(--amber-line)}
+  .gap.none i{background:var(--line2);color:var(--ink3);border:1px solid var(--line)}
+  .now-gaps .gap.hard i,.now-gaps .gap.soft i{font-weight:600}
+
+  /* 专业要求块：紫色（"规则/知识"类内容，和"钱""警告"区分开） */
+  .majorq{border-left-color:var(--violet);background:var(--violet-soft)}
+  .majorq b{color:var(--violet)}
+  .ans-sec .blk b{color:var(--ink2)}
+  .ans-sec .blk:nth-child(2) b{color:var(--violet)}
+
+  /* 推荐标：蓝色实心，和价格的红分开 */
+  .tag.pick{background:var(--accent);color:#fff;border:1px solid var(--accent)}
+  .tag.over{background:var(--amber-soft);color:var(--amber);border:1px solid var(--amber-line)}
+
+  /* 右栏「当前这台」：价格红、性能分蓝，两个数字立刻分得开 */
+  .now-pr b{color:var(--price)}
+  .now-kv>div:nth-child(2) b{color:var(--accent)}
+  .now-kv>div:nth-child(3) b{color:var(--teal)}
+  .now-kv>div:nth-child(4) b{color:var(--ink2)}
+
+  /* 图表：品类价格区间每类一色（JS 给 i 加了 cat 类名） */
+  .rng i.thin{background:var(--accent)}
+  .rng i.gaming{background:var(--price)}
+  .rng i.desktop{background:var(--teal)}
+  .rng i.upgrade{background:repeating-linear-gradient(135deg,rgba(107,79,187,.55) 0 3px,rgba(107,79,187,.16) 3px 6px)}
+  /* 价位段 / 库构成：主色 + 淡主色，仍然两档就够（这里不该花） */
+  .sbar .nr,.lg .nr,.bk .tr .nr{background:#C9D9F8}
+  /* 可加装分布的 0 档用砖红斜纹（"没有后路"这件事该显眼） */
+  .up div i.z{background:repeating-linear-gradient(135deg,#D9A695 0 3px,#F7E7E1 3px 6px)}
+
+  /* ⑫ 顶栏：加一道极淡的绿线，让"品牌区"和"内容区"分开（原来整片同色） */
+  .top{box-shadow:0 1px 0 rgba(45,108,223,.07)}
+  .brand .ver{background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-line)}
+
+  @media (max-width:900px){
+    body{overflow:auto}
+    .app{grid-template-columns:1fr;gap:0;padding:0 22px;height:auto}
+    .chat{height:calc(100vh - 54px)}
+    .rail{border-left:0;border-top:1px solid var(--line);overflow:visible;
+      padding:26px 0 40px;overscroll-behavior:auto}
+    .app.mini .rail{display:none}
+    /* 窄屏也不挡住输入框：仍贴在右边缘竖向居中，只是窄一点 */
+    #railTab{top:50%;bottom:auto;right:0;transform:translateY(-50%);writing-mode:vertical-rl;
+      border:1px solid var(--line);border-right:0;border-radius:10px 0 0 10px;
+      padding:10px 5px;font-size:10.5px;box-shadow:none;display:none}
+    body.rail-mini #railTab{display:block}
+    .acts{grid-template-columns:1fr}
+  }
+  @media (max-width:700px){
+    .hint{flex-direction:column;gap:2px}
+    .facts b{font-size:22px}
+    .hero h1{font-size:29px}
+  }
+  @media (max-width:700px){
+    .hint{flex-direction:column;gap:2px}
+    .facts b{font-size:22px}
+    .hero h1{font-size:29px}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand"><span class="mark"></span><b>选机助手</b><span class="ver">Demo</span></div>
+  <div class="stat">
+    <span class="live"><i class="dot" id="dot"></i><span id="stx">连接中</span></span>
+    <span class="sep"></span>
+    <span id="asof">数据 —</span>
+    <span class="sep"></span>
+    <span id="pool">库内 — 台</span>
+  </div>
+</header>
+
+<main class="app" id="app">
+  <section class="chat">
+    <div class="stream" id="stream">
+      <div class="hero" id="hero">
+        <div class="eyebrow">Decision Agent</div>
+        <h1>说清楚预算和用途，<br>我告诉你<em>具体买哪一台</em>。</h1>
+        <p class="lede">
+          不罗列参数表。直接给机型、到手价，以及这台机器<b>在你这个用途下的短板</b>。
+          每个数字都能追到数据源；库里没有的，明说没有。
+        </p>
+
+        <div class="facts">
+          <div><b id="fTotal">—</b><span>可推荐机型</span></div>
+          <div><b id="fReview">—</b><span>有人写过优缺点</span></div>
+          <div><b id="fCat">—</b><span>覆盖品类</span></div>
+        </div>
+
+        <div class="audit"><i>✓</i><span>出口审计：<b>编造数字 0 条</b>，推荐锁定内核、模型无排序权与数字写权</span></div>
+
+        <p class="scope" id="scope">
+          这 <b id="fTotal2">—</b> 台里只有 <b id="fReview2">—</b> 台逐台核对过优缺点，能回答「这台在你用途下的短板是什么」；
+          其余 <b id="fNoReview">—</b> 台来自京东采集池，配置、价格、跑分有据可查，但没人写过评价 ——
+          问到「值不值得买」会明说没有。另有 145 条淘宝记录因价格口径不可信，不参与排序。
+        </p>
+        <button class="scope-more" id="scopeMore">展开口径说明</button>
+
+        <div class="acts" id="acts"></div>
+      </div>
+    </div>
+
+    <div class="dock">
+      <div class="chips" id="demoChips"></div>
+      <div id="offlineSlot"></div>
+      <div class="field">
+        <textarea id="inp" rows="1" placeholder="比如：学设计的，预算 5100，要带去教室"></textarea>
+        <button id="send">发送</button>
+      </div>
+      <div class="hint">
+        <span><kbd>Enter</kbd> 发送 · <kbd>Shift</kbd>+<kbd>Enter</kbd> 换行</span>
+        <span id="hintRight">只做 Windows 笔记本 / 台式整机 / 内存固态</span>
+      </div>
+    </div>
+  </section>
+
+  <aside class="rail" id="rail">
+    <div class="rail-hd"><b>这批数据</b><button id="railBtn" title="收起侧边栏">收起 ⟩</button></div>
+    <div id="railBody">
+      <div id="railNow" class="nowbox"></div>
+      <div class="ov">
+        <div class="cap">正在读取数据概览…</div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<button id="railTab" title="展开数据概览">数据概览</button>
+
+<script>
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var stream=$('#stream'), inp=$('#inp'), sendBtn=$('#send');
+
+var slots={}, asked=[], lastStage=null, seen=[], focus=null, busy=false;
+var OV=null, on=false;
+
+/* ── 工具 ── */
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function money(n){
+  if(n==null||isNaN(n)) return '—';
+  var r=Math.round(n*100)/100, s=r.toFixed(2).replace(/\.00$/,'').replace(/(\.\d)0$/,'$1');
+  return s.replace(/\B(?=(\d{3})+(?!\d))/g,',');
+}
+/* ── 身份与访问码（2026-11-13，为了"别人连我这台"） ──
+   组内同学和测试同学都连同一台服务，日志里得能分出"这是谁的一轮"，
+   否则收上来的样本没法按人排查、也没法整批回滚某个人的数据。
+   uid 只是个随机串，不是账号，不收集任何个人信息；?u=昵称 可以自己改。
+   访问码 ?k=xxx 由部署方（我）发给大家，存本地，之后每个请求自动带上。 */
+var WB_UID=(function(){
+  var u='';
+  try{ u=(new URLSearchParams(location.search)).get('u')||'' }catch(e){}
+  if(!u){ try{ u=localStorage.getItem('wb_uid')||'' }catch(e){} }
+  if(!u){ u='u'+Math.random().toString(36).slice(2,8) }
+  try{ localStorage.setItem('wb_uid',u.replace(/[^0-9A-Za-z_-]/g,'').slice(0,32)) }catch(e){}
+  return u.replace(/[^0-9A-Za-z_-]/g,'').slice(0,32)||'anon';
+})();
+var WB_KEY=(function(){
+  var k='';
+  try{ k=(new URLSearchParams(location.search)).get('k')||'' }catch(e){}
+  if(!k){ try{ k=localStorage.getItem('wb_key')||'' }catch(e){} }
+  if(k){ try{ localStorage.setItem('wb_key',k) }catch(e){} }
+  return k;
+})();
+function wbHeaders(extra){
+  var h=extra||{};
+  h['X-Client-Id']=WB_UID;
+  if(WB_KEY) h['X-Access-Code']=WB_KEY;
+  return h;
+}
+function jget(u){
+  return fetch(u,{cache:'no-store',headers:wbHeaders()}).then(function(r){
+    if(r.status===401){ throw new Error('需要访问码：链接后面加 ?k=访问码 再打开') }
+    return r.json();
+  });
+}
+function el(tag,cls,html){var d=document.createElement(tag);if(cls)d.className=cls;if(html!=null)d.innerHTML=html;return d}
+function toBottom(){stream.scrollTop=stream.scrollHeight}
+
+/* ── 顶栏状态 ── */
+function health(){
+  jget('/api/health').then(function(h){
+    var dot=$('#dot'), tx=$('#stx');
+    if(h.ok){ dot.className='dot on'; tx.textContent='模型就绪'; on=true; }
+    else { dot.className='dot off'; tx.textContent='模型离线 · 按规则答'; on=false; offlineNote(); }
+  }).catch(function(){
+    $('#dot').className='dot off'; $('#stx').textContent='服务未响应'; on=false; offlineNote();
+  });
+}
+function offlineNote(){
+  $('#offlineSlot').innerHTML='<div class="offline">Ollama 没起来，现在只能按规则答：结论仍然来自库内数据和同一套排序规则，只是话会短一些，追问细节会答不了。</div>';
+}
+
+/* ── 事实数字（全部来自 /api/overview） ── */
+function facts(ov){
+  // 🔴 2026-11-12：首屏可能已经被第一条消息移除（?q= 直接开聊，或用户手快）。
+  //   原来这里直接 .textContent=，元素不在就抛 TypeError，
+  //   外层 .catch 会把它误报成「接口 /api/overview 没响应」——  接口其实好好的。
+  function set(id,v){ var n=$('#'+id); if(n) n.textContent=v }
+  set('fTotal',ov.total); set('fTotal2',ov.total);
+  set('fReview',ov.review.reviewed); set('fReview2',ov.review.reviewed);
+  set('fNoReview',ov.review.noReview);
+  set('fCat',ov.byCat.length+' 类');
+  set('asof','数据快照 '+ov.dataAsOf);
+  set('pool','库内 '+ov.total+' 台');
+  set('hintRight','数据截至 '+ov.dataAsOf+' · 只做 Windows 笔记本 / 台式整机 / 内存固态');
+}
+
+/* ── 右栏图表：每个数都直接取 /api/overview，不在前端做统计 ── */
+function rail(ov){
+  var h='';
+
+  /* 1. 库构成 */
+  var rv=ov.review.reviewed, nr=ov.review.noReview, tot=ov.total;
+  h+='<div class="ov"><h3>库构成 <span>'+tot+' 台</span></h3>'
+   + '<div class="sbar"><i class="rv" style="width:'+(rv/tot*100).toFixed(1)+'%"></i>'
+   + '<i class="nr" style="width:'+(nr/tot*100).toFixed(1)+'%"></i></div>'
+   + '<div class="lg"><span><i class="rv"></i>有人写过优缺点 '+rv+'</span>'
+   + '<span><i class="nr"></i>仅参数 '+nr+'</span></div>'
+   + '<div class="cap" style="margin-top:9px">只有 <b>'+rv+' 台</b>能答「值不值得买」，其余只答配置和价格。</div></div>';
+
+  /* 2. 价位段 */
+  var maxN=0;
+  ov.priceBuckets.forEach(function(b){ if(b.n>maxN) maxN=b.n });
+  h+='<div class="ov"><h3>价位段分布 <span>点一档填入预算</span></h3>'
+   + '<div class="cap">柱长按台数，深色=有人写过优缺点</div>';
+  ov.priceBuckets.forEach(function(b){
+    h+='<button class="bk" data-bucket="'+esc(b.label)+'">'
+     + '<span class="r1"><span>'+esc(b.label)+'</span><em>'+b.n+' 台</em></span>'
+     + '<span class="tr" style="width:'+(b.n/maxN*100).toFixed(1)+'%">'
+     + '<i class="rv" style="width:'+((b.reviewed||0)/b.n*100).toFixed(1)+'%"></i>'
+     + '<i class="nr" style="flex:1"></i></span></button>';
+  });
+  h+='</div>';
+
+  /* 3. 品类价格区间 */
+  var gMin=1e9,gMax=0;
+  ov.byCat.forEach(function(c){ if(c.priceMin<gMin) gMin=c.priceMin; if(c.priceMax>gMax) gMax=c.priceMax });
+  var span=gMax-gMin||1;
+  h+='<div class="ov"><h3>品类价格区间 <span>min–median–max</span></h3>'
+   + '<div class="cap">竖线是中位价，不是我们算的均价</div>';
+  ov.byCat.forEach(function(c){
+    var l=(c.priceMin-gMin)/span*100, w=(c.priceMax-c.priceMin)/span*100;
+    var med=(c.priceMedian-gMin)/span*100;
+    h+='<div class="rng-row"><div class="r1"><span>'+esc(c.name)+' <em>'+c.n+' 台</em></span>'
+     + '<em>¥'+money(c.priceMin)+' – ¥'+money(c.priceMax)+'</em></div>'
+     + '<div class="rng"><i class="'+esc(c.cat)+(c.cat==='upgrade'?' parts':'')+'" style="left:'+l.toFixed(1)+'%;width:'+Math.max(w,1).toFixed(1)+'%"></i>'
+     + '<b style="left:'+med.toFixed(1)+'%"></b></div></div>';
+  });
+  h+='<div class="rng-note">内存固态（'+ (ov.byCat.filter(function(c){return c.cat==='upgrade'})[0]||{}).n +' 条）不是整机，价格不能和笔记本横向比。</div></div>';
+
+  /* 4. 可加装分布 */
+  var maxU=0;
+  ov.upgrade.forEach(function(u){ if(u.n>maxU) maxU=u.n });
+  h+='<div class="ov"><h3>可加装分布 <span>0–3 档</span></h3>'
+   + '<div class="cap">0 分 = 内存焊死，四年后没有后路</div><div class="up">';
+  ov.upgrade.forEach(function(u){
+    h+='<div><em>'+u.n+'</em><i class="'+(u.score===0?'z':'')+'" style="height:'+Math.max(u.n/maxU*46,2).toFixed(0)+'px"></i></div>';
+  });
+  h+='</div><div class="up-x">'+ov.upgrade.map(function(u){return '<span>'+u.score+' 档</span>'}).join('')+'</div></div>';
+
+  /* 5. 覆盖度 */
+  h+='<div class="ov"><h3>数据覆盖 <span>缺的就是缺的</span></h3>';
+  h+='<div class="sbar" style="margin-top:6px">'
+   + '<i class="rv" style="width:'+(ov.perf.withPerf/tot*100).toFixed(1)+'%"></i>'
+   + '<i class="unk" style="width:'+(ov.perf.noPerf/tot*100).toFixed(1)+'%"></i></div>'
+   + '<div class="lg"><span><i class="rv"></i>有跑分 '+ov.perf.withPerf+'</span>'
+   + '<span><i class="unk"></i>无跑分 '+ov.perf.noPerf+'（图上标未知）</span></div>';
+  h+='<div class="sbar" style="margin-top:9px">'
+   + '<i class="rv" style="width:'+(ov.weight.withWeight/tot*100).toFixed(1)+'%"></i>'
+   + '<i class="unk" style="width:'+(ov.weight.noWeight/tot*100).toFixed(1)+'%"></i></div>'
+   + '<div class="lg"><span><i class="rv"></i>有重量 '+ov.weight.withWeight+'</span>'
+   + '<span><i class="unk"></i>没记重量 '+ov.weight.noWeight+'</span></div>'
+   + '<div class="cap" style="margin-top:9px">'+esc(ov.weight.note||'')+'</div>';
+
+  /* 6. 价格冲突 */
+  var pc=ov.priceConflicts||[];
+  if(pc.length){
+    h+='<details class="conf"><summary><span>两层报价不一致 '+pc.length+' 处</span><em>未裁决</em></summary>';
+    pc.forEach(function(c){
+      h+='<div class="li"><b>'+esc(c.name)+'</b>'
+       + '<span>人工核定 ¥'+money(c.reviewPrice)+' · 采集池 ¥'+money(c.poolPrice)+'</span>'
+       + '<u>　采用：'+esc(c.kept)+'</u></div>';
+    });
+    h+='</details>';
+  }
+  h+='</div>';
+
+  h+='<div class="rail-foot">图上每个数字都直接来自接口；缺数据的地方画成斜纹「未知」，不当 0 处理。数据截至 '+ov.dataAsOf+'。</div>';
+
+  // 右栏结构（2026-11-13）：上面是「当前这台」（跟着对话走），下面才是全库统计。
+  // 全库统计裹进 <details>，开聊后自动折起来一次 —— 用户要看的是"我在问的这台"，
+  // 不是每轮都盯着库构成。
+  $('#railBody').innerHTML='<div id="railNow" class="nowbox"></div>'
+    + '<details class="rail-global" id="railGlobal" open>'
+    + '<summary><span class="t">全库统计</span><span class="n">'+ov.total+' 台</span></summary>'
+    + '<div class="rg-body">'+h+'</div></details>';
+  paintNow();
+  $$('#railBody .bk').forEach(function(b){
+    b.onclick=function(){
+      inp.value='预算 '+b.dataset.bucket;
+      inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length);
+      $('#hintRight').textContent='已填入预算，按 Enter 发送';
+    };
+  });
+}
+
+/* ── 右栏上半：当前这台（2026-11-13 新增） ──
+   数据全部来自 /api/model，前端只排版，不补字段、不换算。 */
+var NOW={id:null,purpose:[]};
+var railAutoClosed=false;
+function paintNow(){
+  var box=$('#railNow'); if(!box) return;
+  if(!NOW.id){
+    box.innerHTML='<div class="ov"><h3>当前这台 <span>跟着对话走</span></h3>'
+      + '<div class="cap">开始提问后，这里会钉住你正在问的那台机器：配置、短板、和其他候选的差距。</div></div>';
+    return;
+  }
+  var u='/api/model?id='+encodeURIComponent(NOW.id)
+    + (NOW.purpose.length?('&purpose='+encodeURIComponent(NOW.purpose.join(','))):'');
+  jget(u).then(function(r){
+    var b=$('#railNow'); if(!b) return;
+    if(!r.ok){ b.innerHTML='<div class="ov"><div class="cap">这台不在库里</div></div>'; return }
+    var m=r.model;
+    var hard=(m.blockers||[]).filter(function(x){return x.level==='hard'});
+    var soft=(m.blockers||[]).filter(function(x){return x.level!=='hard'});
+    var h='<div class="ov now"><h3>当前这台 <span>'+(CAT_CN[m.cat]||'')+'</span></h3>'
+      + '<div class="now-nm">'+esc(m.name)+'</div>'
+      + '<div class="now-pr"><span>¥</span><b>'+money(m.price)+'</b><em>到手价</em></div>'
+      + '<div class="now-sp">'+esc(m.spec||'')+'</div>';
+    h+='<div class="now-kv">'
+      + '<div><span>评价</span><b>'+(m.hasReview?'有人写过优缺点':'库里没人评过')+'</b></div>'
+      + '<div><span>性能分</span><b>'+(m.perf==null?'无实测':m.perf+' / 100')+'</b></div>'
+      + '<div><span>内存</span><b>'+(m.ram==null?'未知':m.ram+'G')+'</b></div>'
+      + '<div><span>重量</span><b>'+(m.weightKg==null?'库里没记':m.weightKg+' kg')+'</b></div>'
+      + '</div>';
+    if(hard.length||soft.length){
+      h+='<div class="now-gaps">';
+      hard.forEach(function(x){ h+='<div class="gap hard"><i>硬伤</i><span>'+esc(x.why)+'</span></div>' });
+      soft.forEach(function(x){ h+='<div class="gap soft"><i>不算强</i><span>'+esc(x.why)+'</span></div>' });
+      h+='</div>';
+    }
+    if(m.caution) h+='<div class="now-cau"><b>注意</b><span>'+esc(m.caution)+'</span></div>';
+    h+='</div>';
+    b.innerHTML=h;
+  }).catch(function(){});
+}
+
+/* ── 示例（来自 /api/demo，前端不写死） ── */
+function demo(d){
+  var acts=(d.acts||[]).filter(function(a){return a.turns&&a.turns.length});
+  $('#demoChips').innerHTML=acts.slice(0,5).map(function(a){
+    return '<button data-q="'+esc(a.turns[0])+'" title="'+esc(a.note||'')+'">'+esc(a.title)+'</button>';
+  }).join('');
+  $('#acts').innerHTML=acts.slice(0,4).map(function(a,i){
+    return '<button class="act" data-q="'+esc(a.turns[0])+'">'
+      + '<span class="t"><i>'+String.fromCharCode(65+i)+'</i>'+esc(a.title)+'</span>'
+      + '<span class="d">'+esc(a.note||'')+'</span><span class="arr">→</span></button>';
+  }).join('');
+  $$('#demoChips button, #acts .act').forEach(function(b){
+    b.onclick=function(){ send(b.dataset.q) };
+  });
+}
+
+/* ── 回复解析（只做排版，不改写一个字的正文） ── */
+function parseReply(text){
+  var blocks=String(text||'').split(/\n{2,}/).filter(function(x){return x.trim()});
+  var out='', quote='';
+  blocks.forEach(function(b){
+    if(/^按你的专业要求/.test(b)){
+      quote='<div class="majorq"><b>你这组的配置要求</b><p>'+esc(b).replace(/\n/g,'<br>')+'</p></div>';
+      return;
+    }
+    var lines=b.split(/\n/).filter(function(l){return l.trim()});
+    var seg=[];
+    lines.forEach(function(l){
+      var m=l.match(/^\s*(\d+)[.、]\s*(.+)$/);
+      if(m) seg.push({t:'li',n:parseInt(m[1],10),s:m[2]});
+      else seg.push({t:'p',s:l});
+    });
+    var i=0;
+    while(i<seg.length){
+      if(seg[i].t==='p'){
+        var arr=[];
+        while(i<seg.length&&seg[i].t==='p'){ arr.push(seg[i].s); i++ }
+        out+='<p class="say">'+esc(arr.join('\n')).replace(/\n/g,'<br>')+'</p>';
+      } else {
+        var startN=seg[i].n, items=[];
+        while(i<seg.length&&seg[i].t==='li'){ items.push(seg[i].s); i++ }
+        out+='<ol class="numlist">'+items.map(function(s,k){
+          return '<li><span class="n">'+(startN+k)+'</span>'+itemHTML(s)+'</li>';
+        }).join('')+'</ol>';
+      }
+    }
+  });
+  return {html:out+quote};
+}
+function itemHTML(s){
+  return esc(s).replace(/^(.+?)\s*——\s*/, '<b>$1</b> —— ');
+}
+
+var SLOT_CN={cat:'品类',budget:'预算',purpose:'用途',years:'用几年',carry:'带出门',dormWatt:'宿舍功耗'};
+var CAT_CN={thin:'轻薄本',gaming:'游戏本',desktop:'台式整机',upgrade:'内存固态'};
+var PURPOSE_CN={design:'设计',video:'视频',gaming:'游戏',dev:'编程',office:'办公',threeD:'三维',audio:'音频',ai:'本地模型',light:'轻度'};
+var MODE_CN={work:'按用途匹配',perf:'性能优先',value:'性价比',carry:'便携优先',daily:'日常平衡',future:'留着以后加'};
+
+function slotRows(s){
+  var keys=Object.keys(SLOT_CN);
+  var out=[];
+  keys.forEach(function(k){
+    var v=s[k];
+    if(v===null||v===undefined||(Array.isArray(v)&&!v.length)) return;
+    var txt;
+    if(k==='budget') txt='¥'+money(v);
+    else if(k==='cat') txt=CAT_CN[v]||v;
+    else if(k==='carry') txt=v?'需要':'不需要';
+    else if(k==='years') txt=v+' 年';
+    else if(k==='dormWatt') txt='≤ '+v+'W';
+    else if(k==='purpose') txt=(Array.isArray(v)?v:[v]).map(function(x){return PURPOSE_CN[x]||x}).join(' / ');
+    else txt=String(v);
+    out.push('<div class="kv"><span>'+(SLOT_CN[k]||k)+'</span><span>'+esc(txt)+'</span></div>');
+  });
+  return out.length?out.join(''):'<div style="color:var(--ink3)">（这一轮没有新增条件）</div>';
+}
+function proof(k,d){
+  var noNum=(k.untraceable||[]).length===0, noOut=(k.outside||[]).length===0;
+  var checks='<div class="chk '+(noNum?'ok':'no')+'"><i>'+(noNum?'✓':'✕')+'</i><span>数字可追溯'
+    +(noNum?'（全部能在库里对上）':'：'+esc(k.untraceable.join('、')))+'</span></div>'
+    +'<div class="chk '+(noOut?'ok':'no')+'"><i>'+(noOut?'✓':'✕')+'</i><span>推荐机型都在库内'
+    +(noOut?'':'：'+esc(k.outside.join('、')))+'</span></div>'
+    +'<div class="chk ok"><i>✓</i><span>排序由内核决定，模型没有排序权和数字写权</span></div>';
+  return '<details class="proof"><summary>决策依据</summary><div class="bd">'
+    +'<div class="sec">读到的条件</div>'+slotRows(d.slots||{})
+    +'<div class="sec">校验</div>'+checks
+    +'<div class="sec">数据</div>'
+    +'<div class="kv"><span>快照日期</span><span>'+esc(k.dataAsOf||(d.dataAsOf||'—'))+'</span></div>'
+    +'<div class="kv"><span>排序侧重</span><span>'+esc(MODE_CN[k.mode]||k.mode||'—')+'</span></div>'
+    +'</div></details>';
+}
+
+/* ── 固定字段版回答（2026-11-13） ──
+   结构全部来自后端 answer 字段，前端只排版：不补字段、不换算、不改顺序。
+   后端怎么给的，这里就怎么显示 —— 前端一旦自己算，就没有审计了。 */
+function ansCard(a){
+  var h='<div class="ans">';
+  h+='<div class="ans-hd"><div class="lbl">'+(a.inline?'回答':'结论')+'</div><h3>'
+   + esc(a.headline).replace(/\n/g,'<br>')+'</h3></div>';
+
+  h+='<div class="ans-kv">';
+  (a.rows||[]).forEach(function(r){
+    // 到手价和机型这两行给专门的类：价格是选机第一信息，不能跟"评价""重量"一个字号。
+    // （原来首选卡上有 30px 的衬线价，换成字段卡后这个视觉锚点丢了。）
+    var cls = r.k==='到手价' ? 'rv pr' : (r.k==='机型' ? 'rv nm' : 'rv');
+    h+='<div class="rk">'+esc(r.k)+'</div><div class="'+cls+'">'+esc(r.v)+'</div>';
+  });
+  h+='</div>';
+
+  if((a.gaps||[]).length){
+    h+='<div class="ans-sec"><div class="st">这个用途下要注意</div>';
+    a.gaps.forEach(function(g){
+      var lbl=g.level==='hard'?'硬伤':(g.level==='soft'?'不算强':'未记录');
+      h+='<div class="gap '+esc(g.level)+'"><i>'+lbl+'</i><span>'+esc(g.text)+'</span></div>';
+    });
+    h+='</div>';
+  }
+
+  if((a.blocks||[]).length){
+    h+='<div class="ans-sec"><div class="st">补充说明</div>';
+    a.blocks.forEach(function(b){
+      h+='<div class="blk"><b>'+esc(b.k)+'</b><p>'+esc(b.v)+'</p></div>';
+    });
+    h+='</div>';
+  }
+
+  if((a.candidates||[]).length){
+    h+='<div class="ans-sec"><div class="st">其余候选</div>';
+    a.candidates.forEach(function(c){
+      h+='<div class="cand"><span>'+esc(c.name)
+       + (c.hasReview?'':'<em>仅参数</em>')+'</span><b>¥'+money(c.price)+'</b></div>';
+    });
+    h+='</div>';
+  }
+  h+='</div>';
+  return h;
+}
+
+/* ── 首选卡 ── */
+function card(top){
+  var tags='<div class="tags">';
+  if(top.hasReview===false) tags+='<span class="tag raw" title="库里没人写过这台机的优缺点">仅参数</span>';
+  if(top.overBudget) tags+='<span class="tag over">超预算</span>';
+  if(top.hasReview!==false && !top.overBudget) tags+='<span class="tag pick">推荐</span>';
+  tags+='</div>';
+
+  var hard=(top.blockers||[]).filter(function(b){return b.level==='hard'});
+  var soft=(top.blockers||[]).filter(function(b){return b.level!=='hard'});
+  var notes='';
+  if(hard.length) notes+='<div class="nh"><b>按你的用途，这台的短板</b>'+hard.map(function(b){return esc(b.why)}).join('<br>')+'</div>';
+  if(soft.length) notes+='<div class="ns"><b>不算强，但够用</b>'+soft.map(function(b){return esc(b.why)}).join('<br>')+'</div>';
+  if(top.noPerfData) notes+='<div class="nn">库里没有这台的性能实测 —— 它是按配置和价格排进来的，不是按跑分。</div>';
+  if(top.caution) notes+='<div class="nw"><b>注意</b><span>'+esc(top.caution)+'</span></div>';
+
+  return '<div class="card" data-mid="'+esc(top.id)+'">'
+    + '<div class="card-hd"><div><div class="card-nm">'+esc(top.name)+'</div>'
+    + '<div class="card-sp">'+esc(top.spec||'')+'</div></div>'+tags+'</div>'
+    + '<div class="price-row"><span class="cur">¥</span><b>'+money(top.price)+'</b><span class="lb">到手价</span></div>'
+    + '<div class="price-sub"><span>页面价 ¥'+money(top.original)+'</span>'
+    + (top.subsidy?' · 其中含国补 ¥'+money(top.subsidy):'')+'</div>'
+    + (notes?'<div class="notes">'+notes+'</div>':'')
+    + '</div>';
+}
+
+/* ── 三台对比：同一把尺子，缺的维度写「未知」 ── */
+// 三台对比只是"区分身份"：蓝 / 砖红 / 青，三种色相拉得开，一眼能对上列。
+var CMP_COLORS=['#2D6CDF','#C2532F','#0F8B8D'];
+function cmp(ranked){
+  if(!ranked.length) return '';
+  var list=ranked.slice(0,3);
+  // 同一行内相对最大值的比例 —— 这是**唯一**能让"数值相同 ⇒ 条等长"成立的算法。
+  // 之前四行各用各的基准（价格÷最高价、跑分直接当百分比、内存÷64、重量÷全库最重），
+  // 结果三台跑分都是 62，条却看起来长短不一，用户会当成数据矛盾。
+  function maxOf(key){
+    var v=0;
+    list.forEach(function(r){ if(typeof r[key]==='number'&&r[key]>v) v=r[key] });
+    return v||1;
+  }
+  var maxPrice=maxOf('price'), maxPerf=maxOf('perf'), maxRam=maxOf('ram'), maxWt=maxOf('weightKg');
+
+  function head(){
+    return '<tr><th></th>'+list.map(function(r,i){
+      return '<th><button data-mid="'+esc(r.id)+'" title="'+esc(r.name)+'">'
+        + '<span class="mdot" style="background:'+CMP_COLORS[i]+'"></span>'+esc(r.name)+'</button></th>';
+    }).join('')+'</tr>';
+  }
+  function row(label,cells){
+    return '<tr><td>'+label+'</td>'+cells.map(function(c){return '<td>'+c+'</td>'}).join('')+'</tr>';
+  }
+  function bar(val,pct,color){
+    return '<div class="bar"><i style="width:'+Math.max(2,Math.min(100,pct)).toFixed(1)+'%;background:'+color+'"></i></div>';
+  }
+
+  var priceRow=row('到手价',list.map(function(r,i){
+    return bar(r.price,r.price/maxPrice*100,CMP_COLORS[i])+'<div class="cv">¥'+money(r.price)+'</div>';
+  }));
+  var perfRow=row('跑分',list.map(function(r,i){
+    return r.perf==null? '<div class="cv unk">无跑分</div>'
+      : bar(r.perf,r.perf/maxPerf*100,CMP_COLORS[i])+'<div class="cv">'+r.perf+'<span class="u">/100</span></div>';
+  }));
+  var ramRow=row('内存',list.map(function(r,i){
+    return r.ram==null? '<div class="cv unk">未知</div>'
+      : bar(r.ram,r.ram/maxRam*100,CMP_COLORS[i])+'<div class="cv">'+r.ram+'G</div>';
+  }));
+  var wtRow=row('重量',list.map(function(r,i){
+    return r.weightKg==null? '<div class="cv unk">库里没记</div>'
+      : bar(r.weightKg,r.weightKg/maxWt*100,CMP_COLORS[i])+'<div class="cv">'+r.weightKg+' kg</div>';
+  }));
+  var upRow=row('可加装',list.map(function(r){
+    var u=(r.upgrade==null?0:r.upgrade);
+    var cells='';
+    for(var i=0;i<4;i++) cells+='<i class="'+(i<u?'f':'')+'"></i>';
+    return '<div class="sig">'+cells+'</div>'
+      + (u===0?'<div class="sig-note" style="color:var(--warn)">内存焊死</div>':'<div class="sig-note">'+u+' / 3 档</div>');
+  }));
+
+  return '<div class="cmp"><div class="cmp-hd"><b>放在同一把尺子上</b>'
+    + '<span>同一行里按最大值比（条越长＝该项数值越大），跨行不可比 · 缺数据标「未知」</span></div>'
+    + '<table class="cmp-tb"><thead>'+head()+'</thead><tbody>'
+    + priceRow+perfRow+ramRow+wtRow+upRow+'</tbody></table></div>';
+}
+
+/* ── 其他候选：名字和价格分行 ── */
+/* ── 「其他候选」列表已并入上面的对比表，这里不再重复渲染 ──
+   2026-11-12：cmp(ranked) 已经展示前 3 台，alts(ranked.slice(1)) 又把第 2、3 名
+   列了一遍，同一屏里同两台出现两次。函数保留但不再调用，未来 ranked 超过 3 台时可以复用。 */
+function alts(rest){
+  if(!rest.length) return '';
+  return '<div class="alts"><div class="alts-hd">同样条件下还有 '+rest.length+' 台（同一套规则的往后排）</div>'
+    + rest.map(function(r){
+        return '<div class="alt" data-mid="'+esc(r.id)+'"><div class="l">'
+          + '<div class="nm">'+esc(r.name)+'</div>'
+          + '<div class="sp">'+esc(r.spec||'')+'</div></div>'
+          + '<div class="r"><div class="pr">¥'+money(r.price)+'</div>'
+          + (r.hasReview===false?'<span class="bg">仅参数</span>':'')
+          + (r.overBudget?'<span class="bg" style="color:var(--warn);background:var(--warn-bg);border-color:#EBD9AE">超预算</span>':'')
+          + '</div></div>';
+      }).join('')+'</div>';
+}
+
+function warnbar(ws){
+  return '<div class="warnbar">'+ws.map(esc).join('；')+'</div>';
+}
+function chipBox(label,q,chips,atSlots,atAsked){
+  if(!chips.length) return '';
+  return '<div class="askbox"><div class="lbl">'+esc(label)+'</div>'
+    + '<div class="q">'+esc(q)+'</div><div class="chips">'
+    + chips.map(function(c){return '<button data-t="'+esc(c)+'">'+esc(c)+'</button>'}).join('')
+    + '</div></div>';
+}
+
+var CHIP_MAP={
+  Q1:['计算机相关','设计相关','工商管理','医学 / 其他'],
+  Q2:['宿舍不限电','限电 500W','限电 800W','限电 1000W'],
+  Q3:['要带去教室','不用带，放宿舍'],
+  Q5:['四年内不换','两三年就换']
+};
+var MISS_MAP={
+  '品类':['笔记本','台式整机'],
+  '预算':['预算 4000 以内','预算 5000 左右','预算 8000 左右','预算 1 万左右'],
+  '用途':['办公学习','打游戏','剪视频','写代码'],
+  '携带':['要带去教室','放宿舍不动'],
+  '年限':['四年内不换','两三年就换']
+};
+
+/* ── 渲染一轮回复 ── */
+function render(d){
+  var t=el('div','turn fadein');
+  var stage=d.stage, h='';
+
+  // 右栏「当前这台」跟着对话走（2026-11-13）：
+  //   只要这一轮定下了 focus，就把那台的挂牌信息钉在右栏上；
+  //   顺便把全库统计折起来一次 —— 开聊之后用户看的是"这台"，不是库构成。
+  if(d.focus){
+    NOW.id=d.focus;
+    NOW.purpose=((d.slots||{}).purpose)||[];
+    paintNow();
+    var g=$('#railGlobal');
+    if(g && g.open && !railAutoClosed){ g.open=false; railAutoClosed=true }
+  }
+
+  if(stage==='refuse'){
+    h='<div class="banner"><b>不在覆盖范围</b>'+esc(d.reply)+'</div>';
+
+  } else if(stage==='clarify'){
+    var miss=d.missing||[], chips=[];
+    miss.forEach(function(m){ chips=chips.concat(MISS_MAP[m]||[]) });
+    if(!chips.length) chips=['换一台','把其余候选列出来','说说当前这台'];
+    h=parseReply(d.reply).html
+      + chipBox('还差一点信息', '', chips.slice(0,8));
+
+  } else if(stage==='social'){
+    // 社交回应（招呼/道谢/纠结/太贵了）：只有一句话，不挂字段卡、不挂"决策依据"，
+    // 也不带"接着问"那排按钮（那排按钮属于选机流程，放在道谢后面很机械）。
+    h=parseReply(d.reply).html;
+
+  } else if(stage==='followup'||stage==='fit'||stage==='exhausted'||stage==='compare'){
+    var tag=stage==='fit'?'正在评估':stage==='compare'?'对比':stage==='exhausted'?'候选翻完了':'';
+    // 追问也用同一个"结论 + 字段"的壳（后端 answer.inline=true 表示 headline 就是正文）。
+    if(d.answer){
+      h=ansCard(d.answer);
+    } else {
+      h=parseReply(d.reply).html
+        + (d.focusName&&tag?'<div class="focuschip">'+tag+' '+esc(d.focusName)+'</div>':'');
+    }
+    if(stage==='exhausted') h+=chipBox('想放宽哪一条','',['预算放宽一点','换游戏本看看','台式整机也行']);
+    if(stage==='followup'&&(d.outside||[]).length){
+      h+='<div class="warnbar">提到了库里没有的机型：'+esc(d.outside.join('、'))+'，没有拿别的机器顶替。</div>';
+    }
+
+  } else {
+    var k=d.kernel||{}, ranked=(k.ranked||[]).slice(0,3), top=ranked[0], a=d.answer;
+    // 🔴 2026-11-13：主视图改成「一句话结论 + 固定字段卡」。
+    //   原来这里直接铺模型写的正文（parseReply），同一台机器换个问法句子结构就变，
+    //   用户没法逐栏对照。现在字段卡当主视图，正文折进「详细说明」——
+    //   正文没有删：它是过了出口审计的那份，字段卡只是把同样的事实重新排一遍。
+    if(a){
+      h=ansCard(a);
+      h+='<details class="prose"><summary>详细说明（模型措辞，已过出口审计）</summary>'
+       + parseReply(d.reply).html+'</details>';
+    } else {
+      h=parseReply(d.reply).html;
+    }
+    if(top){
+      if(!a) h+=card(top);          // 有字段卡就不再叠一张旧卡，避免同一屏说两遍
+      h+=cmp(ranked);
+      h+=chipBox('接着问','',['屏幕怎么样','保修几年','有多重','换一台'],d.slots,d.asked);
+    }
+    if((k.warnings||[]).length) h+=warnbar(k.warnings);
+    if((k.questions||[]).length){
+      var q=k.questions[0];
+      h+=chipBox('还需确认', q.q, CHIP_MAP[q.id]||[], d.slots, d.asked);
+    }
+    h+=proof(k,d);
+  }
+
+  // 后端建议的下一步：直接给按钮，不让用户打「1/2/3」
+  if((d.suggest||[]).length) h+=chipBox('你可以','',d.suggest,d.slots,d.asked);
+
+  t.innerHTML=h;
+  stream.appendChild(t);
+  bindChips(t);
+  bindCmp(t);
+  toBottom();
+}
+
+function bindChips(root){
+  $$('.chips button',root).forEach(function(b){
+    b.onclick=function(){
+      $$('.chips button',root).forEach(function(x){x.disabled=true});
+      send(b.dataset.t);
+    };
+  });
+}
+function bindCmp(root){
+  $$('[data-mid]',root).forEach(function(x){
+    x.addEventListener('mouseenter',function(){ hl(x.dataset.mid,true) });
+    x.addEventListener('mouseleave',function(){ hl(x.dataset.mid,false) });
+    x.addEventListener('click',function(){ hl(x.dataset.mid,true) });
+  });
+}
+function hl(mid,onOff){
+  $$('.card[data-mid="'+mid+'"]').forEach(function(c){ c.classList.toggle('hl',onOff) });
+}
+
+/* ── 发送 ── */
+function addUser(text){
+  var d=el('div','turn u fadein','<div class="ubb">'+esc(text)+'</div>');
+  stream.appendChild(d); toBottom();
+}
+function addTyping(){
+  var d=el('div','turn fadein','<div class="typing"><i></i><i></i><i></i></div>');
+  stream.appendChild(d); toBottom(); return d;
+}
+function mergeSlots(a,b){
+  var o={}; for(var k in a) o[k]=a[k];
+  for(var j in b){ var v=b[j]; if(v!==null&&v!==undefined&&!(Array.isArray(v)&&!v.length)) o[j]=v }
+  return o;
+}
+
+function send(text){
+  text=(text||inp.value||'').trim();
+  if(!text||busy) return;
+  busy=true; sendBtn.disabled=true;
+  var hero=$('#hero'); if(hero) hero.remove();
+  inp.value=''; autoGrow();
+  addUser(text);
+  var ph=addTyping();
+
+  fetch('/api/chat',{
+    method:'POST',headers:wbHeaders({'Content-Type':'application/json'}),
+    body:JSON.stringify({text:text,known:slots,asked:asked,last_stage:lastStage,seen:seen,focus:focus})
+  }).then(function(r){
+    if(r.status===401) throw new Error('需要访问码：用带 ?k=访问码 的链接打开（找发链接的人要）');
+    if(!r.ok) throw new Error('服务返回 '+r.status+'，模型可能正在冷启动');
+    return r.json();
+  }).then(function(d){
+    ph.remove();
+    if(d.error) throw new Error(d.error);
+    if(d.slots) slots=mergeSlots(slots,d.slots);
+    if(d.asked) asked=d.asked;
+    lastStage=d.stage;
+    if(d.focus!==undefined) focus=d.focus;
+    ((d.kernel&&d.kernel.ranked)||[]).forEach(function(x){
+      if(x&&x.id&&seen.indexOf(x.id)<0) seen.push(x.id);
+    });
+    render(d);
+  }).catch(function(e){
+    ph.remove();
+    var t=el('div','turn fadein');
+    t.innerHTML='<div class="banner"><b>这一轮没接上</b>'+esc(e.message||'请求失败')+'。'
+      + '再发一次通常就好；如果一直这样，说明本地模型没起来，可以先用上面的示例问题。</div>';
+    stream.appendChild(t); toBottom();
+  }).then(function(){
+    busy=false; sendBtn.disabled=false; inp.focus();
+  });
+}
+
+/* ── 输入 ── */
+function autoGrow(){
+  // +1：行高是 22.44px 这种小数，取整后可能比内容少 1px，浏览器就认为"有溢出"并画出滚动条
+  // ——也就是用户看到那个"点了没反应的上下三角"。给 1px 余量把这个假溢出消掉。
+  // ⚠️ 不能同时用 CSS 的 max-height + JS 的 height:auto —— 有 max-height 时元素被撑到
+  //    上限，height:auto 读回来的 scrollHeight 就是上限值，于是"两行文字也撑到 118px"。
+  //    上限只由这里管：先量真实内容高度，再自己封顶。
+  inp.style.height='auto';
+  var h=inp.scrollHeight;
+  inp.style.height=(h>118?118:Math.min(h+1,118))+'px';
+}
+inp.addEventListener('input',autoGrow);
+inp.addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){ e.preventDefault(); send() }
+});
+sendBtn.onclick=function(){ send() };
+$('#scopeMore').onclick=function(){
+  var s=$('#scope');
+  s.classList.toggle('open');
+  this.textContent=s.classList.contains('open')?'收起口径说明':'展开口径说明';
+};
+/* ── 侧边栏收纳 ──
+   收起后右侧留一个竖排把手「数据概览」，点一下就回来。
+   状态存 localStorage，下次打开还是上次的样子（?rail=0/1 可以强制指定）。 */
+function setRail(mini){
+  var app=$('#app');
+  app.classList.toggle('mini', !!mini);
+  // 把手在 main 外面，所以状态挂在 body 上（挂在 .app 上选择器匹配不到）
+  document.body.classList.toggle('rail-mini', !!mini);
+  try{ localStorage.setItem('railMini', mini?'1':'0') }catch(e){}
+}
+$('#railBtn').onclick=function(){ setRail(true) };
+$('#railTab').onclick=function(){ setRail(false) };
+(function(){
+  var forced=null;
+  try{ forced=(new URLSearchParams(location.search)).get('rail') }catch(e){}
+  if(forced==='0'||forced==='1'){ setRail(forced==='1'); return }
+  try{ if(localStorage.getItem('railMini')==='1') setRail(true) }catch(e){}
+})();
+
+/* ── 启动 ── */
+health();
+jget('/api/overview').then(function(ov){
+  if(!ov.ok){ throw new Error('overview') }
+  OV=ov;
+  // 首屏数字和右栏各自独立，任何一个出错都不许把另一个拖下水，
+  // 也不许把渲染错误说成"接口没响应"。
+  try{ facts(ov) }catch(e){}
+  try{ rail(ov) }catch(e){
+    $('#railBody').innerHTML='<div class="ov"><div class="cap">数据概览渲染出错了（接口本身有返回）。'
+      + '对话不受影响，下面是错误信息：<br>'+esc(String(e&&e.message||e))+'</div></div>';
+  }
+}).catch(function(){
+  $('#railBody').innerHTML='<div class="ov"><div class="cap">数据概览没读出来：接口 /api/overview 没响应。对话仍然可用，只是右边这些图暂时空着。</div></div>';
+});
+jget('/api/demo').then(function(d){ if(d.ok) demo(d) }).catch(function(){});
+inp.focus();
+
+/* ── ?q= 直接带一句话进来（可分享的链接，也方便自动化验收） ──
+   例：http://127.0.0.1:7860/?q=学设计的，预算5100，要带去教室 */
+(function(){
+  var sp;
+  try{ sp=new URLSearchParams(location.search) }catch(e){ return }
+  var q=(sp.get('q')||'').trim(), fill=(sp.get('fill')||'').trim();
+  // ?fill= 只填不发（给「先填好再让人按回车」的分享链接、也给自动化验收用）
+  if(fill){ inp.value=fill; autoGrow(); inp.focus();
+    inp.setSelectionRange(fill.length,fill.length) }
+  if(q){ inp.value=q; autoGrow(); send(q); }
+})();
+})();
+</script>
+</body>
+</html>

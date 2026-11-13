@@ -1,0 +1,495 @@
+{
+  "meta": {
+    "version": "0.1",
+    "updated": "2026-11-09",
+    "purpose": "回答一个问题：要按专业选机，每个专业组到底需要哪些硬件字段。",
+    "why": "现在的采集只有 CPU / 内存容量 / 存储 / 显卡型号 四项，能回答「多少钱」，回答不了「够不够用」。屏幕是自由文本、显存与功耗、内存形态、重量、能效全缺。",
+    "legend": {
+      "R": "必需——没有这一项，这组的结论不成立，不许给推荐",
+      "H": "重要——没有会降低精度，但要能说明是估算",
+      "-": "无关——这组不需要，采了也不用于判断",
+      "P": "价格计算用——只影响国补与到手价，不参与「够不够用」的判定"
+    },
+    "splitNote": "矩阵分两层：R/H/- 回答「这台机器够不够这个专业用」；P 回答「能补多少钱」。两层不能混——混在一起会出现「所有组都被能效等级卡死」的假象。",
+    "changes": [
+      {
+        "date": "2026-11-09",
+        "what": "batteryWh 在 office / code 两组由 R 降为 H",
+        "why": "Wh 不能代理续航（低压小电池可胜过标压大电池）；且续航短属缺点而非不够用，不应一票否决",
+        "effect": "office 卡点 batteryWh×21 → 0；code 卡点 → ramType×19"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "id": "office",
+      "name": "通识办公"
+    },
+    {
+      "id": "code",
+      "name": "编程数据"
+    },
+    {
+      "id": "graphic",
+      "name": "平面视觉"
+    },
+    {
+      "id": "video",
+      "name": "视频影视"
+    },
+    {
+      "id": "threeD",
+      "name": "三维建筑工业"
+    },
+    {
+      "id": "audio",
+      "name": "音乐音频"
+    },
+    {
+      "id": "engine",
+      "name": "游戏与数字媒体技术"
+    },
+    {
+      "id": "electric",
+      "name": "电气与自动化"
+    },
+    {
+      "id": "science",
+      "name": "理工实验"
+    },
+    {
+      "id": "geo",
+      "name": "测绘与空间信息"
+    }
+  ],
+  "fields": [
+    {
+      "key": "cpu",
+      "cn": "CPU 型号",
+      "unit": "-",
+      "where": "详情页参数 / 官网规格页",
+      "why": "决定单核与多核能力"
+    },
+    {
+      "key": "cores",
+      "cn": "核心数",
+      "unit": "核",
+      "where": "官网规格页",
+      "why": "多核场景的换算依据"
+    },
+    {
+      "key": "ramGB",
+      "cn": "内存容量",
+      "unit": "GB",
+      "where": "详情页参数",
+      "why": "最容易被「最高可选」误导的一项"
+    },
+    {
+      "key": "ramType",
+      "cn": "内存形态",
+      "unit": "板载 / 插槽",
+      "where": "官网规格页（LPDDR5X=板载，DDR5 SO-DIMM=插槽）",
+      "why": "决定四年后能不能加，比容量更重要"
+    },
+    {
+      "key": "storageGB",
+      "cn": "存储容量",
+      "unit": "GB",
+      "where": "详情页参数",
+      "why": "视频素材与采样库吃这个"
+    },
+    {
+      "key": "gpuModel",
+      "cn": "显卡型号",
+      "unit": "-",
+      "where": "详情页参数",
+      "why": "只给名字不够，名字不携带性能"
+    },
+    {
+      "key": "vramGB",
+      "cn": "显存",
+      "unit": "GB",
+      "where": "官网规格页",
+      "why": "AE 要 4G 起、PR 4K 要 8G、达芬奇 AI 要 16G"
+    },
+    {
+      "key": "tgpW",
+      "cn": "显卡功耗",
+      "unit": "W",
+      "where": "官网参数 / 第三方评测（电商常不写）",
+      "why": "同型号 35W–115W 性能差 2.7 倍"
+    },
+    {
+      "key": "screenInch",
+      "cn": "屏幕尺寸",
+      "unit": "英寸",
+      "where": "详情页参数",
+      "why": "宿舍桌面与携带的权衡"
+    },
+    {
+      "key": "resolution",
+      "cn": "分辨率",
+      "unit": "px",
+      "where": "详情页参数",
+      "why": "看文献、做设计的实际体验"
+    },
+    {
+      "key": "refreshHz",
+      "cn": "刷新率",
+      "unit": "Hz",
+      "where": "详情页参数",
+      "why": "游戏与剪辑预览的流畅度"
+    },
+    {
+      "key": "colorGamut",
+      "cn": "色域",
+      "unit": "sRGB / DCI-P3 / AdobeRGB",
+      "where": "官网规格页（电商标题几乎不写）",
+      "why": "平面组的真实瓶颈，印刷与调色的前提"
+    },
+    {
+      "key": "brightnessNit",
+      "cn": "亮度",
+      "unit": "nit",
+      "where": "官网规格页",
+      "why": "HDR 内容与户外使用"
+    },
+    {
+      "key": "weightKg",
+      "cn": "重量",
+      "unit": "kg",
+      "where": "官网规格页",
+      "why": "便携维度的唯一硬指标"
+    },
+    {
+      "key": "batteryWh",
+      "cn": "电池容量",
+      "unit": "Wh",
+      "where": "详情页参数",
+      "why": "续航的基础值"
+    },
+    {
+      "key": "ports",
+      "cn": "接口",
+      "unit": "-",
+      "where": "详情页参数",
+      "why": "雷电、SD 读卡器、串口对接开发板"
+    },
+    {
+      "key": "efficiency",
+      "cn": "能效等级",
+      "unit": "1/2/3 级",
+      "where": "官网规格页 / 能效标识备案",
+      "why": "国补家电线要求 1 级，否则一分不补"
+    },
+    {
+      "key": "throttle",
+      "cn": "持续性能衰减",
+      "unit": "10 轮末/首",
+      "where": "第三方循环测试（需查评测）",
+      "why": "剪两小时会不会卡，参数表永远不写"
+    }
+  ],
+  "matrix": {
+    "office": {
+      "cpu": "-",
+      "cores": "-",
+      "ramGB": "R",
+      "ramType": "-",
+      "storageGB": "H",
+      "gpuModel": "-",
+      "vramGB": "-",
+      "tgpW": "-",
+      "screenInch": "H",
+      "resolution": "H",
+      "refreshHz": "-",
+      "colorGamut": "-",
+      "brightnessNit": "-",
+      "weightKg": "H",
+      "batteryWh": "H",
+      "ports": "H",
+      "efficiency": "P",
+      "throttle": "-"
+    },
+    "code": {
+      "cpu": "H",
+      "cores": "H",
+      "ramGB": "R",
+      "ramType": "R",
+      "storageGB": "H",
+      "gpuModel": "-",
+      "vramGB": "-",
+      "tgpW": "-",
+      "screenInch": "H",
+      "resolution": "H",
+      "refreshHz": "-",
+      "colorGamut": "-",
+      "brightnessNit": "-",
+      "weightKg": "H",
+      "batteryWh": "H",
+      "ports": "H",
+      "efficiency": "P",
+      "throttle": "-"
+    },
+    "graphic": {
+      "cpu": "H",
+      "cores": "-",
+      "ramGB": "R",
+      "ramType": "R",
+      "storageGB": "H",
+      "gpuModel": "H",
+      "vramGB": "H",
+      "tgpW": "-",
+      "screenInch": "H",
+      "resolution": "R",
+      "refreshHz": "-",
+      "colorGamut": "R",
+      "brightnessNit": "H",
+      "weightKg": "H",
+      "batteryWh": "H",
+      "ports": "H",
+      "efficiency": "P",
+      "throttle": "-"
+    },
+    "video": {
+      "cpu": "R",
+      "cores": "R",
+      "ramGB": "R",
+      "ramType": "H",
+      "storageGB": "R",
+      "gpuModel": "R",
+      "vramGB": "R",
+      "tgpW": "R",
+      "screenInch": "H",
+      "resolution": "H",
+      "refreshHz": "H",
+      "colorGamut": "H",
+      "brightnessNit": "H",
+      "weightKg": "H",
+      "batteryWh": "-",
+      "ports": "H",
+      "efficiency": "P",
+      "throttle": "R"
+    },
+    "threeD": {
+      "cpu": "R",
+      "cores": "H",
+      "ramGB": "R",
+      "ramType": "H",
+      "storageGB": "H",
+      "gpuModel": "R",
+      "vramGB": "R",
+      "tgpW": "H",
+      "screenInch": "H",
+      "resolution": "H",
+      "refreshHz": "-",
+      "colorGamut": "H",
+      "brightnessNit": "H",
+      "weightKg": "H",
+      "batteryWh": "-",
+      "ports": "H",
+      "efficiency": "P",
+      "throttle": "H"
+    },
+    "audio": {
+      "cpu": "H",
+      "cores": "-",
+      "ramGB": "H",
+      "ramType": "H",
+      "storageGB": "R",
+      "gpuModel": "H",
+      "vramGB": "-",
+      "tgpW": "-",
+      "screenInch": "H",
+      "resolution": "H",
+      "refreshHz": "-",
+      "colorGamut": "H",
+      "brightnessNit": "-",
+      "weightKg": "H",
+      "batteryWh": "-",
+      "ports": "R",
+      "efficiency": "P",
+      "throttle": "-"
+    },
+    "engine": {
+      "cpu": "R",
+      "cores": "R",
+      "ramGB": "R",
+      "ramType": "H",
+      "storageGB": "R",
+      "gpuModel": "R",
+      "vramGB": "R",
+      "tgpW": "R",
+      "screenInch": "H",
+      "resolution": "H",
+      "refreshHz": "R",
+      "colorGamut": "H",
+      "brightnessNit": "-",
+      "weightKg": "H",
+      "batteryWh": "-",
+      "ports": "H",
+      "efficiency": "P",
+      "throttle": "R"
+    },
+    "electric": {
+      "cpu": "H",
+      "cores": "H",
+      "ramGB": "H",
+      "ramType": "H",
+      "storageGB": "H",
+      "gpuModel": "-",
+      "vramGB": "-",
+      "tgpW": "-",
+      "screenInch": "H",
+      "resolution": "H",
+      "refreshHz": "-",
+      "colorGamut": "-",
+      "brightnessNit": "-",
+      "weightKg": "H",
+      "batteryWh": "H",
+      "ports": "R",
+      "efficiency": "P",
+      "throttle": "-"
+    },
+    "science": {
+      "cpu": "H",
+      "cores": "R",
+      "ramGB": "H",
+      "ramType": "H",
+      "storageGB": "H",
+      "gpuModel": "-",
+      "vramGB": "-",
+      "tgpW": "-",
+      "screenInch": "H",
+      "resolution": "H",
+      "refreshHz": "-",
+      "colorGamut": "H",
+      "brightnessNit": "-",
+      "weightKg": "H",
+      "batteryWh": "-",
+      "ports": "H",
+      "efficiency": "P",
+      "throttle": "-"
+    },
+    "geo": {
+      "cpu": "H",
+      "cores": "H",
+      "ramGB": "R",
+      "ramType": "H",
+      "storageGB": "R",
+      "gpuModel": "R",
+      "vramGB": "R",
+      "tgpW": "H",
+      "screenInch": "H",
+      "resolution": "H",
+      "refreshHz": "-",
+      "colorGamut": "H",
+      "brightnessNit": "H",
+      "weightKg": "H",
+      "batteryWh": "-",
+      "ports": "H",
+      "efficiency": "P",
+      "throttle": "-"
+    }
+  },
+  "snapshotCoverage": {
+    "date": "2026-11-08 00:07",
+    "scope": "京东 27 条价格记录 + 10 条官网规格",
+    "have": {
+      "cpu": "27/27",
+      "ramGB": "27/27",
+      "storageGB": "26/27",
+      "gpuModel": "27/27（只有型号名，无显存与功耗）",
+      "screenInch": "27/27 但为自由文本，不可筛选",
+      "ramType": "10/27"
+    },
+    "missing": {
+      "vramGB": "0/27",
+      "tgpW": "0/27",
+      "resolution": "0/27 结构化",
+      "refreshHz": "0/27 结构化",
+      "colorGamut": "9/27",
+      "brightnessNit": "0/27",
+      "weightKg": "9/27",
+      "efficiency": "0/27（华硕 3 条从页面看到「一级能效」，未入字段）",
+      "ports": "0/27 结构化",
+      "throttle": "0/27",
+      "cores": "0/27"
+    },
+    "verdict": "按现有字段，能给 10 个专业组里 0 个组做出完整判断——因为每组都至少有一项 R 级字段缺失。"
+  },
+  "priority": [
+    {
+      "rank": 1,
+      "fields": [
+        "gpuModel + vramGB + tgpW"
+      ],
+      "blocks": [
+        "video",
+        "threeD",
+        "engine",
+        "geo"
+      ],
+      "why": "这四组的第一硬门槛就是显卡。只有型号名没有显存和功耗，等于门槛失效——RTX 5060 在 55W 和 115W 下差一倍。"
+    },
+    {
+      "rank": 2,
+      "fields": [
+        "ramType"
+      ],
+      "blocks": [
+        "code",
+        "threeD",
+        "video",
+        "graphic"
+      ],
+      "why": "内存焊死与否决定四年后有没有退路。现在只有 10/27 有，是覆盖率第二差的关键项。"
+    },
+    {
+      "rank": 3,
+      "fields": [
+        "colorGamut + resolution + refreshHz 结构化"
+      ],
+      "blocks": [
+        "graphic",
+        "video",
+        "geo"
+      ],
+      "why": "屏幕现在是一句自由文本，无法筛选「100% sRGB 以上」。平面组不看这一项就是瞎推。"
+    },
+    {
+      "rank": 4,
+      "fields": [
+        "efficiency"
+      ],
+      "blocks": [
+        "全部 10 组（国补资格）"
+      ],
+      "why": "家电线要 1 级能效。没有这一项，算出来的国补金额可能是错的——推荐了非一级能效机型却算出补贴。"
+    },
+    {
+      "rank": 5,
+      "fields": [
+        "weightKg",
+        "ports",
+        "cores"
+      ],
+      "blocks": [
+        "便携维度、电气组串口、多核换算"
+      ],
+      "why": "影响精度不影响方向，可稍后补。"
+    },
+    {
+      "rank": 6,
+      "fields": [
+        "throttle"
+      ],
+      "blocks": [
+        "video",
+        "threeD",
+        "engine"
+      ],
+      "why": "需要循环测试，成本最高。但它是「峰值 vs 实际」唯一的分辨手段，做视频组绕不过。"
+    }
+  ]
+}

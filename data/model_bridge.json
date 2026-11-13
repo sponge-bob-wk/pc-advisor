@@ -1,0 +1,89 @@
+{
+  "meta": {
+    "version": "0.1",
+    "updated": "2026-11-09",
+    "purpose": "把 prices.json 的机型（涨价分析样本）与 specs_verified.json 的机型（专业选机样本）桥接起来",
+    "why": "两个文件是一个项目里的两套数据集，取名习惯不同：prices 写「华硕天选 7」、specs 写「天选7 2026（锐龙7 H260/RTX5050）」。字符串归一化能解决一部分，但品牌前缀有时写有时不写、年份有时带有时不带，靠字符串猜必然出错——所以用显式映射。",
+    "rule": "只写确实指同一台机器的映射。拿不准就留空，宁缺勿错——错桥接会让规格串到别的机器上，比没有更糟。",
+    "notSameModel": "同系列不同尺寸/不同配置不合并（如小新 Air14 与 Air15、灵越 15 与灵越 14 Plus）"
+  },
+  "bridges": [
+    {
+      "priceId": "thin-air15",
+      "specId": "spec-xiaoxin-air15-2026",
+      "confidence": "high",
+      "note": "prices「联想小新 Air15 2026」= specs「小新 Air 15 2026」"
+    },
+    {
+      "priceId": "thin-zhan66",
+      "specId": "spec-hp-66g8-amd",
+      "confidence": "high",
+      "note": "prices「惠普战 66 八代锐龙版」= specs「战66 八代 14 英寸（2026 款锐龙版）」"
+    },
+    {
+      "priceId": "gaming-tianxuan7",
+      "specId": "spec-tuf-a16-2026",
+      "confidence": "high",
+      "note": "prices「华硕天选 7」= specs「天选7 2026（锐龙7 H260/RTX5050）」"
+    },
+    {
+      "priceId": "thin-vivobook16se",
+      "specId": "spec-parsed-jd-asus-wuwei16-2026-r7h260-16g-512g-202",
+      "confidence": "medium",
+      "note": "prices「华硕无畏 16SE 2026」与 specs「无畏16 2026 锐龙版」——需确认 SE 是否为同一 SKU；若 SE 是低配版则不应合并",
+      "caveat": "待核实：无畏 16 与无畏 16SE 可能是两条产品线"
+    },
+    {
+      "priceId": "thin-inspiron15",
+      "specId": "spec-parsed-jd-dell-inspiron14plus-7440-core5-210h-1",
+      "confidence": "low",
+      "note": "prices「戴尔灵越 15 2026」是 15 英寸，specs「灵越 14 Plus 7440」是 14 英寸——尺寸不同，原则上不是同一台",
+      "caveat": "不建议合并：尺寸不同，屏幕与重量都不同"
+    }
+  ],
+  "priceOnly": {
+    "reason": "以下 prices 机型在 specs 里没有对应记录，属「有价格无规格」，无法判断专业适配",
+    "ids": [
+      "thin-wujie14x",
+      "thin-matebookd16",
+      "thin-honorx14",
+      "thin-air14",
+      "thin-xiaoxin16",
+      "thin-redmibookpro14",
+      "gaming-yinxing",
+      "gaming-omen15",
+      "gaming-jiguangx",
+      "gaming-yaoshi18",
+      "gaming-canglong18"
+    ],
+    "note": "这 11 台是下一步补规格的优先目标——它们已经有价格，补上规格就能进推荐池"
+  },
+  "specOnly": {
+    "reason": "以下 specs 机型在 prices 里没有对应记录，属「有规格无价格」，进不了推荐",
+    "ids": [
+      "spec-legion-y9000p-2026",
+      "spec-omen11-2026",
+      "spec-legion-y7000p-2026",
+      "spec-hp-starbookpro14-2026",
+      "spec-xiaoxin-pro14-2026-amd",
+      "spec-thinkbook16p-2026",
+      "spec-thinkbook14p-2026",
+      "spec-parsed-jd-lenovo-xiaoxinpro14-u7-356h-32g-1t-20",
+      "spec-parsed-jd-lenovo-xiaoxinpro16-u5-336h-24g-1t-20",
+      "spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-yih",
+      "spec-parsed-jd-lenovo-xiaoxinpro16-u7-356h-32g-1t-20",
+      "spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-fla",
+      "spec-parsed-jd-lenovo-xiaoxinair14-u5-226v-16g-512g-",
+      "spec-parsed-jd-lenovo-xiaoxinair14-u7-256v-16g-1t-20",
+      "spec-parsed-jd-lenovo-thinkbook14plus-u5-225h-16g-51",
+      "spec-parsed-jd-lenovo-thinkbook16plus-r7h255-32g-1t-",
+      "spec-parsed-jd-lenovo-thinkpade14-u5-336h-32g-1t-202",
+      "spec-parsed-jd-lenovo-thinkpade16-core5-320-16g-512g",
+      "spec-parsed-jd-lenovo-thinkpade16-u5-32g-1t-authoriz",
+      "spec-parsed-jd-lenovo-legion-r7000p2026-r9-8940hx-16",
+      "spec-parsed-jd-asus-wuwei-pro14-2026-u7-356h-32g-1t-",
+      "spec-mechrevo-jiaolong15k"
+    ],
+    "note": "这 22 台规格已核实（其中 6 台还核实了能效），但缺涨价口径的价格样本"
+  }
+}

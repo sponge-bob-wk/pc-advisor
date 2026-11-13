@@ -1,0 +1,42 @@
+name: ci
+
+# 只跑"不需要大模型"的那部分 —— CI 机器上没有 Ollama。
+# 这挡不住所有回归，但能挡住"import 就炸""数据一致性被破坏""品类红线被改回退"这三类。
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  offline-tests:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: tools/agent
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 语法与导入（起不来就别谈别的）
+        run: |
+          python -m compileall -q core.py agent.py server.py
+          python -c "import core, agent, server; print('import ok')"
+
+      - name: 数据一致性（零写权限的护栏）
+        run: python audit_data.py
+
+      - name: 字段卡结构（数字必须与内核同源）
+        run: python test_answer.py
+
+      - name: 品类红线（苹果机不许进池）
+        run: python test_scope.py
+
+      - name: 社交层（纯规则，不需要模型）
+        run: python test_social.py
+
+      - name: 样本池可统计（不写文件）
+        run: python export_lora_data.py

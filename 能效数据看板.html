@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>能效数据看板 · 2026-11-09</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+background:#f5f6f8;color:#1a1a1a;line-height:1.65;padding:28px 20px 60px}
+.wrap{max-width:1100px;margin:0 auto}
+h1{font-size:25px;font-weight:700;letter-spacing:-.4px}
+.sub{color:#6b7280;font-size:13px;margin-top:6px}
+.card{background:#fff;border-radius:12px;padding:22px 24px;margin-top:18px;
+box-shadow:0 1px 3px rgba(0,0,0,.06),0 8px 24px -12px rgba(0,0,0,.1)}
+h2{font-size:15px;font-weight:600;color:#374151;margin-bottom:16px;
+padding-bottom:10px;border-bottom:1px solid #eef0f3;display:flex;align-items:center;gap:8px}
+h2::before{content:"";width:3px;height:14px;background:#c0392b;border-radius:2px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.kpi{background:#fafbfc;border:1px solid #eef0f3;border-radius:10px;padding:14px 16px}
+.kpi .v{font-size:26px;font-weight:700;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:11.5px;color:#6b7280;margin-top:3px}
+.kpi.hi .v{color:#c0392b}
+.kpi.ok .v{color:#1e8449}
+.bar-row{display:flex;align-items:center;gap:12px;margin:9px 0}
+.bar-label{width:42px;font-size:12.5px;color:#4b5563;flex:none}
+.bar-track{flex:1;height:20px;background:#f1f3f5;border-radius:5px;overflow:hidden}
+.bar-fill{height:100%;border-radius:5px;transition:width .5s}
+.bar-num{width:120px;font-size:12px;color:#6b7280;text-align:right;flex:none;
+font-variant-numeric:tabular-nums}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11.5px;font-weight:600;color:#6b7280;
+padding:7px 9px;border-bottom:1.5px solid #e5e7eb;white-space:nowrap}
+td{padding:8px 9px;border-bottom:1px solid #f3f4f6;vertical-align:top}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#fafbfc}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.center{text-align:center}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+.small{font-size:12px}
+.dim{color:#9ca3af}
+.good{color:#1e8449;font-weight:600}
+.warn{color:#b45309;font-weight:600}
+.ok{color:#1e8449}
+.tag{display:inline-block;padding:1px 8px;border-radius:20px;font-size:11.5px;font-weight:600}
+.tag-ok{background:#e8f5e9;color:#1e8449}
+.note{background:#fffbeb;border-left:3px solid #f59e0b;padding:11px 15px;
+border-radius:0 7px 7px 0;font-size:12.5px;color:#78350f;margin-top:14px;line-height:1.7}
+.note b{color:#92400e}
+.method{font-size:12.5px;color:#4b5563;line-height:1.9}
+.method code{background:#f1f3f5;padding:1px 6px;border-radius:4px;
+font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:#c0392b}
+</style></head><body><div class="wrap">
+
+<h1>能效数据看板</h1>
+<div class="sub">来源：中国能效标识网 产品备案查询 · 采集日 2026-11-09 · 共 65 条备案记录</div>
+
+<div class="card">
+  <h2>总览</h2>
+  <div class="kpis">
+    <div class="kpi"><div class="v">65</div><div class="l">备案记录（去重）</div></div>
+    <div class="kpi ok"><div class="v">50</div><div class="l">1 级能效 · 76.9%</div></div>
+    <div class="kpi"><div class="v">7</div><div class="l">已回填机型</div></div>
+    <div class="kpi"><div class="v">3</div><div class="l">查无数据（否定结论）</div></div>
+    <div class="kpi"><div class="v">2/18</div><div class="l">价格主档能效覆盖</div></div>
+  </div>
+  <div class="note">
+    <b>关键判断</b>：2025 版能效标准下，笔记本拿 1 级是常态而不是例外（50/65 = 76.9%）。
+    这说明国补的「一级能效前置」门槛不会大面积卡掉候选机型。<br>
+    但要注意：<b>台式机/一体机会掉级</b>——`小新台式电脑–14IRR` 就是 2 级。国补对这类机型要单独核对。
+  </div>
+</div>
+
+<div class="card">
+  <h2>等级分布</h2>
+  <div class="bar-row">
+          <span class="bar-label">1 级</span>
+          <div class="bar-track"><div class="bar-fill" style="width:76.9%;background:#c0392b"></div></div>
+          <span class="bar-num">50 条 · 76.9%</span>
+        </div><div class="bar-row">
+          <span class="bar-label">2 级</span>
+          <div class="bar-track"><div class="bar-fill" style="width:13.8%;background:#e67e22"></div></div>
+          <span class="bar-num">9 条 · 13.8%</span>
+        </div><div class="bar-row">
+          <span class="bar-label">3 级</span>
+          <div class="bar-track"><div class="bar-fill" style="width:9.2%;background:#7f8c8d"></div></div>
+          <span class="bar-num">6 条 · 9.2%</span>
+        </div>
+</div>
+
+<div class="card">
+  <h2>按生产者</h2>
+  <table><thead><tr><th>生产者</th><th class="num">备案数</th>
+  <th class="num">1 级</th><th class="num">2 级</th><th class="num">3 级</th>
+  <th class="num">1 级占比</th></tr></thead>
+  <tbody><tr><td>联想（北京）有限公司</td><td class="num">44</td>
+          <td class="num good">37</td><td class="num">7</td>
+          <td class="num">0</td><td class="num">84%</td></tr><tr><td>华硕电脑股份有限公司</td><td class="num">20</td>
+          <td class="num good">12</td><td class="num">2</td>
+          <td class="num">6</td><td class="num">60%</td></tr><tr><td>未知</td><td class="num">1</td>
+          <td class="num good">1</td><td class="num">0</td>
+          <td class="num">0</td><td class="num">100%</td></tr></tbody></table>
+</div>
+
+<div class="card">
+  <h2>已核实并回填的机型（7 台）</h2>
+  <table><thead><tr><th>机型</th><th>能效网规格型号</th><th class="center">等级</th>
+  <th>备案号 / 日期</th></tr></thead>
+  <tbody><tr>
+          <td>拯救者 Y9000P 2026</td>
+          <td class="mono">Legion Y9000P IAX10</td>
+          <td class="center"><span class="tag tag-ok">1 级</span></td>
+          <td class="small"><span class="mono">20251216-CEL0272025-362868</span> <span class="dim">2025-12-16</span></td></tr><tr>
+          <td>暗影精灵 11（2026，Ultra7-251HX/RTX5060）</td>
+          <td class="mono">TPN-I145A3</td>
+          <td class="center"><span class="tag tag-ok">1 级</span></td>
+          <td class="small"><span class="mono">20260327-CEL0272025-161370</span> <span class="dim">2026-03-27</span></td></tr><tr>
+          <td>天选7 2026（锐龙7 H260/RTX5050）</td>
+          <td class="mono">FA608</td>
+          <td class="center"><span class="tag tag-ok">1 级</span></td>
+          <td class="small"><span class="mono">20260109-CEL0272025-135197</span> <span class="dim">2026-01-09</span></td></tr><tr>
+          <td>拯救者 Y7000P 2026</td>
+          <td class="mono">Legion Y7000P IAX10</td>
+          <td class="center"><span class="tag tag-ok">1 级</span></td>
+          <td class="small"><span class="mono">20251216-CEL0272025-717057</span> <span class="dim">2025-12-16</span></td></tr><tr>
+          <td>战66 八代 14 英寸（2026 款锐龙版）</td>
+          <td class="mono">-</td>
+          <td class="center"><span class="tag tag-ok">1 级</span></td>
+          <td class="small"></td></tr><tr>
+          <td>拯救者 R7000P 2026（R7000 系列自营在售款）</td>
+          <td class="mono">Legion R7000P ADR10</td>
+          <td class="center"><span class="tag tag-ok">1 级</span></td>
+          <td class="small"><span class="mono">20251211-CEL0272025-378760</span> <span class="dim">2025-12-11</span></td></tr><tr>
+          <td>无畏Pro14 酷睿版 2026（Ultra7-356H/核显）</td>
+          <td class="mono">S5450A</td>
+          <td class="center"><span class="tag tag-ok">1 级</span></td>
+          <td class="small"><span class="mono">20251209-CEL0272025-847101</span> <span class="dim">2025-12-09</span></td></tr></tbody></table>
+  <div class="note">
+    <b>这 7 台的共同点</b>：都是先拿到「能效网规格型号」才查到的。反过来，用营销名（天选、小新 Air）去查一律「暂无数据」。
+  </div>
+</div>
+
+<div class="card">
+  <h2>查询记录</h2>
+  <table><thead><tr><th>原始文件</th><th>查询词</th><th class="num">解析条数</th>
+  <th class="num">页面总数</th><th class="center">状态</th></tr></thead>
+  <tbody><tr><td class="mono small">asus_p1.txt</td>
+          <td>请输入产品型号</td>
+          <td class="num">10</td>
+          <td class="num">500</td>
+          <td class="center"><span class="">部分</span></td></tr><tr><td class="mono small">legion_p1.txt</td>
+          <td>拯救者</td>
+          <td class="num">10</td>
+          <td class="num">11</td>
+          <td class="center"><span class="">部分</span></td></tr><tr><td class="mono small">legion_R7000P.txt</td>
+          <td>Legion R7000P ADR10</td>
+          <td class="num">1</td>
+          <td class="num">1</td>
+          <td class="center"><span class="ok">完整</span></td></tr><tr><td class="mono small">legion_Y7000P.txt</td>
+          <td>Y7000P IAX10</td>
+          <td class="num">1</td>
+          <td class="num">1</td>
+          <td class="center"><span class="ok">完整</span></td></tr><tr><td class="mono small">legion_Y9000P.txt</td>
+          <td>Y9000P IAX10</td>
+          <td class="num">2</td>
+          <td class="num">2</td>
+          <td class="center"><span class="ok">完整</span></td></tr><tr><td class="mono small">omen_TPN.txt</td>
+          <td>TPN-I145A3</td>
+          <td class="num">1</td>
+          <td class="num">1</td>
+          <td class="center"><span class="ok">完整</span></td></tr><tr><td class="mono small">rog_GU606.txt</td>
+          <td>GU606</td>
+          <td class="num">2</td>
+          <td class="num">2</td>
+          <td class="center"><span class="ok">完整</span></td></tr><tr><td class="mono small">rog_GU606AP.txt</td>
+          <td>GU606AP</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="center"><span class="warn">查无数据</span></td></tr><tr><td class="mono small">tianxuan_p1.txt</td>
+          <td>天选</td>
+          <td class="num">0</td>
+          <td class="num">-</td>
+          <td class="center"><span class="warn">查无数据</span></td></tr><tr><td class="mono small">tuf_FA608.txt</td>
+          <td>FA608</td>
+          <td class="num">7</td>
+          <td class="num">7</td>
+          <td class="center"><span class="ok">完整</span></td></tr><tr><td class="mono small">wuwei_S5450A.txt</td>
+          <td>S5450A</td>
+          <td class="num">1</td>
+          <td class="num">1</td>
+          <td class="center"><span class="ok">完整</span></td></tr><tr><td class="mono small">xiaoxin_p1.txt</td>
+          <td>小新</td>
+          <td class="num">30</td>
+          <td class="num">193</td>
+          <td class="center"><span class="">部分</span></td></tr></tbody></table>
+</div>
+
+<div class="card">
+  <h2>查无数据的型号（否定结论，不必重查）</h2>
+  <table><thead><tr><th>查询词</th><th>结果</th><th>原因</th></tr></thead>
+  <tbody><tr><td class="mono">天选</td><td>暂无数据</td>
+        <td class="small">中文营销名不是备案型号。华硕在能效网只登记字母码，中文名一条都搜不到。</td></tr><tr><td class="mono">FA506</td><td>暂无数据</td>
+        <td class="small">FA506 是 2022 年前后的天选 3 系列型号，2025 版体系下无备案；老机型备案在 2012 版体系里，且型号后缀不同。</td></tr><tr><td class="mono">GU606AP</td><td>暂无数据</td>
+        <td class="small">同系列的 GU606 与 GU606A 都有备案且均 1 级；GU606AP 查不到，判断为采集时把型号抄多了后缀，实际备案型号应是 GU606A。</td></tr></tbody></table>
+</div>
+
+<div class="card">
+  <h2>采集方法</h2>
+  <div class="method">
+    ① 网址 <code>energylabel.com.cn</code> → 产品备案查询<br>
+    ② 产品类型必须先限定 <code>办公电子 → 微型计算机 2025版</code>，否则混入显示器与服务器<br>
+    ③ 输入「能效网规格型号」（不是中文营销名）→ 搜索<br>
+    ④ 页面表格读不到 DOM，改用 <code>Ctrl+A / Ctrl+C</code> 复制表格 → 读系统剪贴板<br>
+    ⑤ 复制前必须先写哨兵值，否则会把上一次的内容当成这次的<br>
+    ⑥ 解析时注意两套备案号格式：2025 版带 <code>CEL</code>，2012 版不带
+  </div>
+</div>
+
+</div></body></html>

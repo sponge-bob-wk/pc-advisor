@@ -1,0 +1,186 @@
+{
+ "passed": 12,
+ "total": 12,
+ "rows": [
+  {
+   "id": "M01",
+   "name": "问『这台能不能打游戏』不能变成换游戏本",
+   "ok": true,
+   "fails": [],
+   "stages": [
+    "recommend",
+    "fit"
+   ],
+   "picks": [
+    "联想小新 16",
+    "联想小新 16"
+   ]
+  },
+  {
+   "id": "M02",
+   "name": "『我说的就是刚才那台』要认得出指的是哪台",
+   "ok": true,
+   "fails": [],
+   "stages": [
+    "recommend",
+    "fit",
+    "followup"
+   ],
+   "picks": [
+    "联想小新 16",
+    "联想小新 16",
+    "联想小新 16"
+   ]
+  },
+  {
+   "id": "M03",
+   "name": "『预算提高到7000』要真的改预算，不能被追问吞掉",
+   "ok": true,
+   "fails": [],
+   "stages": [
+    "recommend",
+    "recommend"
+   ],
+   "picks": [
+    "联想小新 16",
+    "MateBook 14 2026"
+   ]
+  },
+  {
+   "id": "M04",
+   "name": "换一台不能丢条件、不能重问品类（死循环）",
+   "ok": true,
+   "fails": [],
+   "stages": [
+    "recommend",
+    "recommend"
+   ],
+   "picks": [
+    "星Book Pro Air 14",
+    "小新 Air 14（酷睿 Ultra5 版）"
+   ]
+  },
+  {
+   "id": "M05",
+   "name": "『不要封装内存』是硬约束，换台也不能推封装机型",
+   "ok": true,
+   "fails": [],
+   "stages": [
+    "recommend",
+    "recommend",
+    "recommend"
+   ],
+   "picks": [
+    "星Book Pro Air 14",
+    "战66 八代 14 英寸（2026 款锐龙版）",
+    "惠普战 66 八代锐龙版"
+   ]
+  },
+  {
+   "id": "M06",
+   "name": "『这个价位还有什么』是在说范围，不是指向当前那台",
+   "ok": true,
+   "fails": [],
+   "stages": [
+    "recommend",
+    "recommend"
+   ],
+   "picks": [
+    "联想小新 16",
+    "星Book Pro Air 14"
+   ]
+  },
+  {
+   "id": "M07",
+   "name": "补充用途是叠加，不是覆盖（学设计 + 偶尔游戏）",
+   "ok": true,
+   "fails": [],
+   "stages": [
+    "recommend",
+    "refuse"
+   ],
+   "picks": [
+    "联想小新 16",
+    null
+   ]
+  },
+  {
+   "id": "M08",
+   "name": "游戏本换个方问（能带进教室吗）不能变成换轻薄本",
+   "ok": true,
+   "fails": [],
+   "stages": [
+    "recommend",
+    "recommend"
+   ],
+   "picks": [
+    "极光X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz）",
+    "极光X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz）"
+   ]
+  },
+  {
+   "id": "M09",
+   "name": "补一句「要带去教室」不能把游戏本换成轻薄本（陈述句）",
+   "ok": true,
+   "fails": [],
+   "stages": [
+    "recommend",
+    "recommend",
+    "recommend"
+   ],
+   "picks": [
+    "极光X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz）",
+    "极光X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz）",
+    "极光X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz）"
+   ]
+  },
+  {
+   "id": "M10",
+   "name": "「其余推荐列出来」要给清单，不许把首位再讲一遍",
+   "ok": true,
+   "fails": [],
+   "stages": [
+    "recommend",
+    "followup"
+   ],
+   "picks": [
+    "惠普战 66 八代锐龙版",
+    null
+   ]
+  },
+  {
+   "id": "M11",
+   "name": "没条件变化时不许把同一台再推一遍（要反问）",
+   "ok": true,
+   "fails": [],
+   "stages": [
+    "recommend",
+    "followup"
+   ],
+   "picks": [
+    "MateBook 14 2026",
+    "MateBook 14 2026"
+   ]
+  },
+  {
+   "id": "M12",
+   "name": "反问里给的选项必须能接住（不许同一句反复问）",
+   "ok": true,
+   "fails": [],
+   "stages": [
+    "clarify",
+    "clarify",
+    "recommend",
+    "recommend",
+    "compare"
+   ],
+   "picks": [
+    null,
+    null,
+    "ThinkBook 16+ 2026（酷睿 Ultra5 338H）",
+    "ThinkBook 16+ 2026（酷睿 Ultra5 338H）",
+    null
+   ]
+  }
+ ]
+}

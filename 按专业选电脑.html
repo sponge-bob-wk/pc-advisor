@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>按专业选电脑 · 准大学生</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+background:#f5f6f8;color:#1a1a1a;line-height:1.65;padding:24px 16px 80px}
+.wrap{max-width:960px;margin:0 auto}
+h1{font-size:24px;font-weight:700;letter-spacing:-.4px}
+.sub{color:#6b7280;font-size:13px;margin-top:5px}
+.card{background:#fff;border-radius:12px;padding:20px 22px;margin-top:16px;
+box-shadow:0 1px 3px rgba(0,0,0,.06),0 8px 24px -12px rgba(0,0,0,.1)}
+
+/* 输入区 */
+.picker{position:sticky;top:0;z-index:20;background:#fff;border-radius:12px;
+padding:16px 18px;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-top:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input[type=text],input[type=number]{font-size:15px;padding:11px 13px;border:1.5px solid #e5e7eb;
+border-radius:9px;font-family:inherit;color:#1a1a1a;outline:none;transition:border .15s}
+input[type=text]{flex:1;min-width:200px}
+input[type=number]{width:130px}
+input:focus{border-color:#c0392b}
+.btn{font-size:14px;padding:11px 20px;border-radius:9px;border:none;background:#c0392b;
+color:#fff;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
+.btn:hover{background:#a93226}
+.btn.ghost{background:#f1f3f5;color:#4b5563}
+.btn.ghost:hover{background:#e5e7eb}
+
+/* 候选下拉 */
+.sug{position:absolute;left:18px;right:18px;top:100%;margin-top:4px;background:#fff;
+border:1px solid #e5e7eb;border-radius:9px;box-shadow:0 8px 24px rgba(0,0,0,.12);
+max-height:280px;overflow:auto;display:none;z-index:30}
+.sug.on{display:block}
+.sug div{padding:9px 14px;font-size:14px;cursor:pointer;border-bottom:1px solid #f6f7f8}
+.sug div:last-child{border:none}
+.sug div:hover,.sug div.sel{background:#fdf2f1}
+.sug small{color:#9ca3af;font-size:11.5px;margin-left:8px}
+
+/* 结论 */
+.hit{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.hit b{font-size:19px;font-weight:700}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11.5px;
+font-weight:700;background:#eef2ff;color:#4338ca}
+.mline{font-size:13.5px;color:#4b5563;margin-top:3px}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:9px;margin-top:14px}
+.kv div{background:#fafbfc;border:1px solid #eef0f3;border-radius:8px;padding:9px 11px}
+.kv .l{font-size:11px;color:#9ca3af}
+.kv .v{font-size:14px;font-weight:600;margin-top:1px}
+
+h2{font-size:15px;font-weight:600;color:#374151;margin-bottom:13px;
+padding-bottom:9px;border-bottom:1px solid #eef0f3;display:flex;align-items:center;
+gap:8px;justify-content:space-between}
+h2 span.t{display:flex;align-items:center;gap:8px}
+h2 span.t::before{content:"";width:3px;height:14px;background:#c0392b;border-radius:2px}
+h2 em{font-style:normal;font-size:12px;font-weight:500;color:#9ca3af}
+
+/* 机器卡 */
+.m{border:1px solid #eef0f3;border-radius:10px;padding:14px 16px;margin-bottom:10px;
+transition:border-color .15s,box-shadow .15s}
+.m:hover{border-color:#dfe3e8;box-shadow:0 3px 12px -6px rgba(0,0,0,.12)}
+.m.top{border-color:#c0392b;border-width:1.5px;background:linear-gradient(180deg,#fffafa,#fff 60%)}
+.m-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.m-n{font-size:15px;font-weight:650}
+.m-p{font-size:19px;font-weight:750;color:#c0392b;font-variant-numeric:tabular-nums;white-space:nowrap}
+.m-s{font-size:12.5px;color:#6b7280;margin-top:3px}
+.m-p2{font-size:12px;color:#9ca3af;margin-top:6px;font-variant-numeric:tabular-nums}
+.bv{display:inline-block;font-size:10px;padding:1px 5px;margin-left:6px;border-radius:3px;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;vertical-align:2px;font-weight:400}
+.blist{display:flex;flex-direction:column;gap:1px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;margin-top:8px}
+.brow{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#fff;padding:9px 11px;cursor:pointer}
+.brow:hover{background:#fffbf5}
+.bl{display:flex;align-items:baseline;gap:8px;min-width:0}
+.bl b{font-size:13px;font-weight:600;color:#111827;white-space:nowrap}
+.bn{font-size:11px;color:#9ca3af}
+.br{text-align:right;min-width:0}
+.bp{font-size:13px;font-weight:600;color:#c0392b;font-variant-numeric:tabular-nums;margin-right:8px}
+.bmin{font-size:11px;color:#6b7280;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bh{font-size:12px;color:#6b7280;margin:14px 0 2px;font-weight:600}
+.lad{font-size:12px;color:#374151;padding:5px 0;border-bottom:1px dashed #f3f4f6;font-variant-numeric:tabular-nums}
+.lad span{font-weight:600;color:#111827;margin-right:6px}
+.lad em{color:#059669;font-style:normal;margin-right:8px}
+.lad i{color:#9ca3af;font-style:normal;margin-left:6px}
+.m-edu{font-size:12px;color:#0f766e;margin-top:3px;font-variant-numeric:tabular-nums}
+.m-bench{font-size:12px;color:#4b5563;margin-top:4px;font-variant-numeric:tabular-nums;letter-spacing:.2px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chip{font-size:11px;padding:2px 8px;border-radius:5px;background:#f1f3f5;color:#6b7280}
+.chip.ok{background:#e8f5e9;color:#1e8449;font-weight:600}
+.chip.no{background:#fdecea;color:#c0392b;font-weight:600}
+.chip.warn{background:#fffbeb;color:#b45309}
+
+/* 列表 */
+.mini{display:flex;justify-content:space-between;gap:12px;padding:9px 0;
+border-bottom:1px solid #f6f7f8;font-size:13.5px;align-items:baseline}
+.mini:last-child{border:none}
+.mini .r{color:#6b7280;font-size:12px;text-align:right;flex:none;max-width:52%}
+.mini .why{color:#c0392b}
+.note{background:#fffbeb;border-left:3px solid #f59e0b;padding:11px 15px;
+border-radius:0 7px 7px 0;font-size:12.5px;color:#78350f;margin-top:12px;line-height:1.75}
+.note b{color:#92400e}
+.empty{color:#9ca3af;font-size:13px;padding:8px 0}
+.trap{background:#fafbfc;border-radius:9px;padding:13px 15px;font-size:13px;
+color:#4b5563;line-height:1.85}
+.foot{text-align:center;color:#9ca3af;font-size:11.5px;margin-top:26px;line-height:1.9}
+.hide{display:none}
+@media(max-width:600px){
+  .m-p{font-size:17px} .wrap{padding:0} .mini .r{max-width:45%}
+  input[type=number]{width:100px}
+}
+</style></head><body><div class="wrap">
+
+<h1>按专业选电脑</h1>
+<div class="sub">输入专业，看库里哪几台真的够用 · 判定依据是软件官方系统要求，不是销售话术</div>
+
+<div class="picker" style="position:sticky">
+  <div class="row" style="position:relative">
+    <input type="text" id="q" placeholder="输入专业，如 计算机科学与技术 / 计科 / 土木工程" autocomplete="off">
+    <input type="number" id="budget" placeholder="预算（元，只填这个也行）" min="0" step="500">
+    <button class="btn" onclick="go()">查</button>
+    <button class="btn ghost" onclick="reset()">清空</button>
+    <div class="sug" id="sug"></div>
+  </div>
+</div>
+
+<div id="out"></div>
+
+<div class="foot" id="foot"></div>
+
+</div>
+<script>
+const D = {"generatedAt":"2026-11-09","machines":[{"id":"spec-legion-y9000p-2026","name":"拯救者 Y9000P 2026","brand":"联想","cat":"gaming","spec":"Core Ultra 9 290HX Plus · 16G · 1T · RTX 5060 8G","price":15499,"list":16999,"net":16999,"subsidy":1500,"shop":"京东自营","captured":"2026-11-07","eff":1,"edu":null,"bench":{"timeSpy":11637},"risks":[],"url":"https://item.jd.com/100377405028.html"},{"id":"spec-omen11-2026","name":"暗影精灵 11（2026，Ultra7-251HX/RTX5060）","brand":"惠普","cat":"gaming","spec":"Ultra7-251HX · 32G · 2T · RTX 5060 8G","price":10899,"list":12599,"net":12399,"subsidy":1500,"shop":"京东自营","captured":"2026-11-07","eff":1,"edu":null,"bench":{"cbMulti":26476,"cbSingle":2096,"timeSpy":11637},"risks":[],"url":"https://item.jd.com/10230684199053.html"},{"id":"spec-tuf-a16-2026","name":"天选7 2026（锐龙7 H260/RTX5050）","brand":"华硕","cat":"gaming","spec":"Ryzen 7 H260 · 16G · 512G · RTX 5050 8G","price":8999,"list":11199,"net":10499,"subsidy":1500,"shop":"京东自营","captured":"2026-11-07","eff":1,"edu":null,"bench":{"cbMulti":15321,"cbSingle":1760,"timeSpy":9609},"risks":[],"url":"https://item.jd.com/100264042589.html"},{"id":"spec-legion-y7000p-2026","name":"拯救者 Y7000P 2026","brand":"联想","cat":"gaming","spec":"Core Ultra 7 251HX · 16G · 1T · RTX 5060 8G","price":13499,"list":14999,"net":14999,"subsidy":1500,"shop":"京东自营","captured":"2026-11-07","eff":1,"edu":null,"bench":{"cbMulti":26476,"cbSingle":2096,"timeSpy":11637},"risks":[],"url":"https://item.jd.com/100319918295.html"},{"id":"spec-hp-starbookpro14-2026","name":"星 Book Pro 14 2026 锐龙版","brand":"惠普","cat":"thin","spec":"Ryzen 7 H255 · 32G · 1T · Radeon 780M","price":6203.3,"list":7998,"net":7298,"subsidy":1094.7,"shop":"京东自营","captured":"2026-11-07","eff":1,"edu":null,"bench":{"cbMulti":15475,"cbSingle":2055},"risks":["内存焊死"],"url":"https://item.jd.com/100346311456.html"},{"id":"spec-hp-66g8-amd","name":"战66 八代 14 英寸（2026 款锐龙版）","brand":"惠普","cat":"thin","spec":"Ryzen 7 H255 · 16G · 1T · Radeon 780M","price":4674.15,"list":5499,"net":5499,"subsidy":824.85,"shop":"京东自营","captured":"2026-11-07","eff":1,"edu":null,"bench":{"cbMulti":15475,"cbSingle":2055},"risks":[],"url":"https://item.jd.com/100252158679.html"},{"id":"spec-xiaoxin-pro14-2026-amd","name":"小新 Pro 14 2026（锐龙版）","brand":"联想","cat":"thin","spec":"Ryzen 7 H255 · 24G · 1T · Radeon 780M","price":6629.15,"list":7799,"net":7799,"subsidy":1169.85,"shop":"京东自营","captured":"2026-11-07","eff":1,"edu":null,"bench":{"cbMulti":15475,"cbSingle":2055},"risks":["色域、型号年份官网标注有出入"],"url":"https://item.jd.com/100241441971.html"},{"id":"spec-thinkbook16p-2026","name":"ThinkBook 16+ 2026（酷睿 Ultra5 338H）","brand":"联想","cat":"thin","spec":"Core Ultra 5 338H · 32G · 1T · Intel Arc B370","price":7394.15,"list":8699,"net":8699,"subsidy":1304.85,"shop":"京东自营","captured":"2026-11-07","eff":1,"edu":null,"bench":{"cbMulti":15988,"cbSingle":2002},"risks":[],"url":"https://item.jd.com/100433748810.html"},{"id":"spec-thinkbook14p-2026","name":"ThinkBook 14+ 2026 锐龙版","brand":"联想","cat":"thin","spec":"Ryzen 7 H255 · 32G · 1T · Radeon 780M","price":6799.15,"list":7999,"net":7999,"subsidy":1199.85,"shop":"京东自营","captured":"2026-11-07","eff":1,"edu":null,"bench":{"cbMulti":15475,"cbSingle":2055},"risks":["ram.form官网标注有出入"],"url":"https://item.jd.com/100429925578.html"},{"id":"spec-parsed-jd-lenovo-xiaoxinpro14-u7-356h-32g-1t-20","name":"小新 Pro 14 2026（酷睿 Ultra 7 版）","brand":"联想","cat":"thin","spec":"Ultra7 356H · 32G · 1T · 核显","price":8329.15,"list":9799,"net":9799,"subsidy":1469.85,"shop":"京东自营","captured":"2026-11-07","eff":1,"edu":null,"bench":{"cbMulti":18376,"cbSingle":2031},"risks":["内存焊死"],"url":"https://item.jd.com/100245296805.html"},{"id":"spec-parsed-jd-lenovo-xiaoxinpro16-u5-336h-24g-1t-20","name":"小新 Pro 16 2026（酷睿 Ultra 5 版）","brand":"联想","cat":"thin","spec":"Ultra5-336H · 24G · 1T · 核显","price":7649.15,"list":8999,"net":8999,"subsidy":1349.85,"shop":"京东自营","captured":"2026-11-07","eff":1,"edu":null,"bench":null,"risks":[],"url":"https://item.jd.com/100415546708.html"},{"id":"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-yih","name":"小新 Pro 16 超能本（锐龙版）","brand":"联想","cat":"thin","spec":"R7-H255 · 24G · 1T · 核显","price":6799.15,"list":7999,"net":7999,"subsidy":1199.85,"shop":"京东自营","captured":"2026-11-07","eff":1,"edu":null,"bench":{"cbMulti":15475,"cbSingle":2055},"risks":[],"url":"https://item.jd.com/100344858296.html"},{"id":"spec-parsed-jd-lenovo-xiaoxinpro16-u7-356h-32g-1t-20","name":"小新 Pro 16 超能本（酷睿 Ultra 7 版）","brand":"联想","cat":"thin","spec":"Ultra7-356H · 32G · 1T · 核显","price":8499.15,"list":9999,"net":9999,"subsidy":1499.85,"shop":"京东自营","captured":"2026-11-07","eff":1,"edu":null,"bench":{"cbMulti":18376,"cbSingle":2031},"risks":["内存焊死"],"url":"https://item.jd.com/100245296781.html"},{"id":"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-fla","name":"小新 Pro 16 2025（锐龙版）","brand":"联想","cat":"thin","spec":"R7-H255 · 24G · 1T · 核显","price":6629.15,"list":7999,"net":7799,"subsidy":1169.85,"shop":"品牌旗舰店","captured":"2026-11-07","eff":1,"edu":null,"bench":{"cbMulti":15475,"cbSingle":2055},"risks":["内存可否加装未核实"],"url":"https://item.jd.com/10210827170896.html"},{"id":"spec-parsed-jd-lenovo-xiaoxinair14-u5-226v-16g-512g-","name":"小新 Air 14 2026（酷睿 Ultra5 版）","brand":"联想","cat":"thin","spec":"Ultra5-226V · 16G · 512G · 核显","price":5099.15,"list":5999,"net":5999,"subsidy":899.85,"shop":"京东自营","captured":"2026-11-07","eff":1,"edu":null,"bench":{"cbMulti":9041,"cbSingle":1746},"risks":["内存焊死"],"url":"https://item.jd.com/100382485146.html"},{"id":"spec-parsed-jd-lenovo-xiaoxinair14-u7-256v-16g-1t-20","name":"小新 Air 14（酷睿 Ultra7 版）","brand":"联想","cat":"thin","spec":"Ultra7-256V · 16G · 1T · 核显","price":6799.15,"list":7999,"net":7999,"subsidy":1199.85,"shop":"京东自营","captured":"2026-11-07","eff":1,"edu":null,"bench":null,"risks":["内存焊死"],"url":"https://item.jd.com/100389788454.html"},{"id":"spec-parsed-jd-lenovo-xiaoxinair15-core5-320-16g-512","name":"小新 Air 15 2026（触控屏版）","brand":"联想","cat":"thin","spec":"Core5-320 · 16G · 512G · 核显","price":5066,"list":6599,"net":5960,"subsidy":894,"shop":"授权店","captured":"2026-11-07","eff":1,"edu":null,"bench":{"cbMulti":7880,"cbSingle":1928},"risks":["内存焊死"],"url":"https://item.jd.com/10227370768311.html"},{"id":"spec-parsed-jd-lenovo-thinkbook14plus-u5-225h-16g-51","name":"ThinkBook 14+（酷睿 Ultra5 版）","brand":"联想","cat":"thin","spec":"Ultra5-225H · 16G · 512G · 核显","price":5354.15,"list":6499,"net":6299,"subsidy":944.85,"shop":"授权店","captured":"2026-11-07","eff":1,"edu":null,"bench":{"cbMulti":16436,"cbSingle":1985},"risks":["内存焊死"],"url":"https://item.jd.com/10237426611503.html"},{"id":"spec-parsed-jd-lenovo-thinkbook16plus-r7h255-32g-1t-","name":"ThinkBook 16+ 锐龙版 2026","brand":"联想","cat":"thin","spec":"R7-H255 · 32G · 1T · 核显","price":9479,"list":11175.29,"net":9479,"subsidy":null,"shop":"第三方店","captured":"2026-11-07","eff":1,"edu":null,"bench":{"cbMulti":15475,"cbSingle":2055},"risks":["内存焊死"],"url":"https://item.jd.com/10170569808797.html"},{"id":"spec-parsed-jd-lenovo-thinkpade14-u5-336h-32g-1t-202","name":"ThinkPad E14 2026（Ultra 版）","brand":"联想","cat":"thin","spec":"Ultra5-336H · 32G · 1T · 核显","price":11499,"list":12999,"net":12999,"subsidy":1500,"shop":"京东自营","captured":"2026-11-07","eff":1,"edu":null,"bench":null,"risks":[],"url":"https://item.jd.com/100273798057.html"},{"id":"spec-parsed-jd-lenovo-thinkpade16-core5-320-16g-512g","name":"ThinkPad E16 2026","brand":"联想","cat":"thin","spec":"Core5-320 · 16G · 512G · 核显","price":6374.15,"list":7499,"net":7499,"subsidy":1124.85,"shop":"京东自营","captured":"2026-11-07","eff":1,"edu":null,"bench":{"cbMulti":7880,"cbSingle":1928},"risks":[],"url":"https://item.jd.com/100312925235.html"},{"id":"spec-parsed-jd-lenovo-thinkpade16-u5-32g-1t-authoriz","name":"ThinkPad E16 Gen 2（Ultra5 版）","brand":"联想","cat":"thin","spec":"Ultra5（第1代） · 32G · 1T · 核显","price":7537.8,"list":10199,"net":8868,"subsidy":1330.2,"shop":"授权店","captured":"2026-11-07","eff":1,"edu":null,"bench":null,"risks":[],"url":"https://item.jd.com/10143602866442.html"},{"id":"spec-parsed-jd-lenovo-legion-r7000p2026-r9-8940hx-16","name":"拯救者 R7000P 2026（R7000 系列自营在售款）","brand":"联想","cat":"thin","spec":"R9-8940HX · 16G · 1T · RTX5060 8G","price":12999,"list":14499,"net":14499,"subsidy":1500,"shop":"京东自营","captured":"2026-11-07","eff":1,"edu":null,"bench":{"timeSpy":11637},"risks":[],"url":"https://item.jd.com/100418894814.html"},{"id":"spec-parsed-jd-dell-inspiron14plus-7440-core5-210h-1","name":"灵越 14 Plus 7440（自营最新款，未标 2026）","brand":"戴尔","cat":"thin","spec":"Core5-210H · 16G · 1T · 核显","price":5923.65,"list":6999,"net":6969,"subsidy":1045.35,"shop":"京东自营","captured":"2026-11-07","eff":null,"edu":null,"bench":null,"risks":["内存可否加装未核实","能效备案冲突，国补存疑","能效等级、ram.form官网标注有出入"],"url":"https://item.jd.com/100241145026.html"},{"id":"spec-parsed-jd-asus-wuwei16-2026-r7h260-16g-512g-202","name":"无畏16 2026 锐龙版（R7-H260/核显）","brand":"华硕","cat":"thin","spec":"R7-H260 · 16G · 512G · 核显","price":4929.15,"list":5999,"net":5799,"subsidy":869.85,"shop":"京东自营","captured":"2026-11-07","eff":1,"edu":null,"bench":{"cbMulti":15321,"cbSingle":1760},"risks":[],"url":"https://item.jd.com/100319957003.html"},{"id":"spec-parsed-jd-asus-wuwei-pro14-2026-u7-356h-32g-1t-","name":"无畏Pro14 酷睿版 2026（Ultra7-356H/核显）","brand":"华硕","cat":"thin","spec":"Ultra7-356H · 32G · 1T · 核显","price":8074.15,"list":9499,"net":9499,"subsidy":1424.85,"shop":"京东自营","captured":"2026-11-07","eff":1,"edu":null,"bench":{"cbMulti":18376,"cbSingle":2031},"risks":["内存焊死"],"url":"https://item.jd.com/100315130636.html"},{"id":"jd-lenovo-xiaoxinair14-u5-226v-16g-512g-flagship-20261107","name":"小新 Air 14（酷睿 Ultra5 版）","brand":"联想","cat":"thin","spec":"Ultra5-226v · 16G · 512G · 核显","price":5099.15,"list":5999,"net":5999,"subsidy":899.85,"shop":"品牌旗舰店","captured":"2026-11-07","eff":1,"edu":null,"bench":{"cbMulti":9041,"cbSingle":1746},"risks":["内存焊死","规格未经交叉核实"],"url":"https://item.jd.com/10228821882553.html"},{"id":"jd-asus-rog-zephyrus-g16air2026-u9-386h-rtx5070-32g-1t-20261108","name":"ROG幻16 Air 2026（Ultra9-386H/RTX5070/32G/1T）","brand":"华硕","cat":"gaming","spec":"Core Ultra 9 386H · 32G · 1T · RTX 5070 8G","price":23499,"list":24999,"net":24999,"subsidy":1500,"shop":"品牌旗舰店","captured":"2026-11-08","eff":1,"edu":null,"bench":{"timeSpy":13537},"risks":["内存焊死","规格未经交叉核实"],"url":"https://item.jd.com/10218319809016.html"},{"id":"jd-msi-xingying15max-i713620h-rtx5050-32g-1t-20261109","name":"星影15 MAX 2026（i7-13620H/RTX5050/32G/1T）","brand":"微星","cat":"gaming","spec":"i7-13620H · 32G · 1T · RTX5050 8G","price":10599,"list":null,"net":10599,"subsidy":null,"shop":"品牌旗舰店","captured":"2026-11-09","eff":1,"edu":null,"bench":{"cbMulti":14161,"cbSingle":1775,"timeSpy":9609},"risks":["规格未经交叉核实"],"url":"https://item.jd.com/10238215184189.html"},{"id":"jd-asus-tianxuan6-h260-rtx5050-32g-1t-20261109","name":"天选6 2026（锐龙7 H260/RTX5050/32G/1T）","brand":"华硕","cat":"gaming","spec":"锐龙7 H 260 · 32G · 1T · RTX5050 8G","price":12898,"list":null,"net":12899,"subsidy":null,"shop":"授权店","captured":"2026-11-09","eff":1,"edu":null,"bench":{"cbMulti":15321,"cbSingle":1760,"timeSpy":9609},"risks":["规格未经交叉核实"],"url":"https://item.jd.com/10176572919699.html"},{"id":"jd-mechrevo-kuangshix-i514450hx-rtx5050-32g-1t-20261109","name":"旷世X 2026（i5-14450HX/RTX5050/32G/1T）","brand":"机械革命","cat":"gaming","spec":"i5-14450HX · 32G · 1T · RTX5050 8G","price":9099,"list":10999,"net":10599,"subsidy":1500,"shop":"第三方店","captured":"2026-11-09","eff":1,"edu":null,"bench":{"cbMulti":13881,"cbSingle":1838,"timeSpy":9609},"risks":["内存可否加装未核实","规格未经交叉核实"],"url":"https://item.jd.com/10235128439583.html"},{"id":"jd-mechrevo-wujie15x-r7h255-16g-1t-20261109","name":"无界15X Pro（R7-H255/16G/1T）","brand":"机械革命","cat":"thin","spec":"R7-H255 · 16G · 1T · Radeon 780M","price":5898,"list":6248,"net":5898,"subsidy":null,"shop":"第三方店","captured":"2026-11-09","eff":1,"edu":null,"bench":{"cbMulti":15475,"cbSingle":2055},"risks":["规格未经交叉核实"],"url":"https://item.jd.com/10232234279921.html"},{"id":"jd-mechrevo-wujie14-u5-226v-16g-1t-20261109","name":"无界14 2026（Ultra5-226V/16G/1T）","brand":"机械革命","cat":"thin","spec":"Ultra5-226V · 16G · 1T · Intel Arc 130V","price":4240.65,"list":5199,"net":4990.5,"subsidy":749.85,"shop":"京东自营","captured":"2026-11-09","eff":1,"edu":null,"bench":{"cbMulti":9041,"cbSingle":1746},"risks":["内存焊死","规格未经交叉核实"],"url":"https://item.jd.com/100331584964.html"},{"id":"jd-apple-macbookair15-m4-16g-512g-20261109","name":"MacBook Air 15 M4（16G/512G）","brand":"苹果","cat":"thin","spec":"Apple M4 · 16G · 512G · Apple M4 10核GPU","price":8946.51,"list":10499,"net":10446.51,"subsidy":1500,"shop":"京东自营","captured":"2026-11-09","eff":null,"edu":7436.65,"bench":{"cbMulti":12100,"cbSingle":2055},"risks":["内存焊死","规格未经交叉核实","能效未查"],"url":"https://item.jd.com/100127131036.html"},{"id":"jd-apple-macbookpro14-m5-16g-512g-20261109","name":"MacBook Pro 14 M5（16G/512G）","brand":"苹果","cat":"thin","spec":"Apple M5 · 16G · 512G · Apple M5 10核GPU","price":10049,"list":11549,"net":11549,"subsidy":1500,"shop":"京东自营","captured":"2026-11-09","eff":null,"edu":null,"bench":{"cbMulti":16014,"cbSingle":2511},"risks":["内存焊死","规格未经交叉核实","能效未查"],"url":"https://item.jd.com/100152613990.html"},{"id":"jd-apple-macbookair13-m4-16g-256g-20261109","name":"MacBook Air 13 M4（16G/256G）","brand":"苹果","cat":"thin","spec":"Apple M4 · 16G · 256G · Apple M4 8核GPU","price":6161.65,"list":7249,"net":7249,"subsidy":1087.35,"shop":"京东自营","captured":"2026-11-10","eff":null,"edu":null,"bench":{"cbMulti":12100,"cbSingle":2055},"risks":["内存焊死","规格未经交叉核实","能效未查"],"url":"https://item.jd.com/100140000000.html"},{"id":"jd-apple-macbookpro14-m5-24g-1t-20261109","name":"MacBook Pro 14 M5（24G/1T）","brand":"苹果","cat":"thin","spec":"Apple M5 · 24G · 1T · Apple M5 10核GPU","price":13499,"list":14999,"net":14999,"subsidy":1500,"shop":"京东自营","captured":"2026-11-10","eff":null,"edu":null,"bench":{"cbMulti":16014,"cbSingle":2511},"risks":["内存焊死","规格未经交叉核实","能效未查"],"url":"https://item.jd.com/100152613991.html"},{"id":"jd-mechrevo-jiaolong15k-r57640h-3050-16g-512g-20261109","name":"机械革命 蛟龙 15K（R5-7640H/16G/512G）","brand":"机械革命","cat":"gaming","spec":"R5-7640H · 16G · 512G · RTX 3050 4G","price":6499,"list":8499,"net":6499,"subsidy":null,"shop":"京东自营","captured":"2026-11-10","eff":1,"edu":null,"bench":null,"risks":["规格未经交叉核实"],"url":null},{"id":"jd-mechrevo-jiguangx-cw-i714650hx-32g-1t-5060-20261109","name":"极光X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz）","brand":"机械革命","cat":"gaming","spec":"i7-14650HX · 32G · 1T · RTX 5060 8G","price":6159.2,"list":7699,"net":7699,"subsidy":1540,"shop":"京东自营","captured":"2026-11-10","eff":1,"edu":null,"bench":{"timeSpy":11637},"risks":["规格未经交叉核实"],"url":"http://m.bjbpc.com/view.php?aid=2400"},{"id":"jd-hasee-zhanshen-t8-i713650hx-16g-1t-5060-20261109","name":"神舟 战神T8（i7-13650HX/16G/1T/RTX5060/2.5K 180Hz）","brand":"神舟","cat":"gaming","spec":"i7-13650HX · 16G · 1T · RTX 5060 8G","price":8499.15,"list":8499.15,"net":8499.15,"subsidy":null,"shop":"京东自营","captured":"2026-11-10","eff":1,"edu":null,"bench":{"timeSpy":11637},"risks":["规格未经交叉核实"],"url":null},{"id":"jd-xiaomi-redmibookpro16-u5338h-32g-1t-20261109","name":"REDMI Book Pro 16 2026（Ultra5-338H/32G/1T）","brand":"小米","cat":"thin","spec":"Ultra5-338H · 32G · 1T · Intel Arc 核显","price":8199,"list":8199,"net":8199,"subsidy":null,"shop":"京东自营","captured":"2026-11-10","eff":null,"edu":null,"bench":{"cbMulti":15988,"cbSingle":2002},"risks":["内存焊死","规格未经交叉核实","能效未查"],"url":null},{"id":"jd-honor-magicbookpro16-u5338h-32g-1t-20261109","name":"荣耀 MagicBook Pro 16 2026（Ultra5-338H/32G/1T）","brand":"荣耀","cat":"thin","spec":"Ultra5-338H · 32G · 1T · Intel Arc 核显","price":8455.02,"list":10149,"net":9946.02,"subsidy":1491.9,"shop":"京东自营","captured":"2026-11-10","eff":1,"edu":null,"bench":{"cbMulti":15988,"cbSingle":2002},"risks":["内存焊死","规格未经交叉核实"],"url":null},{"id":"jd-huawei-matebookd16-i513420h-16g-1t-20261109","name":"华为 MateBook D 16（i5-13420H/16G/1T，店铺预装 Win 未激活）","brand":"华为","cat":"thin","spec":"i5-13420H · 16G · 1T · Intel 核显","price":3654.15,"list":4299,"net":4299,"subsidy":644.85,"shop":"京东自营","captured":"2026-11-10","eff":null,"edu":null,"bench":{"cbMulti":7839,"cbSingle":1690},"risks":["内存可否加装未核实","规格未经交叉核实","能效未查"],"url":null},{"id":"jd-colorful-jiangxingx16pro-i514450hx-16g-512g-5050-20261109","name":"七彩虹 将星 X16 Pro（i5-14450HX/16G/512G/RTX5050/2.5K 180Hz）","brand":"七彩虹","cat":"gaming","spec":"i5-14450HX · 16G · 512G · RTX 5050 8G","price":8499.15,"list":9289,"net":8499.15,"subsidy":null,"shop":"京东自营","captured":"2026-11-10","eff":null,"edu":null,"bench":{"cbMulti":13881,"cbSingle":1838,"timeSpy":9609},"risks":["规格未经交叉核实","能效未查"],"url":null},{"id":"jd-lenovo-r9000p2026-r98945hx-16g-1t-5060-20261110","name":"拯救者 R9000P 2026（R9-8945HX/16G/1T/RTX5060/240Hz）","brand":"联想","cat":"gaming","spec":"R9-8945HX · 16G · 1T · RTX 5060 8G","price":12854,"list":14499,"net":14354,"subsidy":1500,"shop":"京东自营","captured":"2026-11-10","eff":null,"edu":null,"bench":{"timeSpy":11637},"risks":["规格未经交叉核实","能效未查"],"url":"https://m.lenovo.com.cn/wiki/article-49882.html"},{"id":"jd-asus-tianxuan7pro-u7255hx-16g-1t-5060-20261110","name":"华硕 天选7 Pro 酷睿版（U7-255HX/16G/1T/RTX5060/2.5K 300Hz）","brand":"华硕","cat":"gaming","spec":"Ultra7-255HX · 16G · 1T · RTX 5060 8G","price":12398,"list":13998,"net":13898,"subsidy":1500,"shop":"京东自营","captured":"2026-11-10","eff":null,"edu":null,"bench":{"cbMulti":29012,"cbSingle":2027,"timeSpy":11637},"risks":["规格未经交叉核实","能效未查"],"url":"https://nb.zol.com.cn/1238/12380108.html"},{"id":"jd-mechrevo-jiaolong16pro2026-r98945hx-16g-1t-5070-20261110","name":"蛟龙16 Pro 2026 新模具（R9-8945HX/16G/1T/RTX5070/2.5K 300Hz 白）","brand":"机械革命","cat":"gaming","spec":"R9-8945HX · 16G · 1T · RTX 5070 8G","price":12999,"list":13499,"net":12999,"subsidy":null,"shop":"京东自营","captured":"2026-11-10","eff":null,"edu":null,"bench":{"timeSpy":13537},"risks":["规格未经交叉核实","能效未查"],"url":"https://www.ithome.com/1/023/664.htm"},{"id":"jd-hp-omen11amd-r98945hx-16g-1t-5060-20261110","name":"暗影精灵11 锐龙版（R9-8945HX/16G/1T/RTX5060/2.5K 240Hz）","brand":"惠普","cat":"gaming","spec":"R9-8945HX · 16G · 1T · RTX 5060 8G","price":6687.41,"list":8698,"net":7867.53,"subsidy":1180.12,"shop":"京东自营","captured":"2026-11-10","eff":null,"edu":null,"bench":{"timeSpy":11637},"risks":["规格未经交叉核实","能效未查"],"url":"https://m.zol.com.cn/article/11304756.html"},{"id":"jd-acer-shadowknight8-i714650hx-16g-1t-5060-20261110","name":"宏碁 暗影骑士·擎8 2026（i7-14650HX/16G/1T/RTX5060/2.5K 180Hz）","brand":"宏碁","cat":"gaming","spec":"i7-14650HX · 16G · 1T · RTX 5060 8G","price":11999,"list":11999,"net":11999,"subsidy":null,"shop":"京东自营","captured":"2026-11-10","eff":null,"edu":null,"bench":{"timeSpy":11637},"risks":["规格未经交叉核实","能效未查"],"url":"https://www.ithome.com/1/023/664.htm"},{"id":"jd-msi-shenying16-r8840hx-16g-512g-5060-20261110","name":"微星 神影16 锐龙版 2026（R7-8840HX/16G/512G/RTX5060/2.5K 240Hz）","brand":"微星","cat":"gaming","spec":"R7-8840HX · 16G · 512G · RTX 5060 8G","price":8499.2,"list":10499,"net":9999,"subsidy":1499.8,"shop":"京东自营","captured":"2026-11-10","eff":null,"edu":null,"bench":{"timeSpy":11637},"risks":["规格未经交叉核实","能效未查"],"url":"https://item.jd.com/100436874764.html"},{"id":"jd-rog-strixscar18-u9275hx-16g-1t-5070ti-20261110","name":"ROG 枪神9 Plus 超竞版 18英寸（U9-275HX/16G/1T/RTX5070Ti 140W）","brand":"华硕","cat":"gaming","spec":"Ultra9-275HX · 16G · 1T · RTX 5070 Ti 16G","price":14999,"list":16999,"net":14999,"subsidy":null,"shop":"京东自营","captured":"2026-11-10","eff":null,"edu":null,"bench":null,"risks":["规格未经交叉核实","能效未查"],"url":"https://rog.asus.com.cn/laptops/rog-strix/rog-strix-scar-18-2025/spec/?config=90NR0LI1-M00100"}],"groups":[{"id":"office","name":"通识办公","tagline":"四年里最重的软件是 Office 和浏览器","req":{"ramMin":8,"ramRec":16,"vramMin":0,"vramRec":0,"gpu":"either","storageMinGB":512,"cpu":"无所谓，近三代 i5 / R5 都够","rationale":"这一组没有任何重负载软件，门槛由「四年后 Windows 和浏览器还跑得动」决定，而不是由某门课决定。8G 是下限，16G 是让它在第三年不至于卡。","basis":"judgment"},"gates":[],"mode":"value","preferCats":["thin"],"trap":"这个组最容易被「大学要用四年」推着买独显游戏本。按课程表算，它到毕业都用不满 16G 内存——多花的钱应该放在续航、屏幕和轻便上。医学类和法学要整天看文献，屏幕尺寸与护眼比算力重要；临床、护理还要带去见习，重量是硬指标。","followups":["平时会剪视频、做海报吗？","要不要带来带去（教室 / 图书馆 / 宿舍三点一线）？"],"majors":["汉语言文学","汉语言","汉语国际教育","中国少数民族语言文学","秘书学","英语","俄语","德语","法语","西班牙语","日语","朝鲜语","阿拉伯语","翻译","商务英语","历史学","世界史","考古学","文物与博物馆学","哲学","逻辑学","宗教学","法学","知识产权","政治学与行政学","国际政治","外交学","社会学","社会工作","人类学","民族学","思想政治教育","马克思主义理论","经济学","国际经济与贸易","财政学","税收学","金融学","保险学","投资学","金融工程","工商管理","市场营销","会计学","财务管理","人力资源管理","审计学","物流管理","电子商务","旅游管理","酒店管理","会展经济与管理","行政管理","公共事业管理","劳动与社会保障","土地资源管理","文化产业管理","农林经济管理","教育学","学前教育","小学教育","特殊教育","体育教育","新闻学","传播学","编辑出版学","网络与新媒体","心理学","应用心理学","临床医学","口腔医学","麻醉学","医学影像学","预防医学","中医学","中西医临床医学","针灸推拿学","康复治疗学","医学检验技术","卫生检验与检疫","眼视光医学","精神医学","儿科学","护理学","健康服务与管理","运动训练","社会体育指导与管理","武术与民族传统体育","运动人体科学","舞蹈表演","舞蹈学","舞蹈编导","交通运输","文秘","法律事务","会计","市场营销","电子商务","旅游管理","酒店管理","物流管理","商务英语","学前教育","小学教育","行政管理","社区管理与服务","人力资源管理","护理"],"vm":"cbSingle","verdicts":{"spec-legion-y9000p-2026":{"v":"ok"},"spec-omen11-2026":{"v":"ok"},"spec-tuf-a16-2026":{"v":"ok"},"spec-legion-y7000p-2026":{"v":"ok"},"spec-hp-starbookpro14-2026":{"v":"ok"},"spec-hp-66g8-amd":{"v":"ok"},"spec-xiaoxin-pro14-2026-amd":{"v":"ok"},"spec-thinkbook16p-2026":{"v":"ok"},"spec-thinkbook14p-2026":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro14-u7-356h-32g-1t-20":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro16-u5-336h-24g-1t-20":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-yih":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro16-u7-356h-32g-1t-20":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-fla":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinair14-u5-226v-16g-512g-":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinair14-u7-256v-16g-1t-20":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinair15-core5-320-16g-512":{"v":"ok"},"spec-parsed-jd-lenovo-thinkbook14plus-u5-225h-16g-51":{"v":"ok"},"spec-parsed-jd-lenovo-thinkbook16plus-r7h255-32g-1t-":{"v":"ok"},"spec-parsed-jd-lenovo-thinkpade14-u5-336h-32g-1t-202":{"v":"ok"},"spec-parsed-jd-lenovo-thinkpade16-core5-320-16g-512g":{"v":"ok"},"spec-parsed-jd-lenovo-thinkpade16-u5-32g-1t-authoriz":{"v":"ok"},"spec-parsed-jd-lenovo-legion-r7000p2026-r9-8940hx-16":{"v":"ok"},"spec-parsed-jd-dell-inspiron14plus-7440-core5-210h-1":{"v":"ok"},"spec-parsed-jd-asus-wuwei16-2026-r7h260-16g-512g-202":{"v":"ok"},"spec-parsed-jd-asus-wuwei-pro14-2026-u7-356h-32g-1t-":{"v":"ok"},"jd-lenovo-xiaoxinair14-u5-226v-16g-512g-flagship-20261107":{"v":"ok"},"jd-asus-rog-zephyrus-g16air2026-u9-386h-rtx5070-32g-1t-20261108":{"v":"ok"},"jd-msi-xingying15max-i713620h-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-asus-tianxuan6-h260-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-mechrevo-kuangshix-i514450hx-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-mechrevo-wujie15x-r7h255-16g-1t-20261109":{"v":"ok"},"jd-mechrevo-wujie14-u5-226v-16g-1t-20261109":{"v":"ok"},"jd-apple-macbookair15-m4-16g-512g-20261109":{"v":"ok"},"jd-apple-macbookpro14-m5-16g-512g-20261109":{"v":"ok"},"jd-apple-macbookair13-m4-16g-256g-20261109":{"v":"no","w":["存储不够（要求 512G）"]},"jd-apple-macbookpro14-m5-24g-1t-20261109":{"v":"ok"},"jd-mechrevo-jiaolong15k-r57640h-3050-16g-512g-20261109":{"v":"ok"},"jd-mechrevo-jiguangx-cw-i714650hx-32g-1t-5060-20261109":{"v":"ok"},"jd-hasee-zhanshen-t8-i713650hx-16g-1t-5060-20261109":{"v":"ok"},"jd-xiaomi-redmibookpro16-u5338h-32g-1t-20261109":{"v":"ok"},"jd-honor-magicbookpro16-u5338h-32g-1t-20261109":{"v":"ok"},"jd-huawei-matebookd16-i513420h-16g-1t-20261109":{"v":"ok"},"jd-colorful-jiangxingx16pro-i514450hx-16g-512g-5050-20261109":{"v":"ok"},"jd-lenovo-r9000p2026-r98945hx-16g-1t-5060-20261110":{"v":"ok"},"jd-asus-tianxuan7pro-u7255hx-16g-1t-5060-20261110":{"v":"ok"},"jd-mechrevo-jiaolong16pro2026-r98945hx-16g-1t-5070-20261110":{"v":"ok"},"jd-hp-omen11amd-r98945hx-16g-1t-5060-20261110":{"v":"ok"},"jd-acer-shadowknight8-i714650hx-16g-1t-5060-20261110":{"v":"ok"},"jd-msi-shenying16-r8840hx-16g-512g-5060-20261110":{"v":"ok"},"jd-rog-strixscar18-u9275hx-16g-1t-5070ti-20261110":{"v":"ok"}}},{"id":"code","name":"编程数据","tagline":"显卡基本无用，内存是命门","req":{"ramMin":16,"ramRec":32,"vramMin":0,"vramRec":4,"gpu":"either","storageMinGB":512,"cpu":"多核有用，但不是瓶颈","rationale":"本科阶段的编程课程（数据结构、操作系统、数据库、编译原理）没有一项吃显卡。真正的瓶颈是「同时开 IDE + 虚拟机 + 浏览器」，16G 在第三年会明显不够。显卡只在选人工智能方向、跑本地小模型时才有意义。","basis":"judgment"},"gates":[{"dim":"upgrade","min":2,"why":"内存焊死等于四年后没有后路，这一组最不能接受"}],"mode":"future","preferCats":["thin","gaming"],"trap":"「学计算机要买高配」是流传最广的误解。课程里没有一门课需要独显；把独显的钱换成 32G 内存和能加装的插槽，收益大得多。反过来，板载 16G 的轻薄本是这一组最危险的选项。","followups":["打算走人工智能方向吗（要不要在本地跑模型）？","会同时开虚拟机吗？"],"majors":["计算机科学与技术","软件工程","网络工程","信息安全","物联网工程","智能科学与技术","电子与计算机工程","数据科学与大数据技术","人工智能","网络空间安全","密码科学与技术","区块链工程","统计学","应用统计学","经济统计学","数据计算及应用","信息与计算科学","数学与应用数学","信息管理与信息系统","管理科学","大数据管理与应用","计算机应用技术","软件技术","大数据技术","信息安全技术应用","云计算技术应用","人工智能技术应用","计算机网络技术","移动应用开发"],"vm":"cbMulti","verdicts":{"spec-legion-y9000p-2026":{"v":"ok"},"spec-omen11-2026":{"v":"ok"},"spec-tuf-a16-2026":{"v":"ok"},"spec-legion-y7000p-2026":{"v":"ok"},"spec-hp-starbookpro14-2026":{"v":"no","w":["内存焊死，不能升级"]},"spec-hp-66g8-amd":{"v":"ok"},"spec-xiaoxin-pro14-2026-amd":{"v":"ok"},"spec-thinkbook16p-2026":{"v":"ok"},"spec-thinkbook14p-2026":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro14-u7-356h-32g-1t-20":{"v":"no","w":["内存焊死，不能升级"]},"spec-parsed-jd-lenovo-xiaoxinpro16-u5-336h-24g-1t-20":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-yih":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro16-u7-356h-32g-1t-20":{"v":"no","w":["内存焊死，不能升级"]},"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-fla":{"v":"unk","miss":["内存形态"]},"spec-parsed-jd-lenovo-xiaoxinair14-u5-226v-16g-512g-":{"v":"no","w":["内存焊死，不能升级"]},"spec-parsed-jd-lenovo-xiaoxinair14-u7-256v-16g-1t-20":{"v":"no","w":["内存焊死，不能升级"]},"spec-parsed-jd-lenovo-xiaoxinair15-core5-320-16g-512":{"v":"no","w":["内存焊死，不能升级"]},"spec-parsed-jd-lenovo-thinkbook14plus-u5-225h-16g-51":{"v":"no","w":["内存焊死，不能升级"]},"spec-parsed-jd-lenovo-thinkbook16plus-r7h255-32g-1t-":{"v":"no","w":["内存焊死，不能升级"]},"spec-parsed-jd-lenovo-thinkpade14-u5-336h-32g-1t-202":{"v":"ok"},"spec-parsed-jd-lenovo-thinkpade16-core5-320-16g-512g":{"v":"ok"},"spec-parsed-jd-lenovo-thinkpade16-u5-32g-1t-authoriz":{"v":"ok"},"spec-parsed-jd-lenovo-legion-r7000p2026-r9-8940hx-16":{"v":"ok"},"spec-parsed-jd-dell-inspiron14plus-7440-core5-210h-1":{"v":"unk","miss":["内存形态"]},"spec-parsed-jd-asus-wuwei16-2026-r7h260-16g-512g-202":{"v":"ok"},"spec-parsed-jd-asus-wuwei-pro14-2026-u7-356h-32g-1t-":{"v":"no","w":["内存焊死，不能升级"]},"jd-lenovo-xiaoxinair14-u5-226v-16g-512g-flagship-20261107":{"v":"no","w":["内存焊死，不能升级"]},"jd-asus-rog-zephyrus-g16air2026-u9-386h-rtx5070-32g-1t-20261108":{"v":"no","w":["内存焊死，不能升级"]},"jd-msi-xingying15max-i713620h-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-asus-tianxuan6-h260-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-mechrevo-kuangshix-i514450hx-rtx5050-32g-1t-20261109":{"v":"unk","miss":["内存形态"]},"jd-mechrevo-wujie15x-r7h255-16g-1t-20261109":{"v":"ok"},"jd-mechrevo-wujie14-u5-226v-16g-1t-20261109":{"v":"no","w":["内存焊死，不能升级"]},"jd-apple-macbookair15-m4-16g-512g-20261109":{"v":"no","w":["内存焊死，不能升级","（注：内存门槛取自 PC 端软件官方建议，Mac 统一内存的实际表现可能更宽裕；本工具没做等效换算，这条结论对 Mac 偏保守，建议单独确认）"]},"jd-apple-macbookpro14-m5-16g-512g-20261109":{"v":"no","w":["内存焊死，不能升级","（注：内存门槛取自 PC 端软件官方建议，Mac 统一内存的实际表现可能更宽裕；本工具没做等效换算，这条结论对 Mac 偏保守，建议单独确认）"]},"jd-apple-macbookair13-m4-16g-256g-20261109":{"v":"no","w":["存储不够（要求 512G）","内存焊死，不能升级","（注：内存门槛取自 PC 端软件官方建议，Mac 统一内存的实际表现可能更宽裕；本工具没做等效换算，这条结论对 Mac 偏保守，建议单独确认）"]},"jd-apple-macbookpro14-m5-24g-1t-20261109":{"v":"no","w":["内存焊死，不能升级","（注：内存门槛取自 PC 端软件官方建议，Mac 统一内存的实际表现可能更宽裕；本工具没做等效换算，这条结论对 Mac 偏保守，建议单独确认）"]},"jd-mechrevo-jiaolong15k-r57640h-3050-16g-512g-20261109":{"v":"ok"},"jd-mechrevo-jiguangx-cw-i714650hx-32g-1t-5060-20261109":{"v":"ok"},"jd-hasee-zhanshen-t8-i713650hx-16g-1t-5060-20261109":{"v":"ok"},"jd-xiaomi-redmibookpro16-u5338h-32g-1t-20261109":{"v":"no","w":["内存焊死，不能升级"]},"jd-honor-magicbookpro16-u5338h-32g-1t-20261109":{"v":"no","w":["内存焊死，不能升级"]},"jd-huawei-matebookd16-i513420h-16g-1t-20261109":{"v":"unk","miss":["内存形态"]},"jd-colorful-jiangxingx16pro-i514450hx-16g-512g-5050-20261109":{"v":"ok"},"jd-lenovo-r9000p2026-r98945hx-16g-1t-5060-20261110":{"v":"ok"},"jd-asus-tianxuan7pro-u7255hx-16g-1t-5060-20261110":{"v":"ok"},"jd-mechrevo-jiaolong16pro2026-r98945hx-16g-1t-5070-20261110":{"v":"ok"},"jd-hp-omen11amd-r98945hx-16g-1t-5060-20261110":{"v":"ok"},"jd-acer-shadowknight8-i714650hx-16g-1t-5060-20261110":{"v":"ok"},"jd-msi-shenying16-r8840hx-16g-512g-5060-20261110":{"v":"ok"},"jd-rog-strixscar18-u9275hx-16g-1t-5070ti-20261110":{"v":"ok"}}},{"id":"graphic","name":"平面视觉","tagline":"吃色准和内存，不吃独显","req":{"ramMin":16,"ramRec":32,"vramMin":2,"vramRec":4,"gpu":"either","storageMinGB":512,"cpu":"单核重要，多核次要","rationale":"Photoshop 官方 8G 最低 / 16G 推荐，显存 1.5G 起。取 16G 作下限，是因为这一组的课表普遍要和 Illustrator、InDesign 同时开，加上浏览器找参考。","basis":"official"},"gates":[{"dim":"ram","min":16,"why":"PS 多图层叠加 AI 矢量文件，16G 是能干活的下限"}],"mode":"value","preferCats":["thin","gaming"],"trap":"平面设计不吃独显。给学生推一张 RTX 5070 是浪费——这笔钱换成 32G 内存和一块 100% sRGB 的屏更值。但注意一个转折：一旦课程表里出现 AE 和 C4D，门槛会跳到视频组那一档（AE 官方要 16G 内存、4G 显存且必须独显）。买之前先看课表。","followups":["课表里有 AE 或 C4D 吗？","要做印刷品（对色准要求高）吗？"],"majors":["视觉传达设计","广告学","数字媒体艺术","艺术设计学","包装设计","服装与服饰设计","服装设计与工程","工艺美术","公共艺术","美术学","绘画","雕塑","中国画","书法学","漫画","摄影","文物保护与修复","戏剧影视美术设计","珠宝首饰设计与工艺","艺术设计","视觉传达设计","广告艺术设计","数字媒体艺术设计","产品艺术设计","服装与服饰设计","摄影摄像技术","美术","书画艺术","包装艺术设计"],"vm":"cbSingle","verdicts":{"spec-legion-y9000p-2026":{"v":"deg","w":["缺持续性能数据（长时间跑会掉多少速未核实）"]},"spec-omen11-2026":{"v":"deg","w":["缺持续性能数据（长时间跑会掉多少速未核实）"]},"spec-tuf-a16-2026":{"v":"deg","w":["缺持续性能数据（长时间跑会掉多少速未核实）"]},"spec-legion-y7000p-2026":{"v":"deg","w":["缺持续性能数据（长时间跑会掉多少速未核实）"]},"spec-hp-starbookpro14-2026":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-hp-66g8-amd":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-xiaoxin-pro14-2026-amd":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-thinkbook16p-2026":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-thinkbook14p-2026":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-xiaoxinpro14-u7-356h-32g-1t-20":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-xiaoxinpro16-u5-336h-24g-1t-20":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-yih":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-xiaoxinpro16-u7-356h-32g-1t-20":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-fla":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-xiaoxinair14-u5-226v-16g-512g-":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-xiaoxinair14-u7-256v-16g-1t-20":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-xiaoxinair15-core5-320-16g-512":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-thinkbook14plus-u5-225h-16g-51":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-thinkbook16plus-r7h255-32g-1t-":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-thinkpade14-u5-336h-32g-1t-202":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-thinkpade16-core5-320-16g-512g":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-thinkpade16-u5-32g-1t-authoriz":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-legion-r7000p2026-r9-8940hx-16":{"v":"deg","w":["缺持续性能数据（长时间跑会掉多少速未核实）"]},"spec-parsed-jd-dell-inspiron14plus-7440-core5-210h-1":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-asus-wuwei16-2026-r7h260-16g-512g-202":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-asus-wuwei-pro14-2026-u7-356h-32g-1t-":{"v":"no","w":["核显机（没有独立显卡）"]},"jd-lenovo-xiaoxinair14-u5-226v-16g-512g-flagship-20261107":{"v":"no","w":["核显机（没有独立显卡）"]},"jd-asus-rog-zephyrus-g16air2026-u9-386h-rtx5070-32g-1t-20261108":{"v":"ok"},"jd-msi-xingying15max-i713620h-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-asus-tianxuan6-h260-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-mechrevo-kuangshix-i514450hx-rtx5050-32g-1t-20261109":{"v":"unk","miss":["分辨率","色域"]},"jd-mechrevo-wujie15x-r7h255-16g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）"]},"jd-mechrevo-wujie14-u5-226v-16g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）"]},"jd-apple-macbookair15-m4-16g-512g-20261109":{"v":"ok"},"jd-apple-macbookpro14-m5-16g-512g-20261109":{"v":"ok"},"jd-apple-macbookair13-m4-16g-256g-20261109":{"v":"no","w":["存储不够（要求 512G）"]},"jd-apple-macbookpro14-m5-24g-1t-20261109":{"v":"ok"},"jd-mechrevo-jiaolong15k-r57640h-3050-16g-512g-20261109":{"v":"ok"},"jd-mechrevo-jiguangx-cw-i714650hx-32g-1t-5060-20261109":{"v":"ok"},"jd-hasee-zhanshen-t8-i713650hx-16g-1t-5060-20261109":{"v":"deg","w":["缺持续性能数据（长时间跑会掉多少速未核实）"]},"jd-xiaomi-redmibookpro16-u5338h-32g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）"]},"jd-honor-magicbookpro16-u5338h-32g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）"]},"jd-huawei-matebookd16-i513420h-16g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）"]},"jd-colorful-jiangxingx16pro-i514450hx-16g-512g-5050-20261109":{"v":"ok"},"jd-lenovo-r9000p2026-r98945hx-16g-1t-5060-20261110":{"v":"deg","w":["缺持续性能数据（长时间跑会掉多少速未核实）"]},"jd-asus-tianxuan7pro-u7255hx-16g-1t-5060-20261110":{"v":"ok"},"jd-mechrevo-jiaolong16pro2026-r98945hx-16g-1t-5070-20261110":{"v":"ok"},"jd-hp-omen11amd-r98945hx-16g-1t-5060-20261110":{"v":"ok"},"jd-acer-shadowknight8-i714650hx-16g-1t-5060-20261110":{"v":"deg","w":["缺持续性能数据（长时间跑会掉多少速未核实）"]},"jd-msi-shenying16-r8840hx-16g-512g-5060-20261110":{"v":"ok"},"jd-rog-strixscar18-u9275hx-16g-1t-5070ti-20261110":{"v":"ok"}}},{"id":"video","name":"视频影视","tagline":"全表最吃配置的本科方向","req":{"ramMin":32,"ramRec":32,"vramMin":6,"vramRec":8,"gpu":"discrete","storageMinGB":1024,"cpu":"多核决定导出时间","rationale":"Premiere 4K 要 32G 内存、8G 显存；AE 最低 16G / 推荐 32G、必须独立 GPU；达芬奇 16G 起、Fusion 页面要 32G。三条取最严：32G 内存 + 独显。","basis":"official"},"gates":[{"dim":"gpu","min":2,"why":"AE 明确要求独立 GPU，核显无法满足"},{"dim":"ram","min":32,"why":"4K 素材加缓存，32G 是官方推荐值"}],"mode":"perf","preferCats":["gaming","desktop"],"trap":"轻薄本的 32G 板载看起来够，实际剪 4K 加缓存会爆，而且这一组会长时间满载渲染——散热和风扇噪音比跑分更影响体验，而这两项参数表都不写。另外 1T 起步不是奢侈：一小时的 4K 素材就是几十 G。","followups":["主要是剪 1080P 还是 4K？","要做特效合成（AE）吗？"],"majors":["广播电视编导","广播电视学","影视摄影与制作","影视技术","戏剧影视文学","戏剧影视导演","戏剧学","电影学","动画","播音与主持艺术","广播影视节目制作","影视编导","影视多媒体技术","播音与主持","动漫制作技术","影视动画"],"vm":"timeSpy","verdicts":{"spec-legion-y9000p-2026":{"v":"no","w":["内存不够（要求 32G）"]},"spec-omen11-2026":{"v":"deg","w":["缺持续性能数据（长时间跑会掉多少速未核实）"]},"spec-tuf-a16-2026":{"v":"no","w":["内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-legion-y7000p-2026":{"v":"no","w":["内存不够（要求 32G）"]},"spec-hp-starbookpro14-2026":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-hp-66g8-amd":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-xiaoxin-pro14-2026-amd":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-thinkbook16p-2026":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-thinkbook14p-2026":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-xiaoxinpro14-u7-356h-32g-1t-20":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-xiaoxinpro16-u5-336h-24g-1t-20":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-yih":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-parsed-jd-lenovo-xiaoxinpro16-u7-356h-32g-1t-20":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-fla":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-parsed-jd-lenovo-xiaoxinair14-u5-226v-16g-512g-":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-parsed-jd-lenovo-xiaoxinair14-u7-256v-16g-1t-20":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-parsed-jd-lenovo-xiaoxinair15-core5-320-16g-512":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-parsed-jd-lenovo-thinkbook14plus-u5-225h-16g-51":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-parsed-jd-lenovo-thinkbook16plus-r7h255-32g-1t-":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-thinkpade14-u5-336h-32g-1t-202":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-thinkpade16-core5-320-16g-512g":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-parsed-jd-lenovo-thinkpade16-u5-32g-1t-authoriz":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-legion-r7000p2026-r9-8940hx-16":{"v":"no","w":["内存不够（要求 32G）"]},"spec-parsed-jd-dell-inspiron14plus-7440-core5-210h-1":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-parsed-jd-asus-wuwei16-2026-r7h260-16g-512g-202":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-parsed-jd-asus-wuwei-pro14-2026-u7-356h-32g-1t-":{"v":"no","w":["核显机（没有独立显卡）"]},"jd-lenovo-xiaoxinair14-u5-226v-16g-512g-flagship-20261107":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"jd-asus-rog-zephyrus-g16air2026-u9-386h-rtx5070-32g-1t-20261108":{"v":"ok"},"jd-msi-xingying15max-i713620h-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-asus-tianxuan6-h260-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-mechrevo-kuangshix-i514450hx-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-mechrevo-wujie15x-r7h255-16g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"jd-mechrevo-wujie14-u5-226v-16g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"jd-apple-macbookair15-m4-16g-512g-20261109":{"v":"no","w":["内存不够（要求 32G）","存储不够（要求 1024G）","（注：内存门槛取自 PC 端软件官方建议，Mac 统一内存的实际表现可能更宽裕；本工具没做等效换算，这条结论对 Mac 偏保守，建议单独确认）"]},"jd-apple-macbookpro14-m5-16g-512g-20261109":{"v":"no","w":["内存不够（要求 32G）","存储不够（要求 1024G）","（注：内存门槛取自 PC 端软件官方建议，Mac 统一内存的实际表现可能更宽裕；本工具没做等效换算，这条结论对 Mac 偏保守，建议单独确认）"]},"jd-apple-macbookair13-m4-16g-256g-20261109":{"v":"no","w":["内存不够（要求 32G）","存储不够（要求 1024G）","（注：内存门槛取自 PC 端软件官方建议，Mac 统一内存的实际表现可能更宽裕；本工具没做等效换算，这条结论对 Mac 偏保守，建议单独确认）"]},"jd-apple-macbookpro14-m5-24g-1t-20261109":{"v":"no","w":["内存不够（要求 32G）","（注：内存门槛取自 PC 端软件官方建议，Mac 统一内存的实际表现可能更宽裕；本工具没做等效换算，这条结论对 Mac 偏保守，建议单独确认）"]},"jd-mechrevo-jiaolong15k-r57640h-3050-16g-512g-20261109":{"v":"no","w":["内存不够（要求 32G）","存储不够（要求 1024G）","显存 4G，低于 6G","显存 4G，低于这一档硬门槛要求的 6G"]},"jd-mechrevo-jiguangx-cw-i714650hx-32g-1t-5060-20261109":{"v":"ok"},"jd-hasee-zhanshen-t8-i713650hx-16g-1t-5060-20261109":{"v":"no","w":["内存不够（要求 32G）"]},"jd-xiaomi-redmibookpro16-u5338h-32g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）"]},"jd-honor-magicbookpro16-u5338h-32g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）"]},"jd-huawei-matebookd16-i513420h-16g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"jd-colorful-jiangxingx16pro-i514450hx-16g-512g-5050-20261109":{"v":"no","w":["内存不够（要求 32G）","存储不够（要求 1024G）"]},"jd-lenovo-r9000p2026-r98945hx-16g-1t-5060-20261110":{"v":"no","w":["内存不够（要求 32G）"]},"jd-asus-tianxuan7pro-u7255hx-16g-1t-5060-20261110":{"v":"no","w":["内存不够（要求 32G）"]},"jd-mechrevo-jiaolong16pro2026-r98945hx-16g-1t-5070-20261110":{"v":"no","w":["内存不够（要求 32G）"]},"jd-hp-omen11amd-r98945hx-16g-1t-5060-20261110":{"v":"no","w":["内存不够（要求 32G）"]},"jd-acer-shadowknight8-i714650hx-16g-1t-5060-20261110":{"v":"no","w":["内存不够（要求 32G）"]},"jd-msi-shenying16-r8840hx-16g-512g-5060-20261110":{"v":"no","w":["内存不够（要求 32G）","存储不够（要求 1024G）"]},"jd-rog-strixscar18-u9275hx-16g-1t-5070ti-20261110":{"v":"no","w":["内存不够（要求 32G）"]}}},{"id":"threeD","name":"三维建筑工业","tagline":"独显是入场券，32G 是及格线","req":{"ramMin":32,"ramRec":32,"vramMin":4,"vramRec":8,"gpu":"discrete","storageMinGB":1024,"cpu":"单核频率优先（Revit 官方原话）","rationale":"Revit 官方入门档 16G 只够约 300MB 的单模型，课程作业常见 600MB 以上，对应官方「均衡」档 32G；SOLIDWORKS 官方 16G、推荐 32G；Rhino 官方标 8G 是「能开」，实际建模要 32G。三条取最严：32G + 独显 4G 显存起。","basis":"official"},"gates":[{"dim":"gpu","min":1,"why":"Revit 与 Rhino 都要求独立显卡与 OpenGL / DirectX 支持"},{"dim":"ram","min":32,"why":"Revit 均衡档即 32G；组内最容易被 16G 卡住"}],"mode":"perf","preferCats":["gaming","desktop"],"trap":"两个反直觉的点。① Revit 官方写 16G，但那是给 300MB 小模型的；课程做到期末，模型轻松翻倍，16G 会卡死。② SOLIDWORKS 只认认证显卡和认证驱动，显存大不等于能跑——一台游戏本跑 SW 可能不如同价位的移动工作站稳。","followups":["要做建筑（Revit）还是工业造型（Rhino / SolidWorks）？","要渲染效果图吗？"],"majors":["建筑学","城乡规划","风景园林","历史建筑保护工程","土木工程","建筑环境与能源应用工程","给排水科学与工程","道路桥梁与渡河工程","城市地下空间工程","智能建造","工程管理","工程造价","环境设计","工业设计","产品设计","机械设计制造及其自动化","机械电子工程","材料成型及控制工程","车辆工程","汽车服务工程","过程装备与控制工程","能源与动力工程","船舶与海洋工程","飞行器设计与工程","农业机械化及其自动化","木材科学与工程","建筑工程技术","工程造价","建筑设计","建筑室内设计","环境艺术设计","机械制造及自动化","模具设计与制造","数控技术","工业设计","汽车检测与维修技术","市政工程技术"],"vm":"timeSpy","verdicts":{"spec-legion-y9000p-2026":{"v":"no","w":["内存不够（要求 32G）"]},"spec-omen11-2026":{"v":"deg","w":["缺持续性能数据（长时间跑会掉多少速未核实）"]},"spec-tuf-a16-2026":{"v":"no","w":["内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-legion-y7000p-2026":{"v":"no","w":["内存不够（要求 32G）"]},"spec-hp-starbookpro14-2026":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-hp-66g8-amd":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-xiaoxin-pro14-2026-amd":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-thinkbook16p-2026":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-thinkbook14p-2026":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-xiaoxinpro14-u7-356h-32g-1t-20":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-xiaoxinpro16-u5-336h-24g-1t-20":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-yih":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-parsed-jd-lenovo-xiaoxinpro16-u7-356h-32g-1t-20":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-fla":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-parsed-jd-lenovo-xiaoxinair14-u5-226v-16g-512g-":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-parsed-jd-lenovo-xiaoxinair14-u7-256v-16g-1t-20":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-parsed-jd-lenovo-xiaoxinair15-core5-320-16g-512":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-parsed-jd-lenovo-thinkbook14plus-u5-225h-16g-51":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-parsed-jd-lenovo-thinkbook16plus-r7h255-32g-1t-":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-thinkpade14-u5-336h-32g-1t-202":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-thinkpade16-core5-320-16g-512g":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-parsed-jd-lenovo-thinkpade16-u5-32g-1t-authoriz":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-legion-r7000p2026-r9-8940hx-16":{"v":"no","w":["内存不够（要求 32G）"]},"spec-parsed-jd-dell-inspiron14plus-7440-core5-210h-1":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-parsed-jd-asus-wuwei16-2026-r7h260-16g-512g-202":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-parsed-jd-asus-wuwei-pro14-2026-u7-356h-32g-1t-":{"v":"no","w":["核显机（没有独立显卡）"]},"jd-lenovo-xiaoxinair14-u5-226v-16g-512g-flagship-20261107":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"jd-asus-rog-zephyrus-g16air2026-u9-386h-rtx5070-32g-1t-20261108":{"v":"ok"},"jd-msi-xingying15max-i713620h-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-asus-tianxuan6-h260-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-mechrevo-kuangshix-i514450hx-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-mechrevo-wujie15x-r7h255-16g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"jd-mechrevo-wujie14-u5-226v-16g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"jd-apple-macbookair15-m4-16g-512g-20261109":{"v":"no","w":["macOS 装不了这一组的核心软件：Revit 和 SolidWorks 都没有 macOS 版，这两门课的核心作业交不了（Rhino/SketchUp/Blender 有 Mac 版，但替代不了）"]},"jd-apple-macbookpro14-m5-16g-512g-20261109":{"v":"no","w":["macOS 装不了这一组的核心软件：Revit 和 SolidWorks 都没有 macOS 版，这两门课的核心作业交不了（Rhino/SketchUp/Blender 有 Mac 版，但替代不了）"]},"jd-apple-macbookair13-m4-16g-256g-20261109":{"v":"no","w":["macOS 装不了这一组的核心软件：Revit 和 SolidWorks 都没有 macOS 版，这两门课的核心作业交不了（Rhino/SketchUp/Blender 有 Mac 版，但替代不了）"]},"jd-apple-macbookpro14-m5-24g-1t-20261109":{"v":"no","w":["macOS 装不了这一组的核心软件：Revit 和 SolidWorks 都没有 macOS 版，这两门课的核心作业交不了（Rhino/SketchUp/Blender 有 Mac 版，但替代不了）"]},"jd-mechrevo-jiaolong15k-r57640h-3050-16g-512g-20261109":{"v":"no","w":["内存不够（要求 32G）","存储不够（要求 1024G）"]},"jd-mechrevo-jiguangx-cw-i714650hx-32g-1t-5060-20261109":{"v":"ok"},"jd-hasee-zhanshen-t8-i713650hx-16g-1t-5060-20261109":{"v":"no","w":["内存不够（要求 32G）"]},"jd-xiaomi-redmibookpro16-u5338h-32g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）"]},"jd-honor-magicbookpro16-u5338h-32g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）"]},"jd-huawei-matebookd16-i513420h-16g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"jd-colorful-jiangxingx16pro-i514450hx-16g-512g-5050-20261109":{"v":"no","w":["内存不够（要求 32G）","存储不够（要求 1024G）"]},"jd-lenovo-r9000p2026-r98945hx-16g-1t-5060-20261110":{"v":"no","w":["内存不够（要求 32G）"]},"jd-asus-tianxuan7pro-u7255hx-16g-1t-5060-20261110":{"v":"no","w":["内存不够（要求 32G）"]},"jd-mechrevo-jiaolong16pro2026-r98945hx-16g-1t-5070-20261110":{"v":"no","w":["内存不够（要求 32G）"]},"jd-hp-omen11amd-r98945hx-16g-1t-5060-20261110":{"v":"no","w":["内存不够（要求 32G）"]},"jd-acer-shadowknight8-i714650hx-16g-1t-5060-20261110":{"v":"no","w":["内存不够（要求 32G）"]},"jd-msi-shenying16-r8840hx-16g-512g-5060-20261110":{"v":"no","w":["内存不够（要求 32G）","存储不够（要求 1024G）"]},"jd-rog-strixscar18-u9275hx-16g-1t-5070ti-20261110":{"v":"no","w":["内存不够（要求 32G）"]}}},{"id":"audio","name":"音乐音频","tagline":"显卡无用，存储最贵","req":{"ramMin":16,"ramRec":32,"vramMin":0,"vramRec":0,"gpu":"none","storageMinGB":1024,"cpu":"单核频率与低延迟驱动最关键","rationale":"Cubase 官方最低 8G 内存、不对显卡作要求、完整安装 75G。取 16G 与 1T，是加上采样音源后的实际需要（一套管弦乐采样库常在 100G 以上），这一项属判断，已在硬门槛里单独标出。","basis":"official"},"gates":[{"dim":"storage","min":1024,"why":"Cubase 完整安装 75G，采样库动辄几百 G"}],"mode":"value","preferCats":["thin","desktop"],"trap":"唯一一个「显卡完全不重要、存储最重要」的组。Cubase 官方 8G 内存、不要独显，但采样库能把 512G 盘直接吃满。这一组最容易被销售推成游戏本——那是把钱花在完全用不上的地方。真正的瓶颈是 CPU 单核、ASIO 驱动延迟和硬盘速度。另外很多学校用 Mac 教学，买 Windows 要先问清楚课程要求。","followups":["要不要外接声卡 / MIDI 键盘？","装正版音源吗（采样库体积差别很大）？"],"majors":["录音艺术","作曲与作曲技术理论","音乐学","音乐表演","艺术与科技","音乐制作","录音技术与艺术","现代流行音乐","音乐表演"],"vm":"cbSingle","verdicts":{"spec-legion-y9000p-2026":{"v":"ok"},"spec-omen11-2026":{"v":"deg","w":["没有 USB-A，这一组要接仪器或导素材，需另配扩展坞（约 100-300 元），并且占用唯一的接口"]},"spec-tuf-a16-2026":{"v":"no","w":["存储不够（要求 1024G）"]},"spec-legion-y7000p-2026":{"v":"ok"},"spec-hp-starbookpro14-2026":{"v":"ok"},"spec-hp-66g8-amd":{"v":"ok"},"spec-xiaoxin-pro14-2026-amd":{"v":"ok"},"spec-thinkbook16p-2026":{"v":"ok"},"spec-thinkbook14p-2026":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro14-u7-356h-32g-1t-20":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro16-u5-336h-24g-1t-20":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-yih":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro16-u7-356h-32g-1t-20":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-fla":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinair14-u5-226v-16g-512g-":{"v":"no","w":["存储不够（要求 1024G）"]},"spec-parsed-jd-lenovo-xiaoxinair14-u7-256v-16g-1t-20":{"v":"deg","w":["没有 USB-A，这一组要接仪器或导素材，需另配扩展坞（约 100-300 元），并且占用唯一的接口"]},"spec-parsed-jd-lenovo-xiaoxinair15-core5-320-16g-512":{"v":"no","w":["存储不够（要求 1024G）"]},"spec-parsed-jd-lenovo-thinkbook14plus-u5-225h-16g-51":{"v":"no","w":["存储不够（要求 1024G）"]},"spec-parsed-jd-lenovo-thinkbook16plus-r7h255-32g-1t-":{"v":"ok"},"spec-parsed-jd-lenovo-thinkpade14-u5-336h-32g-1t-202":{"v":"ok"},"spec-parsed-jd-lenovo-thinkpade16-core5-320-16g-512g":{"v":"no","w":["存储不够（要求 1024G）"]},"spec-parsed-jd-lenovo-thinkpade16-u5-32g-1t-authoriz":{"v":"ok"},"spec-parsed-jd-lenovo-legion-r7000p2026-r9-8940hx-16":{"v":"ok"},"spec-parsed-jd-dell-inspiron14plus-7440-core5-210h-1":{"v":"ok"},"spec-parsed-jd-asus-wuwei16-2026-r7h260-16g-512g-202":{"v":"no","w":["存储不够（要求 1024G）"]},"spec-parsed-jd-asus-wuwei-pro14-2026-u7-356h-32g-1t-":{"v":"ok"},"jd-lenovo-xiaoxinair14-u5-226v-16g-512g-flagship-20261107":{"v":"no","w":["存储不够（要求 1024G）"]},"jd-asus-rog-zephyrus-g16air2026-u9-386h-rtx5070-32g-1t-20261108":{"v":"deg","w":["没有 USB-A，这一组要接仪器或导素材，需另配扩展坞（约 100-300 元），并且占用唯一的接口"]},"jd-msi-xingying15max-i713620h-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-asus-tianxuan6-h260-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-mechrevo-kuangshix-i514450hx-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-mechrevo-wujie15x-r7h255-16g-1t-20261109":{"v":"ok"},"jd-mechrevo-wujie14-u5-226v-16g-1t-20261109":{"v":"ok"},"jd-apple-macbookair15-m4-16g-512g-20261109":{"v":"no","w":["存储不够（要求 1024G）"]},"jd-apple-macbookpro14-m5-16g-512g-20261109":{"v":"no","w":["存储不够（要求 1024G）"]},"jd-apple-macbookair13-m4-16g-256g-20261109":{"v":"no","w":["存储不够（要求 1024G）"]},"jd-apple-macbookpro14-m5-24g-1t-20261109":{"v":"deg","w":["没有 USB-A，这一组要接仪器或导素材，需另配扩展坞（约 100-300 元），并且占用唯一的接口"]},"jd-mechrevo-jiaolong15k-r57640h-3050-16g-512g-20261109":{"v":"no","w":["存储不够（要求 1024G）"]},"jd-mechrevo-jiguangx-cw-i714650hx-32g-1t-5060-20261109":{"v":"ok"},"jd-hasee-zhanshen-t8-i713650hx-16g-1t-5060-20261109":{"v":"ok"},"jd-xiaomi-redmibookpro16-u5338h-32g-1t-20261109":{"v":"ok"},"jd-honor-magicbookpro16-u5338h-32g-1t-20261109":{"v":"ok"},"jd-huawei-matebookd16-i513420h-16g-1t-20261109":{"v":"unk","miss":["接口"]},"jd-colorful-jiangxingx16pro-i514450hx-16g-512g-5050-20261109":{"v":"no","w":["存储不够（要求 1024G）"]},"jd-lenovo-r9000p2026-r98945hx-16g-1t-5060-20261110":{"v":"ok"},"jd-asus-tianxuan7pro-u7255hx-16g-1t-5060-20261110":{"v":"ok"},"jd-mechrevo-jiaolong16pro2026-r98945hx-16g-1t-5070-20261110":{"v":"ok"},"jd-hp-omen11amd-r98945hx-16g-1t-5060-20261110":{"v":"ok"},"jd-acer-shadowknight8-i714650hx-16g-1t-5060-20261110":{"v":"ok"},"jd-msi-shenying16-r8840hx-16g-512g-5060-20261110":{"v":"no","w":["存储不够（要求 1024G）"]},"jd-rog-strixscar18-u9275hx-16g-1t-5070ti-20261110":{"v":"ok"}}},{"id":"engine","name":"游戏与数字媒体技术","tagline":"专业课和娱乐需求在同一个预算里打架","req":{"ramMin":32,"ramRec":32,"vramMin":8,"vramRec":8,"gpu":"discrete","storageMinGB":1024,"cpu":"多核（编译、烘焙、光照）","rationale":"引擎本身没有面向学生的统一系统要求，所以取本组唯一有官方依据的 AE 兜底（16G 最低 / 32G 推荐、4G 显存起、必须独显），再按「引擎编译 + 素材库 + 游戏」的经验上调到 32G / 8G 显存。","basis":"official"},"gates":[{"dim":"gpu","min":2,"why":"引擎编辑器与游戏需求叠加"},{"dim":"ram","min":32,"why":"编辑器 + 素材 + 浏览器同时开"}],"mode":"perf","preferCats":["gaming"],"trap":"这一组预算最容易失控，因为「学习需求」和「娱乐需求」会互相借力。但要说清一件事：虚幻引擎的编译和光照烘焙吃的是 CPU 和内存，光追显卡对编辑器的帮助远小于对游戏帧数。想清楚这笔钱是买学习效率还是买游戏体验。","followups":["主要用 Unity 还是 Unreal？","宿舍里打游戏占多少比重？"],"majors":["数字媒体技术","虚拟现实技术","新媒体技术","智能交互设计","电子竞技运动与管理","游戏艺术设计","虚拟现实技术应用","数字媒体技术","动漫设计"],"vm":"timeSpy","verdicts":{"spec-legion-y9000p-2026":{"v":"no","w":["内存不够（要求 32G）"]},"spec-omen11-2026":{"v":"deg","w":["缺持续性能数据（长时间跑会掉多少速未核实）"]},"spec-tuf-a16-2026":{"v":"no","w":["内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-legion-y7000p-2026":{"v":"no","w":["内存不够（要求 32G）"]},"spec-hp-starbookpro14-2026":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-hp-66g8-amd":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-xiaoxin-pro14-2026-amd":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-thinkbook16p-2026":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-thinkbook14p-2026":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-xiaoxinpro14-u7-356h-32g-1t-20":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-xiaoxinpro16-u5-336h-24g-1t-20":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-yih":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-parsed-jd-lenovo-xiaoxinpro16-u7-356h-32g-1t-20":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-fla":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-parsed-jd-lenovo-xiaoxinair14-u5-226v-16g-512g-":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-parsed-jd-lenovo-xiaoxinair14-u7-256v-16g-1t-20":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-parsed-jd-lenovo-xiaoxinair15-core5-320-16g-512":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-parsed-jd-lenovo-thinkbook14plus-u5-225h-16g-51":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-parsed-jd-lenovo-thinkbook16plus-r7h255-32g-1t-":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-thinkpade14-u5-336h-32g-1t-202":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-thinkpade16-core5-320-16g-512g":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-parsed-jd-lenovo-thinkpade16-u5-32g-1t-authoriz":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-legion-r7000p2026-r9-8940hx-16":{"v":"no","w":["内存不够（要求 32G）"]},"spec-parsed-jd-dell-inspiron14plus-7440-core5-210h-1":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-parsed-jd-asus-wuwei16-2026-r7h260-16g-512g-202":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-parsed-jd-asus-wuwei-pro14-2026-u7-356h-32g-1t-":{"v":"no","w":["核显机（没有独立显卡）"]},"jd-lenovo-xiaoxinair14-u5-226v-16g-512g-flagship-20261107":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"jd-asus-rog-zephyrus-g16air2026-u9-386h-rtx5070-32g-1t-20261108":{"v":"ok"},"jd-msi-xingying15max-i713620h-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-asus-tianxuan6-h260-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-mechrevo-kuangshix-i514450hx-rtx5050-32g-1t-20261109":{"v":"unk","miss":["刷新率"]},"jd-mechrevo-wujie15x-r7h255-16g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"jd-mechrevo-wujie14-u5-226v-16g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"jd-apple-macbookair15-m4-16g-512g-20261109":{"v":"no","w":["macOS 装不了这一组的核心软件：Unity/Unreal 有 Mac 版，但国内课程与企业实习普遍按 Windows 环境走，插件与工具链在 Mac 上坑更多"]},"jd-apple-macbookpro14-m5-16g-512g-20261109":{"v":"no","w":["macOS 装不了这一组的核心软件：Unity/Unreal 有 Mac 版，但国内课程与企业实习普遍按 Windows 环境走，插件与工具链在 Mac 上坑更多"]},"jd-apple-macbookair13-m4-16g-256g-20261109":{"v":"no","w":["macOS 装不了这一组的核心软件：Unity/Unreal 有 Mac 版，但国内课程与企业实习普遍按 Windows 环境走，插件与工具链在 Mac 上坑更多"]},"jd-apple-macbookpro14-m5-24g-1t-20261109":{"v":"no","w":["macOS 装不了这一组的核心软件：Unity/Unreal 有 Mac 版，但国内课程与企业实习普遍按 Windows 环境走，插件与工具链在 Mac 上坑更多"]},"jd-mechrevo-jiaolong15k-r57640h-3050-16g-512g-20261109":{"v":"no","w":["内存不够（要求 32G）","存储不够（要求 1024G）","显存 4G，低于 8G","显存 4G，低于这一档硬门槛要求的 6G"]},"jd-mechrevo-jiguangx-cw-i714650hx-32g-1t-5060-20261109":{"v":"ok"},"jd-hasee-zhanshen-t8-i713650hx-16g-1t-5060-20261109":{"v":"no","w":["内存不够（要求 32G）"]},"jd-xiaomi-redmibookpro16-u5338h-32g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）"]},"jd-honor-magicbookpro16-u5338h-32g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）"]},"jd-huawei-matebookd16-i513420h-16g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"jd-colorful-jiangxingx16pro-i514450hx-16g-512g-5050-20261109":{"v":"no","w":["内存不够（要求 32G）","存储不够（要求 1024G）"]},"jd-lenovo-r9000p2026-r98945hx-16g-1t-5060-20261110":{"v":"no","w":["内存不够（要求 32G）"]},"jd-asus-tianxuan7pro-u7255hx-16g-1t-5060-20261110":{"v":"no","w":["内存不够（要求 32G）"]},"jd-mechrevo-jiaolong16pro2026-r98945hx-16g-1t-5070-20261110":{"v":"no","w":["内存不够（要求 32G）"]},"jd-hp-omen11amd-r98945hx-16g-1t-5060-20261110":{"v":"no","w":["内存不够（要求 32G）"]},"jd-acer-shadowknight8-i714650hx-16g-1t-5060-20261110":{"v":"no","w":["内存不够（要求 32G）"]},"jd-msi-shenying16-r8840hx-16g-512g-5060-20261110":{"v":"no","w":["内存不够（要求 32G）","存储不够（要求 1024G）"]},"jd-rog-strixscar18-u9275hx-16g-1t-5070ti-20261110":{"v":"no","w":["内存不够（要求 32G）"]}}},{"id":"electric","name":"电气与自动化","tagline":"显卡不重要，CPU 和接口才是","req":{"ramMin":16,"ramRec":32,"vramMin":0,"vramRec":2,"gpu":"either","storageMinGB":512,"cpu":"多核，AVX2 指令集（MATLAB 官方推荐）","rationale":"MATLAB 官方 8G 最低 / 16G 推荐，CPU 推荐 4 逻辑核 + AVX2，显卡只要求支持 WebGL 2.0——也就是核显就够。取 16G / 32G 是因为仿真和 EDA 常常同时开，且 MATLAB 全产品安装 25G。","basis":"official"},"gates":[],"mode":"value","preferCats":["thin","gaming"],"trap":"这一组是「工科就要独显」这句错的典型受害者。MATLAB 官方只要求显卡支持 WebGL 2.0，EDA 工具更是不吃显卡——钱应该花在 CPU 多核、内存和一块大屏上。另一个实际坑：很多 EDA 和烧录工具只支持 Windows，且对高分屏缩放支持差，买 Mac 或用 4K 小屏都会难受。","followups":["要跑哪类仿真（电力系统 / 控制系统 / 电路）？","要接开发板做实验吗？"],"majors":["电气工程及其自动化","自动化","电子信息工程","通信工程","微电子科学与工程","集成电路设计与集成系统","电子信息科学与技术","光电信息科学与工程","机器人工程","轨道交通信号与控制","测控技术与仪器","智能装备与系统","农业电气化","电气工程与智能控制","电气自动化技术","电子信息工程技术","机电一体化技术","工业机器人技术","应用电子技术","通信技术","集成电路技术","智能控制技术"],"vm":"cbSingle","verdicts":{"spec-legion-y9000p-2026":{"v":"ok"},"spec-omen11-2026":{"v":"deg","w":["没有 USB-A，这一组要接仪器或导素材，需另配扩展坞（约 100-300 元），并且占用唯一的接口"]},"spec-tuf-a16-2026":{"v":"ok"},"spec-legion-y7000p-2026":{"v":"ok"},"spec-hp-starbookpro14-2026":{"v":"ok"},"spec-hp-66g8-amd":{"v":"ok"},"spec-xiaoxin-pro14-2026-amd":{"v":"ok"},"spec-thinkbook16p-2026":{"v":"ok"},"spec-thinkbook14p-2026":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro14-u7-356h-32g-1t-20":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro16-u5-336h-24g-1t-20":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-yih":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro16-u7-356h-32g-1t-20":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-fla":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinair14-u5-226v-16g-512g-":{"v":"deg","w":["没有 USB-A，这一组要接仪器或导素材，需另配扩展坞（约 100-300 元），并且占用唯一的接口"]},"spec-parsed-jd-lenovo-xiaoxinair14-u7-256v-16g-1t-20":{"v":"deg","w":["没有 USB-A，这一组要接仪器或导素材，需另配扩展坞（约 100-300 元），并且占用唯一的接口"]},"spec-parsed-jd-lenovo-xiaoxinair15-core5-320-16g-512":{"v":"ok"},"spec-parsed-jd-lenovo-thinkbook14plus-u5-225h-16g-51":{"v":"ok"},"spec-parsed-jd-lenovo-thinkbook16plus-r7h255-32g-1t-":{"v":"ok"},"spec-parsed-jd-lenovo-thinkpade14-u5-336h-32g-1t-202":{"v":"ok"},"spec-parsed-jd-lenovo-thinkpade16-core5-320-16g-512g":{"v":"ok"},"spec-parsed-jd-lenovo-thinkpade16-u5-32g-1t-authoriz":{"v":"ok"},"spec-parsed-jd-lenovo-legion-r7000p2026-r9-8940hx-16":{"v":"ok"},"spec-parsed-jd-dell-inspiron14plus-7440-core5-210h-1":{"v":"ok"},"spec-parsed-jd-asus-wuwei16-2026-r7h260-16g-512g-202":{"v":"ok"},"spec-parsed-jd-asus-wuwei-pro14-2026-u7-356h-32g-1t-":{"v":"ok"},"jd-lenovo-xiaoxinair14-u5-226v-16g-512g-flagship-20261107":{"v":"deg","w":["没有 USB-A，这一组要接仪器或导素材，需另配扩展坞（约 100-300 元），并且占用唯一的接口"]},"jd-asus-rog-zephyrus-g16air2026-u9-386h-rtx5070-32g-1t-20261108":{"v":"deg","w":["没有 USB-A，这一组要接仪器或导素材，需另配扩展坞（约 100-300 元），并且占用唯一的接口"]},"jd-msi-xingying15max-i713620h-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-asus-tianxuan6-h260-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-mechrevo-kuangshix-i514450hx-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-mechrevo-wujie15x-r7h255-16g-1t-20261109":{"v":"ok"},"jd-mechrevo-wujie14-u5-226v-16g-1t-20261109":{"v":"ok"},"jd-apple-macbookair15-m4-16g-512g-20261109":{"v":"no","w":["macOS 装不了这一组的核心软件：EDA 环节的 Multisim / Proteus 只有 Windows 版，仿真课做不了；MATLAB 虽有 Mac 版，但课程通常按 Windows 版教学"]},"jd-apple-macbookpro14-m5-16g-512g-20261109":{"v":"no","w":["macOS 装不了这一组的核心软件：EDA 环节的 Multisim / Proteus 只有 Windows 版，仿真课做不了；MATLAB 虽有 Mac 版，但课程通常按 Windows 版教学"]},"jd-apple-macbookair13-m4-16g-256g-20261109":{"v":"no","w":["macOS 装不了这一组的核心软件：EDA 环节的 Multisim / Proteus 只有 Windows 版，仿真课做不了；MATLAB 虽有 Mac 版，但课程通常按 Windows 版教学"]},"jd-apple-macbookpro14-m5-24g-1t-20261109":{"v":"no","w":["macOS 装不了这一组的核心软件：EDA 环节的 Multisim / Proteus 只有 Windows 版，仿真课做不了；MATLAB 虽有 Mac 版，但课程通常按 Windows 版教学"]},"jd-mechrevo-jiaolong15k-r57640h-3050-16g-512g-20261109":{"v":"ok"},"jd-mechrevo-jiguangx-cw-i714650hx-32g-1t-5060-20261109":{"v":"ok"},"jd-hasee-zhanshen-t8-i713650hx-16g-1t-5060-20261109":{"v":"ok"},"jd-xiaomi-redmibookpro16-u5338h-32g-1t-20261109":{"v":"ok"},"jd-honor-magicbookpro16-u5338h-32g-1t-20261109":{"v":"ok"},"jd-huawei-matebookd16-i513420h-16g-1t-20261109":{"v":"unk","miss":["接口"]},"jd-colorful-jiangxingx16pro-i514450hx-16g-512g-5050-20261109":{"v":"ok"},"jd-lenovo-r9000p2026-r98945hx-16g-1t-5060-20261110":{"v":"ok"},"jd-asus-tianxuan7pro-u7255hx-16g-1t-5060-20261110":{"v":"ok"},"jd-mechrevo-jiaolong16pro2026-r98945hx-16g-1t-5070-20261110":{"v":"ok"},"jd-hp-omen11amd-r98945hx-16g-1t-5060-20261110":{"v":"ok"},"jd-acer-shadowknight8-i714650hx-16g-1t-5060-20261110":{"v":"ok"},"jd-msi-shenying16-r8840hx-16g-512g-5060-20261110":{"v":"ok"},"jd-rog-strixscar18-u9275hx-16g-1t-5070ti-20261110":{"v":"ok"}}},{"id":"science","name":"理工实验","tagline":"轻则核显够用，重则集群在机房","req":{"ramMin":16,"ramRec":32,"vramMin":0,"vramRec":4,"gpu":"either","storageMinGB":512,"cpu":"多核（计算化学的并行求解）","rationale":"这一组没有单一的重型商业软件做锚点：ChemDraw / Origin / SPSS 都是轻负载，而 Gaussian、Materials Studio 这类计算化学软件真正跑起来通常上机房集群，不在自己电脑上跑满。所以门槛按「轻软件 + 偶尔本地小算例」定：16G 起、32G 舒服。显卡只在做分子动力学或生物信息交叉方向时才需要考虑。","basis":"judgment"},"gates":[],"mode":"value","preferCats":["thin"],"trap":"这一组的常见误判是「学生物的要买高配」。实际情况相反：绝大多数本科实验课的软件很轻，重计算都在机房跑或者提交到集群。把钱花在内存和屏幕（长时间看图表很费眼）比花在显卡上合理得多。例外是生物信息学——它本质是编程方向，会用到 Docker 和较大内存。","followups":["要在自己电脑上跑计算（Gaussian / 分子模拟）吗？","偏实验还是偏计算方向？"],"majors":["化学","应用化学","化学工程与工艺","材料科学与工程","材料物理","材料化学","高分子材料与工程","新能源材料与器件","生物科学","生物技术","生物工程","生物制药","生物信息学","药学","药物制剂","制药工程","环境科学","环境工程","食品科学与工程","食品质量与安全","物理学","应用物理学","应用气象学","地质学","地球化学","海洋科学","轻化工程","纺织工程","农学","林学","园艺","植物保护","动物科学","动物医学","水产养殖学","中药学","法医学","药品生产技术","食品检验检测技术","环境工程技术","应用化工技术","生物制药技术"],"vm":"cbMulti","verdicts":{"spec-legion-y9000p-2026":{"v":"ok"},"spec-omen11-2026":{"v":"deg","w":["没有 USB-A，这一组要接仪器或导素材，需另配扩展坞（约 100-300 元），并且占用唯一的接口"]},"spec-tuf-a16-2026":{"v":"ok"},"spec-legion-y7000p-2026":{"v":"ok"},"spec-hp-starbookpro14-2026":{"v":"ok"},"spec-hp-66g8-amd":{"v":"ok"},"spec-xiaoxin-pro14-2026-amd":{"v":"ok"},"spec-thinkbook16p-2026":{"v":"ok"},"spec-thinkbook14p-2026":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro14-u7-356h-32g-1t-20":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro16-u5-336h-24g-1t-20":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-yih":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro16-u7-356h-32g-1t-20":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-fla":{"v":"ok"},"spec-parsed-jd-lenovo-xiaoxinair14-u5-226v-16g-512g-":{"v":"deg","w":["没有 USB-A，这一组要接仪器或导素材，需另配扩展坞（约 100-300 元），并且占用唯一的接口"]},"spec-parsed-jd-lenovo-xiaoxinair14-u7-256v-16g-1t-20":{"v":"deg","w":["没有 USB-A，这一组要接仪器或导素材，需另配扩展坞（约 100-300 元），并且占用唯一的接口"]},"spec-parsed-jd-lenovo-xiaoxinair15-core5-320-16g-512":{"v":"ok"},"spec-parsed-jd-lenovo-thinkbook14plus-u5-225h-16g-51":{"v":"ok"},"spec-parsed-jd-lenovo-thinkbook16plus-r7h255-32g-1t-":{"v":"ok"},"spec-parsed-jd-lenovo-thinkpade14-u5-336h-32g-1t-202":{"v":"ok"},"spec-parsed-jd-lenovo-thinkpade16-core5-320-16g-512g":{"v":"ok"},"spec-parsed-jd-lenovo-thinkpade16-u5-32g-1t-authoriz":{"v":"unk","miss":["CPU 核心数"]},"spec-parsed-jd-lenovo-legion-r7000p2026-r9-8940hx-16":{"v":"ok"},"spec-parsed-jd-dell-inspiron14plus-7440-core5-210h-1":{"v":"ok"},"spec-parsed-jd-asus-wuwei16-2026-r7h260-16g-512g-202":{"v":"ok"},"spec-parsed-jd-asus-wuwei-pro14-2026-u7-356h-32g-1t-":{"v":"ok"},"jd-lenovo-xiaoxinair14-u5-226v-16g-512g-flagship-20261107":{"v":"deg","w":["没有 USB-A，这一组要接仪器或导素材，需另配扩展坞（约 100-300 元），并且占用唯一的接口"]},"jd-asus-rog-zephyrus-g16air2026-u9-386h-rtx5070-32g-1t-20261108":{"v":"deg","w":["没有 USB-A，这一组要接仪器或导素材，需另配扩展坞（约 100-300 元），并且占用唯一的接口"]},"jd-msi-xingying15max-i713620h-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-asus-tianxuan6-h260-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-mechrevo-kuangshix-i514450hx-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-mechrevo-wujie15x-r7h255-16g-1t-20261109":{"v":"ok"},"jd-mechrevo-wujie14-u5-226v-16g-1t-20261109":{"v":"ok"},"jd-apple-macbookair15-m4-16g-512g-20261109":{"v":"no","w":["macOS 装不了这一组的核心软件：化学/材料常用的 Origin、部分仪器配套软件只有 Windows 版，实验数据导出与作图会受影响"]},"jd-apple-macbookpro14-m5-16g-512g-20261109":{"v":"no","w":["macOS 装不了这一组的核心软件：化学/材料常用的 Origin、部分仪器配套软件只有 Windows 版，实验数据导出与作图会受影响"]},"jd-apple-macbookair13-m4-16g-256g-20261109":{"v":"no","w":["macOS 装不了这一组的核心软件：化学/材料常用的 Origin、部分仪器配套软件只有 Windows 版，实验数据导出与作图会受影响"]},"jd-apple-macbookpro14-m5-24g-1t-20261109":{"v":"no","w":["macOS 装不了这一组的核心软件：化学/材料常用的 Origin、部分仪器配套软件只有 Windows 版，实验数据导出与作图会受影响"]},"jd-mechrevo-jiaolong15k-r57640h-3050-16g-512g-20261109":{"v":"ok"},"jd-mechrevo-jiguangx-cw-i714650hx-32g-1t-5060-20261109":{"v":"ok"},"jd-hasee-zhanshen-t8-i713650hx-16g-1t-5060-20261109":{"v":"ok"},"jd-xiaomi-redmibookpro16-u5338h-32g-1t-20261109":{"v":"ok"},"jd-honor-magicbookpro16-u5338h-32g-1t-20261109":{"v":"ok"},"jd-huawei-matebookd16-i513420h-16g-1t-20261109":{"v":"ok"},"jd-colorful-jiangxingx16pro-i514450hx-16g-512g-5050-20261109":{"v":"ok"},"jd-lenovo-r9000p2026-r98945hx-16g-1t-5060-20261110":{"v":"ok"},"jd-asus-tianxuan7pro-u7255hx-16g-1t-5060-20261110":{"v":"ok"},"jd-mechrevo-jiaolong16pro2026-r98945hx-16g-1t-5070-20261110":{"v":"ok"},"jd-hp-omen11amd-r98945hx-16g-1t-5060-20261110":{"v":"ok"},"jd-acer-shadowknight8-i714650hx-16g-1t-5060-20261110":{"v":"ok"},"jd-msi-shenying16-r8840hx-16g-512g-5060-20261110":{"v":"ok"},"jd-rog-strixscar18-u9275hx-16g-1t-5070ti-20261110":{"v":"ok"}}},{"id":"geo","name":"测绘与空间信息","tagline":"内存与显存双高，硬盘还要留缓存","req":{"ramMin":32,"ramRec":32,"vramMin":4,"vramRec":8,"gpu":"discrete","storageMinGB":1024,"cpu":"4 核以上（官方推荐 4 核，最佳 10 核）","rationale":"ArcGIS Pro 官方 8G 最低 / 32G 推荐 / 64G 最佳，推荐独立显卡且独占显存 8G 以上，安装占 32G 之外另有多达 32G 的可视化缓存。取 32G + 独显，与官方推荐档一致。","basis":"official"},"gates":[{"dim":"gpu","min":1,"why":"ArcGIS Pro 的三维视图与影像渲染推荐独立显卡"},{"dim":"ram","min":32,"why":"官方推荐值就是 32G，影像处理时 16G 会明显卡"}],"mode":"perf","preferCats":["gaming","desktop"],"trap":"这一组容易被当成「文科地理」而买轻薄本，结果大二跑 ArcGIS 的三维场景直接卡死。两个具体数字：官方推荐 32G 内存，另有多达 32G 的可视化缓存——所以 1T 盘不是浪费。不过也要说清：只做二维制图和属性表的话 16G 能用，别一上来就冲 64G。","followups":["要做遥感影像处理（ENVI）吗？","会做三维场景或点云吗？"],"majors":["测绘工程","地理信息科学","遥感科学与技术","导航工程","地理空间信息工程","土地整治工程","工程测量技术","测绘地理信息技术","摄影测量与遥感技术","地籍测绘与土地管理"],"vm":"timeSpy","verdicts":{"spec-legion-y9000p-2026":{"v":"no","w":["内存不够（要求 32G）"]},"spec-omen11-2026":{"v":"deg","w":["缺持续性能数据（长时间跑会掉多少速未核实）","没有 USB-A，这一组要接仪器或导素材，需另配扩展坞（约 100-300 元），并且占用唯一的接口"]},"spec-tuf-a16-2026":{"v":"no","w":["内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-legion-y7000p-2026":{"v":"no","w":["内存不够（要求 32G）"]},"spec-hp-starbookpro14-2026":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-hp-66g8-amd":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-xiaoxin-pro14-2026-amd":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-thinkbook16p-2026":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-thinkbook14p-2026":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-xiaoxinpro14-u7-356h-32g-1t-20":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-xiaoxinpro16-u5-336h-24g-1t-20":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-yih":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-parsed-jd-lenovo-xiaoxinpro16-u7-356h-32g-1t-20":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-fla":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-parsed-jd-lenovo-xiaoxinair14-u5-226v-16g-512g-":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-parsed-jd-lenovo-xiaoxinair14-u7-256v-16g-1t-20":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-parsed-jd-lenovo-xiaoxinair15-core5-320-16g-512":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-parsed-jd-lenovo-thinkbook14plus-u5-225h-16g-51":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-parsed-jd-lenovo-thinkbook16plus-r7h255-32g-1t-":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-thinkpade14-u5-336h-32g-1t-202":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-thinkpade16-core5-320-16g-512g":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-parsed-jd-lenovo-thinkpade16-u5-32g-1t-authoriz":{"v":"no","w":["核显机（没有独立显卡）"]},"spec-parsed-jd-lenovo-legion-r7000p2026-r9-8940hx-16":{"v":"no","w":["内存不够（要求 32G）"]},"spec-parsed-jd-dell-inspiron14plus-7440-core5-210h-1":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"spec-parsed-jd-asus-wuwei16-2026-r7h260-16g-512g-202":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"spec-parsed-jd-asus-wuwei-pro14-2026-u7-356h-32g-1t-":{"v":"no","w":["核显机（没有独立显卡）"]},"jd-lenovo-xiaoxinair14-u5-226v-16g-512g-flagship-20261107":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）","存储不够（要求 1024G）"]},"jd-asus-rog-zephyrus-g16air2026-u9-386h-rtx5070-32g-1t-20261108":{"v":"deg","w":["没有 USB-A，这一组要接仪器或导素材，需另配扩展坞（约 100-300 元），并且占用唯一的接口"]},"jd-msi-xingying15max-i713620h-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-asus-tianxuan6-h260-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-mechrevo-kuangshix-i514450hx-rtx5050-32g-1t-20261109":{"v":"ok"},"jd-mechrevo-wujie15x-r7h255-16g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"jd-mechrevo-wujie14-u5-226v-16g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"jd-apple-macbookair15-m4-16g-512g-20261109":{"v":"no","w":["macOS 装不了这一组的核心软件：ArcGIS Pro 只有 Windows 版，这是测绘专业的核心工具；QGIS 有 Mac 版但教学不通用"]},"jd-apple-macbookpro14-m5-16g-512g-20261109":{"v":"no","w":["macOS 装不了这一组的核心软件：ArcGIS Pro 只有 Windows 版，这是测绘专业的核心工具；QGIS 有 Mac 版但教学不通用"]},"jd-apple-macbookair13-m4-16g-256g-20261109":{"v":"no","w":["macOS 装不了这一组的核心软件：ArcGIS Pro 只有 Windows 版，这是测绘专业的核心工具；QGIS 有 Mac 版但教学不通用"]},"jd-apple-macbookpro14-m5-24g-1t-20261109":{"v":"no","w":["macOS 装不了这一组的核心软件：ArcGIS Pro 只有 Windows 版，这是测绘专业的核心工具；QGIS 有 Mac 版但教学不通用"]},"jd-mechrevo-jiaolong15k-r57640h-3050-16g-512g-20261109":{"v":"no","w":["内存不够（要求 32G）","存储不够（要求 1024G）"]},"jd-mechrevo-jiguangx-cw-i714650hx-32g-1t-5060-20261109":{"v":"ok"},"jd-hasee-zhanshen-t8-i713650hx-16g-1t-5060-20261109":{"v":"no","w":["内存不够（要求 32G）"]},"jd-xiaomi-redmibookpro16-u5338h-32g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）"]},"jd-honor-magicbookpro16-u5338h-32g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）"]},"jd-huawei-matebookd16-i513420h-16g-1t-20261109":{"v":"no","w":["核显机（没有独立显卡）","内存不够（要求 32G）"]},"jd-colorful-jiangxingx16pro-i514450hx-16g-512g-5050-20261109":{"v":"no","w":["内存不够（要求 32G）","存储不够（要求 1024G）"]},"jd-lenovo-r9000p2026-r98945hx-16g-1t-5060-20261110":{"v":"no","w":["内存不够（要求 32G）"]},"jd-asus-tianxuan7pro-u7255hx-16g-1t-5060-20261110":{"v":"no","w":["内存不够（要求 32G）"]},"jd-mechrevo-jiaolong16pro2026-r98945hx-16g-1t-5070-20261110":{"v":"no","w":["内存不够（要求 32G）"]},"jd-hp-omen11amd-r98945hx-16g-1t-5060-20261110":{"v":"no","w":["内存不够（要求 32G）"]},"jd-acer-shadowknight8-i714650hx-16g-1t-5060-20261110":{"v":"no","w":["内存不够（要求 32G）"]},"jd-msi-shenying16-r8840hx-16g-512g-5060-20261110":{"v":"no","w":["内存不够（要求 32G）","存储不够（要求 1024G）"]},"jd-rog-strixscar18-u9275hx-16g-1t-5070ti-20261110":{"v":"no","w":["内存不够（要求 32G）"]}}}],"aliases":[["计科","计算机科学与技术"],["CS","计算机科学与技术"],["计算机","计算机科学与技术"],["软工","软件工程"],["信安","信息安全"],["网安","网络空间安全"],["网工","网络工程"],["大数据","数据科学与大数据技术"],["信管","信息管理与信息系统"],["信计","信息与计算科学"],["数学","数学与应用数学"],["数媒","数字媒体艺术"],["数媒技术","数字媒体技术"],["数字媒体","数字媒体艺术"],["视传","视觉传达设计"],["视觉传达","视觉传达设计"],["广告","广告学"],["平面设计","视觉传达设计"],["环艺","环境设计"],["室内设计","环境设计"],["装潢","视觉传达设计"],["服装","服装与服饰设计"],["服设","服装与服饰设计"],["摄影专业","摄影"],["建院","建筑学"],["建筑","建筑学"],["城规","城乡规划"],["规划","城乡规划"],["园林","风景园林"],["景观","风景园林"],["土木工程专业","土木工程"],["工设","工业设计"],["产设","产品设计"],["机械","机械设计制造及其自动化"],["机制","机械设计制造及其自动化"],["车辆","车辆工程"],["汽车","车辆工程"],["能动","能源与动力工程"],["电气","电气工程及其自动化"],["电气自动化","电气工程及其自动化"],["自动化专业","自动化"],["电信","电子信息工程"],["通信","通信工程"],["微电子","微电子科学与工程"],["集成","集成电路设计与集成系统"],["机器人","机器人工程"],["测控","测控技术与仪器"],["化学专业","化学"],["化工","化学工程与工艺"],["材料","材料科学与工程"],["高材","高分子材料与工程"],["生物","生物科学"],["生工","生物工程"],["生信","生物信息学"],["药学专业","药学"],["环境","环境工程"],["食品","食品科学与工程"],["物理","物理学"],["测绘","测绘工程"],["地信","地理信息科学"],["GIS","地理信息科学"],["遥感","遥感科学与技术"],["编导","广播电视编导"],["广编","广播电视编导"],["影视","影视摄影与制作"],["播音","播音与主持艺术"],["主持","播音与主持艺术"],["录音","录音艺术"],["音制","音乐制作"],["作曲","作曲与作曲技术理论"],["音乐","音乐学"],["电竞","电子竞技运动与管理"],["VR","虚拟现实技术"],["游戏","游戏艺术设计"],["法学专业","法学"],["法律","法学"],["会专","会计"],["会计专业","会计学"],["金融","金融学"],["国贸","国际经济与贸易"],["工商","工商管理"],["审计","审计学"],["中文","汉语言文学"],["对外汉语","汉语国际教育"],["小教","小学教育"],["学前","学前教育"],["特教","特殊教育"],["心理","心理学"],["新闻","新闻学"],["新传","传播学"],["护理专业","护理学"],["英语专业","英语"],["日语专业","日语"],["翻译专业","翻译"],["历史","历史学"],["哲学专业","哲学"],["社会学专业","社会学"],["工管","工程管理"],["造价","工程造价"],["建环","建筑环境与能源应用工程"],["兽医","动物医学"],["畜牧兽医","动物医学"],["临床","临床医学"],["口腔","口腔医学"],["中医","中医学"],["电气工程","电气工程及其自动化"],["材料科学","材料科学与工程"],["电子信息","电子信息工程"],["土木","土木工程"],["交运","交通运输"]],"rules":{"bucket":"家电类","rate":15,"cap":1500,"threshold":null,"saturate":10000,"note":"电脑归「家电类」：实付 15% 立减，单台最高 1500 元，没有价格门槛。实付 10000 元刚好把 1500 拿满，再贵也不会更多。"},"stats":{"total":51,"fromSpecs":26,"fromCrawlOnly":27,"withPrice":53,"withoutPrice":0,"withEfficiency":36,"withThrottle":16,"priceBlocked":0}};
+const LADDER = {"4500": 4, "5000": 5, "5500": 5, "6000": 5, "6500": 5, "7000": 5, "7500": 5, "8000": 5, "8500": 5, "9000": 6, "9500": 9, "10000": 9, "10500": 9, "11000": 10, "11500": 10, "12000": 10, "12500": 10, "13000": 10, "13500": 10, "14000": 10, "14500": 10, "15000": 10, "15500": 10};
+const M = {}; D.machines.forEach(m => M[m.id] = m);
+
+/* ---------- 专业索引 ---------- */
+const IDX = [];   // {name, gid}
+D.groups.forEach(g => g.majors.forEach(n => IDX.push({name:n, gid:g.id, gname:g.name})));
+const ALIAS = D.aliases;
+
+function norm(s){ return (s||'').replace(/\s|　/g,'').toLowerCase(); }
+
+function resolve(q){
+  q = (q||'').trim();
+  if(!q) return null;
+  // 1) 专业名精确
+  let hit = IDX.filter(x => norm(x.name) === norm(q));
+  if(hit.length) return hit[0];
+  // 2) 别名精确
+  const a = ALIAS.find(x => norm(x[0]) === norm(q));
+  if(a){
+    hit = IDX.filter(x => norm(x.name) === norm(a[1]));
+    if(hit.length) return hit[0];
+  }
+  // 3) 包含匹配：取最长（避免"建筑"命中"建筑环境与能源应用工程"这类更长的名字）
+  hit = IDX.filter(x => norm(x.name).includes(norm(q)));
+  if(hit.length){
+    hit.sort((p,q2) => p.name.length - q2.name.length);
+    return hit[0];
+  }
+  return null;
+}
+
+function suggest(q, limit){
+  q = norm(q);
+  if(!q) return [];
+  const seen = new Set(), out = [];
+  const push = x => {
+    const k = x.name + '|' + x.gid;
+    if(seen.has(k)) return;
+    seen.add(k); out.push(x);
+  };
+  // 先别名（用户常打简称）
+  ALIAS.forEach(a => {
+    if(norm(a[0]).includes(q) || q.includes(norm(a[0]))){
+      IDX.filter(x => norm(x.name) === norm(a[1])).slice(0,1).forEach(push);
+    }
+  });
+  IDX.forEach(x => { if(norm(x.name).includes(q)) push(x); });
+  return out.slice(0, limit || 8);
+}
+
+/* ---------- 输入交互 ---------- */
+const qEl = document.getElementById('q');
+const sugEl = document.getElementById('sug');
+let selIdx = -1, curSug = [];
+
+qEl.addEventListener('input', () => {
+  const list = suggest(qEl.value, 9);
+  curSug = list; selIdx = -1;
+  if(!list.length){ sugEl.classList.remove('on'); return; }
+  sugEl.innerHTML = list.map((x,i) =>
+    `<div data-i="${i}" class="${i===selIdx?'sel':''}">${x.name}<small>${x.gname}</small></div>`).join('');
+  sugEl.classList.add('on');
+  sugEl.querySelectorAll('div').forEach(el => {
+    el.onclick = () => { qEl.value = el.textContent.replace(/\s+.*$/,'').trim();
+      // 用索引取值，别从 textContent 反解（会带上组名）
+      qEl.value = list[+el.dataset.i].name;
+      sugEl.classList.remove('on'); go(); };
+  });
+});
+qEl.addEventListener('keydown', e => {
+  if(!curSug.length) { if(e.key==='Enter') go(); return; }
+  if(e.key === 'ArrowDown'){ selIdx = Math.min(selIdx+1, curSug.length-1); paint(); e.preventDefault(); }
+  else if(e.key === 'ArrowUp'){ selIdx = Math.max(selIdx-1, -1); paint(); e.preventDefault(); }
+  else if(e.key === 'Enter'){
+    if(selIdx >= 0) qEl.value = curSug[selIdx].name;
+    sugEl.classList.remove('on'); go();
+    e.preventDefault();
+  } else if(e.key === 'Escape'){ sugEl.classList.remove('on'); }
+});
+function paint(){
+  sugEl.querySelectorAll('div').forEach((el,i) => el.classList.toggle('sel', i===selIdx));
+}
+document.getElementById('budget').addEventListener('keydown', e => { if(e.key==='Enter') go(); });
+/* 快捷预算档：一键看该档全貌。按钮文字直接标注"该档能买 X/10 个方向"，
+   数据来自 budget_ladder.json（夜间任务按 500 元一档全量算好的静态快照） */
+(function(){
+  const box = document.getElementById('budget');
+  const bar = document.createElement('div');
+  bar.style.cssText='display:flex;flex-wrap:wrap;gap:6px;margin-top:6px';
+  const fmt=v=>'¥'+(v/1000>=1?(v/1000).toFixed(1).replace('.0','')+'k':v);
+  Object.keys(LADDER).forEach(v=>{
+    const b=document.createElement('button');
+    b.type='button';
+    b.style.cssText='font-size:11px;padding:3px 8px;border:1px solid #e5e7eb;background:#fff;'+
+      'border-radius:4px;cursor:pointer;color:#374151;font-variant-numeric:tabular-nums';
+    b.textContent=fmt(+v)+' · '+LADDER[v]+'/10';
+    b.title='查看预算 '+v+' 元时各方向能买到的机器';
+    b.onclick=()=>{ box.value=v; go(); };
+    bar.appendChild(b);
+  });
+  box.parentNode.insertBefore(bar, box.nextSibling);
+})();
+document.addEventListener('click', e => {
+  if(!sugEl.contains(e.target) && e.target !== qEl) sugEl.classList.remove('on');
+});
+
+/* ---------- 渲染 ---------- */
+function yuan(v){
+  if(v == null) return '价格未采';
+  return '¥' + Math.round(v).toLocaleString('zh-CN');
+}
+
+function verdictOf(g, id){
+  return g.verdicts[id] || {v:'unk'};
+}
+
+function r(res, budget){
+  const g = res.group;
+  const rows = Object.keys(g.verdicts).map(id => ({m: M[id], ...g.verdicts[id]}))
+    .filter(x => x.m);
+  const ok  = rows.filter(x => x.v==='ok').sort((a,b)=>(a.m.price??1e9)-(b.m.price??1e9));
+  const deg = rows.filter(x => x.v==='deg').sort((a,b)=>(a.m.price??1e9)-(b.m.price??1e9));
+  const no  = rows.filter(x => x.v==='no');
+  const unk = rows.filter(x => x.v==='unk');
+
+  const good = ok.concat(deg);
+  const goodP = good.filter(x => x.m.price != null);
+  let shown = goodP, over = [];
+  if(budget){
+    shown = goodP.filter(x => x.m.price <= budget);
+    over  = goodP.filter(x => x.m.price >  budget);
+  }
+
+  const req = g.req;
+  const gpuWord = {none:'不要独显（核显足够）', either:'核显或独显都行',
+                   discrete:'必须是独立显卡', certified:'需认证显卡'}[req.gpu] || req.gpu;
+
+  let h = '';
+
+  /* 结论条 */
+  h += `<div class="card">
+    <div class="hit"><b>${res.name}</b>
+      <span class="badge">${g.name}</span>
+      <span style="font-size:12.5px;color:#9ca3af">${g.tagline}</span></div>`;
+
+  if(!good.length){
+    h += `<div class="note"><b>库里没有一台满足这一组的门槛。</b><br>
+      这不是数据缺失 —— 是现有 ${D.machines.length} 台里确实没有够用的。
+      下面「不够用的」逐台写了原因，照那个清单去筛比重新找更省时间。</div>`;
+  } else {
+    const cheap = goodP.length ? goodP[0] : null;
+    h += `<div class="mline" style="margin-top:10px">`;
+    if(cheap) h += `能买，最便宜 <b style="color:#c0392b">${yuan(cheap.m.price)}</b> —— ${cheap.m.name}`;
+    else h += `够用 ${good.length} 台，但都没采到价格`;
+    if(budget) h += `<br>你的预算 ${yuan(budget)} 内可选 <b>${shown.length}</b> 台`;
+    h += `</div>`;
+  }
+
+  /* 门槛 */
+  h += `<div class="kv">
+    <div><div class="l">内存</div><div class="v">${req.ramMin}G 起 · 建议 ${req.ramRec}G</div></div>
+    <div><div class="l">显卡</div><div class="v">${gpuWord}</div></div>
+    ${req.vramMin ? `<div><div class="l">显存</div><div class="v">${req.vramMin}G 起</div></div>` : ''}
+    <div><div class="l">存储</div><div class="v">${req.storageMinGB}G 起</div></div>
+  </div>`;
+  if(req.rationale){
+    h += `<div class="mline" style="margin-top:11px;color:#6b7280;line-height:1.8">
+      依据：${req.rationale}</div>`;
+  }
+  if(g.gates.length){
+    h += `<div class="mline" style="margin-top:9px"><b>硬门槛：</b>` +
+      g.gates.map(x => {
+        const d = {ram:'内存',gpu:'显卡',storage:'存储',upgrade:'可加装'}[x.dim] || x.dim;
+        return `${d} ≥ ${x.min}（${x.why}）`;
+      }).join('；') + `</div>`;
+  }
+  h += `</div>`;
+
+  /* 能买的 */
+  if(good.length){
+    h += `<div class="card"><h2><span class="t">能买的</span>
+      <em>${good.length} 台 · ${goodP.length} 台有价格</em></h2>`;
+    if(!shown.length && budget){
+      h += `<div class="empty">预算 ${yuan(budget)} 内没有。下面是超预算的，供你判断要不要加钱。</div>`;
+    }
+    const list = budget ? (shown.length ? shown : over) : goodP;
+    const capped = list.slice(0, 8);
+    const bvId = bestValueId(g, goodP);
+    capped.forEach((x,i) => { h += mcard(x, i===0 && !budget, x.m.id===bvId); });
+    if(list.length > capped.length){
+      h += `<div class="empty">还有 ${list.length - capped.length} 台，改预算可收紧范围</div>`;
+    }
+    if(budget && shown.length && over.length){
+      h += `<div class="empty" style="margin-top:10px">另有 ${over.length} 台超预算，最便宜 ${yuan(over[0].m.price)}</div>`;
+    }
+    // 没价格的单独说
+    const np = good.filter(x => x.m.price == null);
+    if(np.length){
+      h += `<div class="empty" style="margin-top:10px">另有 ${np.length} 台够用但未采到价格：` +
+        np.map(x => x.m.name).join('、') + `</div>`;
+    }
+    h += `</div>`;
+  }
+
+  /* 不够用的 */
+  const noNear = no.filter(x => (x.w||[]).length === 1);
+  const noFar  = no.filter(x => (x.w||[]).length > 1);
+  if(no.length){
+    h += `<div class="card"><h2><span class="t">明确不够用的</span>
+      <em>${no.length} 台 · 这是结论，不是「不知道」</em></h2>`;
+    if(noNear.length){
+      h += `<div style="font-size:12.5px;font-weight:600;color:#374151;margin:4px 0 6px">只差一项的（${noNear.length} 台）</div>`;
+      noNear.slice(0,8).forEach(x => {
+        const gap = x.w[0];
+        const note = /不是同一台|无法推荐/.test(gap) ? '数据要修，不是机器问题'
+                   : /核显/.test(gap) ? '显卡换不了，补不上'
+                   : /焊死/.test(gap) ? '内存焊死，补不上' : '可能可以补';
+        h += `<div class="mini"><span>${x.m.name}<br><small style="color:#9ca3af">${x.m.spec}</small></span>
+          <span class="r"><span class="why">${gap}</span><br><small>${note}</small></span></div>`;
+      });
+      if(noNear.length > 8) h += `<div class="empty">还有 ${noNear.length-8} 台</div>`;
+    }
+    if(noFar.length){
+      h += `<div style="font-size:12.5px;font-weight:600;color:#374151;margin:14px 0 6px">差两项以上，不用考虑（${noFar.length} 台）</div>`;
+      noFar.slice(0,5).forEach(x => {
+        h += `<div class="mini"><span>${x.m.name}</span>
+          <span class="r"><small>${(x.w||[]).join('；')}</small></span></div>`;
+      });
+      if(noFar.length > 5) h += `<div class="empty">还有 ${noFar.length-5} 台</div>`;
+    }
+    h += `</div>`;
+  }
+
+  /* 数据不足 */
+  if(unk.length){
+    const cnt = {};
+    unk.forEach(x => (x.miss||[]).forEach(k => cnt[k] = (cnt[k]||0)+1));
+    const top = Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+    h += `<div class="card"><h2><span class="t">数据不足，判不了</span>
+      <em>${unk.length} 台 · 补上就能判</em></h2>
+      <div class="mline" style="margin-bottom:8px">卡在：` +
+      top.map(([k,v]) => `${k} × ${v}`).join('、') + `</div>`;
+    unk.slice(0,6).forEach(x => {
+      h += `<div class="mini"><span>${x.m.name}</span>
+        <span class="r"><small>缺 ${(x.miss||[]).join('、')}</small></span></div>`;
+    });
+    if(unk.length > 6) h += `<div class="empty">还有 ${unk.length-6} 台</div>`;
+    h += `</div>`;
+  }
+
+  /* 陷阱与追问 */
+  h += `<div class="card"><h2><span class="t">最容易踩的坑</span></h2>
+    <div class="trap">${g.trap}</div>`;
+  if(g.followups.length){
+    h += `<div class="mline" style="margin-top:12px"><b>还要问自己一句：</b></div>`;
+    g.followups.forEach(q => h += `<div class="mline" style="padding-left:10px">· ${q}</div>`);
+  }
+  h += `</div>`;
+
+  return h;
+}
+
+
+/* 每元性能：同组内比较"都能用的情况下谁最划算"。
+   口径与 pick.py 一致（vm 由后端按组的 R 字段决定）。
+   没有跑分的机器返回 null，不参与比较，也不会被标成不划算。 */
+function valueScore(m, vmk){
+  const b = m.bench || {};
+  const v = vmk==='timeSpy' ? b.timeSpy : (vmk==='cbMulti' ? b.cbMulti : b.cbSingle);
+  if(v == null || m.price == null) return null;
+  return v / m.price;
+}
+function bestValueId(g, list){
+  const vm = g.vm || 'cbSingle';
+  let id = null, hi = 0;
+  list.forEach(x => { const s = valueScore(x.m, vm); if(s != null && s > hi){ hi = s; id = x.m.id; } });
+  return id;
+}
+const VM_WORD = {timeSpy:'每元显卡分', cbMulti:'每元多核分', cbSingle:'每元单核分'};
+
+function mcard(x, isTop, isBest){
+  const m = x.m;
+  let h = `<div class="m${isTop?' top':''}">
+    <div class="m-h"><span class="m-n">${m.name}${isBest?' <span class="bv">★ 每元性能最高</span>':''}</span>
+      <span class="m-p">${yuan(m.price)}</span></div>
+    <div class="m-s">${m.spec}</div>`;
+  let p2 = [];
+  if(m.list && m.list !== m.price) p2.push('划线 ' + yuan(m.list));
+  if(m.net && m.net !== m.price && m.net !== m.list) p2.push('券后 ' + yuan(m.net));
+  if(m.subsidy) p2.push('国补 ' + yuan(m.subsidy));
+  p2.push(m.shop);
+  if(m.captured) p2.push('采价 ' + m.captured);
+  h += `<div class="m-p2">${p2.join(' · ')}</div>`;
+  if(m.edu && m.edu < m.price){
+    h += `<div class="m-edu">学生价 ${yuan(m.edu)}（教育优惠，需认证，再省 ${yuan(m.price-m.edu)}）</div>`;
+  }
+
+  // 性能跑分：只写有出处的数。同价位比"快多少"比"参数多一条"更有用。
+  if(m.bench){
+    const b = m.bench, bs = [];
+    if(b.cbMulti || b.cbSingle){
+      const t = [];
+      if(b.cbMulti) t.push('多核 ' + b.cbMulti.toLocaleString('zh-CN'));
+      if(b.cbSingle) t.push('单核 ' + b.cbSingle.toLocaleString('zh-CN'));
+      bs.push('Cinebench R23 ' + t.join(' / '));
+    }
+    if(b.timeSpy) bs.push('3DMark 显卡 ' + b.timeSpy.toLocaleString('zh-CN'));
+    h += `<div class="m-bench">${bs.join('  ·  ')}</div>`;
+  }
+
+  let chips = [];
+  if(m.eff === 1) chips.push('<span class="chip ok">1 级能效 · 可领国补</span>');
+  else if(m.eff) chips.push(`<span class="chip no">${m.eff} 级能效 · 拿不到国补</span>`);
+  else chips.push('<span class="chip warn">能效未查 · 补贴不保证</span>');
+  if(x.w && x.w.length) chips.push(`<span class="chip warn">${x.w[0]}</span>`);
+  (m.risks||[]).forEach(t => chips.push(`<span class="chip">${t}</span>`));
+  if(chips.length) h += `<div class="chips">${chips.join('')}</div>`;
+  h += `</div>`;
+  return h;
+}
+
+
+/* ---------- 预算总览 ----------
+   与 tools/budget.py 同一口径：够用(ok/deg) 且 到手价 ≤ 预算 才算"买得到"。
+   买不到的方向不算含糊，直接报差多少钱；再加价格阶梯看"多花多少能多解锁几个"。 */
+function groupRows(g){
+  return Object.keys(g.verdicts).map(id => ({m: M[id], ...g.verdicts[id]}))
+    .filter(x => x.m && (x.v==='ok' || x.v==='deg') && x.m.price != null);
+}
+function budgetView(budget){
+  const rows = D.groups.map(g => {
+    const good = groupRows(g).filter(x => x.m.price <= budget).sort((a,b)=>a.m.price-b.m.price);
+    const over = groupRows(g).filter(x => x.m.price >  budget).sort((a,b)=>a.m.price-b.m.price);
+    return {g, good, over, gap: (!good.length && over.length) ? over[0].m.price - budget : null};
+  });
+  const ok = rows.filter(x => x.good.length).sort((a,b)=>b.good.length-a.good.length);
+  const no = rows.filter(x => !x.good.length).sort((a,b)=>(a.gap??1e9)-(b.gap??1e9));
+
+  let h = `<div class="card"><h2><span class="t">预算 ${yuan(budget)} 能学什么</span>
+    <em>${ok.length}/${rows.length} 个方向现在就能买</em></h2>`;
+
+  if(ok.length){
+    h += `<div class="blist">`;
+    ok.forEach(x => {
+      const c = x.good[0].m, b = c.bench || {};
+      // 只显示该组的评判维度（与 tools/budget.py 一致）：
+      // 办公组看单核，视频组看显卡，理工看多核 —— 显示别的维度会让人误判
+      const vmk = x.g.vm || 'cbSingle';
+      const val = vmk==='timeSpy' ? b.timeSpy : (vmk==='cbMulti' ? b.cbMulti : b.cbSingle);
+      const vLabel = {timeSpy:'显卡', cbMulti:'多核', cbSingle:'单核'}[vmk];
+      const v = val ? `${vLabel} ${val.toLocaleString('zh-CN')}` : '';
+      h += `<div class="brow" onclick="pick('${(x.g.majors||[])[0]||''}')">
+        <div class="bl"><b>${x.g.name}</b><span class="bn">${x.good.length} 台可选</span></div>
+        <div class="br"><span class="bp">${yuan(c.price)}</span>
+          <span class="bmin">${c.name}${v?' · '+v:''}</span></div>
+      </div>`;
+    });
+    h += `</div>`;
+  }
+
+  if(no.length){
+    h += `<div class="bh">这个预算买不到的方向（不是没机器，是够用的都超了）</div><div class="blist">`;
+    no.forEach(x => {
+      h += `<div class="brow"><div class="bl"><b>${x.g.name}</b></div>
+        <div class="br">${x.gap!=null
+          ? `<span class="bp">差 ${yuan(x.gap)}</span><span class="bmin">最少 ${yuan(budget+x.gap)} · ${x.over[0].m.name}</span>`
+          : `<span class="bmin">库里没有够用且有价格的机器</span>`}</div></div>`;
+    });
+    h += `</div>`;
+
+    const steps = [...new Set(no.filter(x=>x.gap).map(x=>x.gap))].sort((a,b)=>a-b);
+    if(steps.length){
+      h += `<div class="bh">往上加钱的阶梯</div>`;
+      steps.slice(0,4).forEach(s => {
+        const names = no.filter(x=>x.gap && x.gap<=s).map(x=>x.g.name);
+        const fresh = no.filter(x=>x.gap===s).map(x=>x.g.name);
+        h += `<div class="lad"><span>${yuan(budget+s)}</span>
+          <em>+${yuan(s)}</em> 可买 ${ok.length+names.length}/${rows.length}
+          <i>新解锁：${fresh.join('、')}</i></div>`;
+      });
+    }
+  }
+  h += `<div class="empty" style="margin-top:10px">点任意方向看该专业组的门槛和逐台推荐</div></div>`;
+  return h;
+}
+
+function go(){
+  const q = document.getElementById('q').value.trim();
+  const bEl = document.getElementById('budget');
+  const budget = bEl.value ? +bEl.value : null;
+  const out = document.getElementById('out');
+  if(!q){
+    // 只填预算不填专业：学生常有的提问顺序 —— 家里先定了预算
+    out.innerHTML = budget ? budgetView(budget) : '';
+    if(budget) window.scrollTo({top:0, behavior:'smooth'});
+    return;
+  }
+
+  const hit = resolve(q);
+  if(!hit){
+    const cand = suggest(q, 6);
+    out.innerHTML = `<div class="card"><div class="empty">认不出「${q}」。</div>` +
+      (cand.length ? `<div class="mline" style="margin-top:8px">你是说：` +
+        cand.map(x => `<a href="javascript:void(0)" onclick="pick('${x.name}')" style="color:#c0392b">${x.name}</a>`).join(' / ') + `</div>`
+      : `<div class="mline" style="margin-top:8px">目前覆盖 ${IDX.length} 个专业，试试上面的输入建议。</div>`) +
+      `</div>`;
+    return;
+  }
+  const g = D.groups.find(x => x.id === hit.gid);
+  out.innerHTML = r({name: hit.name, group: g}, budget);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function pick(name){
+  document.getElementById('q').value = name;
+  go();
+}
+
+function reset(){
+  document.getElementById('q').value = '';
+  document.getElementById('budget').value = '';
+  document.getElementById('out').innerHTML = '';
+  document.querySelector('.picker').scrollIntoView({behavior:'smooth'});
+}
+
+/* 页脚 */
+document.getElementById('foot').innerHTML =
+  `库里 ${D.machines.length} 台机型 · ${IDX.length} 个专业 · 更新于 ${D.generatedAt}<br>` +
+  `判定按「软件官方系统要求」推导，不按销售推荐。库里没有的机型不代表不行，只是还没采进来。<br>` +
+  `国补按家电线 15%、单台封顶 1500 计算，且需要 1 级能效备案才拿得到。`;
+</script>
+</body></html>

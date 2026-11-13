@@ -1,0 +1,270 @@
+{
+  "meta": {
+    "updated": "2026-11-09",
+    "rule": "EXACT 要求 norm(能源网规格型号) 与备案型号严格相等；不做片段匹配",
+    "why": "营销名里的 Pro/Air/Plus 会命中整个系列，属假匹配，比不匹配更危险",
+    "statusMeaning": {
+      "EXACT": "已核实到备案，efficiency 已回写 specs_verified.json",
+      "HAS_ID_NO_HIT": "采集数据有能效型号，但在已查询范围内查不到，需复查型号/换 2012 版再查",
+      "NO_CERT_ID": "采集数据没有能效网规格型号，无法查——这才是主要瓶颈"
+    }
+  },
+  "stats": {
+    "EXACT": 6,
+    "NO_CERT_ID": 22,
+    "HAS_ID_NO_HIT": 1
+  },
+  "items": [
+    {
+      "modelHint": "拯救者 Y9000P 2026",
+      "energyModel": "Legion Y9000P IAX10",
+      "certModel": "Legion Y9000P IAX10",
+      "status": "EXACT",
+      "filings": [
+        {
+          "model": "Legion Y9000P IAX10",
+          "level": 1,
+          "regNo": "20251216-CEL0272025-362868",
+          "date": "2025-12-16",
+          "scheme": 2025
+        }
+      ]
+    },
+    {
+      "modelHint": "暗影精灵 11（2026，Ultra7-251HX/RTX5060）",
+      "energyModel": "TPN-I145A3",
+      "certModel": "TPN-I145A3",
+      "status": "EXACT",
+      "filings": [
+        {
+          "model": "TPN-I145A3",
+          "level": 1,
+          "regNo": "20260327-CEL0272025-161370",
+          "date": "2026-03-27",
+          "scheme": 2025
+        }
+      ]
+    },
+    {
+      "modelHint": "天选7 2026（锐龙7 H260/RTX5050）",
+      "energyModel": "FA608",
+      "certModel": "FA608",
+      "status": "EXACT",
+      "filings": [
+        {
+          "model": "FA608",
+          "level": 1,
+          "regNo": "20260109-CEL0272025-135197",
+          "date": "2026-01-09",
+          "scheme": 2025
+        }
+      ]
+    },
+    {
+      "modelHint": "拯救者 Y7000P 2026",
+      "energyModel": "Legion Y7000P IAX10",
+      "certModel": "Legion Y7000P IAX10",
+      "status": "EXACT",
+      "filings": [
+        {
+          "model": "Legion Y7000P IAX10",
+          "level": 1,
+          "regNo": "20251216-CEL0272025-717057",
+          "date": "2025-12-16",
+          "scheme": 2025
+        }
+      ]
+    },
+    {
+      "modelHint": "星 Book Pro 14 2026 锐龙版",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "战66 八代 14 英寸（2026 款锐龙版）",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "小新 Pro 14 2026（锐龙版）",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "小新 Air 15 2026",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "ThinkBook 16+ 2026（酷睿 Ultra5 338H）",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "ThinkBook 14+ 2026 锐龙版",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "小新 Pro 14 2026（酷睿 Ultra 7 版）",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "小新 Pro 16 2026（酷睿 Ultra 5 版）",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "小新 Pro 16 超能本（锐龙版）",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "小新 Pro 16 超能本（酷睿 Ultra 7 版）",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "小新 Pro 16 2025（锐龙版）",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "小新 Air 14 2026（酷睿 Ultra5 版）",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "小新 Air 14（酷睿 Ultra7 版）",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "小新 Air 14（酷睿 Ultra5 版）",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "小新 Air 15 2026（触控屏版）",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "ThinkBook 14+（酷睿 Ultra5 版）",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "ThinkBook 16+ 锐龙版 2026",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "ThinkPad E14 2026（Ultra 版）",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "ThinkPad E16 2026",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "ThinkPad E16 Gen 2（Ultra5 版）",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "拯救者 R7000P 2026（R7000 系列自营在售款）",
+      "energyModel": "Legion R7000P ADR10",
+      "certModel": "Legion R7000P ADR10",
+      "status": "EXACT",
+      "filings": [
+        {
+          "model": "Legion R7000P ADR10",
+          "level": 1,
+          "regNo": "20251211-CEL0272025-378760",
+          "date": "2025-12-11",
+          "scheme": 2025
+        }
+      ]
+    },
+    {
+      "modelHint": "灵越 14 Plus 7440（自营最新款，未标 2026）",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "无畏16 2026 锐龙版（R7-H260/核显）",
+      "energyModel": null,
+      "certModel": null,
+      "status": "NO_CERT_ID",
+      "filings": []
+    },
+    {
+      "modelHint": "无畏Pro14 酷睿版 2026（Ultra7-356H/核显）",
+      "energyModel": "S5450A",
+      "certModel": null,
+      "status": "EXACT",
+      "filings": [
+        {
+          "model": "S5450A",
+          "level": 1,
+          "regNo": "20251209-CEL0272025-847101",
+          "date": "2025-12-09",
+          "scheme": 2025
+        }
+      ]
+    },
+    {
+      "modelHint": "机械革命 蛟龙 15K",
+      "energyModel": "机械革命蛟龙-08017B…（官网表格截断，需补全）",
+      "certModel": "机械革命蛟龙15K",
+      "status": "HAS_ID_NO_HIT",
+      "filings": []
+    }
+  ]
+}

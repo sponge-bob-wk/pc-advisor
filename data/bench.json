@@ -1,0 +1,1520 @@
+{
+  "meta": {
+    "version": "0.2",
+    "updated": "2026-11-11",
+    "purpose": "CPU 与 GPU 跑分基准表。以芯片为主键（CPU / GPU 分开），机型只存相对芯片的衰减与功耗系数。",
+    "whyCpuKey": "18 台机型只有 12 个唯一 CPU。主流笔记本 CPU 约 60-120 颗，而机型有 3000 台。以 CPU 为主键，覆盖成本降一个数量级。",
+    "officialFact": "Cinebench 官网不提供逐 CPU 的分数数据库，只提供软件、版本说明与命令行参数。分数一律来自第三方评测或自测。",
+    "versionRule": "R23 / Cinebench 2024 / Cinebench 2026 是三套独立标尺，分数不可比、不可换算。",
+    "officialQuotes": [
+      "Cinebench 2026 score values are readjusted to a new range so they should not be compared to scores from previous versions of Cinebench.",
+      "Compared to Cinebench R23 the computational effort for the scene increased sixfold in the multithreaded rendering test."
+    ],
+    "memoryGate": "Cinebench 2026 需要 6.5-8.5GB 内存加载场景；8GB 机器会走虚拟内存，性能显著下降。所以老款 8GB 轻薄本跑 2026 会失真，不能作为同代比较样本。",
+    "currentBasis": "现有 438 项测试与 perf 换算全部基于 Cinebench R23。换版本必须整体迁移，不能混填。",
+    "sourceOfOfficial": {
+      "product": "https://www.maxon.net/en/cinebench",
+      "techInfo": "https://www.maxon.net/en/tech-info-cinebench",
+      "checkedAt": "2026-11-07"
+    },
+    "versionMatrix": {
+      "geekbench": {
+        "current": "Geekbench 7（2026-07-23 发布）",
+        "legacy": [
+          "Geekbench 6"
+        ],
+        "baseline": {
+          "gb7": "AMD Ryzen 7 7700 = 2500 分",
+          "gb6": "Intel Core i7-12700 = 2500 分"
+        },
+        "comparableAcrossVersions": false,
+        "methodChange": "GB7 只在真实软件会多线程的任务上跑多线程；HTML5 Browser 已从多核套件移除",
+        "observedShift": "单核普遍下降 9-15%（骁龙 X2 Elite -15%、M5 -14%、Intel -10%、AMD -9%）；多核有升有降（骁龙 +16%、AMD +4%、M5 +2%、Intel -2%）",
+        "impactOnUs": "现有手机 perf 全部基于 GB6，锚点 4000/12000。新评测逐步迁到 GB7 后，混填会直接错，且错得自洽。"
+      },
+      "cinebench": {
+        "generations": [
+          "R23（Cinema 4D 渲染器）",
+          "Cinebench 2024（Redshift）",
+          "Cinebench 2026（Redshift + 统一场景 + 光追）"
+        ],
+        "comparableAcrossVersions": false,
+        "officialQuote": "Cinebench 2026 score values are readjusted to a new range so they should not be compared to scores from previous versions",
+        "loadChange": "R23 → 2026，多线程场景计算量增至 6 倍"
+      },
+      "3dmark": {
+        "tests": [
+          {
+            "name": "Time Spy",
+            "res": "1440p",
+            "api": "DirectX 12",
+            "scoreFields": [
+              "graphics",
+              "overall"
+            ],
+            "formula": "图形分 = 两段显卡测试帧率几何平均",
+            "note": "存量最大（约 4800 万条结果），适合做横向对比基线"
+          },
+          {
+            "name": "Steel Nomad",
+            "res": "4K UHD",
+            "api": "DX12 / Vulkan",
+            "scoreFields": [
+              "score"
+            ],
+            "formula": "平均帧率 × 100",
+            "note": "Time Spy 的后继，负载约为其 3 倍"
+          },
+          {
+            "name": "Steel Nomad Light",
+            "res": "1440p",
+            "api": "DX12 / Vulkan / Metal",
+            "scoreFields": [
+              "score"
+            ],
+            "formula": "平均帧率 × 135",
+            "warning": "与 Steel Nomad 公式不同，两者分数绝不可混用"
+          },
+          {
+            "name": "Port Royal",
+            "res": "1440p",
+            "api": "DXR",
+            "scoreFields": [
+              "score"
+            ],
+            "note": "光追专项"
+          },
+          {
+            "name": "Speed Way",
+            "res": "1440p",
+            "api": "DX12 Ultimate",
+            "scoreFields": [
+              "score"
+            ],
+            "note": "DX12U 光追，最吃新架构"
+          }
+        ],
+        "comparableAcrossTests": false
+      }
+    },
+    "comparabilityRules": [
+      "跑分四要素缺一不可：基准版本、API 或预设、功耗设置（TGP/PL1）、散热与循环条件。缺任一项即视为不可比。",
+      "Geekbench 6 与 7 不可比。同一台机器单核普遍下降 9-15%，不是硬件变慢，是尺换了。",
+      "Geekbench GPU 基准换 API 会差出一大截：RTX 4070 在 CUDA 下 236,094，OpenCL 163,749，差约 44%。",
+      "Cinebench R23 / 2024 / 2026 三代不可比：渲染器与场景都换了。",
+      "3DMark Steel Nomad 与 Steel Nomad Light 计分公式不同（×100 与 ×135），不可混用。",
+      "笔记本 GPU 不可与桌面同名 GPU 比；同型号不同功耗可差 2.7 倍。",
+      "必须用显卡分数（Graphics Score），不能用总分（Overall）判断 GPU——总分含 CPU 影响。"
+    ],
+    "tgpWarning": {
+      "headline": "显卡型号名几乎不携带性能信息，功耗才携带。",
+      "evidence": [
+        "RTX 4070 Laptop 的 Time Spy 图形分在笔记本里从 5,012 到 13,391（35W–115W），同一型号差 2.7 倍。",
+        "RTX 5060 Laptop（11,637）与 RTX 4070 Laptop（11,609）几乎打平——型号新一代，性能持平。",
+        "同一台 RTX 5080 Laptop 在 120W 与 60W（静音模式）下，3DMark 分数差 30-35%。"
+      ],
+      "requiredField": "gpu 表必须存 tgpRangeW [min, max]，机型表必须存该机的 tgpW；只存型号无法建库。"
+    },
+    "cpuSpecNote": "核数与功耗取自 Intel ARK / AMD 官方 / 品牌官网；cores 可用于多核权重建模。",
+    "cpuCount": 36
+  },
+  "methods": {
+    "selfTest": {
+      "why": "第三方评测的条件（功耗模式、室温、是否插电、是否循环）往往不写清，抄来的分数无法复现。自测能固定条件、可重复。",
+      "cli": {
+        "all": "Cinebench.exe g_CinebenchAllTests=true",
+        "single": "Cinebench.exe g_CinebenchCpu1Test=true",
+        "smt": "Cinebench.exe g_CinebenchCpuSMTTest=true",
+        "multi": "Cinebench.exe g_CinebenchCpuXTest=true",
+        "duration": "g_CinebenchMinimumTestDuration=100"
+      },
+      "conditions": [
+        "插电、高性能电源模式",
+        "关机重启后静置 5 分钟再测（清后台）",
+        "记录室温",
+        "单核与多核分开记录",
+        "连跑 10 轮，记录首轮与末轮 → 得到衰减系数"
+      ]
+    },
+    "sourceTiers": [
+      {
+        "tier": 1,
+        "name": "自测",
+        "trust": "最高",
+        "note": "条件可控、可复现"
+      },
+      {
+        "tier": 2,
+        "name": "第三方评测",
+        "trust": "中",
+        "note": "必须记下测试条件；同一 CPU 多个来源取中位数"
+      },
+      {
+        "tier": 3,
+        "name": "厂商宣传稿",
+        "trust": "不可用",
+        "note": "条件不透明，只用于发现型号，不用于取数"
+      }
+    ]
+  },
+  "cpus": [
+    {
+      "id": "r9-9955hx",
+      "name": "R9-9955HX",
+      "vendor": "AMD",
+      "cores": null,
+      "bench": {
+        "r23": {
+          "single": 2157,
+          "multi": 39019
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            2157,
+            39019
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "同 CPU 不同机型的实测差，可作为散热/功耗墙差异的线索；差值越大说明机身越压不住"
+      },
+      "perfCurrent": 94,
+      "usedInMachines": [
+        "gaming-canglong18"
+      ],
+      "source": "legacy-manual",
+      "sourceNote": "来自 prices.json 人工核定的公开评测值，未经我方自测复现",
+      "verified": false
+    },
+    {
+      "id": "ultra-7-255hx",
+      "name": "Ultra 7 255HX",
+      "vendor": "Intel",
+      "cores": null,
+      "bench": {
+        "r23": {
+          "single": 2027,
+          "multi": 29012
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            2027,
+            29012
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "同 CPU 不同机型的实测差，可作为散热/功耗墙差异的线索；差值越大说明机身越压不住"
+      },
+      "perfCurrent": 78,
+      "usedInMachines": [
+        "gaming-omen15"
+      ],
+      "source": "legacy-manual",
+      "sourceNote": "来自 prices.json 人工核定的公开评测值，未经我方自测复现",
+      "verified": false
+    },
+    {
+      "id": "ultra-7-251hx",
+      "name": "Ultra 7 251HX",
+      "vendor": "Intel",
+      "cores": 18,
+      "bench": {
+        "r23": {
+          "single": 2096,
+          "multi": 26476
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            2096,
+            26476
+          ]
+        ],
+        "machineCount": 3,
+        "spreadPct": 0.0,
+        "note": "同 CPU 不同机型的实测差，可作为散热/功耗墙差异的线索；差值越大说明机身越压不住"
+      },
+      "perfCurrent": 77,
+      "usedInMachines": [
+        "gaming-yinxing",
+        "gaming-jiguangx",
+        "gaming-yaoshi18"
+      ],
+      "source": "legacy-manual",
+      "sourceNote": "来自 prices.json 人工核定的公开评测值，未经我方自测复现",
+      "verified": false,
+      "threads": 18,
+      "baseW": 55,
+      "maxW": 160,
+      "coreSrc": "Intel ARK：6P+12E 18核18线程"
+    },
+    {
+      "id": "i5-14600kf",
+      "name": "i5-14600KF",
+      "vendor": "Intel",
+      "cores": null,
+      "bench": {
+        "r23": {
+          "single": 2097,
+          "multi": 24683
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            2097,
+            24683
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "同 CPU 不同机型的实测差，可作为散热/功耗墙差异的线索；差值越大说明机身越压不住"
+      },
+      "perfCurrent": 75,
+      "usedInMachines": [
+        "desktop-diy14600"
+      ],
+      "source": "legacy-manual",
+      "sourceNote": "来自 prices.json 人工核定的公开评测值，未经我方自测复现",
+      "verified": false
+    },
+    {
+      "id": "r7-9800x3d",
+      "name": "R7 9800X3D",
+      "vendor": "AMD",
+      "cores": null,
+      "bench": {
+        "r23": {
+          "single": 2095,
+          "multi": 23163
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            2095,
+            23163
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "同 CPU 不同机型的实测差，可作为散热/功耗墙差异的线索；差值越大说明机身越压不住"
+      },
+      "perfCurrent": 73,
+      "usedInMachines": [
+        "desktop-banu"
+      ],
+      "source": "legacy-manual",
+      "sourceNote": "来自 prices.json 人工核定的公开评测值，未经我方自测复现",
+      "verified": false
+    },
+    {
+      "id": "ultra-5-225h",
+      "name": "Ultra 5 225H",
+      "vendor": "Intel",
+      "cores": 14,
+      "bench": {
+        "r23": {
+          "single": 1985,
+          "multi": 16436
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1985,
+            16436
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "同 CPU 不同机型的实测差，可作为散热/功耗墙差异的线索；差值越大说明机身越压不住"
+      },
+      "perfCurrent": 62,
+      "usedInMachines": [
+        "thin-inspiron15"
+      ],
+      "source": "legacy-manual",
+      "sourceNote": "来自 prices.json 人工核定的公开评测值，未经我方自测复现",
+      "verified": false,
+      "threads": 18,
+      "baseW": 28,
+      "maxW": 115,
+      "coreSrc": "Intel ARK（Meteor Lake）"
+    },
+    {
+      "id": "ultra-5-338h",
+      "name": "Ultra 5 338H",
+      "vendor": "Intel",
+      "cores": 12,
+      "bench": {
+        "r23": {
+          "single": 2002,
+          "multi": 15988
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            2002,
+            15988
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "同 CPU 不同机型的实测差，可作为散热/功耗墙差异的线索；差值越大说明机身越压不住"
+      },
+      "perfCurrent": 62,
+      "usedInMachines": [
+        "thin-redmibookpro14"
+      ],
+      "source": "legacy-manual",
+      "sourceNote": "来自 prices.json 人工核定的公开评测值，未经我方自测复现",
+      "verified": false,
+      "threads": 12,
+      "baseW": 25,
+      "maxW": 65,
+      "coreSrc": "Intel ARK：12核，Arc B370"
+    },
+    {
+      "id": "r7-h255",
+      "name": "R7 H255",
+      "vendor": "AMD",
+      "cores": 8,
+      "bench": {
+        "r23": {
+          "single": 1709,
+          "multi": 15475
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            2055,
+            15475
+          ]
+        ],
+        "machineCount": 3,
+        "spreadPct": 0.0,
+        "note": "同 CPU 不同机型的实测差，可作为散热/功耗墙差异的线索；差值越大说明机身越压不住"
+      },
+      "perfCurrent": 55,
+      "usedInMachines": [
+        "thin-wujie14x",
+        "thin-zhan66",
+        "thin-xiaoxin16"
+      ],
+      "source": "legacy-manual",
+      "sourceNote": "PChome WIKO Hi MateBook 14 实测 1709/15475（原 2055/15475 为跨来源拼接，已修正）",
+      "verified": false,
+      "threads": 16,
+      "baseW": 45,
+      "maxW": 54,
+      "coreSrc": "AMD 官方"
+    },
+    {
+      "id": "r7-h260",
+      "name": "R7 H260",
+      "vendor": "AMD",
+      "cores": 8,
+      "bench": {
+        "r23": {
+          "single": 1760,
+          "multi": 15321
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1760,
+            15321
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "同 CPU 不同机型的实测差，可作为散热/功耗墙差异的线索；差值越大说明机身越压不住"
+      },
+      "perfCurrent": 56,
+      "usedInMachines": [
+        "gaming-tianxuan7"
+      ],
+      "source": "legacy-manual",
+      "sourceNote": "来自 prices.json 人工核定的公开评测值，未经我方自测复现",
+      "verified": false,
+      "threads": 16,
+      "baseW": 45,
+      "maxW": 54,
+      "coreSrc": "华硕官网 8核16线程"
+    },
+    {
+      "id": "ultra-5-226v",
+      "name": "Ultra 5 226V",
+      "vendor": "Intel",
+      "cores": 8,
+      "bench": {
+        "r23": {
+          "single": 1746,
+          "multi": 9041
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1746,
+            9041
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "同 CPU 不同机型的实测差，可作为散热/功耗墙差异的线索；差值越大说明机身越压不住"
+      },
+      "perfCurrent": 48,
+      "usedInMachines": [
+        "thin-air14"
+      ],
+      "source": "legacy-manual",
+      "sourceNote": "来自 prices.json 人工核定的公开评测值，未经我方自测复现",
+      "verified": false,
+      "threads": 8,
+      "baseW": 17,
+      "maxW": 37,
+      "coreSrc": "Intel ARK（Lunar Lake 无超线程）"
+    },
+    {
+      "id": "酷睿5-320",
+      "name": "酷睿5 320",
+      "vendor": "Intel",
+      "cores": null,
+      "bench": {
+        "r23": {
+          "single": 1928,
+          "multi": 7880
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1928,
+            7880
+          ],
+          [
+            1939,
+            7540
+          ]
+        ],
+        "machineCount": 3,
+        "spreadPct": 4.3,
+        "note": "同 CPU 不同机型的实测差，可作为散热/功耗墙差异的线索；差值越大说明机身越压不住"
+      },
+      "perfCurrent": 50,
+      "usedInMachines": [
+        "thin-air15",
+        "thin-vivobook16se",
+        "thin-honorx14"
+      ],
+      "source": "legacy-manual",
+      "sourceNote": "来自 prices.json 人工核定的公开评测值，未经我方自测复现",
+      "verified": false
+    },
+    {
+      "id": "i5-13420h",
+      "name": "i5-13420H",
+      "vendor": "Intel",
+      "cores": null,
+      "bench": {
+        "r23": {
+          "single": 1690,
+          "multi": 7839
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1690,
+            7839
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "同 CPU 不同机型的实测差，可作为散热/功耗墙差异的线索；差值越大说明机身越压不住"
+      },
+      "perfCurrent": 45,
+      "usedInMachines": [
+        "thin-matebookd16"
+      ],
+      "source": "legacy-manual",
+      "sourceNote": "来自 prices.json 人工核定的公开评测值，未经我方自测复现",
+      "verified": false
+    },
+    {
+      "id": "i7-13620h",
+      "name": "i7-13620H",
+      "vendor": "Intel",
+      "cores": 10,
+      "threads": 16,
+      "aliases": [
+        "Core i7-13620H"
+      ],
+      "bench": {
+        "r23": {
+          "single": 1775,
+          "multi": 14161
+        },
+        "r24": {
+          "single": 108,
+          "multi": 810
+        },
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1775,
+            14161
+          ],
+          [
+            1812,
+            13861
+          ],
+          [
+            1833,
+            15973
+          ]
+        ],
+        "machineCount": 3,
+        "spreadPct": 13,
+        "note": "实测取 MSI Cyborg 15 Max（与星影15 MAX 同模具）1775/14161；cpu-monkey 中位 1812/13861；另有评测 1833/15973 属高释放版本"
+      },
+      "source": "Mobile01 实测（MSI Cyborg 15 Max）+ cpu-monkey 中位 + 百度百科评测汇编",
+      "confidence": "medium",
+      "note": "10核(6P+4E)/16线程；不同机型功耗释放差异大，多核 13.8k-16k 都算正常"
+    },
+    {
+      "id": "i5-14450hx",
+      "name": "i5-14450HX",
+      "vendor": "Intel",
+      "cores": 10,
+      "threads": 16,
+      "aliases": [
+        "Core i5-14450HX",
+        "i5 14450HX"
+      ],
+      "bench": {
+        "r23": {
+          "single": 1838,
+          "multi": 13881
+        },
+        "r24": {
+          "single": 108,
+          "multi": 719
+        },
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1838,
+            13881
+          ],
+          [
+            1801,
+            16382
+          ],
+          [
+            1812,
+            16480
+          ]
+        ],
+        "machineCount": 3,
+        "spreadPct": 19,
+        "note": "Notebookcheck 单机实测 1838/13881（低释放）；nanoreview 1801/16382、cpu-boss 1812/16480 属高释放机型。同一颗 CPU 多核差 19%，说明功耗墙比型号更能决定体验"
+      },
+      "source": "Notebookcheck i5-14450HX 实测 + nanoreview + cpu-boss（取 Notebookcheck 保守值入 bench，区间另存）",
+      "confidence": "medium"
+    },
+    {
+      "id": "ultra-7-356h",
+      "name": "Ultra 7 356H",
+      "vendor": "Intel",
+      "cores": 16,
+      "threads": 16,
+      "aliases": [
+        "Core Ultra 7 356H",
+        "Ultra7-356H",
+        "Ultra7 356H",
+        "酷睿 Ultra 7 356H"
+      ],
+      "bench": {
+        "r23": {
+          "single": 2031,
+          "multi": 18376
+        },
+        "r24": {
+          "single": 122,
+          "multi": 971
+        },
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            2001,
+            16480
+          ],
+          [
+            2031,
+            18376
+          ],
+          [
+            2045,
+            20650
+          ],
+          [
+            1968,
+            19722
+          ]
+        ],
+        "machineCount": 4,
+        "spreadPct": 25,
+        "note": "Notebookcheck 跨机型聚合：单核 2001-2045、多核 16480-20650（差 25%）。Panther Lake 16核/16线程，无超线程"
+      },
+      "source": "comparedb 引 Notebookcheck 聚合（R23 低/均/高）+ 百度百科 1968/19722 + pcspecs 2000/16280",
+      "confidence": "medium",
+      "note": "Intel 18A / Panther Lake；基带 15-25W、PL2 80W，轻薄本上多为 29-30W 持续释放"
+    },
+    {
+      "id": "apple-m4",
+      "name": "Apple M4",
+      "vendor": "Apple",
+      "cores": 10,
+      "threads": 10,
+      "aliases": [
+        "M4",
+        "Apple M4 (10核)",
+        "Apple M4 10核"
+      ],
+      "bench": {
+        "r23": {
+          "single": 2055,
+          "multi": 12100
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            2068,
+            12919
+          ],
+          [
+            2080,
+            13115
+          ],
+          [
+            2161,
+            11255
+          ],
+          [
+            2023,
+            11736
+          ]
+        ],
+        "machineCount": 4,
+        "spreadPct": 17,
+        "note": "四组独立实测：comparedb 2068/12919（峰值）、2080/13115（Air 15）、India Today 2161/11255、pcvenus 2023/11736。取中位 2055/12100 入 bench。另 tsight 报 1650/8200，明显低于其他四家，疑为低功耗/测试条件异常，未采纳"
+      },
+      "archNote": "**原生 ARM 编译**。R23 在 Apple Silicon 上跑的是 arm64 版本，与 x86 版同分不代表同等实际负载能力 —— 横向对比要打折扣看，本工具只把它当'同一平台内部比较'用，不参与跨架构排名",
+      "sustainedNote": "无风扇机型（MacBook Air）持续 20 分钟多核负载后降到约 11,400，较峰值 12,919 衰减约 12%；有风扇的 MacBook Pro 衰减明显更小",
+      "source": "comparedb（含持续负载测试）+ India Today 评测 + pcvenus 实测汇总",
+      "confidence": "medium",
+      "note": "10 核 CPU（4 性能 + 6 能效）；GPU 分 8 核/10 核两版，不能混"
+    },
+    {
+      "id": "apple-m5",
+      "name": "Apple M5",
+      "vendor": "Apple",
+      "cores": 10,
+      "threads": 10,
+      "aliases": [
+        "M5",
+        "Apple M5 (10核)",
+        "Apple M5 10核"
+      ],
+      "bench": {
+        "r23": {
+          "single": 2511,
+          "multi": 16014
+        }
+      },
+      "observedR23": {
+        "variants": [
+          [
+            2511,
+            16014
+          ],
+          [
+            2080,
+            14800
+          ]
+        ],
+        "machineCount": 2,
+        "note": "IT之家评测室（接电 2511/16014，DoNews 同源转引）为主口径；specforge 报 2080/14800（欧洲机型，条件不同）。pcvenus 报多核 22400 疑为 M5 Pro 混淆，未采纳。对比 M4：单核 +6.8%、多核 +15.3%"
+      },
+      "archNote": "原生 ARM 编译，与 x86 同分不代表同等实际负载能力——横向对比要打折扣看",
+      "sustainedNote": "MacBook Pro M5 有风扇：30 分钟 Cinebench R23 多核循环保持峰值 92%，无可见降频至约 28 分钟（specforge 实测）",
+      "source": "IT之家评测室（2025-12-10）+ DoNews + specforge",
+      "confidence": "medium",
+      "note": "10 核 CPU（4P+6E，大核 4.6GHz）；GPU 10 核带神经加速器，图形较 M4 最高 +45%"
+    },
+    {
+      "id": "r9-8940hx",
+      "name": "R9-8940HX",
+      "vendor": "AMD",
+      "cores": null,
+      "bench": {
+        "r23": {
+          "single": 1911,
+          "multi": 30804
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1911,
+            30804
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "单来源实测，非多机中位"
+      },
+      "perfCurrent": 78,
+      "usedInMachines": [],
+      "source": "web-search",
+      "sourceNote": "innoreviews（R23 1911/30804，55-75W 可配）",
+      "verified": false
+    },
+    {
+      "id": "ultra-9-290hx-plus",
+      "name": "Core Ultra 9 290HX Plus",
+      "vendor": "Intel",
+      "cores": null,
+      "bench": {
+        "r23": {
+          "single": 2323,
+          "multi": 38899
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            2323,
+            38899
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "单来源实测，非多机中位"
+      },
+      "perfCurrent": 97,
+      "usedInMachines": [],
+      "source": "web-search",
+      "sourceNote": "NOVA Predator Helios 18 实测 R23 2323/38899；24核24线程",
+      "verified": false
+    },
+    {
+      "id": "i7-14650hx",
+      "name": "i7-14650HX",
+      "vendor": "Intel",
+      "cores": null,
+      "bench": {
+        "r23": {
+          "single": 1986,
+          "multi": 24100
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1986,
+            24100
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "公开评测值，非我方自测"
+      },
+      "perfCurrent": 72,
+      "usedInMachines": [],
+      "source": "web-search",
+      "sourceNote": "百度百科汇总区间单核1935-2038/多核23257-24946，取中位；14代HX，16C24T",
+      "verified": false
+    },
+    {
+      "id": "ultra-9-275hx",
+      "name": "Ultra 9 275HX",
+      "vendor": "Intel",
+      "cores": null,
+      "bench": {
+        "r23": {
+          "single": 2195,
+          "multi": 37443
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            2195,
+            37443
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "公开评测值，非我方自测"
+      },
+      "perfCurrent": 93,
+      "usedInMachines": [],
+      "source": "web-search",
+      "sourceNote": "ZOL 雷蛇灵刃18 2025 实测 2195/37443；另一台 Alienware 测得 2771/42632，取保守值（多数机型跑不到极限释放）",
+      "verified": false
+    },
+    {
+      "id": "i7-13650hx",
+      "name": "i7-13650HX",
+      "vendor": "Intel",
+      "cores": null,
+      "bench": {
+        "r23": {
+          "single": 1881,
+          "multi": 20999
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1881,
+            20999
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "公开评测值，非我方自测"
+      },
+      "perfCurrent": 65,
+      "usedInMachines": [],
+      "source": "web-search",
+      "sourceNote": "cpu-monkey 687/662 样本中位",
+      "verified": false
+    },
+    {
+      "id": "ultra-7-256v",
+      "name": "Ultra 7 256V",
+      "vendor": "Intel",
+      "cores": null,
+      "bench": {
+        "r23": {
+          "single": 1968,
+          "multi": 10300
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1968,
+            10300
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "公开评测值，非我方自测"
+      },
+      "perfCurrent": 54,
+      "usedInMachines": [],
+      "source": "web-search",
+      "sourceNote": "PCEVA 机械师14 Ultra 1999/10525 与腾讯新闻同机型 1938/10082，取中位",
+      "verified": false
+    },
+    {
+      "id": "ultra-9-386h",
+      "name": "Core Ultra 9 386H",
+      "vendor": "Intel",
+      "cores": null,
+      "bench": {
+        "r23": {
+          "single": 2069,
+          "multi": 19307
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            2069,
+            19307
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "公开评测值，非我方自测"
+      },
+      "perfCurrent": 67,
+      "usedInMachines": [],
+      "source": "web-search",
+      "sourceNote": "innoreviews；Panther Lake，16C16T，25-80W",
+      "verified": false
+    },
+    {
+      "id": "ultra-7-255h",
+      "name": "Ultra 7 255H",
+      "vendor": "Intel",
+      "cores": 16,
+      "bench": {
+        "r23": {
+          "single": 2009,
+          "multi": 20316
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            2009,
+            20316
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "siliconcat 收录值"
+      },
+      "perfCurrent": 67,
+      "usedInMachines": [],
+      "source": "web-search",
+      "sourceNote": "siliconcat.net R23 2009/20316；Arrow Lake-H 16C16T",
+      "verified": false
+    },
+    {
+      "id": "r9-8945hx",
+      "name": "R9-8945HX",
+      "vendor": "AMD",
+      "cores": 16,
+      "bench": {
+        "r23": {
+          "single": 1900,
+          "multi": 31000
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1900,
+            31000
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "取多来源中位，非单机实测"
+      },
+      "perfCurrent": 78,
+      "usedInMachines": [],
+      "source": "web-search",
+      "sourceNote": "多来源实测区间：单核 1842~1956 / 多核 30009~32813（IT之家蛟龙16Pro 1842/32813、微信拯救者R7000P 1900/32618、头条暗影精灵11 82W 1922/30009、微信评测 1956/30228）。取中位 1900/31000；差异来自 82W~115W 功耗释放",
+      "verified": false
+    },
+    {
+      "id": "ultra-5-336h",
+      "name": "Ultra 5 336H",
+      "vendor": "Intel",
+      "cores": 12,
+      "bench": {
+        "r23": {
+          "single": 1989,
+          "multi": 15986
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1989,
+            15986
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "取多来源中位，非单机实测"
+      },
+      "perfCurrent": 61,
+      "usedInMachines": [],
+      "source": "web-search",
+      "sourceNote": "topcpu 1989/15986、cpu-boss 1990/16282、nanoreview 1978/15982，三来源一致，取 topcpu 值；Panther Lake 12C12T 15-25W",
+      "verified": false
+    },
+    {
+      "id": "r5-6600h",
+      "name": "R5-6600H",
+      "vendor": "AMD",
+      "cores": 6,
+      "bench": {
+        "r23": {
+          "single": 1442,
+          "multi": 9500
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1401,
+            8298
+          ],
+          [
+            1417,
+            9682
+          ],
+          [
+            1467,
+            10287
+          ],
+          [
+            1486,
+            8948
+          ]
+        ],
+        "machineCount": 4,
+        "spreadPct": 19.4,
+        "note": "四来源实测区间，取中位；功耗释放不同导致多核差 19%"
+      },
+      "perfCurrent": 42,
+      "usedInMachines": [],
+      "source": "web-search",
+      "sourceNote": "太平洋/零刻 1486-8948、eeworld/ThinkBook 1417-9682、cpu-boss 1467-10287、cnx-software/CHUWI 1401-8298；取中位 1442/9500",
+      "verified": false
+    },
+    {
+      "id": "r7-7745hx",
+      "name": "R7-7745HX",
+      "vendor": "AMD",
+      "cores": 8,
+      "bench": {
+        "r23": {
+          "single": 1846,
+          "multi": 18060
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1846,
+            18060
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "同 CPU 不同机型的实测差，可作为散热/功耗墙差异的线索；差值越大说明机身越压不住"
+      },
+      "perfCurrent": 60,
+      "usedInMachines": [],
+      "source": "thirdparty-aggregated",
+      "sourceNote": "R23 1846/18060：Notebookcheck 对 Lenovo Legion Pro 5 Gen 8（RTX4070 版）实验室实测，单多核同次；cpu-monkey 数据库聚合值差 <0.3%。GB6 为 cpu-monkey 聚合（官方库转引，未逐条回查 browser.geekbench.com）。perfCurrent 对照现有标尺人工定档，非公式",
+      "verified": false
+    },
+    {
+      "id": "r7-8840hx",
+      "name": "R7-8840HX",
+      "vendor": "AMD",
+      "cores": 12,
+      "bench": {
+        "r23": {
+          "single": 1857,
+          "multi": 25265
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1857,
+            25265
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "同 CPU 不同机型的实测差，可作为散热/功耗墙差异的线索；差值越大说明机身越压不住"
+      },
+      "perfCurrent": 74,
+      "usedInMachines": [],
+      "source": "thirdparty-aggregated",
+      "sourceNote": "Notebookcheck 数据库条目 R23 1857/25265（12C24T Dragon Range refresh）；GB6 6.7 2742/15223 同库。perfCurrent 对照现有标尺人工定档",
+      "verified": false
+    },
+    {
+      "id": "r7-8840h",
+      "name": "R7-8840H",
+      "vendor": "AMD",
+      "cores": 8,
+      "bench": {
+        "r23": {
+          "single": 1757,
+          "multi": 15930
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1757,
+            15930
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "同 CPU 不同机型的实测差，可作为散热/功耗墙差异的线索；差值越大说明机身越压不住"
+      },
+      "perfCurrent": 57,
+      "usedInMachines": [],
+      "source": "thirdparty-aggregated",
+      "sourceNote": "cpu-monkey 聚合库 R23 1757/15930。同 die 的 8840HS（28W）聚合 1725~1737/13082~13791，45W H 版取高值合理。perfCurrent 对照现有标尺人工定档",
+      "verified": false
+    },
+    {
+      "id": "r5-7640h",
+      "name": "R5-7640H",
+      "vendor": "AMD",
+      "cores": 6,
+      "bench": {
+        "r23": {
+          "single": 1730,
+          "multi": 13177
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1730,
+            13177
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "同 CPU 不同机型的实测差，可作为散热/功耗墙差异的线索；差值越大说明机身越压不住"
+      },
+      "perfCurrent": 52,
+      "usedInMachines": [],
+      "source": "thirdparty-aggregated",
+      "sourceNote": "7640H 无独立大库条目，取 gadgetversus 全库均值 1730/13177；与同 die 同频的 7640HS（Notebookcheck median 1716/12554，min 12079 max 13029）一致。GB6 为 7640HS 值备查。perfCurrent 对照现有标尺人工定档",
+      "verified": false
+    },
+    {
+      "id": "ryzen-ai-7-h350",
+      "name": "Ryzen AI 7 H 350",
+      "vendor": "AMD",
+      "cores": 8,
+      "bench": {
+        "r23": {
+          "single": 1958,
+          "multi": 15879
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1958,
+            15879
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "同 CPU 不同机型的实测差，可作为散热/功耗墙差异的线索；差值越大说明机身越压不住"
+      },
+      "perfCurrent": 57,
+      "usedInMachines": [],
+      "source": "thirdparty-aggregated",
+      "sourceNote": "Notebookcheck 聚合中位数 1958/15879（多核跨机型波动大：min 12647 max 18243，功耗档差异）。NB 泄漏稿（华硕 28W）1943/14607 在区间内。取 median 代表主流 54W 释放档。perfCurrent 对照现有标尺人工定档",
+      "verified": false
+    },
+    {
+      "id": "ryzen-ai-9-h465",
+      "name": "Ryzen AI 9 H 465",
+      "vendor": "AMD",
+      "cores": 10,
+      "bench": {
+        "r23": {
+          "single": 2002,
+          "multi": 18818
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            2002,
+            18818
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "同 CPU 不同机型的实测差，可作为散热/功耗墙差异的线索；差值越大说明机身越压不住"
+      },
+      "perfCurrent": 63,
+      "usedInMachines": [],
+      "source": "thirdparty-aggregated",
+      "sourceNote": "R23 2002/18818 为 a豆14 Air 2026（45W 长时释放）首测，单多核同次；33W 档 2000/17568、高释放档 1957/20889 交叉，区间合理。a豆14 Air 若确认为本芯片即直接对上。perfCurrent 对照现有标尺人工定档",
+      "verified": false
+    },
+    {
+      "id": "core-5-210h",
+      "name": "Core 5 210H",
+      "vendor": "Intel",
+      "cores": 8,
+      "bench": {
+        "r23": {
+          "single": 1771,
+          "multi": 11830
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1771,
+            11830
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "同 CPU 不同机型的实测差，可作为散热/功耗墙差异的线索；差值越大说明机身越压不住"
+      },
+      "perfCurrent": 51,
+      "usedInMachines": [],
+      "source": "thirdparty-aggregated",
+      "sourceNote": "Notebookcheck 聚合中位数 1771/11830（薄本低功耗机型实测低至 1483/9321，标压释放机型到 12609）。GB6 2428/8250 为 NB 同机实测。Raptor Lake-H refresh（=i5-13420H 提频版）。perfCurrent 对照现有标尺人工定档",
+      "verified": false
+    },
+    {
+      "id": "ultra-5-125h",
+      "name": "Ultra 5 125H",
+      "vendor": "Intel",
+      "cores": 14,
+      "bench": {
+        "r23": {
+          "single": 1685,
+          "multi": 14506
+        },
+        "r24": null,
+        "r26": null
+      },
+      "observedR23": {
+        "variants": [
+          [
+            1685,
+            14506
+          ]
+        ],
+        "machineCount": 1,
+        "spreadPct": 0.0,
+        "note": "同 CPU 不同机型的实测差，可作为散热/功耗墙差异的线索；差值越大说明机身越压不住"
+      },
+      "perfCurrent": 55,
+      "usedInMachines": [],
+      "source": "thirdparty-aggregated",
+      "sourceNote": "太平洋电脑网对 Ultra 5 125H（小新Pro 14 2024）实测 R23 1685/14506，GB6 2246/12014，单多核同次；cpu-monkey 聚合 1692/14771 差 <2%。Intel 官方 ark 确认 14C18T。perfCurrent 对照现有标尺人工定档",
+      "verified": false
+    }
+  ],
+  "todo": [
+    "migrate",
+    "addFields",
+    "coveragePlan"
+  ],
+  "gpus": [
+    {
+      "id": "rtx-5060-laptop",
+      "name": "NVIDIA GeForce RTX 5060 Laptop",
+      "vramGB": 8,
+      "vramType": "GDDR7",
+      "tgpRangeW": [
+        55,
+        115
+      ],
+      "bench": {
+        "timeSpyGraphics": 11637,
+        "steelNomad": 2582
+      },
+      "source": "Notebookcheck 平均（2026-10-14）",
+      "tier": 2,
+      "verified": false,
+      "note": "Notebookcheck 跨 64 个机型配置的平均值；具体机型必须按自己的 TGP 折算"
+    },
+    {
+      "id": "rtx-4070-laptop",
+      "name": "NVIDIA GeForce RTX 4070 Laptop",
+      "vramGB": 8,
+      "vramType": "GDDR6",
+      "tgpRangeW": [
+        35,
+        115
+      ],
+      "bench": {
+        "timeSpyGraphics": 11609,
+        "steelNomad": 2538,
+        "timeSpyGraphicsRange": [
+          5012,
+          13391
+        ]
+      },
+      "source": "Notebookcheck 平均（2026-10-14）",
+      "tier": 2,
+      "verified": false,
+      "note": "离散极大：5,012–13,391。这是「型号名不可信」最直接的证据"
+    },
+    {
+      "id": "rtx-5080-laptop-120w",
+      "name": "NVIDIA GeForce RTX 5080 Laptop（120W 单机样本）",
+      "vramGB": 16,
+      "vramType": "GDDR7",
+      "tgpRangeW": [
+        120,
+        150
+      ],
+      "bench": {
+        "timeSpyGraphics": 13842,
+        "timeSpyOverall": 11567,
+        "steelNomad": 3409,
+        "portRoyal": 9290,
+        "speedWay": 3712
+      },
+      "source": "单机评测（ROG Zephyrus G16，Turbo 模式）",
+      "tier": 2,
+      "verified": false,
+      "note": "单样本，条件为 Turbo 模式；同机性能模式低 8-12%，静音模式低 30-35%。仅作参考锚点，不作基准"
+    },
+    {
+      "id": "rtx5050-laptop",
+      "name": "NVIDIA GeForce RTX 5050 Laptop",
+      "vendor": "NVIDIA",
+      "vramGB": 8,
+      "aliases": [
+        "RTX 5050",
+        "RTX5050",
+        "RTX 5050 笔记本"
+      ],
+      "bench": {
+        "timeSpyGraphics": 9609
+      },
+      "source": "howmanyfps 机型对比页（ASUS ROG Strix G18 RTX5050 版）：3DMark TimeSpy Graphics Score 9609；中文评测口径 105W 版约 10000 分，量级一致",
+      "confidence": "medium",
+      "note": "8GB GDDR7；残血版（≤85W）会明显低于此值"
+    },
+    {
+      "id": "rtx5070-laptop",
+      "name": "NVIDIA GeForce RTX 5070 Laptop",
+      "vendor": "NVIDIA",
+      "vramGB": 8,
+      "aliases": [
+        "RTX 5070",
+        "RTX5070"
+      ],
+      "bench": {
+        "timeSpyGraphics": 13537
+      },
+      "source": "howmanyfps 机型对比页（HP Omen 16 / ROG Strix G18 RTX5070 版）：3DMark TimeSpy Graphics Score 13537",
+      "confidence": "medium",
+      "note": "8GB GDDR7"
+    },
+    {
+      "id": "r9-8940hx",
+      "name": "R9-8940HX",
+      "vendor": "AMD",
+      "cores": 16,
+      "threads": 32,
+      "aliases": [
+        "Ryzen 9 8940HX"
+      ],
+      "bench": {
+        "r23": {
+          "single": null,
+          "multi": null
+        },
+        "r24": null,
+        "r26": null
+      },
+      "geekbench6": {
+        "single": 2695,
+        "multi": 13457
+      },
+      "source": "howmanyfps 机型对比页：Ryzen 9 8940HX Geekbench 6 单核 2695 / 多核 13457（暂无 R23 可靠数据）",
+      "confidence": "low",
+      "note": "缺 Cinebench R23；Geekbench 6 与 R23 不可直接换算，判定时不使用"
+    }
+  ],
+  "gpuTodo": {
+    "needGpus": [
+      "RTX 5050/5060/5070/5070Ti/5080 Laptop",
+      "RTX 4050/4060/4070 Laptop",
+      "Arc B 系列核显与独显",
+      "Radeon 800M/890M 核显"
+    ],
+    "priority": "先覆盖 8GB 显存档（视频组与三维组的最低要求线），再补高端",
+    "whyGraphics": "必须取 Graphics Score。Time Spy 的 Overall 里含 CPU 权重，机器 CPU 弱会把 GPU 分数拉低，导致「同一张卡不同机器分数不同」的假象"
+  },
+  "todoNote": "R9-8945HX 与 Ultra 5 336H 只查到单核（topcpu 2001 / 1989），多核缺失；Core 5 210H、R5-7640H、R7-8840HX 未查到 R23；Ultra5（第1代）型号不明确。按「未取证不填数字」原则留空。"
+}
