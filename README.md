@@ -102,6 +102,7 @@ uid（谁问的）· text · stage · slots · reply · warnings · issues · ms
 - `uid` 是浏览器本地生成的随机串（不是账号，不收集个人信息）；链接加 `?u=昵称` 可自定义
 - `issues` 非空 = 出口审计当场检出问题（编造词 / 数据外数字 / 库外机型）
 - 收样本：`python tools/agent/export_lora_data.py`（统计）/ `--write`（写出 `lora_data/train.jsonl`）
+- 测试也算样本：`WB_SAMPLE_LOG=1 python test_xxx.py` → 每轮落到 `lora_data/auto-<日期>.jsonl`
 
 > 训练集纪律在 [`tools/agent/样本积攒提示词.md`](tools/agent/样本积攒提示词.md)：
 > **答案只能来自本系统**（自蒸馏）、**审计报过问题的轮次不进训练集**、

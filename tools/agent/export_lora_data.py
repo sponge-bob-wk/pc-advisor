@@ -99,6 +99,56 @@ def from_logs():
     return rows
 
 
+def from_auto():
+    """测试即采样：`lora_data/auto-<日期>.jsonl`（`WB_SAMPLE_LOG=1` 时由 agent.run 写出）。
+
+    为什么单列一个来源（2026-11-13 用户要求「测试的数据也要能当样本」）：
+      测试脚本是直接调 agent.run 的，**不经过 server，因而没有 chat-*.log**。
+      不接这条路，跑上千条测试也留不下一条样本。
+
+    ⚠️ 只收**自包含**的提问：auto 日志里不存上下文，所以「换一台」「它的屏幕怎么样」
+      这种脱离上文就没意义的句子必须剔掉 —— 拿它训练等于教模型答非所问。
+      判据很简单：去掉标点后长度 >= 10 且不是纯指代句。
+    """
+    rows = []
+    for fn in sorted(glob.glob(os.path.join(OUT_DIR, "auto-*.jsonl"))):
+        with open(fn, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    d = json.loads(line)
+                except Exception:
+                    continue
+                if d.get("issues"):
+                    continue
+                if d.get("stage") not in ("recommend", "followup", "compare", "fit"):
+                    continue
+                text = (d.get("text") or "").strip()
+                reply = (d.get("reply") or "").strip()
+                if len(reply) < MIN_REPLY or not text:
+                    continue
+                if len(_norm(text)) < 10:
+                    continue
+                if CONTEXT_ONLY.match(text):
+                    continue
+                rows.append({
+                    "messages": [
+                        {"role": "user", "content": text},
+                        {"role": "assistant", "content": reply[:MAX_REPLY]},
+                    ],
+                    "_src": "auto:" + os.path.basename(fn),
+                })
+    return rows
+
+
+# 脱离上文就没意义的句子（auto 日志不保存上下文）
+CONTEXT_ONLY = re.compile(
+    r"^(换一台|换台|再来一台|下一台|就这些|还有吗|这些呢|那这台呢|它呢|这个呢|"
+    r"继续说|接着|然后呢|为什么|怎么说|详细点)[。！？?!\s]*$")
+
+
 def from_tests():
     """
     测试用例里的用户输入 —— 这部分要如实区分：
@@ -131,10 +181,12 @@ def main():
     write = "--write" in sys.argv
 
     log_rows = from_logs()
+    # 测试采样的结果接在后面：时间上更新，去重"取最后一条"时会覆盖旧日志的同句回答
+    auto_rows = from_auto()
     test_rows = from_tests()
 
     print("=" * 58)
-    print("① 真实日志（可直接训练，带真实回复）")
+    print("① 真实对话日志（可直接训练，带真实回复）")
     print("   原始轮数        : %d" % (len(log_rows) + 0))
     print("   去重后          : %d" % len(dedup(log_rows)))
     texts = {_norm(r["messages"][0]["content"]) for r in log_rows}
@@ -148,6 +200,10 @@ def main():
     print("   原始条数        : %d" % len(test_rows))
     print("   去重后          : %d" % len(dedup(test_rows)))
 
+    print()
+    print("①b 测试即采样（lora_data/auto-*.jsonl）")
+    print("   可用轮次        : %d" % len(auto_rows))
+    log_rows = log_rows + auto_rows
     need_reply = dedup(test_rows)
     logset = {_norm(r["messages"][0]["content"]) for r in log_rows}
     need_reply = [r for r in need_reply if _norm(r["messages"][0]["content"]) not in logset]
