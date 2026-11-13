@@ -326,6 +326,15 @@
   .chk.ok i{color:#3E8A2E}
   .chk.no i{color:var(--bad)}
 
+  /* ── 火狐专用兜底（2026-11-13） ──
+     上面那套 `::-webkit-scrollbar` 是 Chromium 专有，火狐不认；
+     而且规范里 `scrollbar-width` 一旦设置，Chromium 就会**忽略** webkit 那套
+     （这就是之前"自定义了样式还出三角按钮"的原因），所以不能无条件加。
+     用 @supports 只对 Gecko 生效，Chromium 里这段是死的。 */
+  @supports (-moz-appearance:none){
+    .stream,.rail,body,.field textarea{scrollbar-width:thin;scrollbar-color:#D6D8DE transparent}
+  }
+
   /* ── 输入区 ── */
   .dock{flex:none;padding:10px 0 16px;background:linear-gradient(to top,var(--bg) 62%,rgba(251,251,249,0))}
   .dock .chips{margin-bottom:9px}
