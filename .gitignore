@@ -30,6 +30,10 @@ data/machine_pool.json.bak*
 # 项目内部工作区（日记/记忆/自动化状态，不属于代码）
 .workbuddy/
 
+# 内部一次性材料：给别的 AI 的采集/改写提示词、过程记录、临时脚本
+# 本地留在 _internal/，不进仓库（2026-11-13 用户要求）
+_internal/
+
 # 系统
 .DS_Store
 Thumbs.db

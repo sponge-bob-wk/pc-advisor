@@ -1,7 +1,0 @@
-{
-  "steps": [
-    {"tool": "get_app_state", "args": {"pid": 14672, "disableScreenshot": true, "disableDiff": true}, "grep": "ROG京东自营旗舰店", "max": 500},
-    {"tool": "click", "args": {"pid": 14672, "element_id": "191"}, "max": 300, "sleep": 8},
-    {"tool": "get_app_state", "args": {"pid": 14672, "disableScreenshot": true, "disableDiff": true}, "grep": "地址和搜索栏", "max": 600}
-  ]
-}
