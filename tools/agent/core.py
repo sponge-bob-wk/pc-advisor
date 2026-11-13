@@ -5,8 +5,15 @@ import json
 import os
 import re
 
-DATA = r"E:\电脑涨价分析\data\prices.json"
-MAJORS = r"E:\电脑涨价分析\data\majors.json"
+# ── 数据路径（2026-11-13 改成相对仓库根）──────────────────────────
+# 原来写死 E:\电脑涨价分析\data\...：别人 clone 到别的目录就跑不起来，
+# GitHub Actions 上直接 FileNotFoundError（CI 第一次跑就红了）。
+# 从本文件位置往上推三级：tools/agent/core.py → tools/agent → tools → 仓库根
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DATA_DIR = os.environ.get("PC_DATA_DIR") or os.path.join(REPO_ROOT, "data")
+
+DATA = os.path.join(DATA_DIR, "prices.json")
+MAJORS = os.path.join(DATA_DIR, "majors.json")
 
 
 # ---- 专业要求表（2026-11-12 接入）------------------------------------
@@ -76,7 +83,7 @@ REQUIRED_SLOTS = ("cat", "budget", "purpose", "years", "carry")
 # 双源只在显式调用 load_all() 时合并。这样现有 100+ 项测试一条都不会被影响。
 SOURCES = {
     "jd":     {"path": DATA,                                              "label": "京东"},
-    "taobao": {"path": r"E:\电脑涨价分析\data\taobao.json",                "label": "淘宝"},
+    "taobao": {"path": os.path.join(DATA_DIR, "taobao.json"),                "label": "淘宝"},
 }
 ACTIVE_SOURCE = "jd"          # load() 读哪个源
 
@@ -610,8 +617,8 @@ def merge_stats():
 #   上层拿到这类机型必须说清「这台只有参数，没人写过评价」，
 #   而不是把参数换个说法当成优点念出来。
 
-POOL_PATH = r"E:\电脑涨价分析\data\machine_pool.json"
-BENCH_PATH = r"E:\电脑涨价分析\data\bench.json"
+POOL_PATH = os.path.join(DATA_DIR, "machine_pool.json")
+BENCH_PATH = os.path.join(DATA_DIR, "bench.json")
 
 
 def _cpu_key(name):

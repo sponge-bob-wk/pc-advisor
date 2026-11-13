@@ -16,13 +16,14 @@
 
 跑法：python tools/agent/test_attack6.py
 """
+import os
 import sys
 import io
 
 if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-sys.path.insert(0, r"E:\电脑涨价分析\tools\agent")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import core          # noqa: E402
 import agent         # noqa: E402
 
