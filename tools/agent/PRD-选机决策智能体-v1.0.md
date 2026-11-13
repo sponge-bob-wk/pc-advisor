@@ -1462,18 +1462,35 @@ spec-hp-66g8-amd    战66 八代 14 英寸（2026 款锐龙版） ¥4674.15    w
 
 **弃权只是"没记"，抽错是给错数字。** 所以宁可不抽。
 
-#### 14.10.5 判据漂移第 8 次复现
+#### 14.10.5 判据漂移第 8 次复现（本次共抓到 10 处）
 
 改完 `core` 之后实测发现 **`kernel.ranked[0].weightKg` 仍是 `null`** ——
 `server.py` 的 `slim_result()` 是又一处独立投影，它自己写了
 `x.get("weightKg")`，没跟着源头走。
 
-四个出口现在必须同源：`brief()` / `build_recommendation()` /
-`server.slim_result()` / `answer_card()`。
-`test_weight.py` 的 W7 直接对四个出口做相等断言，堵住这一类。
+顺着这条线继续查，同一个字段在代码里被自己判了 **10 次**：
 
-> 这条已经在项目里复现 8 次了。**只要有一处是"再判一遍"而不是"引用同一个函数"，
-> 就一定会漂移。** 新增出口时先想：能不能直接调 `effective_weight`。
+| # | 位置 | 症状 |
+|---|---|---|
+| 1 | `core.answer_card` 旁的重重判定 | 字段卡说"没记" |
+| 2 | `core._carry_note` | 带出门那段说"没记" |
+| 3 | `core._portable_of_pool` | 便携分与重量脱钩 |
+| 4 | `core.brief()` | 右栏**完全不带**重量字段 |
+| 5 | `core.build_recommendation` → ranked 投影 | kernel 层 null |
+| 6 | `core._pool_to_offer` | 采集层出口不带兜底 |
+| 7 | `core._compare_text` | 对比表说"库里没记" |
+| 8 | `server.slim_result` → kernel.ranked | 前端拿到的仍是 null |
+| 9 | `server /api/overview` 的 weight 统计 + byCat | 概览页说"只有采集池有实测重量" |
+| 10 | `server /api/model` 的 `b["weightKg"]` | **把 brief() 算好的值覆盖回 null** |
+
+第 10 处最难查：`brief()` 已经改对了，`do_GET` 里又用原始字段盖一遍 —— 改好了又被盖回去。
+
+`test_weight.py` 的 W7 对四个出口做相等断言，W8 直接**扫源码**：
+出口层（除 `core.py` 以外的非测试模块）不许再出现裸的 `weightKg` 读取。
+这条不是测行为，是测"还有没有人自己再判一遍"—— 前面 9 处全是这么漏的。
+
+> 这条已经在项目里复现 8 次、这次一次抓到 10 处了。**只要有一处是"再判一遍"而不是
+> "引用同一个函数"，就一定会漂移。** 新增出口时先想：能不能直接调 `effective_weight`。
 
 #### 14.10.6 修完的实测
 
@@ -1488,4 +1505,5 @@ kernel：  weightKg = 1.48
 极光X / 耀世18 Pro）全部救回，且这 6 台都是人工层独有、采集层没有对应项 ——
 也就是说**只有文本这一半事实**，不兜底就永远是"库里没记"。
 
-回归：`test_weight.py` 27 项（含 8 条必须抽不出的反例 + 4 出口同源断言）。
+回归：`test_weight.py` 28 项（含 8 条必须抽不出的反例 + 4 出口同源断言 +
+源码级漂移扫描）。概览页"有重量的台数"从 69 变成 75。

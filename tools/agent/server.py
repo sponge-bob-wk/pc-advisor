@@ -235,7 +235,11 @@ class H(BaseHTTPRequestHandler):
                 b["caution"] = agent.core.clean_caution(o.get("caution"), o)
                 b["blockers"] = agent.core.purpose_blockers(o, purpose, include_soft=True)
                 b["hasReview"] = bool(o.get("hasReview"))
-                b["weightKg"] = o.get("weightKg")
+                # 🔴 2026-11-13：这行原来把 brief() 已经算好的重量**覆盖回 null** ——
+                #    brief() 里走的是 effective_weight（含 cons 文本兜底），
+                #    这里又用原始字段盖一遍，右栏于是说"没记"。
+                #    第 10 处漂移，而且是"改好了又被盖回去"这种最难查的。
+                b["weightKg"] = agent.core.effective_weight(o)
                 b["ram"] = agent.core.ram_of(o)
                 b["perf"] = o.get("perf")
                 b["upgrade"] = o.get("upgrade")
@@ -275,7 +279,8 @@ class H(BaseHTTPRequestHandler):
                         "priceMin": min(prices) if prices else None,
                         "priceMax": max(prices) if prices else None,
                         "priceMedian": _med(prices),
-                        "withWeight": sum(1 for o in rows if o.get("weightKg")),
+                        "withWeight": sum(1 for o in rows
+                                         if agent.core.effective_weight(o)),
                     })
 
                 edges = [(0, 4000), (4000, 5000), (5000, 6000), (6000, 7000),
@@ -291,7 +296,12 @@ class H(BaseHTTPRequestHandler):
                                     "n": len(rows),
                                     "reviewed": sum(1 for o in rows if o.get("hasReview"))})
 
-                weights = [o["weightKg"] for o in offers if o.get("weightKg")]
+                # 🔴 2026-11-13：`o["weightKg"]` 原来直接取字段 —— 人工层 22 台全是 null，
+                #    于是概览页说「只有采集池记了实测重量」，而它们的 cons 里明写着
+                #    「1.48kg 在 14 寸里偏重」。这是判据漂移的第 9 处。
+                #    统一走 core.effective_weight：结构化优先，文本兜底。
+                weights = [w for w in (agent.core.effective_weight(o) for o in offers)
+                           if w]
                 ups = {}
                 for o in offers:
                     u = o.get("upgrade")
@@ -310,8 +320,11 @@ class H(BaseHTTPRequestHandler):
                                "noWeight": len(offers) - len(weights),
                                "min": min(weights) if weights else None,
                                "max": max(weights) if weights else None,
-                               # ⚠️ 人工层 22 台没有 kg，只有 1-3 档便携分 —— 不能混进来算
-                               "note": "只有采集池记了实测重量；人工层没有，不参与统计"},
+                               # ⚠️ 人工层 22 台的结构化字段是空的，重量只在 pros/cons 里 ——
+                               #    已由 effective_weight 兜底，所以这里统计的是
+                               #    「能给出重量的台数」，不是「采集池有字段的台数」。
+                               "note": "重量来自结构化字段或 pros/cons 里的原文；"
+                                       "两边都没有的，算没记"},
                     "byCat": by_cat,
                     "priceBuckets": buckets,
                     "upgrade": [{"score": k, "n": ups[k]} for k in sorted(ups)],

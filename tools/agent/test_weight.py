@@ -218,6 +218,47 @@ def main():
         k = (shaped.get("kernel") or {}).get("ranked") or [{}]
         check("W7 server._shape() 投影", k[0].get("weightKg"), src)
 
+    # ---- W8：全代码库里不许再有裸的 weightKg 读取 ----------------------
+    print("\n[W8] 🔴 出口层不许再出现裸 `weightKg` 读取（判据漂移的结构性检查）")
+    # 这条不是测行为，是测**源码里还有没有人自己再判一遍**。
+    # 已经复现 9 次：core 改好 → agent 改好 → server 的 4 处忘了 →
+    # 概览页仍说「只有采集池记了实测重量」。
+    code_dir = HERE
+    offenders = []
+    for fn in sorted(os.listdir(code_dir)):
+        if not fn.endswith(".py"):
+            continue
+        if fn.startswith("test_") or fn == "core.py":
+            continue            # core 是判据本体；test_weight 自己就是判据
+        fp = os.path.join(code_dir, fn)
+        try:
+            src = open(fp, encoding="utf-8").read()
+        except Exception:
+            continue
+        # 先把三引号块整段抹掉 —— 文档字符串里提字段名是说明，不是判据。
+        # 否则「数据边界：只有采集池记了 weightKg」这种注释会被当成漂移抓出来，
+        # 判据就开始误杀了（宪法第 4 条：判据不能误杀正确的）。
+        stripped = re.sub(r'"""[\s\S]*?"""', "", src)
+        stripped = re.sub(r"'''[\s\S]*?'''", "", stripped)
+        for i, line in enumerate(stripped.split("\n"), 1):
+            if "weightKg" not in line:
+                continue
+            if line.lstrip().startswith("#"):
+                continue        # 注释里提字段名是允许的
+            # 允许：调用 effective_weight / 已经走 union
+            if "effective_weight" in line:
+                continue
+            # 允许：写入 / 声明字段名（"weightKg": ...）
+            if '"weightKg":' in line or "'weightKg':" in line:
+                continue
+            offenders.append("%s:%d  %s" % (fn, i, line.strip()[:90]))
+    if offenders:
+        for x in offenders:
+            print("      ⚠ " + x)
+        FAIL.append("W8 还有 %d 处直接读 weightKg，可能漂移" % len(offenders))
+    else:
+        PASS.append("W8 出口层无裸读")
+
     # ---- 汇总 -----------------------------------------------------------
     print("\n" + "=" * 64)
     for f in FAIL:
