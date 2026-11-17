@@ -1367,7 +1367,11 @@ def _topic_facts(m, user_text):
         elif topic == "键盘":
             # 🔴 2026-11-17：键盘 131 台有数据，facts 通道是空的。
             if m.get("keyboard"):
-                facts.append("键盘：%s" % m["keyboard"])
+                # 清掉抓取残留（参数页的 ">" 和多余空格）
+                _kb = re.sub(r"[<>]|&gt;|&lt;", "", str(m["keyboard"]))
+                _kb = re.sub(r"\s+", " ", _kb).strip(" ，,")
+                if _kb:
+                    facts.append("键盘：%s" % _kb)
             else:
                 facts.append("库里没有这台的键盘描述")
         elif topic == "触控板":
@@ -2898,6 +2902,32 @@ def answer_followup(user_text, m, asked_topics=None):
                     "要确切数字只能走两条路：① 商品详情页找「保修」栏；"
                     "② 问客服要书面答复（口头承诺不算）。"
                     % (_lead, "；".join(_facts)))
+    # 🔴 2026-11-17：**facts 有值但回答没提到** → 补一句。
+    #
+    #    实测：「键盘怎么样」这台有 `keyboard='全尺寸键盘> ，背光键盘'`，
+    #    `_topic_facts` 也正确返回了，但模型输出的是
+    #    「这一项的具体表现要看实机或第三方评测」—— 完全没读 facts。
+    #
+    #    这和限电那次是同一个模式：提示词约束不稳定。
+    #    所以代码兜底：检查回答里有没有覆盖 facts 的关键内容，
+    #    没有就补一句（只用 facts 里的事实，不加评价）。
+    if topic and pros and len(reply) < 400:
+        # 取 facts 里的数字/关键词，看回答有没有覆盖
+        _missed = []
+        for _f in pros[:2]:
+            # 抽出这条事实里的"硬信息"（数字、英文型号、关键名词）
+            _keys = re.findall(r"[A-Za-z]{2,}|\d+[A-Za-z]*", _f)
+            if not _keys:
+                # 没有硬信息，取前 6 个字做覆盖判断
+                _keys = [_f[:6]]
+            if not any(k.lower() in reply.lower() for k in _keys if len(k) >= 2):
+                _missed.append(_f)
+        # 只补第一条漏的，避免回答变成流水账
+        if _missed and "要看实机" in reply:
+            reply = reply.replace(
+                "这一项的具体表现要看实机或第三方评测。",
+                "库里记的是：%s。这一项用起来怎么样要看实机或第三方评测。"
+                % _missed[0].rstrip("。"))
     return reply
 
 
