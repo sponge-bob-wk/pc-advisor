@@ -2077,6 +2077,31 @@ def _answer_current(user_text, o, slots, focus):
         "保值_满分5": b["brandResale"], "品牌备注": b["brandNote"],
         "用户这次问的用途": purpose,
         "历史用途_仅作背景": slots.get("purpose") or [],
+        # 🔴 2026-11-17：**限电事实通道**。
+        #
+        #    用户说「限电 500W」时，`dormWatt` 会落进 slots。
+        #    但库里**没有整机功耗字段**，所以模型只能猜 ——
+        #    实测它会写「功耗设计通常远超这个限制」「大概率跑不满」，
+        #    全被 `_power_guess` 拦掉，重写后干脆不提限电了。
+        #
+        #    那也不对：用户问了，一个字不回等于没听懂。
+        #
+        #    正确做法（本字段就是给模型的脚本）：
+        #      ① 有适配器标称功率 → 报出来（这是唯一有数据支撑的参考）
+        #      ② 明说"整机实测功耗库里没有"
+        #      ③ 指路（厂商规格页 / 客服）
+        #    三句话都不需要编。
+        **({"用户提到的限电": "%s W" % slots["dormWatt"],
+            "限电这一项你必须这么说": (
+                ("这台标配 %s W 电源适配器（适配器标称，不等于整机功耗）；"
+                 % o["adapterW"] if o.get("adapterW") else
+                 "库里没有这台的电源适配器功率；")
+                + "整机实测功耗库里没有，所以限电 %s W 够不够用我判断不了。"
+                  "要确切数字得看厂商规格页的「功耗」栏，或问客服要满载功耗。"
+                  "⚠️ 不许推测「大概率跑不满」「功耗设计通常远超」「严重阉割」"
+                  "这类话 —— 库里没有整机功耗数据。"
+                % slots["dormWatt"])}
+           if slots.get("dormWatt") else {}),
         # 🔴🔴 2026-11-12：这台到底有没有人评过（见 _praise_no_review）
         "有没有人写过优缺点": "有" if o.get("hasReview") else "没有",
         "如果没人写过_你必须这么说":
@@ -2157,6 +2182,26 @@ def _answer_current(user_text, o, slots, focus):
         if _bad_answer(reply2):
             reply2 = _fit_template(b)
         reply = reply2
+    # 🔴 2026-11-17：限电兜底 —— 用户问了限电，回答必须提。
+    #
+    #    实测：`data` 里明明给了「用户提到的限电」+「限电这一项你必须这么说」，
+    #    模型还是只答匹配度，一个字不提限电。
+    #
+    #    这和之前「模型不听话」是同一个模式（提示词约束不稳定）。
+    #    所以用代码兜底：检测到 dormWatt 且回答没提限电 → 直接补一句。
+    #
+    #    ⚠️ 补的这句**只用库里有的**：适配器标称（如果有）+ 明说没整机功耗 + 指路。
+    if slots.get("dormWatt") and not re.search(r"(限电|供电|功耗|瓦|W\b|适配器)", reply):
+        _dw = slots["dormWatt"]
+        _seg = []
+        if o.get("adapterW"):
+            _seg.append("这台标配 %sW 电源适配器（适配器标称，不等于整机功耗）"
+                        % o["adapterW"])
+        else:
+            _seg.append("库里没有这台的电源适配器功率")
+        _seg.append("整机实测功耗库里也没有，所以限电 %sW 够不够用我判断不了" % _dw)
+        _seg.append("要确切数字得看厂商规格页的「功耗」栏，或问客服要满载功耗")
+        reply = reply.rstrip("。") + "。\n\n关于限电：" + "；".join(_seg) + "。"
     return {"stage": "fit", "slots": dict(slots), "reply": reply,
             "focus": focus, "focusName": b["name"],
             "picked": b["name"], "questions": [], "warnings": [],
