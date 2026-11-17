@@ -353,6 +353,56 @@ SEED = [
                 "state_new_need 是「我的预算是这个数」。"),
         "found": "harvest_cot.py --run 第二批对抗测试",
     },
+    # ── 2026-11-17 23:40 从真实日志交叉验证发现的「标点敏感」错误 ──
+    #    这批最值得记：同一句话改个标点，模型判断就变了 ——
+    #    说明它靠某个词在猜，不是在理解语义。
+    {
+        "text": "预算 5000，写代码",
+        "wrong": {"intent": "state_range", "topic": "none", "fit": False},
+        "correct": {"intent": "state_new_need", "topic": "none", "fit": True},
+        "cot": ("这句同时给了预算和用途，两个都是**条件**，所以是 state_new_need。\n"
+                "关键区分：\n"
+                "  「预算 5000」单独出现 = 只说价位段 → state_range\n"
+                "  「预算 5000，写代码」= 给了预算**和用途** → state_new_need\n"
+                "差别就在有没有用途词。用途在手就该判 fit（这台够不够写代码）。\n"
+                "⚠️ 标点不改变语义 —— 「预算5000写代码」和「预算5000，写代码」"
+                "是同一件事，判断必须一致。"),
+        "why": ("实测发现的标点敏感错误：\n"
+                "  「预算 5000 写代码」（无逗号）→ 模型判 state_new_need ✓\n"
+                "  「预算 5000，写代码」（有逗号）→ 模型判 state_range ✗\n"
+                "同一句话，只多了一个逗号，判断就变了 —— "
+                "说明模型是靠「写代码」这个位置在猜，不是理解语义。"),
+        "found": "harvest_log_cot.py 交叉验证（标点变体）",
+    },
+    {
+        "text": "预算 8000 打游戏",
+        "wrong": {"intent": "state_range", "topic": "none", "fit": False},
+        "correct": {"intent": "state_new_need", "topic": "none", "fit": True},
+        "cot": ("预算 + 用途，两个都是条件 → state_new_need，且 fit 给 true。\n"
+                "「打游戏」是明确用途，拿到它就该判当前这台够不够。\n"
+                "⚠️ 与「一万以内打游戏的有什么推荐」区分：\n"
+                "  后者带「有什么推荐」，是在**要清单** → state_range\n"
+                "  前者只是给条件，没说要不要推荐 → state_new_need"),
+        "why": ("模型判成 state_range。这类「预算+用途」的短句最容易混："
+                "它既有价位数字（像 state_range），又有用途词（像 state_new_need）。"
+                "判据：有没有「推荐/有什么/看看」这类**索取动作** —— "
+                "有就是 state_range，没有就是纯给条件。"),
+        "found": "harvest_log_cot.py 交叉验证",
+    },
+    {
+        "text": "32G内存不能更改也行吧，够用了",
+        "wrong": {"intent": "ask_current", "topic": "none", "fit": False},
+        "correct": {"intent": "state_new_need", "topic": "none", "fit": True},
+        "cot": ("这是在**表达接受**（「也行吧」「够用了」），同时确认了一个条件（32G 内存）。\n"
+                "不是在问当前这台的内存怎么样 —— 没有疑问词，也没有问「能不能加」。\n"
+                "「也行吧」是让步接受，「够用了」是判断 —— 两句都是表态，不是提问。\n"
+                "判据：表态（接受/拒绝/够用）而非提问 = 补充条件。"),
+        "why": ("模型判成 ask_current。"
+                "「32G内存」让它以为是问内存细节，"
+                "但整句是「不能改也行 + 够用了」= 用户在做让步决定。"
+                "这类「用户自己下结论」的句子容易被误判成提问。"),
+        "found": "harvest_log_cot.py 交叉验证",
+    },
 ]
 
 
