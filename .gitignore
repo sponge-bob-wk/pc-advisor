@@ -65,3 +65,7 @@ tools/eval/run.log
 # 内容已全部并入当前仓库结构（src/ 对应 tools/agent/），只作本地留档，不入库
 第七组/
 第七组.zip
+
+# 历史遗留：已跟踪的备份与日志（2026-11-17 清理，本地保留）
+tools/agent/*.bak-*
+tools/eval/run.log
