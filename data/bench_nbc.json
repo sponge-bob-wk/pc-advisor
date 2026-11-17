@@ -1,0 +1,38 @@
+{
+ "meta": {
+  "source": "Notebookcheck Mobile Processors Benchmark List",
+  "url": "https://www.notebookcheck.net/Mobile-Processors-Benchmark-List.2436.0.html",
+  "capturedAt": "2026-11-16 21:34",
+  "note": "跨机型聚合值（NBC 汇总表），不是单机实测。写进 bench.json 时必须走 bench_add.py，并标 aggregated=true，不许直接当 perfCurrent。",
+  "colMap": {
+   "bv_768": "r23",
+   "bv_967": "gb6",
+   "bv_244": "r15",
+   "bv_552": "zip7"
+  }
+ },
+ "cpus": [
+  {
+   "chip": "酷睿i7 8750H",
+   "cpuKey": "i7 8750h",
+   "name": "Intel Core i7-8750H",
+   "r23": null,
+   "gb6": {
+    "single": 1412.0,
+    "multi": 5967.0
+   },
+   "r15": {
+    "single": 173.0,
+    "multi": 1116.0
+   },
+   "zip7": {
+    "single": 4629.0,
+    "multi": 31144.0
+   },
+   "machines": [
+    "惠普暗影精灵4 Pro"
+   ],
+   "aggregated": true
+  }
+ ]
+}

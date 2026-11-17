@@ -11,15 +11,15 @@
     }
   },
   "totals": {
-    "pairs": 800,
-    "ok": 351,
-    "degraded": 98,
-    "violate": 348,
-    "unknown": 3,
-    "usable": 797,
-    "recommendable": 449,
-    "usableRate": 0.9962,
-    "recommendRate": 0.5613
+    "pairs": 2430,
+    "ok": 558,
+    "degraded": 546,
+    "violate": 1179,
+    "unknown": 147,
+    "usable": 2283,
+    "recommendable": 1104,
+    "usableRate": 0.9395,
+    "recommendRate": 0.4543
   },
   "byGroup": [
     {
@@ -28,11 +28,14 @@
       "rFields": [
         "ramGB"
       ],
-      "ok": 79,
+      "ok": 215,
       "degraded": 0,
-      "violate": 1,
-      "unknown": 0,
-      "blockedBy": {}
+      "violate": 23,
+      "unknown": 5,
+      "blockedBy": {
+        "storageGB": 5,
+        "ramGB": 4
+      }
     },
     {
       "id": "code",
@@ -41,12 +44,14 @@
         "ramGB",
         "ramType"
       ],
-      "ok": 48,
+      "ok": 102,
       "degraded": 0,
-      "violate": 31,
-      "unknown": 1,
+      "violate": 97,
+      "unknown": 44,
       "blockedBy": {
-        "ramType": 1
+        "ramType": 44,
+        "ramGB": 4,
+        "storageGB": 4
       }
     },
     {
@@ -59,10 +64,15 @@
         "colorGamut"
       ],
       "ok": 15,
-      "degraded": 26,
-      "violate": 39,
-      "unknown": 0,
-      "blockedBy": {}
+      "degraded": 94,
+      "violate": 124,
+      "unknown": 10,
+      "blockedBy": {
+        "vramGB": 5,
+        "ramGB": 3,
+        "storageGB": 3,
+        "colorGamut": 5
+      }
     },
     {
       "id": "video",
@@ -78,10 +88,15 @@
         "throttle"
       ],
       "ok": 5,
-      "degraded": 13,
-      "violate": 62,
-      "unknown": 0,
-      "blockedBy": {}
+      "degraded": 26,
+      "violate": 196,
+      "unknown": 16,
+      "blockedBy": {
+        "vramGB": 4,
+        "tgpW": 12,
+        "ramGB": 3,
+        "storageGB": 3
+      }
     },
     {
       "id": "threeD",
@@ -93,10 +108,14 @@
         "vramGB"
       ],
       "ok": 5,
-      "degraded": 13,
-      "violate": 62,
-      "unknown": 0,
-      "blockedBy": {}
+      "degraded": 38,
+      "violate": 196,
+      "unknown": 4,
+      "blockedBy": {
+        "vramGB": 4,
+        "ramGB": 3,
+        "storageGB": 3
+      }
     },
     {
       "id": "audio",
@@ -106,10 +125,14 @@
         "ports"
       ],
       "ok": 54,
-      "degraded": 5,
-      "violate": 21,
-      "unknown": 0,
-      "blockedBy": {}
+      "degraded": 88,
+      "violate": 81,
+      "unknown": 20,
+      "blockedBy": {
+        "ports": 16,
+        "ramGB": 4,
+        "storageGB": 4
+      }
     },
     {
       "id": "engine",
@@ -126,10 +149,15 @@
         "throttle"
       ],
       "ok": 5,
-      "degraded": 13,
-      "violate": 62,
-      "unknown": 0,
-      "blockedBy": {}
+      "degraded": 26,
+      "violate": 198,
+      "unknown": 14,
+      "blockedBy": {
+        "vramGB": 4,
+        "tgpW": 10,
+        "ramGB": 3,
+        "storageGB": 3
+      }
     },
     {
       "id": "electric",
@@ -138,11 +166,13 @@
         "ports"
       ],
       "ok": 67,
-      "degraded": 7,
-      "violate": 4,
-      "unknown": 2,
+      "degraded": 119,
+      "violate": 34,
+      "unknown": 23,
       "blockedBy": {
-        "ports": 2
+        "ports": 19,
+        "ramGB": 4,
+        "storageGB": 4
       }
     },
     {
@@ -151,11 +181,15 @@
       "rFields": [
         "cores"
       ],
-      "ok": 69,
-      "degraded": 7,
-      "violate": 4,
-      "unknown": 0,
-      "blockedBy": {}
+      "ok": 86,
+      "degraded": 116,
+      "violate": 34,
+      "unknown": 7,
+      "blockedBy": {
+        "cores": 3,
+        "ramGB": 4,
+        "storageGB": 4
+      }
     },
     {
       "id": "geo",
@@ -167,10 +201,14 @@
         "vramGB"
       ],
       "ok": 4,
-      "degraded": 14,
-      "violate": 62,
-      "unknown": 0,
-      "blockedBy": {}
+      "degraded": 39,
+      "violate": 196,
+      "unknown": 4,
+      "blockedBy": {
+        "vramGB": 4,
+        "ramGB": 3,
+        "storageGB": 3
+      }
     }
   ]
 }

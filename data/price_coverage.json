@@ -1,0 +1,54 @@
+{
+  "updated": "2026-11-16",
+  "total": 243,
+  "notebooks": 236,
+  "phonesExcluded": 7,
+  "fields": {
+    "price.net": {
+      "withValue": 80,
+      "missing": 156,
+      "coverage": 0.339
+    },
+    "price.final": {
+      "withValue": 80,
+      "missing": 156,
+      "coverage": 0.339
+    },
+    "price.list": {
+      "withValue": 230,
+      "missing": 6,
+      "coverage": 0.9746
+    },
+    "price.subsidy": {
+      "withValue": 66,
+      "missing": 170,
+      "coverage": 0.2797
+    },
+    "priceSnapshots.zolRef": {
+      "withValue": 152,
+      "missing": 84,
+      "coverage": 0.6441
+    },
+    "priceSnapshots.jd/tmall/suning": {
+      "withValue": 61,
+      "missing": 175,
+      "coverage": 0.2585
+    },
+    "priceSnapshots.merchant*": {
+      "withValue": 91,
+      "missing": 145,
+      "coverage": 0.3856
+    }
+  },
+  "anyPrice": {
+    "withValue": 235,
+    "missing": 1,
+    "coverage": 0.9958
+  },
+  "noPriceMachines": [
+    {
+      "id": "zol-399582",
+      "name": "华硕F554LP5200"
+    }
+  ]
+}
