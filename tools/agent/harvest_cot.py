@@ -192,29 +192,166 @@ SEED_PATTERNS = [
 ]
 
 
+# ── 第二批：补长尾类别（2026-11-17 深夜）──────────────────────────────
+#
+# 🔴 为什么补这三个：训练集分布严重不均
+#      ask_current 150 / state_range 115 / state_new_need 61
+#      refuse_switch 32 / list_others 11 / unknown 10
+#    长尾类别太少，模型在那些类上必然弱。
+#
+# 补的时候守一条：**每条都要有真判据**，不许凑数。
+# 判据写不出来说明这条句子本身有歧义，那就不该进训练集。
+SEED_LONGTAIL = [
+    # ── unknown：无实义 / 寒暄 / 纯标点 / 重复确认 ──
+    ("哦",
+     ("unknown", "none", False),
+     "单字语气词，没有需求也没有问题。"
+     "判据：无实义 = unknown。"),
+    ("？？？",
+     ("unknown", "none", False),
+     "纯标点，没有任何内容。"
+     "判据：无实义 = unknown。"),
+    ("你好",
+     ("unknown", "none", False),
+     "打招呼，没有提需求。"
+     "判据：社交开场 = unknown。"),
+    ("谢谢",
+     ("unknown", "none", False),
+     "表达感谢，对话可以结束。"
+     "判据：社交收尾 = unknown，不是新需求。"),
+    ("好的",
+     ("unknown", "none", False),
+     "表示收到，但没有提出任何新要求。"
+     "判据：单纯应答，没提需求也没问问题 = unknown。"
+     "⚠️ 注意与「可以」区分：如果上一句是提议（「要不放宽预算？」），"
+     "「可以」就是同意，属于 state_new_need；"
+     "如果上一句只是陈述，「好的」就只是收到 = unknown。"),
+    ("哈哈哈",
+     ("unknown", "none", False),
+     "笑声，没有实际内容。"
+     "判据：无实义 = unknown。"),
+    ("没事了",
+     ("unknown", "none", False),
+     "表示不需要继续，没有新需求。"
+     "判据：结束对话 = unknown。"),
+    ("emmm",
+     ("unknown", "none", False),
+     "语气词，表示在思考但没说内容。"
+     "判据：无实义 = unknown。"),
+
+    # ── list_others：要清单（不是换台）──
+    ("把剩下的都列出来",
+     ("list_others", "none", False),
+     "「都列出来」是明确要清单。"
+     "判据：出现「列/都/全部」+ 要求展示 = list_others。"),
+    ("还有哪些能选",
+     ("list_others", "none", False),
+     "「还有哪些」是在问剩余候选，不是拒绝当前这台。"
+     "判据：问剩余有哪些 = list_others。"),
+    ("一次说完吧",
+     ("list_others", "none", False),
+     "「一次说完」表示想一次看全，不要一个个来。"
+     "判据：要求一次性展示全部 = list_others。"),
+    ("给我看看全部的候选",
+     ("list_others", "none", False),
+     "「全部的候选」明确要清单。"
+     "判据：要求展示全部 = list_others。"),
+    ("除了这台还有吗",
+     ("list_others", "none", False),
+     "「除了这台还有吗」是在问其他选项，不是否定这台。"
+     "判据：问除当前外还有什么 = list_others。"
+     "⚠️ 与「这台不要了换一个」区分：后者有否定，前者只是问还有没有。"),
+    ("剩下的几个什么样",
+     ("list_others", "none", False),
+     "「剩下的几个」直接指剩余候选。"
+     "判据：指剩余项 + 要求介绍 = list_others。"),
+    ("能全给我看看不",
+     ("list_others", "none", False),
+     "「全给我看看」是要完整清单。"
+     "判据：要求看全部 = list_others。"),
+    ("其余的也说说",
+     ("list_others", "none", False),
+     "「其余的」= 剩余候选，「也说说」= 要求介绍。"
+     "判据：指剩余项 + 要求介绍 = list_others。"),
+    ("排在前面的都报一遍",
+     ("list_others", "none", False),
+     "「都报一遍」是要把排名靠前的全列出来。"
+     "判据：要求批量展示 = list_others。"),
+
+    # ── refuse_switch：不要这台了（含隐式否定）──
+    ("这个不太行",
+     ("refuse_switch", "none", False),
+     "「不太行」是对当前这台的否定。虽然语气缓和，但意思是不要了。"
+     "判据：否定当前这台 = refuse_switch。"),
+    ("感觉不合适",
+     ("refuse_switch", "none", False),
+     "「不合适」是明确的否定判断。"
+     "判据：否定当前这台 = refuse_switch。"),
+    ("有更好的吗",
+     ("refuse_switch", "none", False),
+     "「更好的」暗示当前这台不够好，要换。"
+     "判据：要求更好 = 否定当前 = refuse_switch。"
+     "⚠️ 与「还有别的吗」区分：后者中性，前者带比较（更好）。"),
+    ("这台pass",
+     ("refuse_switch", "none", False),
+     "「pass」是明确的跳过/不要。"
+     "判据：英文 pass = 拒绝当前这台。"),
+    ("算了，看别的",
+     ("refuse_switch", "none", False),
+     "「算了」是放弃当前，「看别的」是换台。"
+     "判据：放弃 + 换台 = refuse_switch。"),
+    ("不行不行",
+     ("refuse_switch", "none", False),
+     "重复否定，态度明确。"
+     "判据：否定当前这台 = refuse_switch。"),
+    ("这台不行，太贵",
+     ("refuse_switch", "none", False),
+     "「不行」是否定，「太贵」给理由。"
+     "判据：否定 + 理由 = refuse_switch。"
+     "⚠️ 虽然提到价格，但不是在问价格 —— 是在拒绝。"),
+    ("再挑挑",
+     ("refuse_switch", "none", False),
+     "「再挑挑」表示当前这台不选，要继续找。"
+     "判据：继续找别的 = refuse_switch。"),
+    ("换个性价比高点的",
+     ("refuse_switch", "none", False),
+     "「换个性价比高的」= 不要这台 + 要更好的。"
+     "判据：换 + 更好要求 = refuse_switch。"),
+    ("这个价位还有别的不",
+     ("refuse_switch", "none", False),
+     "「还有别的不」在问替代选项，隐含对当前这台不满意。"
+     "判据：问替代品 = 暗示当前不合适 = refuse_switch。"
+     "⚠️ 这条与 list_others 的边界模糊：「还有哪些能选」偏中性（list_others），"
+     "「还有别的不」带轻微否定（refuse_switch）。"
+     "如果标注争议大，宁可不收 —— 歧义样本会教坏模型。"),
+]
+
+
 def _fmt(intent, topic, fit):
     return json.dumps({"intent": intent, "topic": topic, "fit": fit},
                       ensure_ascii=False)
 
 
 def _parse():
-    """把 SEED_PATTERNS 展开成样本。"""
+    """把 SEED_PATTERNS + SEED_LONGTAIL 展开成样本。"""
     out = []
-    for text, (intent, topic, fit), cot in SEED_PATTERNS:
-        out.append({
-            "messages": [
-                {"role": "system", "content": SYS},
-                {"role": "user", "content": text},
-                {"role": "assistant",
-                 "content": cot.strip() + "\n" + _fmt(intent, topic, fit)},
-            ],
-            "_meta": {
-                "src": "cot-seed",
-                "has_cot": True,
-                "correct_before": True,
-                "why": "手工模板（判据写在思维链里）",
-            },
-        })
+    for group, tag in ((SEED_PATTERNS, "cot-seed"),
+                       (SEED_LONGTAIL, "cot-longtail")):
+        for text, (intent, topic, fit), cot in group:
+            out.append({
+                "messages": [
+                    {"role": "system", "content": SYS},
+                    {"role": "user", "content": text},
+                    {"role": "assistant",
+                     "content": cot.strip() + "\n" + _fmt(intent, topic, fit)},
+                ],
+                "_meta": {
+                    "src": tag,
+                    "has_cot": True,
+                    "correct_before": True,
+                    "why": "手工模板（判据写在思维链里）",
+                },
+            })
     return out
 
 

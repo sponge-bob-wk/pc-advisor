@@ -274,6 +274,85 @@ SEED = [
                 "「再看看别的」语气上更像后者 —— 用户对当前这台不满意。"),
         "found": "harvest_cot.py --run 对抗测试",
     },
+    # ── 2026-11-17 23:00 第二批对抗测试（50 条，82.0%）──────────────
+    {
+        "text": "除了这台还有吗",
+        "wrong": {"intent": "refuse_switch", "topic": "none", "fit": False},
+        "correct": {"intent": "list_others", "topic": "none", "fit": False},
+        "cot": ("「除了这台还有吗」是在问**其他选项**，不是在否定当前这台。\n"
+                "关键区分：\n"
+                "  「除了这台还有吗」= 这台我要留着，但想看看别的（list_others）\n"
+                "  「这台不要了换一个」= 明确否定（refuse_switch）\n"
+                "前者的「除了」是排除法，后者的「不要」是否定。\n"
+                "判据：问「除当前外还有什么」= list_others。"),
+        "why": ("模型判成 refuse_switch。这两个容易混："
+                "「除了」看着像排除（不要），但实际是「保留这台的同时也想看别的」。"
+                "区分点：有没有明确的否定词（不要/不行/算了）。"),
+        "found": "harvest_cot.py --run 第二批对抗测试",
+    },
+    {
+        "text": "算了，看别的",
+        "wrong": {"intent": "list_others", "topic": "none", "fit": False},
+        "correct": {"intent": "refuse_switch", "topic": "none", "fit": False},
+        "cot": ("「算了」是放弃当前这台的信号，「看别的」是换台动作。\n"
+                "和「把剩下的列出来」的区别：\n"
+                "  后者是**在已有结果里**要清单（list_others）\n"
+                "  前者是**放弃当前这台**，要重新找（refuse_switch）\n"
+                "「算了」这两个字是判据 —— 它表示否定/放弃。\n"
+                "判据：出现「算了/不要了/不行」= refuse_switch。"),
+        "why": ("模型判成 list_others。"
+                "「看别的」和「列出来」表面都是要更多，但「算了」透露了否定态度。"
+                "判据：有没有放弃当前这台的意思。"),
+        "found": "harvest_cot.py --run 第二批对抗测试",
+    },
+    {
+        "text": "不行不行",
+        "wrong": {"intent": "ask_current", "topic": "none", "fit": False},
+        "correct": {"intent": "refuse_switch", "topic": "none", "fit": False},
+        "cot": ("重复的否定词，态度明确：不要当前这台。\n"
+                "「不行」单独出现可能是在回答某个问题（比如「5000 够吗？」→「不行」），\n"
+                "但**重复两次**是强调，表示明确的拒绝。\n"
+                "判据：连续否定词 = 强烈拒绝 = refuse_switch。\n"
+                "⚠️ 单次「不行」要结合上下文，重复的可以直接判。"),
+        "why": ("模型判成 ask_current —— 这个错得比较离谱，"
+                "「不行」是明确否定，不可能是问句。"
+                "可能是模型把重复的否定当成了某种疑问。"),
+        "found": "harvest_cot.py --run 第二批对抗测试",
+    },
+    {
+        "text": "这个价位还有别的不",
+        "wrong": {"intent": "list_others", "topic": "price", "fit": False},
+        "correct": {"intent": "refuse_switch", "topic": "none", "fit": False},
+        "cot": ("「还有别的不」在问替代选项，隐含对当前这台不满意 —— "
+                "否则用户不会问「还有别的」。\n"
+                "和「六七千的有什么推荐」的区别：\n"
+                "  后者是描述一个价位段范围（state_range）\n"
+                "  前者是**针对当前这台**问替代（refuse_switch）\n"
+                "「还有」是关键 —— 它表示「除了这个」。\n"
+                "⚠️ 这条与 list_others 的边界确实模糊。"
+                "如果标注争议大，宁可不收 —— 歧义样本会教坏模型。"),
+        "why": ("模型判成 list_others + topic=price。"
+                "它抓住了「价位」这个词，但整句是「还有别的不」= 要替代品。"
+                "这条本身有歧义，标注时已注明。"),
+        "found": "harvest_cot.py --run 第二批对抗测试",
+    },
+    {
+        "text": "预算卡死 6000 不能再高了",
+        "wrong": {"intent": "state_range", "topic": "price", "fit": False},
+        "correct": {"intent": "state_new_need", "topic": "none", "fit": False},
+        "cot": ("这是在设定预算上限，不是在描述价位段。\n"
+                "关键区分：\n"
+                "  「六七千的有什么推荐」= 给一个范围，让系统去找（state_range）\n"
+                "  「卡死 6000 不能再高」= 给当前对话的**硬上限**（state_new_need）\n"
+                "「卡死」「不能再高」是约束语气 —— "
+                "它要求这个数字写进 budget 槽位并约束后续所有推荐。\n"
+                "判据：修改已有槽位（而非描述范围）= 补充条件。"),
+        "why": ("模型判成 state_range（说价位段），"
+                "但这是在改当前对话的预算上限。"
+                "两者实际区别：state_range 是「给我看看这个价位的」，"
+                "state_new_need 是「我的预算是这个数」。"),
+        "found": "harvest_cot.py --run 第二批对抗测试",
+    },
 ]
 
 
