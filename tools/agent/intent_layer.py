@@ -150,6 +150,59 @@ _TOPICS = {"service", "screen", "keyboard", "noise", "build", "weight",
            "battery", "price", "config", "pros_cons", "none"}
 
 
+def _extract_json(text):
+    """从模型输出里提取 JSON 对象。支持"思维链 + JSON"混合输出。
+
+    🔴 2026-11-17 新增（配合思维链蒸馏）。
+
+    三种输出形态都要能吃：
+
+      ① 纯 JSON（现在的行为）
+         {"intent":"ask_current","topic":"screen","fit":false}
+
+      ② 思维链 + JSON（训练后模型会给的）
+         用户在问屏幕细节 → ask_current + topic=screen
+         {"intent":"ask_current","topic":"screen","fit":false}
+
+      ③ 带 markdown 代码块
+         ```json
+         {"intent":"ask_current",...}
+         ```
+
+    做法：从后往前扫描 `{`，逐个尝试解析到匹配的 `}`。
+    找到第一个能解析成 dict 的就返回 —— 从后往前是因为
+    **最终答案通常在最后**（思维链在前）。
+
+    解析不出来返回 None，调用方按"模型失败"处理（降级到规则）。
+    """
+    if not text:
+        return None
+    s = str(text)
+    # 从后往前找 `{`
+    end = len(s)
+    while True:
+        i = s.rfind("{", 0, end)
+        if i < 0:
+            return None
+        # 从 i 开始找匹配的 `}`（简单括号计数，不处理字符串内的括号 ——
+        # 路由输出里不会有字符串内含 `}` 的情况）
+        depth = 0
+        for j in range(i, len(s)):
+            if s[j] == "{":
+                depth += 1
+            elif s[j] == "}":
+                depth -= 1
+                if depth == 0:
+                    try:
+                        obj = json.loads(s[i:j + 1])
+                        if isinstance(obj, dict):
+                            return obj
+                    except Exception:
+                        pass
+                    break
+        end = i          # 这个 `{` 不行，继续往前找
+
+
 def model_route(text, focus=None):
     """问模型，**一次推理出全部路由决策**。
 
@@ -176,7 +229,22 @@ def model_route(text, focus=None):
         out = agent.chat([{"role": "system", "content": sysmsg},
                           {"role": "user", "content": (text or "").strip()}],
                          fmt="json", num_predict=120, temperature=0)
-        d = json.loads(out)
+        # 🔴 2026-11-17：解析从「严格 json.loads 整段」改成「提取最后一个 JSON」。
+        #
+        #    为什么必须改：训练数据要带**思维链**（见 docs/归档-20261117/
+        #    思维链蒸馏.md）。带了 CoT 之后模型输出长这样：
+        #
+        #      用户说「限电500W」→ 这是在补充条件，不是问电池
+        #      {"intent": "state_new_need", "topic": "none", "fit": false}
+        #
+        #    `json.loads` 对整段解析必然抛异常 → 被当成"模型失败" →
+        #    整个模型路由降级成纯规则。**训练了却用不上**。
+        #
+        #    做法：从后往前找第一个能解析的 `{...}` 块。
+        #    这样纯 JSON 输出（现在的行为）和 CoT+JSON 输出都能吃。
+        d = _extract_json(out)
+        if d is None:
+            raise ValueError("no json in output")
         lab = _LABEL_MAP.get((d.get("intent") or "").strip())
         if lab is None:
             res = {"intent": agent.INTENT_UNKNOWN, "topic": None, "fit": None,

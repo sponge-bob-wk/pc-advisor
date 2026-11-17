@@ -74,11 +74,29 @@ VALID_TOPIC = {"service", "screen", "keyboard", "noise", "build", "weight",
 
 # ── 2026-11-17 实测误判（用户实测对话里抓到的）────────────────────────
 # 每条都是**真跑出来的错**，不是猜的。
+#
+# 🔴 `cot` = 思维链（2026-11-17 加）。
+#    用户要求：「不仅仅是问题和答案，也可以把你思考的思维链给他，
+#    这样蒸馏效果不是更好吗」——对。
+#    只给答案，学生学到"背结论"；给思维链，它学到"怎么判断"。
+#
+# 写 cot 的规矩（很重要，写错会教坏模型）：
+#   ① 必须写出**关键区分点** —— 为什么不是另一个标签
+#   ② 不许写"因为答案是 X 所以是 X"（循环论证）
+#   ③ 要能推广 —— 用「补充条件」而不是「限电这个词」
+#   ④ 3~5 句，别写成小作文
 SEED = [
     {
         "text": "限电 500W",
         "wrong": {"intent": "ask_current", "topic": "battery", "fit": True},
         "correct": {"intent": "state_new_need", "topic": "none", "fit": False},
+        "cot": ("这句在说一个使用条件（宿舍限电功率），不是在问这台的某一面。\n"
+                "「电」字容易被带偏成电池/续航，但整句没有疑问形态，"
+                "也没有问「这台的电池怎么样」。\n"
+                "判据：给出一个具体数值条件 = 在补充约束，"
+                "要记进槽位（dormWatt）并据此重判推荐。\n"
+                "所以 intent 是 state_new_need，topic 给 none —— "
+                "它不是在问某个面。"),
         "why": ("「限电500W」是在**补充一个条件**（宿舍限电功率），不是问电池。"
                 "模型被「限电」里的「电」字带偏，判成了 topic=battery。"
                 "正确动作：记下 dormWatt=500，重新跑推荐并说明够不够用。"),
@@ -88,6 +106,12 @@ SEED = [
         "text": "我想打游戏",
         "wrong": {"intent": "state_new_need", "topic": "none", "fit": False},
         "correct": {"intent": "state_new_need", "topic": "none", "fit": True},
+        "cot": ("这是**在说用途**，不是泛泛提需求。\n"
+                "「我想打游戏」= 我的使用场景是游戏，"
+                "所以下一步该拿 gaming 去判「当前这台够不够」。\n"
+                "关键区分：fit=true 表示「拿用途问这台行不行」，"
+                "这里虽然没出现「够用吗」，但说了用途就是在为匹配判断提供输入。\n"
+                "所以 intent 是 state_new_need（补充了用途），fit 给 true。"),
         "why": ("「我想打游戏」是**说用途**，不是泛泛提需求 —— fit 该为 true，"
                 "因为下一句就该判「当前这台打游戏够不够」。"
                 "模型给了 fit=false，导致系统跳过匹配判断直接问预算。"),
@@ -97,6 +121,12 @@ SEED = [
         "text": "可以",
         "wrong": {"intent": "state_new_need", "topic": "none", "fit": False},
         "correct": {"intent": "state_new_need", "topic": "none", "fit": False},
+        "cot": ("这句单看是个应答词，脱离上下文无法判断含义。\n"
+                "上一句是「要不放宽预算？」，所以「可以」= 同意放宽预算。\n"
+                "但**单看这句话本身**，它不包含任何新的信息量，"
+                "判 state_new_need 是合理的（它在回应一个提议）。\n"
+                "真正的问题是系统没有「放宽预算」这个动作 —— 那是代码缺口，"
+                "不是分类错误。"),
         "why": ("这条**意图判对了**，但系统动作错了：上一句是"
                 "「要不放宽预算？」，「可以」是**同意放宽**，"
                 "该把 budget 调高并清空 seen，而不是重跑同一份 known。"
@@ -113,6 +143,12 @@ SEED = [
         "text": "打游戏",
         "wrong": {"intent": "ask_current", "topic": "config", "fit": False},
         "correct": {"intent": "state_new_need", "topic": "none", "fit": False},
+        "cot": ("上一轮系统问「主要拿来干什么？」，用户答「打游戏」——"
+                "这是**在回答用途问题**，不是问当前这台。\n"
+                "「打游戏」没有疑问词，也没有指代这台的「它/这台」。\n"
+                "判据：如果上一轮是反问，用户给的是答案，那就是在补槽位。\n"
+                "⚠️ 不许因为「打游戏」像在问「能不能打游戏」就判 ask_current —— "
+                "那是「能打游戏吗」的形态，不是「打游戏」。"),
         "why": ("上一轮系统问「主要拿来干什么？」，用户答「打游戏」——"
                 "这是**在回答用途问题**，不是问当前这台。"
                 "模型判成 ask_current 的后果很严重：系统以为用户在问"
@@ -128,6 +164,13 @@ SEED = [
         "text": "拿他打游戏",
         "wrong": {"intent": "ask_current", "topic": "config", "fit": False},
         "correct": {"intent": "state_new_need", "topic": "none", "fit": False},
+        "cot": ("「拿他打游戏」是**说用途**（我要拿这台去干什么），"
+                "不是问「这台能不能打游戏」。\n"
+                "「他」在这里指代的是「这台」，但整句的动词是「拿…去…」——"
+                "是在陈述使用方式。\n"
+                "关键区分：「能拿它打游戏吗」有疑问词「吗」→ ask_current；"
+                "「拿它打游戏」是陈述 → state_new_need。\n"
+                "所以 topic 给 none，因为不是在问某个面。"),
         "why": ("和「打游戏」同一类错。区别是这句带了「拿他」——"
                 "「拿他打游戏」是**说用途**（我要拿这台去干什么），"
                 "不是问「这台能不能打游戏」。"
@@ -139,12 +182,97 @@ SEED = [
         "text": "那换一台吧",
         "wrong": {"intent": "ask_current", "topic": "none", "fit": False},
         "correct": {"intent": "refuse_switch", "topic": "none", "fit": False},
+        "cot": ("「换一台」是明确的换台请求。\n"
+                "「那」是承接上文的连接词，「吧」是缓和语气 —— "
+                "都不改变「换」这个动作。\n"
+                "判据：出现「换 + 量词（一台/个/款）」且没有否定它 = 拒绝当前这台。\n"
+                "注意：不要说成 ask_current —— 用户不是在问这台怎么样，"
+                "是在说要别的。"),
         "why": ("「换一台」是明确的换台请求，模型判成 ask_current 属于离谱错误。"
                 "但注意：这句里有「那」+「吧」，是承接上一轮的口气，"
                 "模型可能把它当成了「那（这台）怎么样吧」。"
                 "判错的后果：系统没走换台流程，反而去问「是笔记本还是台式」，"
                 "把已经说过的品类又问了一遍。"),
         "found": "chat-2026-11-17.log 第 14 条（用户实测）",
+    },
+    # ── 2026-11-17 22:30 对抗测试抓到的 5 条（harvest_cot.py --run）──
+    # 判对率 18/23 = 78.3%，错的 5 条全在「补充条件」这一类。
+    {
+        "text": "宿舍限电 300W 能用吗",
+        "wrong": {"intent": "ask_current", "topic": "config", "fit": True},
+        "correct": {"intent": "state_new_need", "topic": "none", "fit": False},
+        "cot": ("这是在说一个使用条件（限电功率），不是问这台的某一面。\n"
+                "「能用吗」问的是「这台在我的条件下行不行」，"
+                "不是在问某个部件怎么样 —— 所以 fit 该是 false，"
+                "因为 fit 表示「拿用途问这台」，而这里是拿**供电条件**问。\n"
+                "判据：给出具体约束 + 问可行性 = 补充条件，记进槽位后重判。"),
+        "why": ("和「限电 500W」同一类。模型看到「能用吗」就判 ask_current，"
+                "但用户给的是约束（300W），不是问某个面。"),
+        "found": "harvest_cot.py --run 对抗测试",
+    },
+    {
+        "text": "预算卡死 6000 不能再高了",
+        "wrong": {"intent": "state_range", "topic": "price", "fit": False},
+        "correct": {"intent": "state_new_need", "topic": "none", "fit": False},
+        "cot": ("这是在设定预算上限，不是在说价位段。\n"
+                "区别：「六七千的有什么推荐」= 给范围（state_range）；"
+                "「卡死 6000 不能再高」= 给**当前对话的硬上限**（state_new_need）。\n"
+                "「卡死」「不能再高」是明确的约束语气，"
+                "意味着这个数字要写进 budget 槽位并约束后续所有推荐。\n"
+                "判据：修改已有槽位（而非描述范围）= 补充条件。"),
+        "why": ("模型判成 state_range（说价位段），但这是在改当前对话的预算上限。"
+                "两者的实际区别：state_range 是「给我看看这个价位的」，"
+                "state_new_need 是「我的预算是这个数」。"),
+        "found": "harvest_cot.py --run 对抗测试",
+    },
+    {
+        "text": "得能带去教室，太重的不行",
+        "wrong": {"intent": "ask_current", "topic": "weight", "fit": True},
+        "correct": {"intent": "state_new_need", "topic": "none", "fit": False},
+        "cot": ("这是在提便携性要求，不是在问这台的重量。\n"
+                "「得能」「不行」都是约束语气 —— 用户在划边界，不是在提问。\n"
+                "「重」字容易被带偏成 topic=weight，"
+                "但整句没有「多重」「沉不沉」这种问法。\n"
+                "判据：说需求边界（得能…/…不行）= 补充条件。"),
+        "why": ("模型被「重」字带偏成 topic=weight，还给了 fit=true。"
+                "但用户是在划便携性边界，不是问重量是多少。"),
+        "found": "harvest_cot.py --run 对抗测试",
+    },
+    {
+        "text": "平时主要打游戏",
+        "wrong": {"intent": "ask_current", "topic": "config", "fit": True},
+        "correct": {"intent": "state_new_need", "topic": "none", "fit": True},
+        "cot": ("这是在陈述用途（游戏），不是问当前这台。\n"
+                "「平时主要」是场景描述，没有疑问词。\n"
+                "和「我想打游戏」的区别只是少了「我想」两个字 —— "
+                "**但不能因为少了这两个字就判成问句**。\n"
+                "判据：说出使用场景 = 补充用途（state_new_need），"
+                "同时 fit 给 true（用途在手，下一步该判这台够不够）。\n"
+                "⚠️ 关键：intent 是 state_new_need，不是 ask_current —— "
+                "「说用途」和「问这台行不行」是两件事，"
+                "后者要等系统拿用途去判。"),
+        "why": ("模型判成 ask_current + topic=config。"
+                "这是「过度依赖显式标记」的典型："
+                "有「我想」就判对，没有就判错。"
+                "注意这条 fit 仍然是 true —— 因为它确实提供了用途，"
+                "只是 intent 不该是 ask_current。"),
+        "found": "harvest_cot.py --run 对抗测试",
+    },
+    {
+        "text": "再看看别的吧",
+        "wrong": {"intent": "list_others", "topic": "none", "fit": False},
+        "correct": {"intent": "refuse_switch", "topic": "none", "fit": False},
+        "cot": ("「再看看别的」表示不想看当前这台了，要换。\n"
+                "和「把符合条件的都列出来」的区别：\n"
+                "  后者是**在当前结果里**要清单（list_others）\n"
+                "  前者是**不要这台了**，要别的（refuse_switch）\n"
+                "「吧」是缓和语气，不改变「不要这台」这个动作。\n"
+                "判据：出现「别的」+ 暗示当前这台不合适 = refuse_switch。"),
+        "why": ("模型判成 list_others。这两个容易混："
+                "list_others 是「把剩下的列出来」，"
+                "refuse_switch 是「这台不要了」。"
+                "「再看看别的」语气上更像后者 —— 用户对当前这台不满意。"),
+        "found": "harvest_cot.py --run 对抗测试",
     },
 ]
 
@@ -165,7 +293,25 @@ def load():
     return out
 
 
-def make_sample(text, correct, wrong=None, why="", found="", actionable=True):
+def make_sample(text, correct, wrong=None, why="", found="", actionable=True,
+                reasoning=""):
+    """造一条纠错样本。
+
+    🔴 2026-11-17：支持**思维链蒸馏**（`reasoning` 参数）。
+
+    为什么加：
+      只给答案的样本，学生学到的是"背结论"——
+      它记住「限电500W → state_new_need」，但换个说法「宿舍限电300瓦」又不会了。
+      带上思维链，它学的是**判断方法**：
+      「这句话在补充一个条件，不是问某个面 → state_new_need」。
+
+    格式（assistant 那一栏）：
+      reasoning 非空 → "<思维链>\\n{JSON}"
+      reasoning 为空 → "{JSON}"            （与旧样本兼容）
+
+    解析端（`intent_layer._extract_json`）从后往前找 JSON，
+    所以思维链在前、答案在后是安全的。
+    """
     meta = {
         "correct_before": False,
         "why": why,
@@ -175,11 +321,16 @@ def make_sample(text, correct, wrong=None, why="", found="", actionable=True):
     }
     if wrong:
         meta["wrong"] = _fmt(wrong)
+    if reasoning:
+        meta["has_cot"] = True
+        content = reasoning.strip() + "\n" + _fmt(correct)
+    else:
+        content = _fmt(correct)
     return {
         "messages": [
             {"role": "system", "content": SYS},
             {"role": "user", "content": text},
-            {"role": "assistant", "content": _fmt(correct)},
+            {"role": "assistant", "content": content},
         ],
         "_meta": meta,
     }
@@ -245,11 +396,14 @@ def main():
                 continue
             s = make_sample(item["text"], item["correct"], item["wrong"],
                             item["why"], item["found"],
-                            item.get("actionable", True))
+                            item.get("actionable", True),
+                            item.get("cot") or "")
             lines.append(s)
             added += 1
-            print("  ✓ %-14s 错误 %s/%s → 正确 %s/%s/fit=%s" % (
-                item["text"], item["wrong"]["intent"], item["wrong"]["topic"],
+            _cot = "（带思维链）" if item.get("cot") else ""
+            print("  ✓ %-14s %s错误 %s/%s → 正确 %s/%s/fit=%s" % (
+                item["text"], _cot,
+                item["wrong"]["intent"], item["wrong"]["topic"],
                 item["correct"]["intent"], item["correct"]["topic"],
                 item["correct"]["fit"]))
         if lines:

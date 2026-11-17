@@ -59,6 +59,12 @@ SOURCES = [
     #    这类样本**最贵** —— 它是模型在当前版本下确实会错的地方，
     #    比手写模板更贴近真实分布，且每条都带 wrong（可作 DPO 负样本）。
     ("corrections.jsonl", "实测误判纠正"),
+    # 🔴 2026-11-17 新增：思维链蒸馏数据。
+    #    用户要求「不仅问题和答案，也把思维链给他，蒸馏效果更好」。
+    #    只给答案 → 学生背结论；给思维链 → 学生学判断方法。
+    #    这批样本的 assistant 是「思维链 + JSON」两段，
+    #    训练时原样喂（推理时 _extract_json 会从后往前取 JSON）。
+    ("cot-route.jsonl", "思维链蒸馏"),
 ]
 
 OUT_TRAIN = os.path.join(LORA_DIR, "route-train.jsonl")
@@ -89,12 +95,25 @@ def load_route_file(path):
             if not u or not a:
                 skipped += 1
                 continue
-            d = json.loads(a)
+            d = None
+            # 🔴 2026-11-17：assistant 内容可能是「思维链 + JSON」。
+            #    直接 json.loads 会失败 → 样本被当成"别的体系"跳过。
+            #    先用 _extract_json 提取（它从后往前找最后一个 JSON）。
+            try:
+                d = json.loads(a)
+            except (json.JSONDecodeError, TypeError):
+                try:
+                    import intent_layer as _il
+                    d = _il._extract_json(a)
+                except Exception:
+                    d = None
             if not isinstance(d, dict) or "intent" not in d:
                 skipped += 1          # 预算层/别的体系，跳过
                 continue
+            # 保留原始 assistant 内容（带思维链的样本训练时要原样喂）
             out.append({"user": u, "gold": d, "meta": r.get("_meta") or {},
-                        "src": os.path.basename(path)})
+                        "src": os.path.basename(path),
+                        "assistant_raw": a})
         except (json.JSONDecodeError, TypeError, AttributeError):
             skipped += 1
     return out, skipped
@@ -271,14 +290,24 @@ def main():
         def dump(path, rows):
             with open(path, "w", encoding="utf-8") as f:
                 for r in rows:
+                    # 🔴 2026-11-17：有思维链的样本，assistant 栏原样保留。
+                    #
+                    #    为什么不重新拼：思维链是**手工写的判据说明**，
+                    #    重新拼只能拼出 JSON，思维链就丢了。
+                    #    而丢思维链等于回到"背结论"的蒸馏，正是要避免的。
+                    #
+                    #    ⚠️ 混着两种格式（有 CoT / 无 CoT）是故意的：
+                    #      有 CoT 的教判断方法，无 CoT 的教输出格式。
+                    #      推理端 `_extract_json` 两种都能吃。
+                    content = r.get("assistant_raw") or \
+                        json.dumps(r["gold"], ensure_ascii=False)
                     f.write(json.dumps({
                         "messages": [
                             {"role": "system",
                              "content": "你是选机助手的路由器。只输出 JSON："
                                         '{"intent":...,"topic":...,"fit":...}'},
                             {"role": "user", "content": r["user"]},
-                            {"role": "assistant",
-                             "content": json.dumps(r["gold"], ensure_ascii=False)},
+                            {"role": "assistant", "content": content},
                         ],
                         "_meta": r.get("meta") or {},
                     }, ensure_ascii=False) + "\n")
@@ -287,6 +316,10 @@ def main():
         print()
         print("写出 %s（%d 条）" % (OUT_TRAIN, len(train)))
         print("写出 %s（%d 条）" % (OUT_EVAL, len(evalset)))
+        # 统计有多少条带思维链
+        n_cot = sum(1 for r in train if r.get("assistant_raw")
+                    and "{" not in r["assistant_raw"].split("\n")[0])
+        print("      其中带思维链：%d 条" % n_cot)
     else:
         print()
         print("（演练模式。加 --write 写出）")
