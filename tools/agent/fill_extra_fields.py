@@ -204,6 +204,58 @@ def main():
             if vt:
                 patch["gpu.vramType"] = vt[:20]
 
+        # ── CPU 功耗（2026-11-17 补）──
+        #
+        # 🔴 **重要更正**：参数页的「功耗」字段**不是整机功耗，是 CPU TDP**。
+        #
+        #    验证方法（zol-2128664 暗影精灵 11）：
+        #      功耗        = 55W     ← 这个
+        #      电源适配器   = 230W
+        #      显卡最高功耗 = 115W
+        #    CPU 55W + 显卡 115W + 主板/内存/屏 ≈ 200W+，
+        #    整机绝不可能只有 55W —— 55W 是 i9-14900HX 的 TDP。
+        #
+        #    所以字段名必须是 `cpu.tdpW`，**不许叫 powerW**。
+        #    叫 powerW 会让上层以为"整机 55W，限电 500W 绰绰有余"——
+        #    那是错的，而且错得很危险（用户真按这个买会跳闸）。
+        #
+        #    整机功耗库里**确实没有**。能算的只有：
+        #      CPU TDP + 显卡 TGP（两者都有时，是个**下界**，不是实际值）
+        cpu2 = m.get("cpu")
+        if isinstance(cpu2, dict) and cpu2.get("tdpW") is None:
+            pw = clean(p.get("功耗"))
+            if pw:
+                w = None
+                mm = re.search(r"(\d{1,4})\s*W", pw, re.I)
+                if mm:
+                    w = int(mm.group(1))
+                if w and 5 <= w <= 300:
+                    patch["cpu.tdpW"] = w
+
+        # ── 显卡最高功耗（笔记本独显的 TGP）──
+        # 用户会问「显卡满血吗」。这个数字决定性能释放。
+        if isinstance(gpu, dict) and gpu.get("tgpMaxW") is None:
+            gp = clean(p.get("显卡最高功耗"))
+            if gp:
+                w = None
+                mm = re.search(r"(\d{1,4})\s*W", gp, re.I)
+                if mm:
+                    w = int(mm.group(1))
+                if w and 5 <= w <= 300:
+                    patch["gpu.tgpMaxW"] = w
+
+        # ── 电池容量（Wh）──
+        # 用户会问「电池多大」。这个比「续航时间」硬（续航是厂商标称，水分大）。
+        if m.get("batteryWh") is None:
+            bc = clean(p.get("电池容量"))
+            if bc:
+                wh = None
+                mm = re.search(r"(\d{2,4})\s*Wh", bc, re.I)
+                if mm:
+                    wh = int(mm.group(1))
+                if wh and 20 <= wh <= 200:
+                    patch["batteryWh"] = wh
+
         # ── 电源适配器（2026-11-17 补）──
         # 用户会问「充电快吗」「充电器多大」。参数页写「280W智能交流电源适配器」，
         # 抽出瓦数存成数字，原文一起留（有些写「100W USB Type-C」）。

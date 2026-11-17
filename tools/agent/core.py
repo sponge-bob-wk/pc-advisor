@@ -1052,6 +1052,15 @@ def _pool_to_offer(m, bench):
         "touchpad": m.get("touchpad"),
         "bodyLengthMm": m.get("bodyLengthMm"),
         "bodyWidthMm": m.get("bodyWidthMm"),
+        # ── 2026-11-17：功耗相关（限电问题的基础数据）──
+        # 🔴 `cpu.tdpW` 是 **CPU TDP**，不是整机功耗。
+        #    实测验证：暗影精灵 11 的「功耗」字段是 55W，但适配器 230W、
+        #    显卡 115W —— 55W 只能是 CPU 的，整机绝不可能这么低。
+        #    `gpu.tgpMaxW` 是显卡 TGP（性能释放上限）。
+        #    两者相加是**整机功耗的下界**，不是实际值。
+        "cpuTdpW": (m.get("cpu") or {}).get("tdpW"),
+        "gpuTgpW": (m.get("gpu") or {}).get("tgpMaxW"),
+        "batteryWh": m.get("batteryWh"),
         # 🔴 GPU 结构化字段（2026-11-12 接）：采集池每条都带 gpu.type/model，
         #   人工层（prices.json）没有这个字段。
         #   为什么叫 gpuKind 而不是 "gpu"：_gpu_key() 拿 o["gpu"] 算去重键，

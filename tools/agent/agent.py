@@ -2194,12 +2194,36 @@ def _answer_current(user_text, o, slots, focus):
     if slots.get("dormWatt") and not re.search(r"(限电|供电|功耗|瓦|W\b|适配器)", reply):
         _dw = slots["dormWatt"]
         _seg = []
+        # 🔴 2026-11-17：CPU TDP + GPU TGP 能给一个**下界**，但要标清楚是下界。
+        #
+        #    实测（zol-2128664 暗影精灵 11）：CPU 55W + GPU 115W = 170W。
+        #    整机还要算主板/内存/屏幕/风扇，实际肯定更高 —— 所以 170W 是**下界**。
+        #
+        #    判据：
+        #      下界 > 限电  → 明确不够用（下界都超了，实际更超）
+        #      下界 ≤ 限电  → 只能说"下界没超"，不能保证够（还要看整机）
+        #    ⚠️ 不许把下界当成实际功耗说"够用"。
+        _cpu = o.get("cpuTdpW")
+        _gpu = o.get("gpuTgpW")
+        _lower = (_cpu or 0) + (_gpu or 0)
+        if _lower > 0:
+            _parts = []
+            if _cpu:
+                _parts.append("CPU %sW" % _cpu)
+            if _gpu:
+                _parts.append("显卡 %sW" % _gpu)
+            _seg.append("%s，加起来 %sW 是**下界**（不含主板/内存/屏幕）"
+                        % (" + ".join(_parts), _lower))
+            if _lower > _dw:
+                _seg.append("这个下界已经超过限电 %sW 了，所以**肯定不够**" % _dw)
+            else:
+                _seg.append("下界没超限电 %sW，但整机实际功耗会更高，"
+                            "够不够我判断不了" % _dw)
         if o.get("adapterW"):
-            _seg.append("这台标配 %sW 电源适配器（适配器标称，不等于整机功耗）"
+            _seg.append("标配 %sW 适配器（适配器标称，是上界参考，不是实际功耗）"
                         % o["adapterW"])
-        else:
-            _seg.append("库里没有这台的电源适配器功率")
-        _seg.append("整机实测功耗库里也没有，所以限电 %sW 够不够用我判断不了" % _dw)
+        if not _lower and not o.get("adapterW"):
+            _seg.append("库里没有这台的功耗数据")
         _seg.append("要确切数字得看厂商规格页的「功耗」栏，或问客服要满载功耗")
         reply = reply.rstrip("。") + "。\n\n关于限电：" + "；".join(_seg) + "。"
     return {"stage": "fit", "slots": dict(slots), "reply": reply,
