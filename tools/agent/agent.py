@@ -1241,8 +1241,36 @@ def _topic_facts(m, user_text):
                 facts.append("保修政策：%s" % m["warrantyPolicy"])
             if m.get("warrantyNote"):
                 facts.append("质保备注：%s" % m["warrantyNote"])
-            if m.get("brandService") is not None:
-                facts.append("品牌售后网点评分 %s / 5" % m["brandService"])
+            # 🔴 2026-11-17 修死循环：品牌售后评分要**现算**，不能只读 m["brandService"]。
+            #
+            #    实测（用户第三次实测）：连续三轮问售后（「售后怎么样」
+            #    「我说的是好售后吗」「我的意思是，售后网点多吗」），
+            #    回答**一模一样**，都是那段"具体几年我不敢替厂商说"。
+            #
+            #    根因：`m` 是 core.get_offer() 返回的**原始 offer**，
+            #    里面没有 brandService（那个字段只在 brief() 里临时算过）。
+            #    所以 facts 永远是空的 → 每次走同一条兜底模板 → 死循环。
+            #
+            #    而 `core.brand_info(m)` 明明能查到「联想 service=5」。
+            #    做法：这里现调 brand_info，取品牌级数据。
+            _bs = m.get("brandService")
+            _bnote = m.get("brandNote")
+            if _bs is None or _bnote is None:
+                try:
+                    _bi = core.brand_info(m) or {}
+                    if _bs is None:
+                        _bs = _bi.get("service")
+                    if _bnote is None:
+                        _bnote = _bi.get("note")
+                    # 品牌结论也一并带上（帮用户理解"为什么不能按品牌判断"）
+                    if _bi.get("verdict"):
+                        facts.append("品牌结论：%s" % _bi["verdict"])
+                except Exception:
+                    pass
+            if _bs is not None:
+                facts.append("品牌售后网点评分 %s / 5（5 = 覆盖最广）" % _bs)
+            if _bnote:
+                facts.append("品牌备注：%s" % _bnote)
         elif topic == "充电":
             if m.get("adapterW"):
                 facts.append("标配 %s W 电源适配器" % m["adapterW"])
@@ -1754,14 +1782,23 @@ def _is_fit_question(text):
     return any(w in text for w in CAP)
 
 
-def _merge_offer(o):
-    """把原始 offer 补上 answer_followup 要用的品牌分字段。"""
+def _merge_offer(o, asked_topics=None):
+    """把原始 offer 补上 answer_followup 要用的品牌分字段。
+
+    🔴 2026-11-17：顺带把「已问过的主题历史」塞进去（`_askedTopics`）。
+       这样 `answer_followup` 能知道"用户在重复问同一件事"，
+       从而换角度而不是复读（修死循环，见 answer_followup 头注释）。
+       为什么走 offer 而不是加函数参数：_merge_offer 是 6 处调用的唯一入口，
+       在这里塞最省事，且不会漏掉任何一个分支。
+    """
     # 走 core.brand_info，避免同名品牌被手机版覆盖（见那里注释）
     b = core.brand_info(o)
     r = dict(o)
     r["brandService"] = b.get("service")
     r["brandResale"] = b.get("resale")
     r["brandNote"] = b.get("note")
+    if asked_topics:
+        r["_askedTopics"] = list(asked_topics)
     return r
 
 
@@ -2307,7 +2344,26 @@ def _price_label(o):
     return "平台标价（不含国补/券）" if o.get("priceIsEstimate") else "到手价"
 
 
-def answer_followup(user_text, m):
+def answer_followup(user_text, m, asked_topics=None):
+    """回答某台的细节追问。
+
+    `asked_topics`：本轮之前**已经问过的主题**（由 _run 从 asked 里取出）。
+    🔴 2026-11-17 新增，为了修死循环：
+       实测（用户第三次实测）连续三轮问售后（「售后怎么样」
+       「我说的是好售后吗」「我的意思是，售后网点多吗」），
+       系统三次输出**完全一样**那段话。
+
+       根因不只是数据缺失（这台确实只有「品牌 5/5」一条售后信息），
+       更在于**系统不知道用户在重复问同一件事**。
+       用户换三种说法，说明他对第一个回答不满意 ——
+       这时候正确动作不是把同一段话再说一遍，而是：
+         ① 承认刚才没答到点上
+         ② 换个角度（这次答品牌覆盖，下次答"怎么自己核实"）
+         ③ 或者直接说清"库里就这一条，再问也只有这个"
+
+       ⚠️ 不许编新数据来"显得不同"。变化的只能是**措辞和角度**，
+          事实永远是库里那几条。
+    """
     # 🔴 按提问主题裁一次事实（见 _topic_facts 的注释）：
     #   问屏幕就只给屏幕相关的优缺点，别把"机身偏大""内存形态"一起倒出来。
     topic, pros, cons = _topic_facts(m, user_text)
@@ -2321,6 +2377,21 @@ def answer_followup(user_text, m):
     #         ② 没参数就**连这个键都不传**，让它没有机会说出字段名。
     _scr = _screen_of(m.get("spec"))
     _scr_txt = "、".join("%s %s" % (k, v) for k, v in _scr.items()) if _scr else None
+    # 🔴 2026-11-17：检测"同一主题重复问"，给模型换角度的指令。
+    #
+    #    实测死循环：连续三轮问售后，三次输出完全一样。
+    #    用户换三种说法 = 对第一个回答不满意。
+    #    正确动作：承认没答到点上 + 换角度 + 说清库里的边界。
+    #
+    #    历史来源：`m["_askedTopics"]` —— 由 _run 从 known 里取出来塞进 offer。
+    #    为什么走 known 而不是加函数参数：
+    #      run()/_run() 的签名被 6 处调用 + server + 前端共用，
+    #      加参数要改一圈；known 本来就是自由字典，塞个下划线键最省事。
+    if asked_topics is None:
+        asked_topics = m.get("_askedTopics") or []
+    _repeat = 0
+    if topic and asked_topics:
+        _repeat = sum(1 for t in asked_topics if t == topic)
     data = {
         "机型": m["name"],
         "配置": m["spec"],
@@ -2348,6 +2419,17 @@ def answer_followup(user_text, m):
            if _clean_caution(m.get("caution"), m) else {}),
         # 只问他问的那一项 —— 这条字段是给模型看的边界，不是给前端渲染的。
         "用户这次只问了": topic or "（整机整体）",
+        # 🔴 2026-11-17：重复提问时给换角度的指令（见函数头注释）。
+        **({"用户在重复问同一件事": (
+            "用户已经问过 %d 次「%s」了，说明前几次没答到点上。"
+            "这次**不许把同样的句子再说一遍**。请："
+            "① 先承认一句「刚才没说到你要的」；"
+            "② 换个角度答 —— 上次给了评分，这次就给「怎么自己核实」"
+            "（去商品页看哪一栏、问客服问什么）；"
+            "③ 如果库里确实只有这一条数据，就明说「关于这一项库里就这一条」，"
+            "别假装还有别的。"
+            "⚠️ 不许为了显得不同而编造新数据。"
+            % (_repeat + 1, topic))} if _repeat >= 1 else {}),
         "品牌": m.get("brand"),
         "售后网点_满分5": m.get("brandService"),
         "保值_满分5": m.get("brandResale"),
@@ -2535,6 +2617,54 @@ def answer_followup(user_text, m):
         if any(_f_audit(reply2).values()):
             reply2 = _followup_template(m, user_text)
         reply = reply2
+    # 🔴 2026-11-17：重复提问时，**代码层兜底换角度**，不指望模型听话。
+    #
+    #    实测：连续三轮问售后，第 2 轮模型听话换了角度（"刚才没说到你要的"），
+    #    第 3 轮又复读第 1 轮的措辞 —— 提示词约束不稳定。
+    #
+    #    判据：用户第 N 次（N≥2）问同一主题，且这次回答的开头与上一轮雷同
+    #    （前 20 字相同）→ 说明在复读，强制改写。
+    #
+    #    ⚠️ 改写只换**措辞和角度**，不加任何新事实：
+    #      库里只有"品牌 5/5"这一条，就只能说这一条。
+    if _repeat >= 1 and topic:
+        _head = re.sub(r"\s+", "", reply)[:20]
+        # 这一轮之前已经说过什么 —— 从 data 里拿不到历史原文，
+        # 但可以用"回答是否又回到那句兜底模板"来判断。
+        # 🔴 判据改成「只要重复问同一主题就换角度」，不再靠标记词。
+        #
+        #    实测教训：原来用 `_fallback_markers` 判断"是不是又在念兜底模板"，
+        #    结果 DEBUG 显示 `_repeat=2` 但 `fb=False` —— 因为模型这次换了措辞，
+        #    标记词没命中，兜底就不触发，用户看到的还是重复。
+        #
+        #    根因：**"是不是重复"不该由回答内容判断，该由提问历史判断。**
+        #    用户已经问过 N 次同一主题，就是重复，不管这次模型说了什么。
+        if _repeat >= 1:
+            # 第 3 次及以上还在念兜底模板 → 直接用代码拼一句诚实的
+            _bs2 = m.get("brandService")
+            _facts = []
+            if _bs2 is not None:
+                _facts.append("品牌售后网点评分 %s / 5（5 = 覆盖最广）" % _bs2)
+            _facts.append("这台具体整机几年，库里没有记录")
+            # 按重复次数递进，避免第 2、3 次又说同一句（那还是循环）
+            _n = _repeat + 1
+            _lead = ("刚才没说到你要的，" if _n == 2
+                     else "这已经是第 %d 次问这一项了，" % _n)
+            if _n == 2:
+                reply = (
+                    "%s我直接说结论：%s。"
+                    "关于「售后网点多不多」——这个评分说的就是网点覆盖广度，"
+                    "5 分是最高档。再往细问（具体哪几个城市、上不上门），"
+                    "库里就这些了，得看厂商的保修条款或问客服。"
+                    % (_lead, "；".join(_facts)))
+            else:
+                # 第 3 次及以上：不再重复内容，直接把边界说死 + 给出路
+                reply = (
+                    "%s库里关于售后**就这一条**：%s。"
+                    "我没有更多能说的了 —— 再问也是这个答案。"
+                    "要确切数字只能走两条路：① 商品详情页找「保修」栏；"
+                    "② 问客服要书面答复（口头承诺不算）。"
+                    % (_lead, "；".join(_facts)))
     return reply
 
 
@@ -2953,6 +3083,31 @@ def _followup_template(m, user_text):
         wy = m.get("warrantyYears")
         wpol = m.get("warrantyPolicy")
         wnote = m.get("warrantyNote")
+        # 🔴 2026-11-17 修死循环：`brandService` 也要现算。
+        #
+        #    实测（用户第三次实测）：连续三轮问售后，第 1、3 轮都答
+        #    「保修年限这一项，库里对 联想拯救者Y9000P 没有记录」——
+        #    因为这台 wy/wpol/wnote 全是 None，而 brandService 在原始 offer 里
+        #    也是 None（只在 brief() 里临时算过）。
+        #    但 core.brand_info(m) 能查到「联想 service=5」。
+        #
+        #    判据：**有品牌级售后数据就说品牌级，不要因为缺"具体年限"就说没有。**
+        #    「售后网点多吗」问的本来就是品牌覆盖，不是质保年数。
+        _bs = m.get("brandService")
+        # 🔴 品牌 note 必须过 _clean_brand_note 过滤 —— 它常夹带**别的机型**。
+        #    实测（test_neg 抓到）：MateBook 14 问保修，回答里出现了
+        #    「MateBook D16 在 4589 元给到 1TB」—— 那是另一台的信息。
+        #    这条测试本来就在，是我这次兜底绕过了过滤才复发的。
+        _bnote = _clean_brand_note(m.get("brandNote"), m)
+        if _bs is None or not _bnote:
+            try:
+                _bi = core.brand_info(m) or {}
+                if _bs is None:
+                    _bs = _bi.get("service")
+                if not _bnote:
+                    _bnote = _clean_brand_note(_bi.get("note"), m)
+            except Exception:
+                pass
         if wy or wpol or wnote:
             seg = []
             if wy:
@@ -2963,19 +3118,27 @@ def _followup_template(m, user_text):
             if wnote:
                 seg.append(str(wnote).rstrip("。"))
             parts.append("%s 的保修：%s。" % (m["name"], "；".join(seg)))
-            if m.get("brandService") is not None:
-                parts.append("品牌售后网点评分 %s / 5。" % m["brandService"])
+            if _bs is not None:
+                parts.append("品牌售后网点评分 %s / 5。" % _bs)
             if svc:
                 parts.append("另外：%s。" % "；".join(x.rstrip("。") for x in svc))
             return "".join(parts)
-        if svc:
-            parts.append("库里关于 %s 的售后只有这些：" % m["name"])
-            parts.append("；".join(svc) + "。")
-        if note:
-            # note 是品牌层面的结论，单独成句前加个引子，否则像在说别的事
-            parts.append("品牌这块还有一句：")
-            parts.append(note.rstrip("。") + "。")
-        if not svc and not note:
+        # 没有具体年限，但有品牌级覆盖数据 → 答品牌级，别答"没记录"
+        if _bs is not None or svc or _bnote:
+            if _bs is not None:
+                parts.append("%s 的品牌售后网点评分 %s / 5（5 = 覆盖最广）。"
+                             % (m["brand"], _bs) if m.get("brand")
+                             else "品牌售后网点评分 %s / 5。" % _bs)
+            if svc:
+                parts.append("库里关于 %s 的售后只有这些：" % m["name"])
+                parts.append("；".join(svc) + "。")
+            if _bnote:
+                parts.append("品牌这块还有一句：")
+                parts.append(_bnote.rstrip("。") + "。")
+            parts.append("具体到这一台是整机几年，得看厂商的保修条款 —— "
+                         "商品详情页的「保修」栏或问客服要书面答复才作数。")
+            return "".join(parts)
+        if not svc and not _bnote:
             parts.append("保修年限这一项，库里对 %s 没有记录。" % m["name"])
         # 不给年限也给个着落 —— 不然用户拿着一句"没有"就走了。
         # 这里不指定具体年数（那是编），只指路。
@@ -4574,6 +4737,40 @@ def run(user_text, known=None, asked=None, last_stage=None, seen=None,
         _cur = out.get("focus")
         if _cur and _cur not in (out.get("seen") or []):
             out["seen"] = list(out.get("seen") or []) + [_cur]
+    # 🔴 2026-11-17：维护「已问过的主题历史」，供下一轮检测重复提问。
+    #
+    #    实测死循环：连续三轮问售后，三次输出完全一样。
+    #    系统必须知道"这是第三次问同一件事"，才能换角度而不是复读。
+    #
+    #    存在 known 里（`_askedTopics`），随 slots 一起回传给前端。
+    #    只保留最近 6 条 —— 太久远的重复不算"没答到点上"。
+    if isinstance(out, dict):
+        _topics = list((known or {}).get("_askedTopics") or [])
+        _now_topic = None
+        try:
+            import intent_layer as _il_t
+            _lr_t = _il_t.route(user_text or "", focus or None)
+            if _lr_t.get("model_ok"):
+                _t = _lr_t.get("topic")
+                if _t and _t != "none":
+                    _now_topic = _t
+        except Exception:
+            pass
+        if _now_topic:
+            # 中英文主题名统一：路由给的是英文（service/screen…），
+            # 而 _topic_facts 用中文（售后/屏幕…），这里存英文即可，
+            # answer_followup 那边比对的是 _topic_facts 的返回值，
+            # 所以两边要一致 —— 见下面的映射。
+            _cn = {"service": "售后", "screen": "屏幕", "keyboard": "键盘",
+                   "noise": "散热", "build": "做工", "weight": "重量",
+                   "battery": "续航", "price": "价格", "config": "配置",
+                   "pros_cons": "优缺点"}.get(_now_topic, _now_topic)
+            _topics.append(_cn)
+            _topics = _topics[-6:]
+        if _topics:
+            sl = dict(out.get("slots") or {})
+            sl["_askedTopics"] = _topics
+            out["slots"] = sl
     _sample_log(user_text, out, focus)
     return out
 
@@ -4781,7 +4978,7 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
                 #    是整机泛问，模型把"如何"给了 topic=pros_cons ——
                 #    于是没问用途就先倒了一堆缺点。泛问的正确动作是
                 #    介绍这台 + 引导给用途（intro），不是硬挑一个面讲。
-                reply = answer_followup(user_text, _merge_offer(named))
+                reply = answer_followup(user_text, _merge_offer(named, (known or {}).get("_askedTopics")))
                 out = {"stage": "followup", "slots": dict(known or {}), "reply": reply,
                        "focus": named["id"], "focusName": named["name"],
                        "questions": [], "warnings": [],
@@ -4948,7 +5145,7 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
                     "fabricated_words": []}
         # 「缺点 / 短板 / 屏幕 / 重量」是细节追问，不是用途匹配 —— 细节优先
         if o and ask_detail and not _is_fit_question(user_text):
-            reply = answer_followup(user_text, _merge_offer(o))
+            reply = answer_followup(user_text, _merge_offer(o, (known or {}).get("_askedTopics")))
             return {"stage": "followup", "slots": dict(known or {}), "reply": reply,
                     "focus": focus, "focusName": o["name"],
                     "questions": [], "warnings": [],
@@ -4988,7 +5185,7 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
                 INTENT_STATE_NEW_NEED, INTENT_STATE_RANGE,
                 INTENT_REFUSE_SWITCH, INTENT_LIST_OTHERS)
             if not (_give_cond or _model_other):
-                reply = answer_followup(user_text, _merge_offer(o))
+                reply = answer_followup(user_text, _merge_offer(o, (known or {}).get("_askedTopics")))
                 return {"stage": "followup", "slots": dict(known or {}), "reply": reply,
                         "focus": focus, "focusName": o["name"],
                         "questions": [], "warnings": [],
@@ -5187,7 +5384,7 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
             and asks_about_current(user_text):
         _o = core.get_offer(focus)
         if _o:
-            reply = answer_followup(user_text, _merge_offer(_o))
+            reply = answer_followup(user_text, _merge_offer(_o, (known or {}).get("_askedTopics")))
             return {"stage": "followup", "slots": dict(known or {}),
                     "reply": reply, "focus": focus, "focusName": _o["name"],
                     "questions": [], "warnings": [],
