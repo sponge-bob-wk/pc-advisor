@@ -4555,8 +4555,25 @@ def run(user_text, known=None, asked=None, last_stage=None, seen=None,
         out["known"] = dict(out.get("slots") or {})
     # seen 同理：compare / followup 这些分支原来不返 seen，
     # 下一轮"换一台"就又从第一台开始 —— 用户看到的就是死循环。
+    #
+    # 🔴 2026-11-17 修：光"透传 seen"不够，还要**把当前这台补进去**。
+    #
+    #    实测（用户第二次实测）：
+    #      [12] 华为MateBook D16怎么样  → stage=fit,      seen=[]
+    #      [13] 拿他打游戏             → stage=followup, seen=[]
+    #      [14] 那换一台吧             → stage=clarify,  seen=[]  ← 不知道看过啥
+    #
+    #    fit/followup 分支都不往 seen 里写，于是到「换一台」时 seen 是空的，
+    #    系统把已经看过的机器又推一遍。
+    #
+    #    判据：本轮有 focus（说明在讨论某一台），而这台还没在 seen 里 → 补进去。
+    #    ⚠️ 只在"用户还在看这台"时补；换台成功后 focus 变新机器，再下一轮自然累积。
     if isinstance(out, dict) and out.get("seen") is None:
         out["seen"] = list(seen or [])
+    if isinstance(out, dict):
+        _cur = out.get("focus")
+        if _cur and _cur not in (out.get("seen") or []):
+            out["seen"] = list(out.get("seen") or []) + [_cur]
     _sample_log(user_text, out, focus)
     return out
 
@@ -5058,6 +5075,21 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
             if cur is None or cur == [] or cur == "":
                 if known.get(k) is not None:
                     slots[k] = known[k]
+        # 🔴 2026-11-17：**用途和品类冲突时，品类让位**。
+        #
+        #    实测（用户第二次实测）：用户先问了 MateBook D16（轻薄本），
+        #    然后说「我想打游戏」。此时 purpose=['gaming']，但上面那段
+        #    把 known.cat='thin' 继承下来了 —— 因为本轮没抽到 cat。
+        #    结果推荐的还是轻薄本（红米 Book Pro 14）。
+        #
+        #    判据：purpose 里出现 gaming，而 cat 是 thin → 用户要的是游戏本。
+        #    「打游戏」这个用途本身就决定了品类，不该被上一轮的 cat 压住。
+        #
+        #    ⚠️ 反过来不成立：purpose 里有 design/code 时 cat 可以是 thin 或 gaming，
+        #       那两种都合理，所以不做反向强制。
+        _purpose_now = set(slots.get("purpose") or [])
+        if "gaming" in _purpose_now and slots.get("cat") == "thin":
+            slots["cat"] = "gaming"
         # purpose 是累加的：用户补充"偶尔打游戏"不等于放弃"学设计"。
         # 只有明确否掉才移除（"我不玩游戏了"）。
         merged = list(known.get("purpose") or [])

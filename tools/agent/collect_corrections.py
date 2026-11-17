@@ -108,6 +108,44 @@ SEED = [
         "found": "chat-2026-11-17.log 第 10 条（用户实测）",
         "actionable": False,
     },
+    # ── 2026-11-17 10:57 用户第二次实测（换一台流程）──────────────────
+    {
+        "text": "打游戏",
+        "wrong": {"intent": "ask_current", "topic": "config", "fit": False},
+        "correct": {"intent": "state_new_need", "topic": "none", "fit": False},
+        "why": ("上一轮系统问「主要拿来干什么？」，用户答「打游戏」——"
+                "这是**在回答用途问题**，不是问当前这台。"
+                "模型判成 ask_current 的后果很严重：系统以为用户在问"
+                "MateBook D16 能不能打游戏，走了 answer_followup，"
+                "**根本没做槽位抽取**，purpose 丢失，"
+                "于是后面「换一台」时不知道用户要游戏本，"
+                "又推回同一台轻薄本。"
+                "对比：同样的话说成「我想打游戏」模型就判对了（state_new_need）——"
+                "说明模型过度依赖「我想/我要」这类显式标记。"),
+        "found": "chat-2026-11-17.log 第 17 条（用户实测）",
+    },
+    {
+        "text": "拿他打游戏",
+        "wrong": {"intent": "ask_current", "topic": "config", "fit": False},
+        "correct": {"intent": "state_new_need", "topic": "none", "fit": False},
+        "why": ("和「打游戏」同一类错。区别是这句带了「拿他」——"
+                "「拿他打游戏」是**说用途**（我要拿这台去干什么），"
+                "不是问「这台能不能打游戏」。"
+                "模型被「他」这个指代词带偏，判成在问当前这台。"
+                "正确理解：用户在给用途，系统该判 fit（够不够）或记下 purpose。"),
+        "found": "chat-2026-11-17.log 第 13 条（用户实测）",
+    },
+    {
+        "text": "那换一台吧",
+        "wrong": {"intent": "ask_current", "topic": "none", "fit": False},
+        "correct": {"intent": "refuse_switch", "topic": "none", "fit": False},
+        "why": ("「换一台」是明确的换台请求，模型判成 ask_current 属于离谱错误。"
+                "但注意：这句里有「那」+「吧」，是承接上一轮的口气，"
+                "模型可能把它当成了「那（这台）怎么样吧」。"
+                "判错的后果：系统没走换台流程，反而去问「是笔记本还是台式」，"
+                "把已经说过的品类又问了一遍。"),
+        "found": "chat-2026-11-17.log 第 14 条（用户实测）",
+    },
 ]
 
 

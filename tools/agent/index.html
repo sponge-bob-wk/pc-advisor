@@ -1446,6 +1446,15 @@ function send(text){
     if(d.asked) asked=d.asked;
     lastStage=d.stage;
     if(d.focus!==undefined) focus=d.focus;
+    // 🔴 2026-11-17：原来只从 kernel.ranked 累积 seen ——
+    //    fit / followup 分支没有 kernel.ranked，所以前端不记。
+    //    后果（用户实测）：问了 MateBook D16（fit 分支）→ 说「换一台」
+    //    → seen 是空的 → 又把 MateBook 推一遍。
+    //    修法：后端的 seen 字段优先（它会把 focus 累积进去），
+    //    kernel.ranked 作为补充。
+    if(d.seen && d.seen.length){
+      d.seen.forEach(function(id){ if(id && seen.indexOf(id)<0) seen.push(id) });
+    }
     ((d.kernel&&d.kernel.ranked)||[]).forEach(function(x){
       if(x&&x.id&&seen.indexOf(x.id)<0) seen.push(x.id);
     });

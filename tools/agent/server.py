@@ -58,6 +58,14 @@ def slim_result(r):
     out = {"stage": r.get("stage"), "reply": r.get("reply", ""), "slots": r.get("slots", {}),
            "asked": r.get("asked", []), "focus": r.get("focus"),
            "focusName": r.get("focusName")}
+    # 🔴 2026-11-17：`seen` 必须投影出去。
+    #    原来漏了这一栏，前端只能从 kernel.ranked 自己攒 ——
+    #    而 fit / followup 分支没有 kernel.ranked，于是前端 seen 一直是空。
+    #    后果（用户实测）：问过 MateBook D16（fit 分支）→ 说「换一台」
+    #    → 前端 seen 是空的 → 后端又把 MateBook 推一遍。
+    #    后端 run() 现在会把 focus 累积进 seen，这里原样传出去即可。
+    if r.get("seen"):
+        out["seen"] = r["seen"]
     # 后端给的「下一步可以做什么」按钮。前端渲染成 chips 直接发，
     # 不让用户打「1/2/3」——那正是 2026-11-12 死循环的入口。
     if r.get("suggest"):
