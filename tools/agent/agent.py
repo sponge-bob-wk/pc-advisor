@@ -58,6 +58,18 @@ ANSWER_SYS = """你是电脑选机助手。系统已经查好数据，你的任�
    顺不顺畅」一个字都不要说 —— 不许写"绝对够劲""完全没压力""轻松带得动"
    "3A 随便玩""性能拉满"，也不许写反过来的"会卡""带不动"。
    只描述配置本身（什么 CPU、什么显卡、多大内存），让用户自己判断够不够。
+8c. **功耗/限电**（2026-11-17 实测抓到）：库里**没有整机功耗、没有实测瓦数**。
+   数据里只有「充电器功率_W」（适配器标称，不等于整机功耗）这一项参考。
+   所以：
+   - 有「充电器功率_W」→ 可以说"标配 280W 适配器"，这是事实；
+   - **不许推测整机功耗** —— 不许写"功耗设计通常远超这个限制""满载大概 200W"
+     "大概率跑不满"这类话。库里没有这个数字，说了就是编。
+   - 用户问"限电 500W 能用吗" → 只说：
+     ① 适配器标称多少瓦（如果有）；
+     ② 库里没有整机实测功耗，所以能不能用我判断不了；
+     ③ 指路：查厂商规格页的"功耗"或问客服要满载功耗。
+   - 可以说一句常识性提示（"宿舍限电通常还要给别的电器留余量"），
+     但**不许把常识说成这台机器的实测数据**。
 9. 数据里有「已排除_用户看过并拒绝」时，那是之前看过的机型：一个字都不要提，
    不要评价，不要写"既然你不想要 X""你不喜欢 Y"这类话。直接介绍当前这台就行。
 10. 你只介绍「当前这台_你要介绍的就是它」。其他候选最多顺口提一句名字，不要主推，
@@ -1714,6 +1726,41 @@ def _field_echo(text):
     return m.group(0) if m else None
 
 
+def _power_guess(text):
+    """推测整机功耗/判断"限电够不够" —— 库里没有这个数据，说了就是编。
+
+    🔴 2026-11-17 实测抓到（用户问「限电 500W」，机器没有任何功耗字段）：
+
+      「这台 16 寸的机器大概率跑不满，因为它的功耗设计通常远超这个限制」
+      「这意味着你要么得找能稳定供电的插座，要么就得接受性能被严重阉割」
+      「否则这台机器在限电环境下根本没法正常用」
+
+    每一句都是**推测**：库里既没有整机功耗，也没有实测瓦数。
+    `adapterW`（适配器标称）不等于整机功耗，不能拿来推结论。
+
+    为什么这类比"编数字"更危险：它读起来像内行经验，
+    用户不会怀疑，但它决定了"这台能不能买"这个关键判断。
+
+    判据分两组：
+      ① 明确的功耗推测词（功耗设计/满载功耗/整机功耗 + 推测语气）
+      ② 对"够不够供电"下结论（跑不满/带不动/没法正常用）
+    """
+    t = text or ""
+    # ① 功耗推测：出现"功耗"且带推测/断言语气
+    if re.search(r"(功耗|瓦数|功率)\s*(设计|通常|一般|大概|大约|约为|超过|远超)", t):
+        return "功耗推测"
+    # 「大概/通常 + 多少 W」也算推测（除非是适配器标称，那个有数据支撑）
+    if re.search(r"(整机|满载|实际)\s*(功耗|功率)", t) and \
+            re.search(r"\d+\s*[Ww瓦]", t):
+        return "整机功耗数字"
+    # ② 对供电够不够下结论
+    if re.search(r"(限电|供电|插座|跳闸)", t) and \
+            re.search(r"(跑不满|带不动|带不起来|没法正常用|根本没法|"
+                      r"严重阉割|必须换|不能用)", t):
+        return "对限电下结论"
+    return None
+
+
 def _overspec(text):
     """超出库内证据的断言。返回命中的词。
 
@@ -2087,6 +2134,9 @@ def _answer_current(user_text, o, slots, focus):
             or check_scope(rep)
             or _out_scope_product(rep)
             or _field_echo(rep)
+            # 🔴 2026-11-17：不许推测整机功耗 / 对"限电够不够"下结论。
+            #    库里没有功耗字段，这类话全是编的（实测见函数注释）。
+            or _power_guess(rep)
             # 🔴 没人写过优缺点的机器，不许替它下结论（2026-11-12）
             or _praise_no_review(rep, o)
             or VERDICT_KEY in rep or "判断依据" in rep)
@@ -2345,6 +2395,7 @@ def _price_label(o):
 
 
 def answer_followup(user_text, m, asked_topics=None):
+
     """回答某台的细节追问。
 
     `asked_topics`：本轮之前**已经问过的主题**（由 _run 从 asked 里取出）。
@@ -5120,7 +5171,34 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
         #    统一到一处之后，两个来源取并集，且 `is_followup()` 用的是同一份判据 ——
         #    不会再出现"这里说是追问、那里说不是"（宪法第 9 条）。
         ask_detail = asks_about_current(user_text)
-        ask_fit = any(k in user_text for k in FIT_KW)
+        # 🔴🔴 2026-11-17：`ask_fit` 从「纯词表」改成「模型为主、词表兜底」。
+        #
+        #    这是架构反转**做了一半**的最后一处 —— `ask_detail` 已经读模型了
+        #    （见上面注释），但 `ask_fit` 还停在词表时代。
+        #
+        #    实测代价（用户 2026-11-17 实测）：
+        #      「限电 500W」→ 模型判 `fit=True`（在问匹配），
+        #      但 `FIT_KW` 没命中 → `ask_fit=False` → 模型判断被丢弃
+        #      → 走了 answer_followup，topic=battery 没数据
+        #      → 退化报整机参数（用户看到「问限电答屏幕参数」）。
+        #
+        #    这就是"调了模型却不采信它"的典型 —— 用户感知是"死板/听不懂"。
+        #
+        #    为什么之前一直没改：`ask_fit` 的词表判据是 2026-11-11 那批
+        #    真实事故（「它保修几年」被 _answer_current 接走）沉淀下来的，
+        #    改它有回归风险。但现在 `intent_layer.route()` 的 fit 字段
+        #    已经在 test_intent 里验过，可以放心让模型先说话。
+        #
+        #    ⚠️ 词表**不删**：模型不可用（Ollama 挂了）时它是唯一兜底。
+        _lr_fit = _LAST_ROUTE[0]
+        if _lr_fit and _lr_fit.get("model_ok") and _lr_fit.get("fit") is not None:
+            ask_fit = bool(_lr_fit.get("fit"))
+            # 模型说 fit，但词表也命中 → 一致，无需额外处理
+            # 模型说 fit=True 而词表没命中 → 采信模型（本修法的核心）
+            # 模型说 fit=False 而词表命中 → 仍采信模型（它看的是整句语义）
+        else:
+            # 模型不可用 → 纯词表兜底（行为与反转前一致）
+            ask_fit = any(k in user_text for k in FIT_KW)
         ask_price = any(k in user_text for k in PRICE_Q_KW)
         # 「这个价怎么样」「划算吗」—— 先处理，否则会被下面的 FIT_KW/穿透吃掉。
         # 关键：**用库内数据算出真实位置**，不让模型自己说"最贵/最便宜"。
@@ -5144,7 +5222,26 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
                     "outside_products": [], "untraceable_numbers": [],
                     "fabricated_words": []}
         # 「缺点 / 短板 / 屏幕 / 重量」是细节追问，不是用途匹配 —— 细节优先
-        if o and ask_detail and not _is_fit_question(user_text):
+        #
+        # 🔴🔴 2026-11-17：**模型判了"在问匹配"时，细节必须让位。**
+        #
+        #    这是"丢弃模型"的最后一处，也是最隐蔽的一处。
+        #
+        #    实测（DEBUG 打出来的真值）：
+        #      「限电 500W」→ detail=True, fit=True, fitq=False
+        #      → `if o and ask_detail and not _is_fit_question()` 成立
+        #      → 走 detail 分支 → 答"这一项的具体表现要看实机"
+        #
+        #    `ask_detail` 和 `ask_fit` **同时为 True** 时，原来无条件选 detail。
+        #    但模型明确判了 fit=True（在拿用途/要求问这台行不行），
+        #    那就是匹配判断，不是细节问答。
+        #
+        #    为什么加 `not ask_fit` 不会复活旧事故：
+        #      2026-11-11 那批是「它保修几年」被 _answer_current 接走、
+        #      编出"保修一年"——那种句子模型给 fit=False，不受影响。
+        #
+        #    判据：detail 和 fit 同时成立 → **fit 优先**（模型说了算）。
+        if o and ask_detail and not ask_fit and not _is_fit_question(user_text):
             reply = answer_followup(user_text, _merge_offer(o, (known or {}).get("_askedTopics")))
             return {"stage": "followup", "slots": dict(known or {}), "reply": reply,
                     "focus": focus, "focusName": o["name"],
@@ -5184,7 +5281,20 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
             _model_other = bool(_lr0.get("model_ok")) and _lr0.get("intent") in (
                 INTENT_STATE_NEW_NEED, INTENT_STATE_RANGE,
                 INTENT_REFUSE_SWITCH, INTENT_LIST_OTHERS)
-            if not (_give_cond or _model_other):
+            # 🔴🔴 2026-11-17：这个兜底**不许吞"模型判了在问匹配"的句子**。
+            #
+            #    这是 `ask_fit` 改完之后仍然"丢弃模型"的真正原因：
+            #    上一层的 `if o and ask_fit:` 在**这个兜底之后**，
+            #    而兜底的条件 `not (_give_cond or _model_other)` 对
+            #    「限电 500W」成立（没给条件动词、intent 是 ask_current）
+            #    → 直接 followup return，`ask_fit` 那行永远走不到。
+            #
+            #    实测：模型判 `fit=True`（在问匹配），但被这个兜底截胡，
+            #    最后答成「这一项的具体表现要看实机或第三方评测」。
+            #
+            #    修法：兜底加一条 `and not ask_fit` ——
+            #    模型说在问匹配，就让控制流落到下面的 `if o and ask_fit`。
+            if not (_give_cond or _model_other or ask_fit):
                 reply = answer_followup(user_text, _merge_offer(o, (known or {}).get("_askedTopics")))
                 return {"stage": "followup", "slots": dict(known or {}), "reply": reply,
                         "focus": focus, "focusName": o["name"],
