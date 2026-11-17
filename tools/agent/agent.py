@@ -1234,7 +1234,8 @@ def _topic_facts(m, user_text):
     if topic == "屏幕":
         tp = [x for x in pros if _is_screen_fact(x)]
         tc = [x for x in cons if _is_screen_fact(x)]
-    elif topic in ("售后", "做工", "充电", "颜色", "触控板", "创作"):
+    elif topic in ("售后", "做工", "充电", "颜色", "触控板", "创作", "续航",
+                   "重量", "内存硬盘", "性能", "键盘"):
         # 🔴 2026-11-16：这几面的事实**在结构化字段里，不在 pros/cons 里**。
         #    「保修几年」→ warrantyYears / warrantyPolicy / warrantyNote
         #    「什么材质」→ shellMaterial
@@ -1289,10 +1290,86 @@ def _topic_facts(m, user_text):
             if m.get("adapterText"):
                 facts.append("适配器：%s" % m["adapterText"])
             if m.get("batteryLifeH"):
-                facts.append("续航约 %s 小时" % m["batteryLifeH"])
+                # 🔴 2026-11-17：必须标明这是**厂商标称**，不是实测。
+                #    参数页写「12小时左右，视具体使用环境而定」——
+                #    那是厂商在理想条件下测的，实际通常只有 60~70%。
+                #    只说"续航约 12 小时"会让用户以为是实测值。
+                facts.append("厂商标称续航 %s 小时（不是实测）" % m["batteryLifeH"])
+            if m.get("batteryWh"):
+                facts.append("电池容量 %s Wh" % m["batteryWh"])
         elif topic == "颜色":
             if m.get("shellColor"):
                 facts.append("机身颜色：%s" % m["shellColor"])
+        elif topic == "续航":
+            # 🔴 2026-11-17：续航原来没有独立主题，问「电池能用多久」
+            #    topic 判成「续航」但 facts 是空的 → 走兜底模板 →
+            #    答「这一项的具体表现要看实机」。而数据里明明有标称续航。
+            if m.get("batteryLifeH"):
+                # 必须标明是厂商标称，不是实测（实测通常只有标称的 60~70%）
+                facts.append("厂商标称续航 %s 小时（不是实测值）"
+                             % m["batteryLifeH"])
+            if m.get("batteryLifeText"):
+                facts.append("厂商原文：%s" % m["batteryLifeText"][:60])
+            if m.get("batteryWh"):
+                facts.append("电池容量 %s Wh" % m["batteryWh"])
+            if m.get("adapterW"):
+                facts.append("标配 %s W 充电器" % m["adapterW"])
+        elif topic == "重量":
+            # 🔴 2026-11-17：重量 189 台有数据，但 facts 通道是空的 →
+            #    问「多重啊」走兜底模板答「要看实机」。这是最不该漏的一面。
+            _w = core.effective_weight(m)
+            if _w:
+                facts.append("整机重量 %s kg" % _w)
+                # 给个参照系（不评价，只报同品类区间）
+                try:
+                    _same = [core.effective_weight(x) for x in core.pool_offers()
+                             if x.get("cat") == m.get("cat")]
+                    _same = [w for w in _same if w]
+                    if len(_same) >= 10:
+                        facts.append("同品类 %d 台里，最轻 %s kg、最重 %s kg"
+                                     % (len(_same), min(_same), max(_same)))
+                except Exception:
+                    pass
+            if m.get("thicknessMm"):
+                facts.append("机身厚度 %s mm" % m["thicknessMm"])
+        elif topic == "内存硬盘":
+            # 🔴 2026-11-17：内存 222 台有数据，facts 通道是空的。
+            _r = core.ram_of(m)
+            if _r:
+                facts.append("内存 %sG" % _r)
+            _ram = m.get("ram") or {}
+            if isinstance(_ram, dict):
+                if _ram.get("type"):
+                    facts.append("内存类型 %s" % _ram["type"])
+                if _ram.get("maxGB"):
+                    facts.append("最大支持 %sG" % _ram["maxGB"])
+            _up = m.get("upgrade")
+            if _up == 0:
+                facts.append("内存焊死，不可加装")
+            elif _up:
+                facts.append("可加装（升级空间 %s/3 档）" % _up)
+            if m.get("storageGB"):
+                facts.append("硬盘 %sG" % m["storageGB"])
+        elif topic == "性能":
+            # 🔴 2026-11-17：跑分 162 台有数据，facts 通道是空的。
+            if m.get("perf") is not None:
+                facts.append("性能分 %s / 100（Cinebench R23 标尺）" % m["perf"])
+            else:
+                facts.append("库里没有这台的跑分")
+            if m.get("cpuModel"):
+                facts.append("CPU：%s" % m["cpuModel"])
+            if m.get("gpuModel"):
+                facts.append("显卡：%s" % m["gpuModel"])
+            if m.get("cpuTdpW"):
+                facts.append("CPU 功耗 %s W" % m["cpuTdpW"])
+            if m.get("gpuTgpW"):
+                facts.append("显卡功耗 %s W" % m["gpuTgpW"])
+        elif topic == "键盘":
+            # 🔴 2026-11-17：键盘 131 台有数据，facts 通道是空的。
+            if m.get("keyboard"):
+                facts.append("键盘：%s" % m["keyboard"])
+            else:
+                facts.append("库里没有这台的键盘描述")
         elif topic == "触控板":
             if m.get("touchpad"):
                 facts.append("触控板：%s" % m["touchpad"])
