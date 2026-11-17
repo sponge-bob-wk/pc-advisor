@@ -25,6 +25,7 @@ data/*.bak*
 data/*.bak-*
 data/*.bak_*
 data/machine_pool.json.bak*
+data/zol/*.v1
 *~
 
 # 项目内部工作区（日记/记忆/自动化状态，不属于代码）
@@ -45,7 +46,9 @@ desktop.ini
 
 # 截图与临时导出
 web/_*.png
+_shot/
 *.tmp
+*.zip
 index.broken.html
 
 # 测试输出快照：每跑必变，是运行结果不是源码（2026-11-13）
@@ -57,3 +60,8 @@ tools/eval/run.log
 # 启动器运行时产物
 测试链接.txt
 .tmp/
+
+# 本地历史快照：2026-11-13 的旧目录副本 + 打包件，
+# 内容已全部并入当前仓库结构（src/ 对应 tools/agent/），只作本地留档，不入库
+第七组/
+第七组.zip
