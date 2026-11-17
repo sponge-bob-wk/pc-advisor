@@ -67,14 +67,36 @@ LIST_ASK = [
     "其余推荐的给我列举出信息我看看",
     "把其他的列出来",
     "剩下的分别说说",
+    # 🔴 下面三句 2026-11-13 从"换台"组移过来。理由是完全实测的：
+    #
+    #   实测（known: thin/5000/office，seen: 战66）
+    #     「还有别的吗」     判 refuse_switch → 只推 1 台，回复 0 个换行
+    #     「再给我看几个」    判 refuse_switch → 只推 1 台，回复 0 个换行
+    #     「能看看别的不」    判 refuse_switch → 只推 1 台，回复 0 个换行
+    #     「剩下的都列出来」   判 list_others   → **列出 2、3 名，3 个换行**
+    #
+    #   前三种说法用户想表达的是同一件事："你手上还有什么，都给我看看"，
+    #   但系统只端出一台。这等于把"还有别的吗"听成了"换下一台"——
+    #   用户以为能一次看全，实际要问三次。
+    #
+    #   ⇒ 判据跟着证据改。原来注释担心的「判错会变成列一遍清单，
+    #     用户想换机却没换」实测不成立：真想换台的人说的是
+    #     "换一台/这个不行/这台不要了/算了换一个吧"，
+    #     这四句仍旧判 REFUSE_SWITCH（见下方断言），一条也没被带走。
+    "还有别的吗",
+    "再给我看几个",
+    "能看看别的不",
 ]
 for t in LIST_ASK:
     got = agent.classify_intent(t, FOCUS)
     ck("LIST_OTHERS：%s" % t, got == agent.INTENT_LIST_OTHERS, "实际 %s" % got)
-# 对照：这句话是换台，不是要清单 —— 判错会变成"列一遍清单"，用户想换机却没换
-ck("对照·「还有别的吗」仍然是换台",
-   agent.classify_intent("还有别的吗", FOCUS) == agent.INTENT_REFUSE_SWITCH,
-   "实际 %s" % agent.classify_intent("还有别的吗", FOCUS))
+
+# 对照：真说"换台"的仍旧是 REFUSE_SWITCH，不许被上面那组带走
+for t in ["换一台", "这个不行", "这台不要了", "算了换一个吧",
+          "太贵了买不起", "不太喜欢这个"]:
+    got = agent.classify_intent(t, FOCUS)
+    ck("真换台仍是 REFUSE_SWITCH：%s" % t,
+       got == agent.INTENT_REFUSE_SWITCH, "实际 %s" % got)
 
 # ---------------------------------------------------------------- 2
 print("\n[2] 最危险的一类：不能把新需求判成 ASK_CURRENT（需求会丢）")
@@ -92,7 +114,9 @@ NOT_ASK_CRITICAL = [
     ("这个型号和那个型号哪个好", agent.INTENT_STATE_RANGE),
     # 换台 / 否定
     ("换一台", agent.INTENT_REFUSE_SWITCH),
-    ("还有别的吗", agent.INTENT_REFUSE_SWITCH),
+    # 「还有别的吗」不在这里 —— 它已在 [1b] 组里改为 LIST_OTHERS（见那里的实测理由）。
+    # 这一组验的是"不能判成 ASK_CURRENT"，两个标签都不算 ASK，所以两边都不矛盾，
+    # 但同一句话在两处写两遍期望值就是判据抄了第二遍 —— 只留 [1b] 一处。
     ("这台不合适", agent.INTENT_REFUSE_SWITCH),
     ("这个不行", agent.INTENT_REFUSE_SWITCH),
     ("这台不要了", agent.INTENT_REFUSE_SWITCH),

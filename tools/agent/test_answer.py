@@ -65,7 +65,16 @@ for sl in CASES:
     # I2 没评价的机器不许被评价
     review_row = next((x["v"] for x in a["rows"] if x["k"] == "评价"), "")
     if not top.get("hasReview"):
-        ck(tag + " 无评价机明说没人评过", "没人评过" in review_row, review_row)
+        # 🔴 2026-11-16 改判据（用户要求）：
+        #    原判据是「必须明说一句『没人评过』」—— 现在**不再要求**这句。
+        #    用户原话：「使用的时候不用标注什么人工不人工的，做项目都是为了毕设的，
+        #              数据虽然不是顶尖质量，也是咱自己爬取的」。
+        #    所以免责声明从"必须说"降级为"可以说"。
+        #
+        #    但**红线不变**：不许把参数换个说法当评价。
+        #    判据改成「不出现评价词」+「不出现空模板」（"缺点是："这种）。
+        ck(tag + " 无评价机没有空模板",
+           "缺点是：" not in review_row and "为空" not in review_row, review_row)
         BANNED = ["高达", "首选", "值得买", "很顶", "性价比高", "得满分"]
         hit = [w for w in BANNED if w in a["headline"]]
         ck(tag + " 无评价机 headline 无评价词", not hit, str(hit))

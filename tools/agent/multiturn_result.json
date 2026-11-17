@@ -57,7 +57,7 @@
    ],
    "picks": [
     "星Book Pro Air 14",
-    "小新 Air 14（酷睿 Ultra5 版）"
+    "机械革命星耀14 旗舰版 锐龙7 H"
    ]
   },
   {
@@ -73,7 +73,7 @@
    "picks": [
     "星Book Pro Air 14",
     "战66 八代 14 英寸（2026 款锐龙版）",
-    "惠普战 66 八代锐龙版"
+    "联想Ideapad"
    ]
   },
   {
@@ -83,11 +83,11 @@
    "fails": [],
    "stages": [
     "recommend",
-    "recommend"
+    "followup"
    ],
    "picks": [
     "联想小新 16",
-    "星Book Pro Air 14"
+    null
    ]
   },
   {
@@ -97,7 +97,7 @@
    "fails": [],
    "stages": [
     "recommend",
-    "refuse"
+    "exhausted"
    ],
    "picks": [
     "联想小新 16",
@@ -111,11 +111,11 @@
    "fails": [],
    "stages": [
     "recommend",
-    "recommend"
+    "followup"
    ],
    "picks": [
-    "极光X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz）",
-    "极光X 潮玩版（i7-14650HX/32G/1T/RTX5060/300Hz）"
+    "联想拯救者",
+    "联想拯救者"
    ]
   },
   {
@@ -125,7 +125,7 @@
    "fails": [],
    "stages": [
     "recommend",
-    "recommend",
+    "followup",
     "recommend"
    ],
    "picks": [

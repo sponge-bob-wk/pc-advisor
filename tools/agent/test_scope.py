@@ -58,12 +58,31 @@ macs = [o["name"] for o in pool
         or "mac" in (o.get("name") or "").lower()
         or "apple" in (o.get("chip") or "").lower()]
 ck("推荐池无苹果机", not macs, str(macs[:4]))
-ck("推荐池总数 = 93", len(pool) == 93, "实际 %d" % len(pool))
+# 🔴 下面三条是**数据量快照**，每次数据变都必须人工确认后更新 —— 这是它们的作用。
+#
+#    2026-11-16 从 93/4/76 更新到 211/7/195：
+#    采集源从「只有京东」换成「京东 + ZOL 全网补全」，ZOL 采回 163 台新机
+#    （thin 71 / gaming 80，另有 12 台品类判不出被挡）。
+#    同时带动 outOfScope 从 4 涨到 7 —— 新增了 3 台苹果系（MacBook Pro 等），
+#    它们**被正确挡掉**（"推荐池无苹果机"那条仍然是绿的）。
+#
+#    2026-11-16 晚 从 211/7/195 更新到 239/7/223：
+#    给 ZOL 那批补了 `price.list`（三方参考价，28 台原本 list/final 双空）。
+#    `_pool_to_offer` 的判据是 `final or list`，所以这 28 台从「没有价格 → return None
+#    → 静默不入池」变成「入池，priceIsEstimate=True」。**这是修复不是回归**：
+#    它们本来就是真机型，只是缺价被丢掉了。
+#
+#    ⚠️ 更新这三个数字前必须确认：涨的部分是真的新机型，
+#       不是同一台机器被采了两遍。本次已核对：去重后净新增 163，
+#       其中与现有池同配置的 1 台、采集内部重复 2 台都被剔除了。
+#       第二次涨的 28 台也核对过：配置指纹重复组里没有「同名同配置」的自重复，
+#       47 组重复全是**不同品牌的不同机型**（如小新 Pro 14 与战 66 都配 32G/1T/核显）。
+ck("推荐池总数 = 239", len(pool) == 239, "实际 %d" % len(pool))
 
 # 挡掉的机器必须被记下来（不是"文件里本来就没有"）
 ps = core.pool_stats()
-ck("采集池挡掉 4 台范围外机型", ps.get("outOfScope") == 4, str(ps))
-ck("采集池进池 = 76 台", ps.get("total") == 76, str(ps.get("total")))
+ck("采集池挡掉 7 台范围外机型", ps.get("outOfScope") == 7, str(ps))
+ck("采集池进池 = 223 台", ps.get("total") == 223, str(ps.get("total")))
 
 # ---------- 2. 分辨力对照：故意喂假 Mac，必须判 True ----------
 fake_mac_brand = {"id": "x1", "name": "某机型 14", "brand": "Apple", "chip": "M4"}

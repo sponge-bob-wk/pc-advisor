@@ -230,6 +230,13 @@ def main():
             continue
         if fn.startswith("test_") or fn == "core.py":
             continue            # core 是判据本体；test_weight 自己就是判据
+        # 🔴 数据修复脚本可以直读 weightKg —— 它的职责就是**改这个字段**，
+        #    不是展示出口。加进白名单前想清楚：它会不会被用户看到？
+        #    fix_weight_unit.py：只做「克→千克」单位换算，输出是命令行报告，
+        #    不进任何用户可见文案，所以放行。
+        #    （2026-11-16 加：它出现后 W8 报了 4 处，但都是合理用法。）
+        if fn in ("fix_weight_unit.py",):
+            continue
         fp = os.path.join(code_dir, fn)
         try:
             src = open(fp, encoding="utf-8").read()

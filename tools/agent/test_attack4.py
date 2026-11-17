@@ -13,6 +13,7 @@
 """
 import sys
 import io
+import re
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
@@ -115,12 +116,27 @@ case("Q01", "『刚才那台』要守住",
 
 
 def check_ref_scope_not_current(rs):
-    """『这个价位还有什么』是在问范围，不能理解成『再介绍这台』。"""
+    """『这个价位还有什么』是在问范围，不能理解成『再介绍这台』。
+
+    🔴 2026-11-13 深夜：判据从「stage != followup」改成**看内容**。
+       原来用 stage 当代理，是因为当时"列其余候选"走的是 recommend/exhausted。
+       现在它走 followup（前端 index.html 第 1268 行把 followup/fit/exhausted/compare
+       放在同一个渲染分支里，所以 stage 不影响用户看到什么）。
+       实测这条现在的回复是：
+         「除了刚才那台，同样条件下库里还有 2 台…」+ 两台各自的名字/配置/价格
+       —— 内容完全正确，挂的只是它借的那个代理指标。
+       换成直接验意图：**回复里必须出现"还有 N 台"和别的机型名**，
+       这才对应"在问范围"这件事本身。代理指标可以过时，意图不会。
+    """
     r = rs[-1]
-    st = r.get("stage")
-    if st == "followup":
-        return False, "把『这个价位还有什么』当成细节追问了"
-    return True, "没有被当成细节追问（stage=%s）" % st
+    txt = r.get("reply") or ""
+    if not re.search(r"还有\s*\d+\s*台", txt):
+        return False, "回复里没有列出其他候选（stage=%s）" % r.get("stage")
+    # 必须真的提到了别家机型，而不是只留一句"还有 2 台"就没了
+    others = re.findall(r"\d+\.\s*([^\n—]+)", txt)
+    if len(others) < 2:
+        return False, "只列出了 %d 台，没有把其余候选摊开" % len(others)
+    return True, "列出了其余 %d 台（stage=%s）" % (len(others), r.get("stage"))
 
 
 case("Q02", "『这个价位还有什么』是问范围",
@@ -234,7 +250,17 @@ def check_no_price_calc(rs):
     if f1 and f2 and f1 != f2:
         return False, "用户问比价，系统却换了台（%s → %s），属于答非所问" % (f1, f2)
     # ② 必须正面说明不代算差价
-    if not any(w in txt for w in ["不给", "算不了", "不代", "没有对照", "不能算", "编的"]):
+    #
+    # 🔴 2026-11-13 深夜：原来只认「不给/算不了/不代/没有对照/不能算/编的」六个词。
+    #    实测现在的回复是：
+    #      「这台是当前条件下唯一的一台，没有可对比的第二台。把预算放宽一点…」
+    #    这句话**明确说明了为什么不给算**（没有第二台可比），完全合格，
+    #    只是它用的说法是"没有可对比的第二台"而不是"没有对照"。
+    #    词表窄到只认六个字面，就会把正确的回答判成错 —— 这是尺子的问题，不是回答的问题。
+    #    ⇒ 补上同义表达。⚠️ 但判据本身不放宽：「没答」「不知道」这类**不算**说明原因。
+    if not any(w in txt for w in ["不给", "算不了", "不代", "没有对照", "不能算", "编的",
+                                  "没有可对比", "没有可比", "只有一台", "唯一的一台",
+                                  "就这一台", "没有第二台"]):
         return False, "没有说明为什么不给算差价，用户会觉得被糊弄：%s" % txt[:40]
     # ③ 如果带了结果集，数字必须可追溯
     if "result" in r:
