@@ -64,11 +64,20 @@ python tools/pick.py 建筑学 --budget 8000   # 端到端验证，应给出具�
 | 文件 | 作用 |
 |---|---|
 | **`lib_judge.py`** | **判定引擎，唯一实现**。`judge(m, req, r_fields, hard_gates)` → OK / DEGRADED / VIOLATE / UNKNOWN |
+| **`price_of()`（在 lib_judge 里）** | **价格读取唯一入口**：到手价 → 三方快照 → 划线价的降级链，并返回口径 |
 | `coverage.py` | 跑全量判定，出覆盖率表和卡点 |
 | **`pick.py`** | 命令行版「专业 → 推荐」，端到端入口 |
 | `check_majors.py` | 专业表 7 项校验 |
 | `major_lookup.py` | 专业名解析（支持别名） |
 | `build_pool.py` | 三份数据源合并成 machine_pool |
+| **`price_multisource.py`** | **多源价格采集**（ZOL detail 页：参考价/平台价/经销商区间） |
+| **`apply_prices.py`** | 把采集结果写进 price.list + priceSnapshots（**不碰 net/final**） |
+| **`price_report.py`** | 生成价格覆盖率报告（按口径分列） |
+| `zol_recrawl.py` / `zol_map_fields.py` | 参数页重爬 / 字段映射 |
+| `match_energy_from_params.py` | 能效台账型号精确匹配 |
+| `fill_cert_model.py` | 型号码搬进 certModel |
+| **`refresh_stats.py`** | **重算 meta.stats**（页面要读，补数据后必跑） |
+| **`refresh_all.py`** | **一键刷新全链路**：统计 → 判定 → 报告 → 四张页面 |
 
 ### 文档
 
@@ -330,6 +339,96 @@ followups[]                        ← 该追问的问题
 
 19. **沙箱可能整体不可用**：2026-11-11 出现过 `SandboxError(0xFFFFF826): center 规则快照不可用`，`Bash`/`PowerShell`/非沙箱模式全挂，但 `Read`/`Edit` 与浏览器工具仍可用。重启 WorkBuddy 后恢复。此时不要硬写文件，先攒数据。
 
+20. **ZOL 参数表其实有 CPU型号 / 内存容量 / 硬盘容量 / 分辨率**（2026-11-16 实测推翻旧注释）。
+    `zol_fetch.py` 里那句「参数表没有这四项，只能从标题抠」是**错的**，按它做导致
+    cores 缺 163 台、vramGB 缺 167 台、tgpMaxW 全空。参数页 56 个字段里应有尽有，
+    而且 `CPU型号` / `显卡芯片` 比标题串准得多。
+    → **规则：先抓参数页并按 `newPmName_N / newPmVal_N` 解析，标题串只做兜底。**
+    → 表头有两种写法（`<th><span id>` 与 `<a id>`），只匹配一种会漏一半字段；
+      值里嵌营销尾巴（`16GB 极速运行`、`1TB>`），必须剥。
+
+21. **键名必须与 `lib_judge.field_value` 对齐**：它读 `screen.colorGamut` / `screen.brightnessNit`。
+    `zol_to_pool.py` 曾写成 `screen.gamut` / `screen.brightness`，导致 86 台色域、
+    96 台亮度**在库里但判定引擎看不见**，平面视觉组一直误报「缺 colorGamut」。
+    → **规则：新增字段前先 grep `lib_judge.py` 确认它读的键名；两套键名并存等于没数据。**
+
+22. **`skuLabel` 不是 CPU 型号**：ZOL 的 skuLabel 常是机型后缀（`M4/8G`、`M7`、`M5`），
+    按「M数字 = 苹果芯片」解析会把 5 台 Intel 机器标成 Apple M4/M5
+    （`zol-392779` 华硕 2014 款 i7-4710HQ 被标成 Apple M4）。
+    → **规则：CPU 只认参数页 `CPU型号`；`M4`/`M5` 这种 2-3 字符值一律视为可疑。**
+
+23. **CPU 厂商不许有 else 兜底**：旧代码 `"AMD" if ... else "Apple" if ... else "Intel"`，
+    把华为麒麟 XE90 / X90 Plus 判成 Intel。这类错不报错、不告警，只有拿 CPU 去
+    bench.json 匹配时才失配，看数据完全看不出来。
+    → **规则：`vendor_of()` 认不出返回 None，绝不默认 Intel。**
+
+24. **ZOL 参数页 ≠ 全字段齐全**：约 109 台的页面**根本没有**电商报价，
+    17 台拯救者只有「无线网卡/有线网卡」没有任何接口键，44 台没有「插槽数量」也没有
+    「N GB × M 条」配置。
+    → **规则：这些是数据源边界，不是解析 bug。填不出来就留空**，不许拿
+    「千兆以太网」推 ports（会让 `port_has(m,'usb-a')` 判 False，把不知道说成缺）。
+
+25. **价格三字段（net / final / subsidy）只能来自京东商品页直读**，且**必须登录**。
+    2026-11-16 实测：`p.3.cn` 超时、`item-soa` 返回风控页、PC 页 35KB 空壳、
+    搜索页重定向 `risk_handler`、移动页能开但价格下发占位 `"price":"1"`。
+    ZOL 的「电商报价」是**平台标价快照**，写进 `net`/`final` 会直接污染涨价分析。
+    → **规则：ZOL 快照只进 `priceSnapshots` 或 `price.list`，永不进 net/final。**
+
+26. **别用 PowerShell 改这份文件**：`Get-Content -Raw` 按 GBK 读 UTF-8，再
+    `Set-Content -Encoding UTF8` 写回会变双重编码（mojibake），整个文件报废。
+    改 `.md`/`.json` 一律用编辑工具的字符串替换，或 Python 显式 `encoding="utf-8"`。
+    （2026-11-16 踩过，靠 `git checkout -- AGENTS.md` 救回。）
+
+27. **能效网 API 需登录**（2026-11-16 实测）：它是 Vue SPA，后端在 `/admin-api/`，
+    连公开的 `system/dict-data/list-all-simple` 都返回 `{"code":401,"msg":"账号未登录"}`。
+    这就是为什么 `energy_query.py` 走「Edge 无障碍树」而不是 HTTP。
+    → **规则：能效等级优先用 `产品型号` 去 `efficiency_ledger.json` 本地精确匹配**
+      （`tools/match_energy_from_params.py`，已补 11 台）；在线查询必须先有登录态。
+    → 匹配用 `产品型号` / `certModel`，**不用营销名** —— 中文名在能效网一条都搜不到。
+    → 备案是**按型号码**登记的，同型号码下不同 GPU 配置共用一条备案，写入时要留
+      `efficiencyBasis` 说明这是型号级匹配。
+
+28. **ZOL detail 页的天猫价不可信，会污染 price.list**（2026-11-16 实测）。
+    ZOL 详情页有三个价格容器：`price__reference`（参考报价）、`_j_local_price`（经销商区间）、
+    `FreeVer2_{jd,tmall,suning}`（平台价）。前两个准，**`tmall` 那个落在推荐位里**。
+    硬证据：3 台配置完全不同的「机械革命极光X」（RTX4060/4060/4070）拿到**同一个**天猫价 5788；
+    全量统计 `tmall` 里 6500 出现 9 次、8698/5788/18799 各 5 次，而 `zolRef`/`jd` 重复度正常。
+    污染后果：`price.list` 被写成天猫价，偏差最大 ±14500（`zol-2125908` 15499→29999）。
+    → **规则：`tmall` 只保留「全库唯一」的取值，重复≥2 一律丢弃**（`price_multisource.drop_unreliable`）。
+    → **规则：`price.list` 只能用 `zolRef`，不能用天猫价**（`fix_list_from_zolref.py` 已修 51 台）。
+    → 详情页上还有大量 `interest-compare` 区块是**「相关产品」其他机型**的价格，
+      绝不做全页「￥数字」搜索。
+
+29. **三方快照价不许写进 `net`/`final`**。这两个是「到手价」语义，是算涨幅的唯一依据。
+    用户 2026-11-16 放宽了数据源（「三方也可以，不用京东」），但**没有**放宽口径。
+    把 ZOL 参考价塞进 `final` 能凑出 100% 覆盖率，代价是涨价分析全错。
+    → **规则：价格读取一律走 `lib_judge.price_of()`**，它返回 `(价格, 口径, 来源)`，
+      口径分 `到手价` / `参考价` / `无价` 三档，展示时必须带上口径标注。
+
+30. **四张 HTML 不会自己跟着数据更新**（2026-11-16 出过事故）。
+    数据补到 11-16，页面还停在 11-08~11-10，用户打开看到的是两周前的机型数与价格。
+    而且顺序有依赖：`coverage.py` 必须早于 `make_pick_page.py`，
+    否则页面嵌的是**旧判定**；`refresh_stats.py` 必须早于建页，否则统计是旧数字。
+    → **规则：改完数据一律跑 `python tools/refresh_all.py`**（7 步，失败即停）。
+    → 注意 `refresh_stats.py` 默认演练模式，`refresh_all.py` 已替你加 `--apply`；
+      手工单跑时**必须自己加**，否则「✓ 成功」但一个字节都没写（踩过）。
+
+31. **`meta.stats` 是手写快照，会漂移**。2026-11-16 实测：
+    `withPrice` 记 62 / 实际 236，`withEfficiency` 记 36 / 实际 81。
+    `make_pick_page.py` 把这个 stats 直接嵌进页面，用户在「按专业选电脑.html」
+    上看到的就是两周前的数字 —— 看着像真的，其实早错了。
+    → **规则：stats 只由 `refresh_stats.py` 从 machines 数组实算，不许手改。**
+    → `dataFrom.spec` 的值是**来源名**（`zol` / `specs_verified.json` / 各快照描述），
+      不是布尔。直接 `if ...get("spec")` 会把 zol 来源也算成「来自 specs」
+      （首版就把 fromSpecs 算成 243）。
+
+32. **`efficiencyEvidence` 字段已不存在**。`make_energy_report.py` 旧代码读
+    `m["efficiencyEvidence"]["filings"]`，而全 243 台该字段都是 None，
+    直接 `AttributeError: 'str' object has no attribute 'get'`（页面生成崩）。
+    能效证据现在分散在 `dataFrom.efficiency`（台账匹配写的「型号/备案号」）、
+    `efficiencyBasis`、`certModel` 三处。
+    → **规则：读这类「历史字段」前先 `python -c` 扫一遍全库类型分布，别假设结构还在。**
+
 ---
 
 ## 9. 项目纪律（红线）
@@ -349,9 +448,18 @@ followups[]                        ← 该追问的问题
 ## 10. 一句话交接
 
 > 数据在 `E:\电脑涨价分析\data\`，判定引擎是 `tools/lib_judge.py`，端到端入口是 `tools/pick.py`。
-> 现在能做「输入专业+预算 → 输出机型」，覆盖 **71 台机、311 个专业**，可推荐率 **54.1%**（709/710 可出结论，基线 384 保持）。
-> 字段补齐近收官：efficiency 68/71、batteryWh 69/71、weightKg 70/71、ports 70/71；屏幕类全清零。剩的缺口**全部卡在等用户拍板的 conflict 机**（灵越7440 能效归属 / 星Book Plus 14 处置 / 战7000 三处不符），无直读源，不许硬写。
+> 现在能做「输入专业+预算 → 输出机型」，覆盖 **243 台机、311 个专业**，可推荐率 **45.4%**（2283/2430 可出结论）。
+> **2026-11-16 大补两轮**（详见 `docs/归档-20261116/数据补齐报告-20261116.md`、`docs/归档-20261116/价格覆盖率报告-20261116.md`）：
+> ① 字段：R 级缺口 1001 对 → **147 对**，能出结论 58.8% → **94.0%**；
+> ② 价格：接了 ZOL 三方源，`price.list` 34 台缺 → **6 台缺（97.5%）**，
+>    `priceSnapshots` 覆盖 158 台，至少有一个价格来源 **235/236 = 99.6%**。
+> **`price.net`/`final` 仍是 80/236 = 33.9%** —— 那是京东直读的到手价，需登录才能补，本轮没动。
+> 价格读取一律走 `lib_judge.price_of()`（到手价 → 三方快照 → 划线价降级链 + 口径标注），
+> **不许把快照价写进 net/final**（会让涨价分析全错）。
+> 剩余 147 对的卡点已逐项查清，全部是**数据源边界**（页面确实没有该字段）或**7 台手机**造成的虚高。
+> **7 台手机待用户拍板是否删除**（iPhone / vivo / 华为nova / Redmi Note / Pura X，从 ZOL 列表页误采）——
+> 已在**字段映射与价格写入两处**跳过，不影响统计。
 > **四台机型等用户拍板**（猎刃S / 来酷Air16 / 战7000 / a豆14 Air CPU 型号，conflict 字段里写了 A/B/C 方案），不许自动改。
-> 下一步：等拍板结果落库 → **价格漏券复核（9 台 sub=0 自营 + 4 台数学链断裂，（明细见内部材料，未随仓库发布））** → 补更多 32G+独显机型（P2）→ 重建 test.js（P3）。
-> **价格只认京东页面；任何数字都要能指回原文，指不回去的宁可空着。**
-> **价格红旗两条：① list 带 `.15` 结尾 = 国补后价被误记为划线价（战神T8/MagicBook Pro14 已坐实）；② final≠list 且 discounts 空+sub=0 = 数学链断裂（枪神9 Plus/蛟龙15K 等 4 台疑似漏券）。**
+> **任何数字都要能指回原文，指不回去的宁可空着。**
+> **价格红旗两条：① list 带 `.15` 结尾 = 国补后价被误记为划线价；② final≠list 且 discounts 空+sub=0 = 数学链断裂。**
+> **补数据前先跑 `coverage.py` 记基线**，补完对比；数字异常先查键名错位 / 天猫价污染（见 §8.21、§8.28）。
