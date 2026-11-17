@@ -2008,6 +2008,9 @@ def _intro_model(user_text, o):
         # 不需要另写一个 _predict_lag —— 判据抄两遍一定会漂。
         return bool(check_fabrication(t, corpus)
                     or _overspec(t)
+                    # 🔴 2026-11-17：不许推测整机功耗 / 对"限电够不够"下结论。
+                    #    介绍机型时同样会犯（"这台限电 500W 带不动"）。
+                    or _power_guess(t)
                     or _out_scope_product(t)
                     or check_scope(t)
                     # 把字段名当内容念出来（"售后网点分是 5 分制"）
@@ -2621,6 +2624,20 @@ def answer_followup(user_text, m, asked_topics=None):
             #   ⚠️ 光在入口洗 caution 不够：模型可能从 spec / pros 里再拼一次，
             #      出口必须有一条判据兜底 —— 入口洗 + 出口拦，两处都要。
             pitch=_other_model_pitch(t, {"ranked": [m]}),
+            # 🔴🔴 2026-11-17：补齐三条**在 compose / _answer_current 有、
+            #    这条路一直漏**的判据。
+            #
+            #    这是"判据抄两遍一定会漂"的第七次复现。查法：把四条路径
+            #    （compose / answer_followup / _answer_current / _intro_model）
+            #    各自用到的判据列成矩阵，一眼就看出谁漏了谁。
+            #
+            #    · _power_guess：追问「限电 500W 够用吗」时同样会编
+            #      「功耗设计通常远超这个限制」—— 库里没有功耗字段。
+            #    · check_fabrication：编造数字（这条路径原来完全没有）
+            #    · _overspec：超出库内证据的断言（"绝对够劲""完全没压力"）
+            power=_power_guess(t),
+            fabrication=check_fabrication(t, _corpus_of([m])),
+            overspec=_overspec(t),
         )
 
     a1 = _f_audit(reply)
@@ -2653,6 +2670,25 @@ def answer_followup(user_text, m, asked_topics=None):
                 "你把**另一台型号**当成了这台的卖点或坑 —— 数据里那条讲的是别的机器，"
                 "搬到这台头上等于偷偷换了推荐对象。用户问的是 %s，"
                 "不许拿别的机型来比较、更不许说「更值得看」" % m["name"])
+        # 🔴 2026-11-17 补的三条（对应上面 _f_audit 新增的判据）
+        if a1.get("power"):
+            why.append(
+                "你推测了**整机功耗**或对「限电够不够」下了结论（%s）——"
+                "库里没有整机功耗、没有实测瓦数，"
+                "只有「充电器功率_W」（适配器标称，不等于整机功耗）。"
+                "只许说适配器标称多少瓦，"
+                "然后明说「整机实测功耗库里没有，我判断不了」，"
+                "再指路（厂商规格页的功耗栏、问客服要满载功耗）。"
+                "**不许写「大概率跑不满」「功耗设计通常远超」「严重阉割」这类推测。**"
+                % a1["power"])
+        if a1.get("fabrication"):
+            why.append(
+                "回答里有库里查不到的数字（%s）—— 每个数字都必须能在数据里找到出处"
+                % str(a1["fabrication"])[:60])
+        if a1.get("overspec"):
+            why.append(
+                "「%s」是超出库内证据的断言 —— 库里没有帧数/实测/返修率，"
+                "只能说配置本身" % str(a1["overspec"])[:40])
         reply2 = chat([{"role": "system", "content": FOLLOWUP_SYS + STRICT_TAIL},
                        {"role": "user", "content":
                         "数据：" + json.dumps(data, ensure_ascii=False)
@@ -4312,6 +4348,10 @@ def compose(user_text, result):
             # 2026-11-12：接入 80 台采集池后新出现的错误类型。
             # bad/untr 抓不到它 —— 因为它引用的每个数字都是真的。
             praise=_praise_no_review(t, first),
+            # 🔴 2026-11-17：不许推测整机功耗 / 对"限电够不够"下结论。
+            #    首轮推荐同样会犯（"这台限电 500W 跑不满"），
+            #    原来只有 _answer_current 挂了这条判据。
+            power=_power_guess(t),
         )
 
     def _hit(a):
@@ -4350,6 +4390,11 @@ def compose(user_text, result):
                        "只报配置和价格，"
                        "不许说「高达」「首选」「得满分」「值得买」这类判断，"
                        "也不要解释数据来源")
+        if a1.get("power"):
+            why.append("你推测了**整机功耗**或对「限电够不够」下了结论 —— "
+                       "库里没有整机功耗和实测瓦数，"
+                       "只说适配器标称多少瓦（如果有），"
+                       "然后明说「整机功耗库里没有，判断不了」并指路")
         msgs2 = [{"role": "system", "content": ANSWER_SYS + STRICT_TAIL},
                  {"role": "user", "content":
                   "数据：" + json.dumps(slim, ensure_ascii=False)
