@@ -246,6 +246,13 @@ def main():
         with io.open(OUT, "a", encoding="utf-8", newline="\n") as f:
             f.write(json.dumps(s, ensure_ascii=False) + "\n")
         print("✓ 已添加")
+        # 🔴 重要提醒：`lora_data/` 被 .gitignore 排除（训练数据体积大、可重建），
+        #    所以写进 corrections.jsonl 的样本**只在本地**，换机器就没了。
+        #    真正持久化的做法是把它加进本文件的 SEED 常量。
+        print()
+        print("⚠️ 这条只在本地（lora_data/ 不入库）。")
+        print("   要永久保留，请把这条加进 collect_corrections.py 的 SEED 常量，")
+        print("   然后 git commit。SEED 里的条目跑 --seed 可重建。")
 
 
 if __name__ == "__main__":
