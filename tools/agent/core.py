@@ -648,6 +648,16 @@ def _cpu_key(name):
     s = re.sub(r"^(ryzen|锐龙)\s*ai\s*", "ai ", s)     # 锐龙AI 7 H 350 → ai 7 h 350
     s = re.sub(r"^(ryzen|锐龙)\s*", "r", s)           # ryzen 7 / 锐龙7 → r7
     s = re.sub(r"\br(\d)\s*-\s*", r"r\1 ", s)         # r9-9955hx → r9 9955hx
+    # 🔴 2026-11-16（ZOL 换源时补）：Intel 的连字符也要统一，和上面 AMD 那条对称。
+    #
+    #    实测：跑分表写 `i7-14650HX`，ZOL 写 `i7 14650HX` —— 归一化后一个是
+    #    `i7-14650hx`、另一个是 `i7 14650hx`，**对不上**。
+    #    后果：11 台 i7-14650HX、7 台 i9-14900HX 全被判「查不到跑分」，
+    #    于是全部 `_tier=0` 垫底 —— 用户永远看不到它们，而它们其实跑分表里有。
+    #
+    #    ⚠️ 这条只会**增加**匹配、不会减少：两种写法归一后合并成一个键。
+    #      跑分表侧和 offer 侧都走这个函数，所以两边同时收敛到同一种写法。
+    s = re.sub(r"\bi([3579])\s*-\s*", r"i\1 ", s)     # i7-14650hx → i7 14650hx
     s = re.sub(r"^core\s+ultra\s+", "ultra ", s)      # core ultra 5 338h → ultra 5 338h
     s = re.sub(r"^core\s*(\d)", r"core\1", s)         # core 5 → core5（与 core5-320 统一）
     # 型号内部的分隔符差异：ultra5-338h / ultra 5 338h / ultra5 338h 是同一颗
@@ -656,6 +666,31 @@ def _cpu_key(name):
     s = re.sub(r"(core\s+\d)\s*-\s*", r"\1 ", s)      # core 5-320 → core 5 320
     # 末尾「h 260」→「h260」：AMD 的 H 系列在两边写法不一致
     s = re.sub(r"\bh\s+(\d)", r"h\1", s)
+    # 🔴 2026-11-16（跑分覆盖诊断时补）：剥厂商前缀 + Ultra 简写。
+    #
+    #    实测 92 台无跑分里，有 7 台**跑分表里明明有这颗芯片**，只是写法不同：
+    #      `酷睿Ultra 5 125H`  → 归一成 `coreultra 5 125h`  → 匹配不上 `ultra 5 125h`
+    #      `U7-255HX`           → 归一成 `u7 255hx`          → 匹配不上 `ultra 7 255hx`
+    #      `U5-225H`            → 同理
+    #      `i5-14450HX`/`i7-13620H` → 跑分表里写作 `i5-14450HX`，
+    #        但两侧一个带连字符一个不带时仍会错位（这条由上面 i\d 规则覆盖，
+    #        此处仅记录：诊断显示它们属"归一化能救"类，加前缀剥离后一并解决）
+    #
+    #    ⚠️ 这两条**只合并写法，不替换型号**：`U7-255HX` 与 `Ultra 7 255HX`
+    #      是同一颗芯片的两种写法（Lenovo 官网用 U 简写），不是两颗。
+    #      差一个数字仍是不同芯片（U7-255HX vs U7-256HX），不做模糊匹配。
+    s = re.sub(r"^(英特尔|intel)\s*", "", s)          # 英特尔 酷睿i5 → 酷睿i5
+    s = re.sub(r"^(amd|超微|苹果)\s*", "", s)          # AMD 锐龙 → 锐龙
+    s = re.sub(r"^coreultra\s+", "ultra ", s)         # 酷睿Ultra → coreultra → ultra
+    # 🔴 「酷睿i5 12500H」与「i5-12500H」是同一颗。
+    #    上一条 `^酷睿\s*→core` 只处理「酷睿5 320」这种**无 i** 的写法，
+    #    遇到「酷睿i5」会拼成 `corei5`，反而更远。
+    #    修法：先把「酷睿i」收敛成「i」，再走后面的 i\d 规则。
+    s = re.sub(r"^core\s*i([3579])", r"i\1", s)       # corei5 → i5
+    s = re.sub(r"^酷睿\s*i([3579])", r"i\1", s)       # 酷睿i5 → i5（未转 core 时）
+    s = re.sub(r"^core\s*(\d)", r"core\1", s)         # 剩下 core 5 → core5
+    # Ultra 的 U 简写：u7 255hx / u5 225h → ultra 7 255hx / ultra 5 225h
+    s = re.sub(r"^u([3579])\s*[-\s]\s*", r"ultra \1 ", s)
     s = re.sub(r"\s+", " ", s)
     return s.strip()
 
@@ -934,8 +969,22 @@ def _pool_to_offer(m, bench):
     """把一条采集池记录转成推荐引擎认识的 offer 结构。
 
     转不过去的（没有价格 / 品类不在范围内）返回 None。
+
+    🔴 2026-11-16（ZOL 换源时抓到的一个**会让整批数据静默消失**的问题）：
+       原来这里只认 `price.final`（到手价）。而 ZOL 换源拿回来的是**平台标价**，
+       存在 `price.list` 里、`final` 故意留空 —— 于是这批判定「没有价格」，
+       `return None`，**166 台全部不入池，而且不报错**。
+       调用方只看到池子大小没变，会以为"换源没采到东西"。
+
+       判据：**有标价比没价格有用**，但口径必须跟着值一起传下去，
+       不许让一个"标价"在下游被当成"到手价"用（那会让预算判断偏乐观）。
+       做法：`final or list`，同时加 `priceIsEstimate` 标记，
+       下游要精确到手价的地方（比如"这个价是不是最便宜"）可以据此拒绝回答。
     """
-    price = ((m.get("price") or {}).get("final"))
+    pr = m.get("price") or {}
+    price = pr.get("final") or pr.get("list")
+    # 这一条价格是不是"估算/标价"（不是到手价）—— 必须显式带出去
+    price_is_est = not pr.get("final")
     if not price:
         return None
     cat = m.get("cat")
@@ -959,6 +1008,50 @@ def _pool_to_offer(m, bench):
         "pros": [],
         "cons": [],
         "chip": cpu,
+        # 🔴 2026-11-16 新增：**从规格推导出来的客观提示**，与 pros/cons 严格分开。
+        #
+        #    背景：推荐池 223 台里只有 34 台有人工写的优缺点，其余 189 台
+        #    用户问「有什么缺点」只能答"没评价"。抓评测文章自动抽不可靠
+        #    （实测抽出来的多是导购文对多台机器的泛泛比较，不是本机缺点）。
+        #
+        #    所以换一种：只陈述**数据里有的事实**，不做价值判断。
+        #      「内存板载焊死，16G 就是顶格」← upgrade=0，事实
+        #      「重 2.5kg」                      ← weightKg=2.5，事实
+        #      「核显机型，没有独立显存」         ← gpu.type=integrated，事实
+        #
+        #    ⚠️ 它**不进 pros/cons**，也不改 hasReview —— 出口审计仍按
+        #       "没人写过评价"来拦模型的主观形容词，这个边界不能动。
+        #       回答时要把 derivedNotes 说成"从规格能看出来的"，不能说成"评测说"。
+        "derivedNotes": list(m.get("derivedNotes") or []),
+        # ── 2026-11-16：参数页里本来就有、但一直没接上来的维度 ──
+        # 用户反馈「提示里能追问保修几年，问了答不知道」——
+        # 根因是这些键没从池子透传到 offer，追问路径拿不到。
+        # 用 `.get()` 原样带过去：缺就是 None，上层据此如实说"没记录"。
+        "warrantyYears": m.get("warrantyYears"),
+        "warrantyPolicy": m.get("warrantyPolicy"),
+        "warrantyNote": m.get("warrantyNote"),
+        "batteryLifeH": m.get("batteryLifeH"),
+        "batteryLifeText": m.get("batteryLifeText"),
+        "thicknessMm": m.get("thicknessMm"),
+        "touchScreen": m.get("touchScreen"),
+        "os": m.get("os"),
+        "wifi": m.get("wifi"),
+        "bluetooth": m.get("bluetooth"),
+        "webcam": m.get("webcam"),
+        "speakers": m.get("speakers"),
+        "audioSystem": m.get("audioSystem"),
+        "keyboard": m.get("keyboard"),
+        "shellMaterial": m.get("shellMaterial"),
+        "launchDate": m.get("launchDate"),
+        # ── 2026-11-17：第二批补录（电源/颜色/屏幕技术/触控板/尺寸/CPU细节）──
+        # 与上面同一原则：池里有什么就原样带过去，缺就是 None。
+        "adapterW": m.get("adapterW"),
+        "adapterText": m.get("adapterText"),
+        "shellColor": m.get("shellColor"),
+        "screenTech": m.get("screenTech"),
+        "touchpad": m.get("touchpad"),
+        "bodyLengthMm": m.get("bodyLengthMm"),
+        "bodyWidthMm": m.get("bodyWidthMm"),
         # 🔴 GPU 结构化字段（2026-11-12 接）：采集池每条都带 gpu.type/model，
         #   人工层（prices.json）没有这个字段。
         #   为什么叫 gpuKind 而不是 "gpu"：_gpu_key() 拿 o["gpu"] 算去重键，
@@ -973,8 +1066,12 @@ def _pool_to_offer(m, bench):
         #    「1.48kg 在 14 寸里偏重」—— 不兜底的话同一事实会两处说法打架。
         "weightKg": effective_weight(m),
         # 价格推导链原样带上，供「这个价怎么来的」追溯用
-        "priceBasis": (m.get("price") or {}).get("basisNote"),
-        "origin": "jd-pool",
+        "priceBasis": pr.get("basisNote") or pr.get("basis"),
+        # 🔴 这条价格是「平台标价/快照」而不是「到手价」时置 True。
+        #    见函数头部的注释 —— 没有这个标记，标价会被当成到手价参与预算判断。
+        "priceIsEstimate": price_is_est,
+        # 来源：jd-pool=原京东采集；zol=ZOL 换源（参数更全，价格是快照）
+        "origin": "zol" if m.get("source") == "zol" else "jd-pool",
         "hasReview": False,
     }
 
@@ -1655,22 +1752,39 @@ def build_recommendation(slots, data=None, exclude=None):
                     {"name": o["name"], "price": o["price"]} for o in _gaming_dg[:3]]
                 out["slots"] = slots
                 out["mode"] = mode_of(slots)
-    ranked = rank_offers(offers, cat, budget, out["mode"], limit=12,
+    # 🔴 硬性排除条件必须在**排序之前**作用于**全池**（2026-11-16 修）。
+    #
+    #    原来这段写在 `rank_offers` 之后、只对返回的前 12 台做过滤。池子 80 台时
+    #    看不出问题；接进 ZOL 的 166 台、池子涨到 246 台后立刻炸：
+    #      5000 以内轻薄本共 17 台，其中 2 台可换内存（战66 up=3、无畏16 up=2），
+    #      但排序把几台便宜的新机型排在前面，而那几台 upgrade 是 None（ZOL 没采到
+    #      内存形态），`(o.get("upgrade") or 0) >= 1` 把它们判成"不可升级"剔掉，
+    #      **前 12 台全被剔光 → 0 候选**，然后回一句"该品类下没有符合条件的机型"。
+    #      用户明确说了"不要封装内存"，而库里明明有能换内存的机器。
+    #
+    #    更糟的是下面那句 warning 写着「已放宽」，但代码只是 append 了一句话，
+    #    `ranked` 仍然是空的 —— 文案和行为相反，比不说还坏。
+    #
+    #    判据：硬约束先过滤全池，再排序取前 12。过滤后真为空时才放宽，
+    #    并且把"为什么放宽"说清楚（库里没有能换内存的机型）。
+    _cand_pool = offers
+    mu = slots.get("_minUpgrade")
+    if mu is not None:
+        _kept = [o for o in _cand_pool if (o.get("upgrade") or 0) >= mu]
+        if _kept:
+            _cand_pool = _kept
+        else:
+            out["warnings"].append(
+                "这个价位里没有明确「内存可加装」的机型，已放宽 —— "
+                "下面几台内存能不能换，库里没有记录")
+
+    ranked = rank_offers(_cand_pool, cat, budget, out["mode"], limit=12,
                           purpose=slots.get("purpose"))
 
     # 换一台：把已经看过的剔掉，剩下的按原排序继续
     if exclude:
         ranked = [o for o in ranked if o["id"] not in exclude]
         out["excluded"] = [o["name"] for o in offers if o.get("id") in exclude]
-
-    # 硬性排除条件：用户明确说「不要封装内存」，就必须把 upgrade=0 的剔掉，
-    # 而不是只降权。否则会出现"一边说不要封装，一边推封装机型"。
-    mu = slots.get("_minUpgrade")
-    if mu is not None:
-        before = len(ranked)
-        ranked = [o for o in ranked if (o.get("upgrade") or 0) >= mu]
-        if before and not ranked:
-            out["warnings"].append("这个条件下没有符合「可加装内存」要求的机型，已放宽")
 
     # 内存容量下限：「要 32G 内存」。spec 里写着 16G + 512G 这种格式。
     mr = slots.get("_minRam")
@@ -1780,6 +1894,12 @@ def build_recommendation(slots, data=None, exclude=None):
             # 内存容量（GB），用来对照专业要求表里的 ramMin / ramRec
             "ram": ram_of(o),
             "origin": o.get("origin", "jd"),
+            # 🔴 这个价是「平台标价快照」还是「到手价」（2026-11-16 接 ZOL 后加）。
+            #    必须在**这里**透传：上层 agent 拿的是 out["ranked"] 里的这份投影，
+            #    不是原始 offer。首版只在 _pool_to_offer 里加了标记，投影时被丢掉，
+            #    于是出口校正拿到 None，整段逻辑白写（实测：文案照旧说「到手价」）。
+            #    ⇒ 凡是"上游加了标记、下游要用"的字段，都得在这个投影里加一行。
+            "priceIsEstimate": bool(o.get("priceIsEstimate")),
             # 🔴 这台有没有人写过优缺点。False 表示它来自采集池：
             # 参数和价格是真的，但 pros/cons 是空的 —— 上层只能说参数，
             # 绝不许把参数换个说法当优点讲（那是编造，见 merged_offers 注释）。

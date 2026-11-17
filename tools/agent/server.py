@@ -212,6 +212,32 @@ class H(BaseHTTPRequestHandler):
             except Exception as e:
                 self._send(200, json.dumps({"ok": False, "err": str(e)[:120]},
                                            ensure_ascii=False))
+        elif path == "/api/refresh/status":
+            # 刷新进度。jobId 为空时返回最近一次。
+            try:
+                import refresh_engine as RV
+                jid = (qs.get("job") or [""])[0] or None
+                self._send(200, json.dumps(RV.refresh_status(jid),
+                                           ensure_ascii=False))
+            except Exception as e:  # noqa: BLE001
+                self._send(200, json.dumps({"ok": False, "err": str(e)[:200]},
+                                           ensure_ascii=False))
+        elif path == "/api/refresh/options":
+            # 前端渲染按钮菜单用：有哪些预设、各含哪些步骤
+            try:
+                import refresh_engine as RV
+                self._send(200, json.dumps({
+                    "ok": True,
+                    "presets": [{"id": k, "steps": v,
+                                 "desc": [RV.STEPS[s]["desc"] for s in v]}
+                                for k, v in RV.PRESETS.items()],
+                    "steps": [{"id": k, "desc": v["desc"],
+                               "timeout": v["timeout"]}
+                              for k, v in RV.STEPS.items()],
+                }, ensure_ascii=False))
+            except Exception as e:  # noqa: BLE001
+                self._send(200, json.dumps({"ok": False, "err": str(e)[:200]},
+                                           ensure_ascii=False))
         elif path == "/api/model":
             # 单台详情：右侧「当前这台」面板用（2026-11-13）。
             # 为什么单独开一个口子，而不是让前端从上一轮的 ranked 里翻：
@@ -244,6 +270,11 @@ class H(BaseHTTPRequestHandler):
                 b["perf"] = o.get("perf")
                 b["upgrade"] = o.get("upgrade")
                 b["priceBasis"] = o.get("priceBasis")
+                # 🔴 2026-11-16：前端不再显示「有没有人写过优缺点」，
+                #    改显示**价格口径**（到手价 / 平台快照价）——
+                #    那才是用户真正需要区分的：同一个数字含义不同。
+                #    所以 priceIsEstimate 必须投影出去，否则前端判断永远是 undefined。
+                b["priceIsEstimate"] = bool(o.get("priceIsEstimate"))
                 self._send(200, json.dumps({"ok": True, "model": b}, ensure_ascii=False))
             except Exception as e:
                 self._send(200, json.dumps({"ok": False, "err": str(e)[:120]},
@@ -312,6 +343,9 @@ class H(BaseHTTPRequestHandler):
                     "ok": True,
                     "dataAsOf": agent.core.data_as_of(),
                     "total": len(offers),
+                    # 🔴 2026-11-16：`review` 字段保留（内部仍有消费方、测试也在用），
+                    #    但**前端不再展示它**。用户要求不要暴露"人工/没人评过"。
+                    #    前端改看 perf / weight 这些真实覆盖指标。
                     "review": {"reviewed": sum(1 for o in offers if o.get("hasReview")),
                                "noReview": sum(1 for o in offers if not o.get("hasReview"))},
                     "perf": {"withPerf": sum(1 for o in offers if o.get("perf") is not None),
@@ -363,7 +397,31 @@ class H(BaseHTTPRequestHandler):
             self._send(404, "not found", "text/plain; charset=utf-8")
 
     def do_POST(self):
-        if urlparse(self.path).path != "/api/chat":
+        path = urlparse(self.path).path
+        # ── 数据刷新：触发 + 查询进度 ───────────────────────────────
+        # 设计成"触发即返回 jobId"而不是同步等：全量抓取要 3-5 分钟，
+        # HTTP 请求早超时了。前端拿到 jobId 后轮询 GET /api/refresh/status。
+        if path == "/api/refresh":
+            _qs = parse_qs(urlparse(self.path).query)
+            if not self._gate(_qs):
+                return
+            try:
+                n = int(self.headers.get("Content-Length", 0))
+                body = json.loads(self.rfile.read(n).decode("utf-8")) if n else {}
+            except Exception:  # noqa: BLE001
+                body = {}
+            try:
+                import refresh_engine as RV
+                r = RV.start_refresh(steps=body.get("steps") or None,
+                                     preset=body.get("preset") or None)
+                self._send(200 if r.get("ok") else 409,
+                           json.dumps(r, ensure_ascii=False))
+            except Exception as e:  # noqa: BLE001
+                self._send(200, json.dumps({"ok": False, "err": str(e)[:200]},
+                                           ensure_ascii=False))
+            return
+
+        if path != "/api/chat":
             self._send(404, "not found", "text/plain")
             return
         _qs = parse_qs(urlparse(self.path).query)

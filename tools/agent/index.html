@@ -647,8 +647,7 @@
   /* 可加装分布的 0 档用砖红斜纹（"没有后路"这件事该显眼） */
   .up div i.z{background:repeating-linear-gradient(135deg,#D9A695 0 3px,#F7E7E1 3px 6px)}
 
-  /* ⑫ 顶栏：加一道极淡的绿线，让"品牌区"和"内容区"分开（原来整片同色） */
-  .top{box-shadow:0 1px 0 rgba(45,108,223,.07)}
+  /* ⑫ 顶栏：加一道极淡的绿线，让"品牌区"和"内容区"分开（原来整片同色） */  .top{box-shadow:0 1px 0 rgba(45,108,223,.07)}
   .brand .ver{background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-line)}
 
   @media (max-width:900px){
@@ -676,6 +675,38 @@
     .hero h1{font-size:29px}
   }
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* ── 刷新数据（2026-11-16）────────────────────────────────────────
+   设计取舍：面板做成浮层而不是新页面 —— 刷新时用户还可能在对话，
+   跳走会丢上下文。浮层右下角定位，不遮挡对话区。            */
+.rf{font:inherit;font-size:12px;padding:3px 9px;border-radius:6px;
+    border:1px solid #cfd8e3;background:#fff;color:#33475b;cursor:pointer}
+.rf:hover{background:#f3f7fc;border-color:#9db8d6}
+.rf:disabled{opacity:.55;cursor:default}
+.rf-msg{font-size:11.5px;color:#6b7f95;margin-left:6px}
+.rf-panel{position:fixed;right:18px;top:60px;width:400px;max-height:76vh;
+  overflow:auto;background:#fff;border:1px solid #d8e0ea;border-radius:10px;
+  box-shadow:0 12px 32px rgba(20,40,70,.16);z-index:60}
+.rf-h{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 12px;border-bottom:1px solid #eef2f7;font-size:13px}
+.rf-x{border:0;background:none;font-size:15px;color:#8a9aad;cursor:pointer;padding:0 4px}
+.rf-body{padding:10px 12px 14px}
+.rf-opt{display:block;width:100%;text-align:left;font:inherit;font-size:12.5px;
+  padding:8px 10px;margin-bottom:6px;border:1px solid #dde5ef;border-radius:8px;
+  background:#fbfdff;cursor:pointer}
+.rf-opt:hover{border-color:#9db8d6;background:#f3f7fc}
+.rf-opt b{color:#1f3a5f}
+.rf-opt span{display:block;color:#7b8fa6;font-size:11.5px;margin-top:2px}
+.rf-prog{margin:10px 0 6px}
+.rf-bar{height:6px;border-radius:4px;background:#e8eef6;overflow:hidden}
+.rf-bar i{display:block;height:100%;width:0;background:#3b82f6;transition:width .3s}
+.rf-cur{font-size:11.5px;color:#5b7089;margin-top:5px}
+.rf-steps{margin-top:8px;font-size:12px}
+.rf-st{display:flex;justify-content:space-between;padding:3px 0;color:#42566e}
+.rf-st .ok{color:#15803d}.rf-st .fail{color:#b91c1c}.rf-st .skipped{color:#9ca3af}
+.rf-cross{margin-top:10px;padding-top:8px;border-top:1px dashed #e5ebf3;
+  font-size:12px;color:#42566e}
+.rf-cross .warn{color:#b45309}.rf-cross .error{color:#b91c1c}
+.rf-cross div{padding:2px 0}
 </style>
 </head>
 <body>
@@ -688,8 +719,25 @@
     <span id="asof">数据 —</span>
     <span class="sep"></span>
     <span id="pool">库内 — 台</span>
+    <span class="sep"></span>
+    <button id="rfBtn" class="rf" title="重新抓取数据并交叉验证">↻ 刷新数据</button>
+    <span id="rfMsg" class="rf-msg"></span>
   </div>
 </header>
+
+<!-- 刷新面板：选粒度 → 跑 → 看进度 → 看交叉验证结果 -->
+<div id="rfPanel" class="rf-panel" hidden>
+  <div class="rf-h"><b>刷新数据</b><button id="rfClose" class="rf-x" title="关闭">✕</button></div>
+  <div class="rf-body">
+    <div id="rfChoices"></div>
+    <div id="rfProg" class="rf-prog" hidden>
+      <div class="rf-bar"><i id="rfBar"></i></div>
+      <div id="rfCur" class="rf-cur"></div>
+    </div>
+    <div id="rfSteps" class="rf-steps"></div>
+    <div id="rfCross" class="rf-cross"></div>
+  </div>
+</div>
 
 <main class="app" id="app">
   <section class="chat">
@@ -704,16 +752,19 @@
 
         <div class="facts">
           <div><b id="fTotal">—</b><span>可推荐机型</span></div>
-          <div><b id="fReview">—</b><span>有人写过优缺点</span></div>
+          <div><b id="fPerf">—</b><span>有跑分实测</span></div>
+          <div><b id="fWeight">—</b><span>有实测重量</span></div>
           <div><b id="fCat">—</b><span>覆盖品类</span></div>
         </div>
 
         <div class="audit"><i>✓</i><span>出口审计：<b>编造数字 0 条</b>，推荐锁定内核、模型无排序权与数字写权</span></div>
 
         <p class="scope" id="scope">
-          这 <b id="fTotal2">—</b> 台里只有 <b id="fReview2">—</b> 台逐台核对过优缺点，能回答「这台在你用途下的短板是什么」；
-          其余 <b id="fNoReview">—</b> 台来自京东采集池，配置、价格、跑分有据可查，但没人写过评价 ——
-          问到「值不值得买」会明说没有。另有 145 条淘宝记录因价格口径不可信，不参与排序。
+          这 <b id="fTotal2">—</b> 台机型，规格与价格来自公开渠道抓取并交叉核对：
+          <b id="fPerf2">—</b> 台有 CPU 跑分实测（Cinebench R23），
+          <b id="fWeight2">—</b> 台有实测重量，
+          价格分「到手价」与「平台快照价」两种口径分别标注。
+          库里没有的字段会如实说明，不猜。
         </p>
         <button class="scope-more" id="scopeMore">展开口径说明</button>
 
@@ -821,8 +872,12 @@ function facts(ov){
   //   外层 .catch 会把它误报成「接口 /api/overview 没响应」——  接口其实好好的。
   function set(id,v){ var n=$('#'+id); if(n) n.textContent=v }
   set('fTotal',ov.total); set('fTotal2',ov.total);
-  set('fReview',ov.review.reviewed); set('fReview2',ov.review.reviewed);
-  set('fNoReview',ov.review.noReview);
+  // 2026-11-16：不再展示「有人写过优缺点」，改成**真实数据覆盖**。
+  // 理由：用户要求不要暴露"人工/没人评过"这种内部区分，
+  // 展示"数据覆盖到哪"才对用户有意义。
+  var wp=(ov.perf||{}).withPerf, ww=(ov.weight||{}).withWeight;
+  set('fPerf', wp!=null?wp:'—'); set('fPerf2', wp!=null?wp:'—');
+  set('fWeight', ww!=null?ww:'—'); set('fWeight2', ww!=null?ww:'—');
   set('fCat',ov.byCat.length+' 类');
   set('asof','数据快照 '+ov.dataAsOf);
   set('pool','库内 '+ov.total+' 台');
@@ -833,26 +888,35 @@ function facts(ov){
 function rail(ov){
   var h='';
 
-  /* 1. 库构成 */
-  var rv=ov.review.reviewed, nr=ov.review.noReview, tot=ov.total;
-  h+='<div class="ov"><h3>库构成 <span>'+tot+' 台</span></h3>'
-   + '<div class="sbar"><i class="rv" style="width:'+(rv/tot*100).toFixed(1)+'%"></i>'
-   + '<i class="nr" style="width:'+(nr/tot*100).toFixed(1)+'%"></i></div>'
-   + '<div class="lg"><span><i class="rv"></i>有人写过优缺点 '+rv+'</span>'
-   + '<span><i class="nr"></i>仅参数 '+nr+'</span></div>'
-   + '<div class="cap" style="margin-top:9px">只有 <b>'+rv+' 台</b>能答「值不值得买」，其余只答配置和价格。</div></div>';
+  /* 1. 数据覆盖（2026-11-16 改：原来展示"有人写过优缺点/仅参数"，
+        用户要求不要暴露这个内部区分，改成展示**字段覆盖**——
+        跑分、重量、价格这些对用户才有意义）*/
+  var wp=(ov.perf||{}).withPerf||0, np=(ov.perf||{}).noPerf||0;
+  var ww=(ov.weight||{}).withWeight||0, nw=(ov.weight||{}).noWeight||0;
+  var tot=ov.total;
+  h+='<div class="ov"><h3>数据覆盖 <span>'+tot+' 台</span></h3>'
+   + '<div class="sbar"><i class="rv" style="width:'+(wp/tot*100).toFixed(1)+'%"></i>'
+   + '<i class="nr" style="width:'+(np/tot*100).toFixed(1)+'%"></i></div>'
+   + '<div class="lg"><span><i class="rv"></i>有跑分 '+wp+'</span>'
+   + '<span><i class="nr"></i>无跑分 '+np+'</span></div>'
+   + '<div class="cap" style="margin-top:9px">跑分来自 Cinebench R23 实测，'
+   + '<b>'+wp+' 台</b>可比快慢；其余按价格排序。</div>'
+   + '<div class="cap" style="margin-top:6px">实测重量 <b>'+ww+' 台</b>'
+   + (ov.weight&&ov.weight.min!=null?'（'+ov.weight.min+'~'+ov.weight.max+' kg）':'')
+   + '。</div></div>';
 
   /* 2. 价位段 */
   var maxN=0;
   ov.priceBuckets.forEach(function(b){ if(b.n>maxN) maxN=b.n });
   h+='<div class="ov"><h3>价位段分布 <span>点一档填入预算</span></h3>'
-   + '<div class="cap">柱长按台数，深色=有人写过优缺点</div>';
+   + '<div class="cap">柱长按台数，点一档即填入预算</div>';
   ov.priceBuckets.forEach(function(b){
+    // 2026-11-16：原来柱子里叠一条「已核对占比」(b.reviewed)，那是"有人写过优缺点"的
+    // 内部区分，用户要求不展示。改成纯台数柱。
     h+='<button class="bk" data-bucket="'+esc(b.label)+'">'
      + '<span class="r1"><span>'+esc(b.label)+'</span><em>'+b.n+' 台</em></span>'
      + '<span class="tr" style="width:'+(b.n/maxN*100).toFixed(1)+'%">'
-     + '<i class="rv" style="width:'+((b.reviewed||0)/b.n*100).toFixed(1)+'%"></i>'
-     + '<i class="nr" style="flex:1"></i></span></button>';
+     + '<i class="rv" style="width:100%"></i></span></button>';
   });
   h+='</div>';
 
@@ -899,10 +963,12 @@ function rail(ov){
   /* 6. 价格冲突 */
   var pc=ov.priceConflicts||[];
   if(pc.length){
-    h+='<details class="conf"><summary><span>两层报价不一致 '+pc.length+' 处</span><em>未裁决</em></summary>';
+    // 2026-11-16：措辞从「人工核定 / 采集池」改成「报价 A / 报价 B」——
+    // 前者暴露了数据来源分层，用户要求不展示这类内部区分。
+    h+='<details class="conf"><summary><span>两处报价口径不一致 '+pc.length+' 处</span><em>未裁决</em></summary>';
     pc.forEach(function(c){
       h+='<div class="li"><b>'+esc(c.name)+'</b>'
-       + '<span>人工核定 ¥'+money(c.reviewPrice)+' · 采集池 ¥'+money(c.poolPrice)+'</span>'
+       + '<span>报价 A ¥'+money(c.reviewPrice)+' · 报价 B ¥'+money(c.poolPrice)+'</span>'
        + '<u>　采用：'+esc(c.kept)+'</u></div>';
     });
     h+='</details>';
@@ -952,7 +1018,10 @@ function paintNow(){
       + '<div class="now-pr"><span>¥</span><b>'+money(m.price)+'</b><em>到手价</em></div>'
       + '<div class="now-sp">'+esc(m.spec||'')+'</div>';
     h+='<div class="now-kv">'
-      + '<div><span>评价</span><b>'+(m.hasReview?'有人写过优缺点':'库里没人评过')+'</b></div>'
+      // 2026-11-16：原来这一格显示「评价：有人写过优缺点/库里没人评过」。
+      // 用户要求不要暴露这个区分 —— 换成「价格口径」，那是用户真正需要知道的
+      // （同一个数字是到手价还是平台快照价，含义完全不同）。
+      + '<div><span>价格口径</span><b>'+(m.priceIsEstimate?'平台快照价':'到手价')+'</b></div>'
       + '<div><span>性能分</span><b>'+(m.perf==null?'无实测':m.perf+' / 100')+'</b></div>'
       + '<div><span>内存</span><b>'+(m.ram==null?'未知':m.ram+'G')+'</b></div>'
       + '<div><span>重量</span><b>'+(m.weightKg==null?'库里没记':m.weightKg+' kg')+'</b></div>'
@@ -1098,8 +1167,10 @@ function ansCard(a){
   if((a.candidates||[]).length){
     h+='<div class="ans-sec"><div class="st">其余候选</div>';
     a.candidates.forEach(function(c){
+      // 2026-11-16：去掉「仅参数」标记（暴露了"有没有人写过"这个内部区分）。
+      // 改成标「快照价」—— 那是用户需要知道的口径差异。
       h+='<div class="cand"><span>'+esc(c.name)
-       + (c.hasReview?'':'<em>仅参数</em>')+'</span><b>¥'+money(c.price)+'</b></div>';
+       + (c.priceIsEstimate?'<em>快照价</em>':'')+'</span><b>¥'+money(c.price)+'</b></div>';
     });
     h+='</div>';
   }
@@ -1110,7 +1181,9 @@ function ansCard(a){
 /* ── 首选卡 ── */
 function card(top){
   var tags='<div class="tags">';
-  if(top.hasReview===false) tags+='<span class="tag raw" title="库里没人写过这台机的优缺点">仅参数</span>';
+  // 2026-11-16：去掉「仅参数」标记（暴露"有没有人写过"）。
+  // 换成「快照价」—— 提醒用户这个数字不是到手价，那才是有用的信息。
+  if(top.priceIsEstimate) tags+='<span class="tag raw" title="平台标价快照，不含券与国补，不等于到手价">快照价</span>';
   if(top.overBudget) tags+='<span class="tag over">超预算</span>';
   if(top.hasReview!==false && !top.overBudget) tags+='<span class="tag pick">推荐</span>';
   tags+='</div>';
@@ -1203,7 +1276,8 @@ function alts(rest){
           + '<div class="nm">'+esc(r.name)+'</div>'
           + '<div class="sp">'+esc(r.spec||'')+'</div></div>'
           + '<div class="r"><div class="pr">¥'+money(r.price)+'</div>'
-          + (r.hasReview===false?'<span class="bg">仅参数</span>':'')
+          // 2026-11-16：原「仅参数」标记去掉（暴露内部区分），换成价格口径提示
+          + (r.priceIsEstimate?'<span class="bg">快照价</span>':'')
           + (r.overBudget?'<span class="bg" style="color:var(--warn);background:var(--warn-bg);border-color:#EBD9AE">超预算</span>':'')
           + '</div></div>';
       }).join('')+'</div>';
@@ -1456,6 +1530,121 @@ inp.focus();
     inp.setSelectionRange(fill.length,fill.length) }
   if(q){ inp.value=q; autoGrow(); send(q); }
 })();
+})();
+</script>
+<script>
+/* ── 刷新数据（2026-11-16）─────────────────────────────────────────
+   流程：点「↻ 刷新数据」→ 选粒度 → POST /api/refresh 拿 jobId
+        → 每 1.5s 轮询 /api/refresh/status → 画进度条 + 步骤结果 + 交叉验证
+
+   为什么是"触发+轮询"而不是同步等待：
+      全量抓取要 3-5 分钟，HTTP 请求会超时；而且刷新时用户还可能在对话，
+      不能把界面卡住。                                    */
+(function(){
+  var btn=$('#rfBtn'), panel=$('#rfPanel'), close=$('#rfClose');
+  var choices=$('#rfChoices'), prog=$('#rfProg'), bar=$('#rfBar');
+  var cur=$('#rfCur'), steps=$('#rfSteps'), cross=$('#rfCross'), msg=$('#rfMsg');
+  if(!btn||!panel) return;
+
+  var PRESET_LABEL={
+    quick:['快速重算','不联网，只重算判定/统计/页面（约 2 秒）'],
+    prices:['刷新价格','去 ZOL 抓最新价格并交叉验证（约 1-3 分钟）'],
+    bench:['刷新跑分','去 Notebookcheck 抓 CPU 跑分（约 1-2 分钟）'],
+    full:['全量刷新','价格 + 跑分 + 全部重算（约 5 分钟）']
+  };
+  var timer=null, jobId=null;
+
+  function openPanel(){
+    panel.hidden=false;
+    if(!choices.dataset.ready){ loadOptions(); }
+  }
+  function closePanel(){ panel.hidden=true; }
+
+  function loadOptions(){
+    fetch('/api/refresh/options',{cache:'no-store',headers:wbHeaders()})
+      .then(function(r){return r.json()})
+      .then(function(d){
+        if(!d.ok) throw new Error(d.err||'加载失败');
+        choices.innerHTML='';
+        (d.presets||[]).forEach(function(p){
+          var lab=PRESET_LABEL[p.id]||[p.id,(p.desc||[]).join(' / ')];
+          var b=document.createElement('button');
+          b.className='rf-opt';
+          b.innerHTML='<b>'+lab[0]+'</b><span>'+lab[1]+'</span>';
+          b.onclick=function(){ run(p.id); };
+          choices.appendChild(b);
+        });
+        choices.dataset.ready='1';
+      })
+      .catch(function(e){ choices.innerHTML='<div class="rf-cross"><div class="error">'+e.message+'</div></div>'; });
+  }
+
+  function run(preset){
+    choices.querySelectorAll('.rf-opt').forEach(function(b){ b.disabled=true; });
+    prog.hidden=false; bar.style.width='0'; cur.textContent='正在启动…';
+    steps.innerHTML=''; cross.innerHTML=''; msg.textContent='';
+    fetch('/api/refresh',{
+      method:'POST',cache:'no-store',
+      headers:wbHeaders({'Content-Type':'application/json'}),
+      body:JSON.stringify({preset:preset})
+    }).then(function(r){return r.json()}).then(function(d){
+      if(!d.ok){ cur.textContent='启动失败：'+(d.err||''); choices.querySelectorAll('.rf-opt').forEach(function(b){b.disabled=false}); return; }
+      jobId=d.jobId; btn.disabled=true;
+      timer=setInterval(poll,1500); poll();
+    }).catch(function(e){
+      cur.textContent='启动失败：'+e.message;
+      choices.querySelectorAll('.rf-opt').forEach(function(b){ b.disabled=false; });
+    });
+  }
+
+  function poll(){
+    if(!jobId) return;
+    fetch('/api/refresh/status?job='+jobId,{cache:'no-store',headers:wbHeaders()})
+      .then(function(r){return r.json()}).then(function(d){
+        if(!d.ok) return;
+        var j=d.job||{};
+        bar.style.width=(j.progress||0)+'%';
+        cur.textContent = j.status==='running'
+          ? ('进行中：'+(j.current||'…')+'（'+(j.progress||0)+'%）')
+          : (j.status==='done'?'完成':'出错：'+(j.err||''));
+        // 步骤结果
+        var h='';
+        (j.order||[]).forEach(function(n){
+          var v=(j.steps||{})[n]||{}, st=v.status||'pending';
+          var cls={ok:'ok',fail:'fail',skipped:'skipped'}[st]||'';
+          var mark={ok:'✓',fail:'✗',skipped:'–'}[st]||'·';
+          h+='<div class="rf-st"><span>'+mark+' '+n+'</span><span class="'+cls+'">'+
+             (st==='ok'?(v.ms||0)+'ms':(v.err||st))+'</span></div>';
+        });
+        steps.innerHTML=h;
+        // 交叉验证
+        if(j.cross&&j.cross.items){
+          cross.innerHTML=j.cross.items.map(function(it){
+            var cls={warn:'warn',error:'error'}[it.level]||'';
+            return '<div class="'+cls+'">['+it.level+'] '+it.text+'</div>';
+          }).join('');
+        }
+        if(j.status!=='running'){
+          clearInterval(timer); timer=null; btn.disabled=false;
+          choices.querySelectorAll('.rf-opt').forEach(function(b){ b.disabled=false; });
+          msg.textContent = j.status==='done'?'已更新':'失败';
+          // 刷新完重拉一次 overview，让顶栏「数据快照 / 库内 N 台」跟着变。
+          // 🔴 函数名是 `facts(ov)` 不是 `loadOverview()` —— 首版写错了，
+          //    结果顶栏数字永远停在刷新前（而且 typeof 判断让它静默失败）。
+          if(j.status==='done'){
+            jget('/api/overview').then(function(ov){
+              try{ facts(ov); }catch(e){}
+              try{ rail(ov); }catch(e){}
+            }).catch(function(){});
+          }
+          setTimeout(function(){ msg.textContent=''; },4000);
+        }
+      });
+  }
+
+  btn.onclick=openPanel;
+  close.onclick=closePanel;
+  panel.addEventListener('click',function(e){ if(e.target===panel) closePanel(); });
 })();
 </script>
 </body>
