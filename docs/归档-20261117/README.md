@@ -35,24 +35,24 @@
 
 | 优先级 | 缺陷 | 根因 |
 |---|---|---|
+| **P0** | 回答死板 / 「限电500W」答屏幕参数 | **`ask_fit` 只用词表 `FIT_KW`，丢弃模型的 `fit=True`** —— 架构反转做了一半 |
 | **P0** | 「换一台」在还有 113 台时报 exhausted | 专业别名 `'游戏'` 让"打游戏"误匹配「游戏艺术设计」，`_minRam=32` 把 117 台砍到 4 台 |
-| **P0** | 「限电 500W」被当成问配置，答了屏幕参数 | 路由判成 `topic=config`，实际是"补充条件"；`dormWatt` 抽取本身正常 |
 | **P1** | 说了"打游戏"却不先说 MateBook 够不够用 | 匹配判断被槽位收集抢先 |
 | **P1** | 说"可以"放宽预算，又推回同一台 | "放宽预算"动作没实现，`seen` 也没清 |
-| **P2** | 回答死板 | 是架构取舍（模板 + 审计），不是 bug |
+| **P2** | 模板句式重复 | 是架构取舍（固定模板 + 出口审计），非 bug |
 
 **最快的验证入口**（三条命令，输出可直接对照）：
 
 ```bash
 cd tools/agent
-python -c "import core; print(len([o for o in core.pool_offers() if o.get('cat')=='gaming']))"
-# 期望 117
-
 python -c "import core; print(core.match_major('我想打游戏')[1])"
 # 现在返回「游戏艺术设计」← 缺陷 A 根因，改完应返回 None
 
-python -c "import agent; print(agent.extract_slots('限电500W'))"
-# 现在返回 dormWatt=500（抽取正常），问题在 intent_layer.route 送错分支
+python -c "import intent_layer; print(intent_layer.route('限电 500W', focus='zol-2103842'))"
+# 现在 fit=True（模型判对了），但 agent.py:4909 用词表丢弃它
+
+python -c "import agent; print(any(k in '限电 500W' for k in agent.FIT_KW))"
+# 现在 False ← 这就是「模型说了不算」的那一行
 ```
 
 ---
