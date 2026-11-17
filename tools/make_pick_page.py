@@ -21,7 +21,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import lib_bench as LB  # noqa: E402
 from lib_judge import (  # noqa: E402
-    field_value, form_is_soldered, judge, r_fields_of,
+    field_value, form_is_soldered, judge, price_of, r_fields_of,
 )
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -93,7 +93,13 @@ def _bench_obj(m):
 def machine_brief(m):
     """给前端用的精简机器对象。字段名短，减小体积。"""
     pr = m.get("price") or {}
+    # 🔴 价格走 lib_judge.price_of 的降级链（到手价 → 三方快照 → 划线价），
+    #    与 pick.py 保持同一口径。旧代码只取 `final or net`，
+    #    导致 163 台只有 ZOL 快照价的机器在页面上显示「价格未知」——
+    #    数据补了但页面看不见（2026-11-16 修）。
+    shown, ptier, psrc = price_of(m)
     final = pr.get("final") or pr.get("net")
+    snap = m.get("priceSnapshots") or {}
     risks = []
     if form_is_soldered(m) is True:
         risks.append("内存焊死")
@@ -114,9 +120,17 @@ def machine_brief(m):
         "brand": m.get("brand"),
         "cat": m.get("cat"),
         "spec": spec_line(m),
-        "price": final,
+        # price = 页面上显示的那个数（到手价优先，否则三方参考价）
+        # tier = "real"（到手价）/ "snap"（三方参考价），前端据此加星号与说明
+        "price": shown,
+        "tier": "real" if ptier == "到手价" else ("snap" if shown else None),
+        "priceSrc": psrc,
         "list": pr.get("list"),
         "net": pr.get("net"),
+        "final": final,
+        "snapJd": snap.get("jd"),
+        "snapTmall": snap.get("tmall"),
+        "snapMerchantMin": snap.get("merchantMin"),
         "subsidy": pr.get("subsidy"),
         "shop": {"self": "京东自营", "flagship": "品牌旗舰店",
                  "authorized": "授权店", "thirdparty": "第三方店"}.get(m.get("shopType"), "店铺未记"),
@@ -277,6 +291,8 @@ transition:border-color .15s,box-shadow .15s}
 .m-p{font-size:19px;font-weight:750;color:#c0392b;font-variant-numeric:tabular-nums;white-space:nowrap}
 .m-s{font-size:12.5px;color:#6b7280;margin-top:3px}
 .m-p2{font-size:12px;color:#9ca3af;margin-top:6px;font-variant-numeric:tabular-nums}
+.snapmark{color:#d97706;font-weight:800;margin-left:2px}
+.m-snap{font-size:11.5px;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:5px;padding:4px 7px;margin-top:5px;line-height:1.5}
 .bv{display:inline-block;font-size:10px;padding:1px 5px;margin-left:6px;border-radius:3px;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;vertical-align:2px;font-weight:400}
 .blist{display:flex;flex-direction:column;gap:1px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;margin-top:8px}
 .brow{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#fff;padding:9px 11px;cursor:pointer}
@@ -622,17 +638,31 @@ const VM_WORD = {timeSpy:'每元显卡分', cbMulti:'每元多核分', cbSingle:
 
 function mcard(x, isTop, isBest){
   const m = x.m;
+  // 口径标注：到手价不带星，三方参考价带 * 并在下一行说明来源。
+  // 不标的话用户会把「ZOL 参考价 7899」当成到手价，涨价判断就全错了。
+  const snapMark = (m.tier === 'snap') ? '<span class="snapmark">*</span>' : '';
   let h = `<div class="m${isTop?' top':''}">
     <div class="m-h"><span class="m-n">${m.name}${isBest?' <span class="bv">★ 每元性能最高</span>':''}</span>
-      <span class="m-p">${yuan(m.price)}</span></div>
+      <span class="m-p">${yuan(m.price)}${snapMark}</span></div>
     <div class="m-s">${m.spec}</div>`;
   let p2 = [];
-  if(m.list && m.list !== m.price) p2.push('划线 ' + yuan(m.list));
-  if(m.net && m.net !== m.price && m.net !== m.list) p2.push('券后 ' + yuan(m.net));
-  if(m.subsidy) p2.push('国补 ' + yuan(m.subsidy));
+  if(m.tier === 'snap'){
+    // 快照价：把来源和平台价一起列出，并明说不是到手价
+    if(m.priceSrc) p2.push(m.priceSrc);
+    if(m.snapJd && m.snapJd !== m.price) p2.push('京东 ' + yuan(m.snapJd));
+    if(m.snapTmall && m.snapTmall !== m.price) p2.push('天猫 ' + yuan(m.snapTmall));
+    if(m.snapMerchantMin && m.snapMerchantMin !== m.price) p2.push('经销商最低 ' + yuan(m.snapMerchantMin));
+  } else {
+    if(m.list && m.list !== m.price) p2.push('划线 ' + yuan(m.list));
+    if(m.net && m.net !== m.price && m.net !== m.list) p2.push('券后 ' + yuan(m.net));
+    if(m.subsidy) p2.push('国补 ' + yuan(m.subsidy));
+  }
   p2.push(m.shop);
   if(m.captured) p2.push('采价 ' + m.captured);
   h += `<div class="m-p2">${p2.join(' · ')}</div>`;
+  if(m.tier === 'snap'){
+    h += `<div class="m-snap">* 三方平台/媒体快照价，不含券与国补，<b>不等于到手价</b></div>`;
+  }
   if(m.edu && m.edu < m.price){
     h += `<div class="m-edu">学生价 ${yuan(m.edu)}（教育优惠，需认证，再省 ${yuan(m.price-m.edu)}）</div>`;
   }

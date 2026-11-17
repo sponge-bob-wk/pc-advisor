@@ -470,3 +470,44 @@ def subsidy_of(net, rules):
     if r.get("cap"):
         amt = min(amt, r["cap"])
     return round(amt, 2)
+
+
+# ── 价格读取：唯一入口 ──────────────────────────────────────────────
+# 为什么要有这个函数，而不是到处写 `final or net`：
+#   2026-11-16 起价格有两个来源、三种口径：
+#       ① net / final        —— 京东商品页直读的「到手价」（最可信，算涨幅只能用这个）
+#       ② priceSnapshots.zolRef / jd / tmall / merchantMin —— 三方快照价（不是到手价）
+#   直接把 ② 塞进 `final or net` 会让涨幅计算全错（这正是项目最不能犯的错）。
+#   但「一台机器完全查不到价」也不该让用户看不到它 —— 所以这里做**降级链**，
+#   并把口径一起返回，让调用方能把"这是快照价"说清楚。
+TIER_REAL = "到手价"      # 京东直读
+TIER_SNAP = "参考价"      # 三方快照，不能当到手价算涨幅
+TIER_NONE = "无价"
+
+
+def price_of(m, allow_snapshot=True):
+    """返回 (价格, 口径, 来源说明)。取不到返回 (None, TIER_NONE, 原因)。
+
+    口径是给用户看的，必须诚实 —— 「参考价 13149」和「到手价 13149」
+    在涨价分析里是完全不同的两个数。
+    """
+    pr = m.get("price") if isinstance(m.get("price"), dict) else {}
+    for k in ("final", "net"):
+        v = pr.get(k)
+        if v:
+            return v, TIER_REAL, pr.get("basis") or pr.get("basisNote") or ("price.%s" % k)
+    if not allow_snapshot:
+        return None, TIER_NONE, "无到手价"
+    snap = m.get("priceSnapshots") if isinstance(m.get("priceSnapshots"), dict) else {}
+    # 快照优先级：ZOL 参考价 → 京东 → 天猫 → 经销商最低
+    for k, label in (("zolRef", "ZOL 参考报价"),
+                     ("jd", "京东平台快照"),
+                     ("tmall", "天猫平台快照"),
+                     ("merchantMin", "经销商最低报价")):
+        v = snap.get(k)
+        if v:
+            return v, TIER_SNAP, label
+    v = pr.get("list")
+    if v:
+        return v, TIER_SNAP, "划线价/标价（非到手价）"
+    return None, TIER_NONE, "库内无任何价格"

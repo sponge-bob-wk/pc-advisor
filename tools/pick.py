@@ -30,8 +30,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lib_judge import (  # noqa: E402
-    VERDICT_CN, field_value, form_is_soldered, is_integrated, judge,
-    r_fields_of, subsidy_of,
+    TIER_REAL, TIER_SNAP, VERDICT_CN, field_value, form_is_soldered,
+    is_integrated, judge, price_of, r_fields_of, subsidy_of,
 )
 from major_lookup import dwidth, mlist, resolve  # noqa: E402
 import lib_bench as LB  # noqa: E402
@@ -226,12 +226,12 @@ def pick_one(docs, major, level, group, how, budget, show_all):
         m["_verdict"] = verdict  # 记在机器上，后面展示时不必再回头查
         buckets[verdict].append((m, why, missing))
 
-    # 有价格优先；同档内按到手价升序，无价格的排最后
+    # 有价格优先；同档内按价格升序，无价格的排最后。
+    # 价格走 price_of 的降级链：到手价优先，没有则用三方快照价（并标注口径）。
     def sort_key(t):
         m = t[0]
-        pr = (m.get("price") or {})
-        final = pr.get("final") or pr.get("net")
-        return (final is None, final or 0)
+        v, _tier, _src = price_of(m)
+        return (v is None, v or 0)
 
     for k in buckets:
         buckets[k].sort(key=sort_key)
@@ -239,28 +239,30 @@ def pick_one(docs, major, level, group, how, budget, show_all):
     # ---------- 2.5 一句话结论 ----------
     # 放在最前面。用户最先要知道的是"有没有得买"，不是逐台细节。
     good0 = buckets["OK"] + buckets["DEGRADED"]
-    priced0 = [(m, w) for m, w, _ in good0
-               if (m.get("price") or {}).get("net") or (m.get("price") or {}).get("final")]
+    priced0 = []
+    for m, w, _ in good0:
+        v, tier, src = price_of(m)
+        if v:
+            priced0.append((m, w))
     print()
     print("一句话结论")
     if not good0:
         print(f"  库里 {len(pool)} 台没有一台满足这一组的门槛。")
         print(f"  这不是数据缺失 —— 是不满足（下面逐台写了原因）。")
     else:
-        cheapest = min(priced0, key=lambda t: (t[0]["price"].get("final")
-                                               or t[0]["price"].get("net"))) if priced0 else None
+        cheapest = min(priced0, key=lambda t: price_of(t[0])[0]) if priced0 else None
         if cheapest:
             m = cheapest[0]
-            pr = m["price"]
+            price, tier, src = price_of(m)
             n_ok = len(buckets["OK"])
             n_deg = len(buckets["DEGRADED"])
             quality = "完全够用" if n_ok else "都带保留"
-            print(f"  能买，最便宜 {money(pr.get('final') or pr.get('net'))} 元 —— "
+            tier_note = "" if tier == TIER_REAL else f"（{src}，非到手价）"
+            print(f"  能买，最便宜 {money(price)} 元{tier_note} —— "
                   f"{m['name']}")
             print(f"  够用的 {len(good0)} 台（{quality}），其中 {len(priced0)} 台有价格。")
             if budget:
-                within = [t for t in priced0
-                          if (t[0]["price"].get("final") or t[0]["price"].get("net")) <= budget]
+                within = [t for t in priced0 if price_of(t[0])[0] <= budget]
                 print(f"  你的预算 {money(budget)} 元内，可选 {len(within)} 台。")
 
     # 每元性能：回答"都能用的话，哪台钱花得最值"。
@@ -282,35 +284,38 @@ def pick_one(docs, major, level, group, how, budget, show_all):
 
     # ---------- 3. 能买的 ----------
     good = buckets["OK"] + buckets["DEGRADED"]
-    # 统一成 (机器, 保留说明) 二元组，后面展示只用这两项
-    priced = [(m, w) for m, w, _miss in good
-              if (m.get("price") or {}).get("net") or (m.get("price") or {}).get("final")]
+    # 统一成 (机器, 保留说明) 二元组，后面展示只用这两项。
+    # 价格走 price_of 降级链（到手价 → 三方快照 → 划线价），与上面的结论段保持同一口径，
+    # 否则会出现「结论说 43 台有价、明细说 18 台有价」这种自相矛盾（2026-11-16 踩过）。
+    priced = [(m, w) for m, w, _miss in good if price_of(m)[0]]
+
+    n_real = sum(1 for m, _w in priced if price_of(m)[1] == TIER_REAL)
+    n_snap = len(priced) - n_real
+    tier_detail = ""
+    if n_snap:
+        tier_detail = f"（其中 {n_real} 台到手价、{n_snap} 台三方参考价）"
 
     print()
-    print(f"能买的（{len(good)} 台，其中 {len(priced)} 台价格已知）")
+    print(f"能买的（{len(good)} 台，其中 {len(priced)} 台价格已知）{tier_detail}")
     print()
     if not good:
         print("  一台都没有。这不是数据缺失，是库里现有的机器都不满足这一组的门槛。")
         print("  下面「不够用的」那段写了每台为什么不够 —— 照那个清单去筛，比重新找更省时间。")
     else:
         # 预算筛选：把「够用但没有价格」的单独留住 —— 它们不该因为没价格就被藏起来
-        noprice = [(m, w) for m, w, _miss in good
-                   if not ((m.get("price") or {}).get("net") or (m.get("price") or {}).get("final"))]
+        noprice = [(m, w) for m, w, _miss in good if not price_of(m)[0]]
         over = []
         if budget:
             # 先只保留有价格的，再比预算。无价格的机器没有可比对象，
             # 直接比较会得到 None > int 的 TypeError。
-            over = [(m, w) for m, w in priced
-                    if (m["price"].get("final") or m["price"].get("net")) > budget]
-            priced = [(m, w) for m, w in priced
-                      if (m["price"].get("final") or m["price"].get("net")) <= budget]
+            over = [(m, w) for m, w in priced if price_of(m)[0] > budget]
+            priced = [(m, w) for m, w in priced if price_of(m)[0] <= budget]
 
         if budget and not priced:
             print(f"  预算 {money(budget)} 元内没有够用的机器。")
             if over:
-                over.sort(key=lambda t: (t[0]["price"].get("final") or t[0]["price"].get("net")))
-                cheapest = over[0][0]["price"]
-                cheapest = cheapest.get("final") or cheapest.get("net")
+                over.sort(key=lambda t: price_of(t[0])[0])
+                cheapest = price_of(over[0][0])[0]
                 print(f"  够用的里面最便宜是 {money(cheapest)} 元，差 {money(cheapest - budget)} 元。")
             print()
         elif not priced and not noprice:
@@ -325,11 +330,12 @@ def pick_one(docs, major, level, group, how, budget, show_all):
                 print()
 
         if over:
-            over.sort(key=lambda t: (t[0]["price"].get("final") or t[0]["price"].get("net")))
+            over.sort(key=lambda t: price_of(t[0])[0])
             print(f"  超预算但确实够用（{len(over)} 台，按价格升序）：")
             for m, _w in over[:5]:
-                pr = m["price"]
-                print(f"    {money(pr.get('final') or pr.get('net')):>10} 元  {m['name']}  [{spec_line(m)}]")
+                pv, ptier, _psrc = price_of(m)
+                mark = "" if ptier == TIER_REAL else "*"
+                print(f"    {money(pv):>10} 元{mark}  {m['name']}  [{spec_line(m)}]")
             if len(over) > 5:
                 print(f"    …… 还有 {len(over) - 5} 台，加 --all 全看")
             print()
@@ -356,8 +362,8 @@ def pick_one(docs, major, level, group, how, budget, show_all):
             print(f"  只差一项的（{len(near)} 台）")
             show_n = near if show_all else near[:6]
             for m, why in show_n:
-                pr = m.get("price") or {}
-                p = money(pr.get("final") or pr.get("net"))
+                pv, _ptier, _psrc = price_of(m)
+                p = money(pv)
                 gap = why[0]
                 if "不是同一台" in gap or "无法推荐" in gap:
                     note = "这条数据要修，不是机器的问题"
@@ -377,8 +383,8 @@ def pick_one(docs, major, level, group, how, budget, show_all):
             print(f"  差两项以上，不用考虑（{len(far)} 台）")
             show_f = far if show_all else far[:3]
             for m, why in show_f:
-                pr = m.get("price") or {}
-                p = money(pr.get("final") or pr.get("net"))
+                pv, _ptier, _psrc = price_of(m)
+                p = money(pv)
                 print(f"    {p:>10} 元  {m['name']}   {'；'.join(why)}")
             if len(far) > len(show_f):
                 print(f"    …… 还有 {len(far) - len(show_f)} 台，加 --all 全看")
@@ -397,8 +403,8 @@ def pick_one(docs, major, level, group, how, budget, show_all):
         print()
         show_u = unk if show_all else unk[:5]
         for m, why, missing in show_u:
-            pr = m.get("price") or {}
-            p = money(pr.get("final") or pr.get("net"))
+            pv3, _t3, _s3 = price_of(m)
+            p = money(pv3)
             names = "、".join(FIELD_WORD.get(f, f) for f in missing)
             print(f"  {p:>10} 元  {m['name']}   缺 {names}")
         if len(unk) > len(show_u):
@@ -434,12 +440,16 @@ def print_machine(m, warnings, verdict):
     net = pr.get("net")
     final = pr.get("final") or net
     sub = pr.get("subsidy")
+    # 价格口径：到手价（京东直读）优先；没有则降级到三方快照，并**显式标注**，
+    # 因为「参考价 13149」和「到手价 13149」在涨价分析里是两个不同的数。
+    shown, ptier, psrc = price_of(m)
 
     tag = "" if verdict == "OK" else "   ⚠ 有保留"
     # 每元性能最高的一台单独标出来，省得用户自己在多台之间算比值
     if m.get("_bestValue"):
         tag += f"   ★ {m['_bestValue']}最高"
-    print(f"  {money(final)} 元   {m['name']}{tag}")
+    tier_mark = "" if ptier == TIER_REAL else " *"
+    print(f"  {money(shown)} 元{tier_mark}   {m['name']}{tag}")
     print(f"                 {spec_line(m)}")
 
     # 性能跑分：用户最常问"这台比那台快多少"。
@@ -450,11 +460,26 @@ def print_machine(m, warnings, verdict):
 
     # 价格拆开写 —— 只报"到手价"会让用户以为原价就是这个数，
     # 也无法判断补贴是真降还是先涨后补。
-    ppt = f"划线 {money(pr.get('list'))}"
-    if pr.get("discounts"):
-        ppt += f" → 券后 {money(net)}"
-    ppt += f" → 国补 {money(sub)} → 到手 {money(final)}"
-    print(f"                 {ppt}")
+    if ptier == TIER_REAL:
+        ppt = f"划线 {money(pr.get('list'))}"
+        if pr.get("discounts"):
+            ppt += f" → 券后 {money(net)}"
+        ppt += f" → 国补 {money(sub)} → 到手 {money(final)}"
+        print(f"                 {ppt}")
+    else:
+        # 快照价：把来源和"这不是到手价"讲清楚，同时把能拿到的其他口径一并列出
+        snap = m.get("priceSnapshots") or {}
+        bits = [f"{psrc} {money(shown)}"]
+        for k, lab in (("jd", "京东"), ("tmall", "天猫"),
+                       ("merchantMin", "经销商最低"), ("merchantMax", "经销商最高")):
+            v = snap.get(k)
+            if v and (k != "merchantMax" or v != snap.get("merchantMin")):
+                bits.append(f"{lab} {money(v)}")
+        if pr.get("list") and pr.get("list") != shown:
+            bits.append(f"划线 {money(pr['list'])}")
+        print(f"                 {' · '.join(bits)}")
+        print("                 ⚠ 以上为三方平台/媒体快照价，不含券与国补，"
+              "**不等于到手价**；到手价需按结算页为准")
 
     edu = m.get("eduPrice") or {}
     if edu.get("final"):

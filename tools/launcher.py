@@ -50,7 +50,27 @@ except Exception:
     pass
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-AGENT_DIR = os.path.join(ROOT, "tools", "agent")
+
+
+def _find_agent_dir(root):
+    """找出主产品源码所在目录 —— 同一个启动器要同时服务两种目录布局。
+
+    ① 原仓库：      <root>/tools/agent/{server.py, core.py, ...}
+    ② 交付包：      <root>/src/{server.py, core.py, ...}
+       （交付给老师的包按「文档进 docs、页面在根目录」重新组织过，
+         源码集中放在 src/，没有再套 tools/agent 两层）
+
+    按顺序探测，第一个命中的就用。两边都没有就退回 ①，让后面的
+    「找不到 server.py」检查给出准确报错，而不是在这里静默出错。
+    """
+    for rel in (("tools", "agent"), ("src",)):
+        d = os.path.join(root, *rel)
+        if os.path.isfile(os.path.join(d, "server.py")):
+            return d
+    return os.path.join(root, "tools", "agent")
+
+
+AGENT_DIR = _find_agent_dir(ROOT)
 TMP_DIR = os.path.join(ROOT, ".tmp")
 PID_FILE = os.path.join(TMP_DIR, "pids.json")
 LINK_FILE = os.path.join(ROOT, "测试链接.txt")
@@ -420,7 +440,8 @@ def preflight(need_tunnel=False):
     good = True
 
     if not os.path.isfile(os.path.join(AGENT_DIR, "server.py")):
-        err("找不到 tools/agent/server.py —— 启动器不在项目里？")
+        err("找不到 %s —— 启动器不在项目里？"
+            % os.path.relpath(os.path.join(AGENT_DIR, "server.py"), ROOT))
         return False
     ok("程序文件在位")
 

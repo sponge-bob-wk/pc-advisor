@@ -61,14 +61,36 @@ def main():
 
     ver_rows = ""
     for m in verified:
-        ev = m.get("efficiencyEvidence") or {}
-        fil = ev.get("filings") or []
+        # 🔴 2026-11-16 修：`efficiencyEvidence` 这个字段在 machine_pool 里**已不存在**
+        #    （全 243 台都是 None）。旧代码 `ev.get("filings")` 直接 AttributeError。
+        #    现在能效证据分散在两处，按可靠性依次取：
+        #      ① dataFrom.efficiency —— 台账匹配时写的「型号 / 备案号」字符串
+        #      ② efficiencyBasis     —— 型号级匹配的说明
+        #      ③ certModel           —— 能效网规格型号本身
+        #    取不到就显示 "-"，不编造。
+        ev = m.get("efficiencyEvidence")
+        if isinstance(ev, dict):
+            fil = ev.get("filings") or []
+            energy_model = ev.get("energyModel")
+        else:
+            fil = []
+            energy_model = m.get("certModel") or m.get("energyModel")
+
         regs = "<br>".join(
             f'<span class="mono">{f.get("regNo","")}</span> <span class="dim">{f.get("date","")}</span>'
             for f in fil[:2])
+        if not regs:
+            src = str((m.get("dataFrom") or {}).get("efficiency") or "")
+            basis = str(m.get("efficiencyBasis") or "")
+            note = src or basis
+            if note:
+                # 台账匹配写的字符串形如「efficiency_ledger 型号精确匹配（X / 备案号）」
+                regs = f'<span class="small dim">{note[:70]}</span>'
+            else:
+                regs = '<span class="dim">-</span>'
         ver_rows += f"""<tr>
           <td>{m.get("modelHint","")}</td>
-          <td class="mono">{ev.get("energyModel") or "-"}</td>
+          <td class="mono">{energy_model or "-"}</td>
           <td class="center"><span class="tag tag-ok">{m["efficiency"]} 级</span></td>
           <td class="small">{regs}</td></tr>"""
 
