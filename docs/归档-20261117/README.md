@@ -26,6 +26,48 @@
 |---|---|
 | `第二批维度与价格交叉验证.md` | 本轮全部工作（P1 补字段 / P2 价格交叉验证 / P3 修追问 bug） |
 | `交互缺陷记录-20261117.md` | **用户实测一轮对话发现的 5 个交互缺陷**，已定位根因，待修 |
+| `训练集-误判纠正机制.md` | **真实误判样本收集机制**（`collect_corrections.py`），供后续微调 |
+
+---
+
+## 训练集（新增机制）
+
+用户要求「纠正模型理解的样本作为训练集，随时收集后续微调」。
+
+新增 `tools/agent/collect_corrections.py`：
+
+```bash
+python collect_corrections.py --list    # 看已收集多少
+python collect_corrections.py --seed    # 写入首批（幂等）
+python collect_corrections.py --add     # 交互式添加
+```
+
+首批 2 条（今天实测的）：
+
+| 用户原话 | 模型判错 | 正确 |
+|---|---|---|
+| 限电 500W | `ask_current/battery/fit=True` | `state_new_need/none/fit=False` |
+| 我想打游戏 | `state_new_need/none/fit=`**`False`** | `state_new_need/none/fit=`**`True`** |
+
+每条都带 `_meta.wrong`（模型的错误输出），将来做 DPO 时是天然负样本。
+
+**已接进 `build_route_lora.py`**，且纠错样本**强制进训练集**
+（首版被哈希切分全切进了 eval，等于"最贵的样本只拿来考试不拿去训练"）。
+
+当前路由层：**389 条**（训练 355 / 评估 36），离 500 下限差 111。
+
+---
+
+## 发现误判时的判断标准
+
+| 类型 | 例子 | 处理 |
+|---|---|---|
+| 模型判错 | 「限电500W」判成问电池 | ✅ 收进 `corrections.jsonl` |
+| 系统没实现 | 「可以」该调 budget 却没调 | ❌ 不收，写进缺陷记录 |
+| 数据缺失 | 「保修几年」答不知道 | ❌ 不收，去补数据 |
+
+**判据**：模型的 `{intent,topic,fit}` 换成对的值就能答对 → 模型判错；
+换什么值都答不对 → 代码或数据问题。
 
 ---
 

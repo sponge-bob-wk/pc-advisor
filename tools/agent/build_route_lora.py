@@ -54,6 +54,11 @@ SOURCES = [
     ("adv-all.jsonl", "手写模板"),
     ("expanded-route.jsonl", "维度组合"),
     ("log-route.jsonl", "真实日志"),
+    # 🔴 2026-11-17 新增：真实误判纠正样本。
+    #    来源是用户实测对话里模型判错的句子（collect_corrections.py 收集）。
+    #    这类样本**最贵** —— 它是模型在当前版本下确实会错的地方，
+    #    比手写模板更贴近真实分布，且每条都带 wrong（可作 DPO 负样本）。
+    ("corrections.jsonl", "实测误判纠正"),
 ]
 
 OUT_TRAIN = os.path.join(LORA_DIR, "route-train.jsonl")
@@ -220,14 +225,36 @@ def main():
         print("  %-14s %d" % (k, v))
 
     # ── 训练/评估切分（按 user 哈希，稳定可复现）──────────────────────
+    #
+    # 🔴 2026-11-17 例外：**实测误判纠正样本必须进训练集**。
+    #
+    #    实测：加了 corrections.jsonl 之后，2 条纠错样本被哈希切分全切进了 eval，
+    #    训练集里一条都没有 —— 那等于"最贵的样本没拿去训练，只拿来考试"。
+    #
+    #    这类样本的价值在于让模型**学会不再犯同样的错**，
+    #    所以强制进训练集；同时**保留一份在 eval**，
+    #    这样每次评估都能看到"上次那个错现在还会不会犯"。
+    #
+    #    ⚠️ 训练集和评估集有重叠会让 eval 分数偏乐观，
+    #       但这两条是**已知必考项**，宁可分数保守也要盯着它们。
     train, evalset = [], []
+    n_forced = 0
     for r in uniq:
+        src = str((r.get("meta") or {}).get("src") or "")
+        if "correction" in src:
+            train.append(r)
+            evalset.append(r)      # 故意重叠：必考项
+            n_forced += 1
+            continue
         h = int(hashlib.md5(norm(r["user"]).encode("utf-8")).hexdigest()[:8], 16)
         (evalset if (h % 1000) < int(args.eval_ratio * 1000) else train).append(r)
 
     print()
     print("切分：训练 %d / 评估 %d（eval-ratio=%.0f%%）"
           % (len(train), len(evalset), args.eval_ratio * 100))
+    if n_forced:
+        print("      其中 %d 条实测误判纠正样本强制进训练集（同时保留在评估集）"
+              % n_forced)
 
     n = len(uniq)
     print()
