@@ -169,6 +169,74 @@ def ollama_alive():
         s.close()
 
 
+def start_ollama(wait_s=40):
+    """自动拉起 Ollama。返回 (成功?, 说明)。
+
+    🔴 2026-11-18 新增。用户反馈两个问题：
+      ① `启动助手.bat` 双击后浏览器打不开 7860
+      ② Ollama 得手动启动
+
+    根因：`launcher.py` 原来**只检查不启动** Ollama ——
+    检测到没跑就打印「另开一个窗口运行：ollama serve」，
+    然后问「还是要启动吗？[y/N]」。用户直接回车（默认 N）→ 回菜单 → 服务没起来。
+
+    这体验是错的：启动器就该把依赖拉起来，而不是让用户开第二个窗口。
+
+    三种情况都要处理：
+      · `ollama` 在 PATH 里          → 起 `ollama serve`
+      · 只有桌面版 Ollama（托盘应用） → 起 `ollama app.exe`，它会带起后端
+      · 都找不到                     → 返回失败，让上层给明确指引
+    """
+    # 已经在跑就别重复起
+    if ollama_alive():
+        return True, "已经在线"
+
+    # 找可执行文件：优先 PATH 里的 ollama，其次桌面版安装位置
+    exe = shutil.which("ollama")
+    app = None
+    if not exe:
+        for cand in (
+            os.path.expandvars(r"%LOCALAPPDATA%\Programs\Ollama\ollama.exe"),
+            r"C:\Program Files\Ollama\ollama.exe",
+        ):
+            if os.path.isfile(cand):
+                exe = cand
+                break
+    for cand in (
+        os.path.expandvars(r"%LOCALAPPDATA%\Programs\Ollama\ollama app.exe"),
+        r"C:\Program Files\Ollama\ollama app.exe",
+    ):
+        if os.path.isfile(cand):
+            app = cand
+            break
+
+    if not exe and not app:
+        return False, "找不到 ollama（PATH 和常见安装位置都没有）"
+
+    # 起进程。桌面版用 app（它会自己带起 serve），否则直接 serve
+    try:
+        if app:
+            subprocess.Popen([app], stdout=subprocess.DEVNULL,
+                             stderr=subprocess.DEVNULL,
+                             creationflags=getattr(subprocess,
+                                                   "CREATE_NO_WINDOW", 0))
+        else:
+            subprocess.Popen([exe, "serve"], stdout=subprocess.DEVNULL,
+                             stderr=subprocess.DEVNULL,
+                             creationflags=getattr(subprocess,
+                                                   "CREATE_NO_WINDOW", 0))
+    except Exception as e:                       # noqa: BLE001
+        return False, "启动失败：%s" % str(e)[:60]
+
+    # 等它就绪（首次加载模型可能要几秒）
+    t0 = time.time()
+    while time.time() - t0 < wait_s:
+        if ollama_alive():
+            return True, "已启动（%.1fs）" % (time.time() - t0)
+        time.sleep(0.8)
+    return False, "等了 %ds 还没就绪（可能还在加载）" % wait_s
+
+
 def find_cloudflared():
     """cloudflared 找得到吗。winget 装完不进当前 PATH，所以兜常见路径。"""
     p = shutil.which("cloudflared")
@@ -263,18 +331,73 @@ def stop_all(quiet=False):
     except Exception:
         pass
 
+    # 🔴 2026-11-18：**同时停掉 Ollama**。
+    #
+    #    用户反馈：「好像 ollama 得手动自己启动」——
+    #    既然启动器会自动拉起它（见 start_ollama），停止时就该一起停，
+    #    否则用户以为"停干净了"，实际显存还被占着
+    #    （训练时会因此掉速，2026-11-18 实测过：8 秒/步 → 28 秒/步）。
+    #
+    #    ⚠️ 只在**确实是我们拉起的**或用户明确要停时才停？
+    #       这里选择"总是停"—— 因为 Ollama 只服务这个项目，
+    #       留着它占 900MB 显存没意义。停掉后下次启动器会自动拉起。
+    # 🔴 顺序很关键：**先停 ollama app（托盘程序），再停后端**。
+    #    反过来的话，app 会立刻把 ollama/llama-server 重新拉起来
+    #    （2026-11-18 实测：停完 ollama 后 11434 又通了，因为 app 重拉了）。
+    #
+    # 🔴🔴 解析 tasklist 这条路走了两次都错，最后放弃，改用 taskkill /IM：
+    #    ① 第一版取 parts[1] → `ollama app.exe` 名字带空格，parts[1] 是 'app.exe'
+    #    ② 第二版从后往前找纯数字 → 取到了 '9'（Session# 那一列），杀了不存在的 PID
+    #    根因：tasklist 的输出列数不固定（Mem Usage 可能带逗号、Session Name
+    #    可能是 Services 或 Console），按位置解析必然出错。
+    #
+    #    改用 `taskkill /F /IM <name>.exe` —— 它按映像名杀，不关心 PID，
+    #    且名字带空格也没问题（用列表参数传，不拼字符串）。
+    olla = []
+    for nm in ("ollama app", "ollama", "llama-server"):
+        try:
+            r = subprocess.run(["taskkill", "/F", "/IM", "%s.exe" % nm],
+                               capture_output=True, text=True, encoding="gbk",
+                               errors="replace", timeout=10)
+            if r.returncode == 0:
+                # 从输出里抠 PID 只为打印（"SUCCESS: ... PID 1234"）
+                m2 = re.search(r"PID\s+(\d+)", r.stdout or "")
+                olla.append((nm, m2.group(1) if m2 else "?"))
+        except Exception:
+            continue
+
     if not quiet:
         if killed:
             for name, pid in killed:
                 ok("已停止 %s（PID %s）" % (name, pid))
         else:
             info("没有正在运行的实例。")
+        if olla:
+            for name, pid in olla:
+                ok("已停止 %s（PID %s）—— 释放显存" % (name, pid))
         # 验证
         time.sleep(0.6)
         if port_in_use(PORT):
             warn("端口 %d 仍被占用，可能需要管理员权限" % PORT)
         else:
             ok("端口 %d 已释放" % PORT)
+        if ollama_alive():
+            # 🔴 2026-11-18：Ollama 桌面版的托盘程序会**自动重拉**后端。
+            #    实测：杀掉 ollama 后 1 秒内 11434 又通了。
+            #    所以再扫一轮，把重新起来的也杀掉。
+            warn("Ollama 又被拉起来了，再停一次…")
+            for nm in ("ollama app", "ollama", "llama-server"):
+                try:
+                    subprocess.run(["taskkill", "/F", "/IM", "%s.exe" % nm],
+                                   capture_output=True, text=True, encoding="gbk",
+                                   errors="replace", timeout=10)
+                except Exception:
+                    continue
+            time.sleep(1.5)
+        if ollama_alive():
+            warn("Ollama 仍在运行（11434 还占着）—— 可能有别的实例或服务")
+        else:
+            ok("Ollama 已停止（11434 已释放）")
     return True
 
 
@@ -446,10 +569,18 @@ def preflight(need_tunnel=False):
     ok("程序文件在位")
 
     if not ollama_alive():
-        warn("Ollama 没在跑（11434 端口无响应）")
-        info("网页能打开、界面能看，但**每问一句都会失败**。")
-        info("另开一个窗口运行：ollama serve")
-        good = False
+        # 🔴 2026-11-18：改成**自动拉起**，不再让用户开第二个窗口。
+        #    用户反馈「Ollama 得手动自己启动」—— 那不该是用户的事。
+        info("Ollama 没在跑，正在自动启动…")
+        _ok_o, _msg_o = start_ollama()
+        if _ok_o:
+            ok("Ollama %s" % _msg_o)
+        else:
+            warn("Ollama 启动失败：%s" % _msg_o)
+            info("网页能打开、界面能看，但**每问一句都会失败**。")
+            info("手动启动：另开一个窗口运行 `ollama serve`")
+            info("或双击桌面版 Ollama 图标（托盘出现羊驼即可）")
+            good = False
     else:
         ok("Ollama 在线")
 
@@ -511,6 +642,23 @@ def run_local():
     url = "http://127.0.0.1:%d/?k=%s" % (PORT, ACCESS_CODE)
     banner_mode("本机自用", url,
                 "只有这台电脑能打开（只绑 127.0.0.1），别人连不上。")
+    # 🔴 2026-11-18：**自动打开浏览器**。
+    #
+    #    用户反馈：「启动服务快捷方式启动了也访问不了」
+    #    根因就在这里：run_local 只把 URL 打印出来，然后 hold(proc) 阻塞，
+    #    用户双击 bat 看到的是一个黑窗口，得自己复制 URL 去浏览器 ——
+    #    不会复制的人就以为"访问不了"。
+    #
+    #    修法：服务就绪后自动开默认浏览器。
+    #    延迟 1 秒是为了让 server 的 accept 循环真正就绪
+    #    （wait_server 只测了端口能连，第一帧可能还没准备好）。
+    try:
+        time.sleep(1.0)
+        webbrowser.open(url)
+        ok("已自动打开浏览器（没反应的话手动点上面那个地址）")
+    except Exception as e:                     # noqa: BLE001
+        warn("自动打开浏览器失败：%s" % str(e)[:50])
+        info("手动复制上面的地址到浏览器")
     hold(proc)
 
 
