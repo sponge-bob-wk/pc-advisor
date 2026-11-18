@@ -72,3 +72,8 @@ tools/eval/run.log
 
 # 测试运行产物（每次跑 test_multiturn.py 都变）
 tools/agent/multiturn_result.json
+
+# LoRA 训练产出（126MB adapter + checkpoint，体积大且可重训，不入库）
+tools/agent/lora_out/
+tools/agent/lora_bench/
+tools/agent/train-*.log
