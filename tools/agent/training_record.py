@@ -77,12 +77,49 @@ def _find_state(out_dir=OUT_DIR):
     return None
 
 
+def _read_log_text(path):
+    """读日志文本，自动处理编码。
+
+    🔴 2026-11-18 踩的坑：PowerShell 的 `Tee-Object` 默认写 **UTF-16 LE**（带 BOM
+    0xff 0xfe），而 Python 的 `io.open(encoding="utf-8")` 读会抛
+    `UnicodeDecodeError: invalid start byte 0xff`。
+
+    更坑的是：`Get-Content` 能正常读（它自动识别 BOM），
+    所以 `Select-String` 能看到内容，但 Python 读不到 ——
+    导致正则全部匹配失败，记录里"可训练参数"永远是空。
+
+    做法：先看 BOM 判断编码，读不出来再逐个试。
+    """
+    if not path or not os.path.exists(path):
+        return ""
+    raw = open(path, "rb").read()
+    # UTF-16 LE BOM
+    if raw[:2] in (b"\xff\xfe", b"\xfe\xff"):
+        try:
+            return raw.decode("utf-16")
+        except Exception:
+            pass
+    # UTF-8 BOM
+    if raw[:3] == b"\xef\xbb\xbf":
+        try:
+            return raw.decode("utf-8-sig")
+        except Exception:
+            pass
+    # 逐个试
+    for enc in ("utf-8", "gbk", "utf-16"):
+        try:
+            return raw.decode(enc)
+        except (UnicodeDecodeError, LookupError):
+            continue
+    return raw.decode("utf-8", errors="replace")
+
+
 def _parse_log(path):
     """从训练日志里抽：进度、显存、耗时、中断标记。"""
     info = {}
-    if not path or not os.path.exists(path):
+    txt = _read_log_text(path)
+    if not txt:
         return info
-    txt = io.open(path, encoding="utf-8", errors="replace").read()
     # 总步数
     m = re.search(r"总步数约\s*(\d+)", txt)
     if m:
@@ -105,6 +142,16 @@ def _parse_log(path):
         info["train_minutes"] = float(m.group(1))
         info["interrupted_at_step"] = int(m.group(2))
         info["completed"] = False
+    # 🔴 2026-11-18：训练**进行中**采集时，日志里没有"完成/中断"标记。
+    #    第一版会把 completed 留空，汇总表显示"中断@None"——那是误判。
+    #    改成：既没完成也没中断标记 → 视为"进行中"。
+    if "completed" not in info:
+        info["completed"] = None       # None = 进行中，不是中断
+    # 可训练参数（训练一开始就打出来了，进行中也能采到）
+    m = re.search(r"trainable params:\s*([\d,]+).*?trainable%:\s*([\d.]+)", txt)
+    if m:
+        info["trainable_params"] = int(m.group(1).replace(",", ""))
+        info["trainable_pct"] = float(m.group(2))
     # 可训练参数
     m = re.search(r"trainable params:\s*([\d,]+).*?trainable%:\s*([\d.]+)", txt)
     if m:
@@ -275,9 +322,13 @@ def report(as_md=False):
             eb_s = ("%.3f" % eb) if eb is not None else "—"
             mins = r.get("train_minutes")
             m_s = ("%.0f 分" % mins) if mins is not None else "—"
-            done = "✓" if r.get("completed") else (
-                "中断@%s" % r.get("interrupted_at_step") if r.get("interrupted_at_step")
-                else "—")
+            _c = r.get("completed")
+            if _c is True:
+                done = "✓"
+            elif _c is False:
+                done = "中断@%s" % (r.get("interrupted_at_step") or "?")
+            else:
+                done = "进行中"
             print("| %s | %s | %s | %s | %s | %s | %s | %s |" % (
                 (r.get("recorded_at") or "")[5:16],
                 ds.get("samples", "—"), ds.get("cot_samples", "—"),
@@ -316,8 +367,15 @@ def report(as_md=False):
         if mins is not None:
             print("  耗时  : %.1f 分钟（%.2f 步/秒）" % (
                 mins, r.get("train_steps_per_second") or 0))
-        print("  状态  : %s" % ("完成 ✓" if r.get("completed")
-                               else "中断 @ %s 步" % r.get("interrupted_at_step")))
+        # 🔴 completed 三态：True=训完 / False=中断 / None=进行中
+        _c = r.get("completed")
+        if _c is True:
+            _st = "完成 ✓"
+        elif _c is False:
+            _st = "中断 @ %s 步" % r.get("interrupted_at_step", "?")
+        else:
+            _st = "进行中（采集时还没结束）"
+        print("  状态  : %s" % _st)
     print()
     print("=" * 74)
     print("原始记录：%s" % RECORD)
