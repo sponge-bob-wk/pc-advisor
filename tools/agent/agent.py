@@ -2101,6 +2101,8 @@ def _intro_model(user_text, o):
                     # 「同价位的小新 16SE 有双硬盘位，那个型号可能更值得看」
                     # —— 用户问的是小新 16，回答在安利 16SE。
                     or _other_model_pitch(t, {"ranked": [o]})
+            # 2026-11-18：把当前这台说成别的品牌（「这台属于机械革命暗影精灵」）
+            or _brand_mismatch(t, o)
                     # 🔴 没人写过优缺点的机器，不许替它下结论（2026-11-12 补）
                     or _praise_no_review(t, o))
 
@@ -2774,6 +2776,7 @@ def answer_followup(user_text, m, asked_topics=None):
             #   ⚠️ 光在入口洗 caution 不够：模型可能从 spec / pros 里再拼一次，
             #      出口必须有一条判据兜底 —— 入口洗 + 出口拦，两处都要。
             pitch=_other_model_pitch(t, {"ranked": [m]}),
+            brand=_brand_mismatch(t, m),
             # 🔴🔴 2026-11-17：补齐三条**在 compose / _answer_current 有、
             #    这条路一直漏**的判据。
             #
@@ -2820,6 +2823,13 @@ def answer_followup(user_text, m, asked_topics=None):
                 "你把**另一台型号**当成了这台的卖点或坑 —— 数据里那条讲的是别的机器，"
                 "搬到这台头上等于偷偷换了推荐对象。用户问的是 %s，"
                 "不许拿别的机型来比较、更不许说「更值得看」" % m["name"])
+        # 🔴 2026-11-18：把当前这台说成别的品牌
+        if a1.get("brand"):
+            why.append(
+                "你把当前这台说成了**%s**，但它的品牌是**%s** —— "
+                "品牌归属说错了会直接误导售后/保值判断。"
+                "用户上一句提到的品牌不等于这台的品牌，不许把它安到这台上。"
+                % (a1["brand"]["said"], a1["brand"]["actual"]))
         # 🔴 2026-11-17 补的三条（对应上面 _f_audit 新增的判据）
         if a1.get("power"):
             why.append(
@@ -2957,6 +2967,65 @@ def _cross_cat(text, result):
     if "台式" in names or "主机" in names or "DIY" in names:
         return []
     return hits
+
+
+def _brand_mismatch(text, m):
+    """回答把当前这台说成了**别的品牌**。
+
+    🔴 2026-11-18 实测抓到（用户实测日志第 8 条）：
+      当前机器是「暗影精灵11 锐龙版」，brand=惠普。
+      用户上一句问「有没有**机械**革命的同配置的」——
+      模型在回答里写：「这台机器属于**机械革命**暗影精灵系列」。
+
+      暗影精灵是惠普的产品线，跟机械革命没关系。
+      模型把用户刚提的品牌名，安到了当前机器头上。
+
+    为什么这比"编数字"更危险：
+      品牌归属是用户判断售后/保值的核心依据，说错了会直接误导决策。
+      而且它读起来毫无破绽 —— 用户如果不熟这两个品牌，根本发现不了。
+
+    判据：回答里出现「这台/该机/它 + 属于/是/来自 + 某品牌」这种归属句式，
+    而那个品牌 ≠ 当前机器的 brand → 抓。
+
+    只查品牌名，不查产品线名（暗影精灵/拯救者/天选这些是系列，
+    模型说「属于暗影精灵系列」是对的）。
+    """
+    t = text or ""
+    if not m:
+        return None
+    mine = (m.get("brand") or "").strip()
+    if not mine:
+        return None
+    # 库里所有品牌名（用来识别"回答里提了哪个品牌"）
+    try:
+        brands = set()
+        for o in core.pool_offers():
+            b = (o.get("brand") or "").strip()
+            if b and len(b) >= 2:
+                brands.add(b)
+    except Exception:
+        return None
+    if not brands:
+        return None
+
+    # 归属句式：这台/该机/它/本机 + (可选的"机器"/"笔记本"等) + 属于/是/来自/出自
+    #
+    # 🔴 第一版正则是 `(?:这台|该机|...)[^。；\n]{0,6}(?:属于|是|...)`，
+    #    结果「这台属于机械革命」抓不到 —— 因为 `{0,6}` 贪婪吃掉了"属于"，
+    #    后面的动词组又匹配不到，整体失配。
+    #    改成把中间部分收窄成"可选的品类词"，不用泛化的 `{0,6}`。
+    pat = re.compile(
+        r"(?:这台|该机|这款|它|本机|此机)"
+        r"(?:机器|笔记本|电脑|机型)?"
+        r"(?:属于|是|来自|出自|为)"
+        r"([\u4e00-\u9fa5A-Za-z]{2,10})")
+    for mm in pat.finditer(t):
+        cand = mm.group(1)
+        # 找出这个候选里包含了哪个品牌名
+        for b in brands:
+            if b in cand and b != mine:
+                return {"said": b, "actual": mine, "frag": mm.group(0)[:30]}
+    return None
 
 
 def _other_model_pitch(text, result):
@@ -4516,6 +4585,7 @@ def compose(user_text, result):
             rel=_relative_claim(t, full_corpus),
             # 把「另一台更值得买」说成了这台的坑 —— 等于偷偷换了推荐对象
             pitch=_other_model_pitch(t, result),
+            brand=_brand_mismatch(t, first),
             # 出口范围校验：回答里冒出手机/平板/工作站这类库外品类
             outscope=_out_scope_product(t) or check_scope(t),
             # 把字段名当内容念出来（"品牌售后网点分是 5 分制"）
@@ -4558,6 +4628,13 @@ def compose(user_text, result):
             why.append("把「另一台更值得买」说成了这台的坑 —— "
                        "「要提醒的坑」里提到别的型号时，不要把它当成这台的缺点，"
                        "更不要顺势主推。改用「缺点」里属于这台自己的那一条")
+        if a1.get("brand"):
+            why.append(
+                "你把当前这台说成了**%s**，但它的品牌是**%s** —— "
+                "品牌归属说错了会直接误导售后/保值判断。"
+                "用户上一句提到的品牌不等于这台的品牌，"
+                "不许把它安到这台上。"
+                % (a1["brand"]["said"], a1["brand"]["actual"]))
         if a1["outscope"]:
             why.append("提到了库里没有的品类（" + a1["outscope"] + "）—— "
                        "这轮只谈电脑本身，手机、平板、工作站都不要提")
@@ -4571,6 +4648,11 @@ def compose(user_text, result):
                        "库里没有整机功耗和实测瓦数，"
                        "只说适配器标称多少瓦（如果有），"
                        "然后明说「整机功耗库里没有，判断不了」并指路")
+        # 🔴 2026-11-18：把当前这台说成别的品牌
+        if a1.get("brand"):
+            why.append("你把当前这台说成了**%s**，但它的品牌是**%s** —— "
+                       "品牌归属不许说错，用户提过的品牌不等于这台的品牌"
+                       % (a1["brand"]["said"], a1["brand"]["actual"]))
         msgs2 = [{"role": "system", "content": ANSWER_SYS + STRICT_TAIL},
                  {"role": "user", "content":
                   "数据：" + json.dumps(slim, ensure_ascii=False)
@@ -5679,6 +5761,33 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
     #     认出的专业决定两件事：内存底线、能不能加装。
     #     不新造机制，直接喂给已有的 _minRam / _minUpgrade 硬约束。
     g, mname = core.match_major(user_text)
+    # 🔴 2026-11-18：**已确定的专业不许被单轮悄悄覆盖**。
+    #
+    #    实测事故（用户实测日志第 8 条）：
+    #      第 1 条用户说「我是软件工程专业的」，专业=软件工程，后面 7 条都对。
+    #      第 8 条用户问「有没有**机械**革命的同配置的」——
+    #      「机械革命」是**笔记本品牌**，但专业别名表里有个 '机械'
+    #      → match_major 返回「机械设计制造及其自动化」
+    #      → 专业被覆盖，硬约束从「16G 起、要能加装」变成「32G 起、要独显」
+    #      → 推荐逻辑整个变了，用户看到的是莫名其妙的要求。
+    #
+    #    根因有两层：
+    #      ① 别名表里 '机械' 太宽（已修：删掉，只留「机械设计/机械制造」等）
+    #      ② 就算匹配对了，**单轮提到的专业也不该覆盖已确定的专业** ——
+    #         用户可能只是在引用一个品牌名/产品名。
+    #
+    #    判据：known 里已有专业，而本轮匹配到的是**另一个**专业时：
+    #      · 用户原话里带明确的「我是学/我专业是/我读」这类声明 → 允许改
+    #      · 否则保留原专业，只是本轮不新增约束
+    _MAJOR_DECLARE = re.compile(
+        r"(我是学|我学|我专业是|我读|就读|学的|专业是|主修)")
+    if g and known and known.get("_majorId") \
+            and g.get("id") != known.get("_majorId"):
+        if not _MAJOR_DECLARE.search(user_text or ""):
+            # 不是明确声明换专业 → 保留原来的
+            g = next((x for x in (core.majors_data().get("groups") or [])
+                      if x.get("id") == known["_majorId"]), None)
+            mname = known.get("_majorName") or mname
     if g is None and known and known.get("_majorId"):
         g = next((x for x in (core.majors_data().get("groups") or [])
                   if x.get("id") == known["_majorId"]), None)
