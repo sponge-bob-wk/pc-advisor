@@ -1827,12 +1827,41 @@ def _power_guess(text):
       ② 对"够不够供电"下结论（跑不满/带不动/没法正常用）
     """
     t = text or ""
+    # 🔴 2026-11-18：**先排除"诚实声明"**，再做推测判定。
+    #
+    #    实测误杀（预算8000打游戏，模型原话）：
+    #      「适配器标称 280W，但整机实际功耗数据未记录，宿舍限电通常还需预留余量」
+    #
+    #    这句**完全正确**：280W 是适配器真实数据，而且它明确说了
+    #    「整机实际功耗数据未记录」—— 这正是我们要求的诚实回答。
+    #    但旧判据命中「整机…功耗」+「280W」→ 判成"推测整机功耗"→ 重写
+    #    重写后因为出现「充电器」又被 bad 判据拦 → 最终回退模板
+    #    → 用户看到 117 字的干巴巴配置罗列。
+    #
+    #    教训：判据必须区分「编造」和「声明没有数据」。
+    #    判据：同一句里出现"未记录/没有数据/查不到/判断不了/不知道"等
+    #    免责声明，且没有断言性推测词 → 放行。
+    _HONEST = (r"未记录|没有记录|没记录|无记录|未收录|没有数据|没数据|无数据|"
+               r"查不到|找不到|判断不了|无法判断|不知道|不确定|不清楚|"
+               r"库里没有|数据里没有|没有这个数据")
+    _ASSERT = (r"大概率|肯定会|一定会|必然是|远超|根本没法|肯定跑|"
+               r"严重阉割|必须换|肯定不够")
+    if re.search(_HONEST, t) and not re.search(_ASSERT, t):
+        # 诚实地说了"我没有这个数据" → 不是编造
+        return None
     # ① 功耗推测：出现"功耗"且带推测/断言语气
     if re.search(r"(功耗|瓦数|功率)\s*(设计|通常|一般|大概|大约|约为|超过|远超)", t):
         return "功耗推测"
     # 「大概/通常 + 多少 W」也算推测（除非是适配器标称，那个有数据支撑）
+    #
+    # 🔴 2026-11-18：这条要排除"适配器/充电器"—— 那是真实数据（adapterW），
+    #    说「适配器标称 280W」是**引用数据**，不是推测整机功耗。
     if re.search(r"(整机|满载|实际)\s*(功耗|功率)", t) and \
             re.search(r"\d+\s*[Ww瓦]", t):
+        # 如果这句是在讲适配器/充电器，且有"标称/额定"这类限定 → 放行
+        if re.search(r"(适配器|充电器|电源)\s*(标称|额定|是|为)", t) and \
+                re.search(r"(标称|额定)", t):
+            return None
         return "整机功耗数字"
     # ② 对供电够不够下结论
     if re.search(r"(限电|供电|插座|跳闸)", t) and \
@@ -3028,6 +3057,47 @@ def _brand_mismatch(text, m):
     return None
 
 
+def _strip_violations(text, audit):
+    """外科手术式修正：只删掉违规的句子/数字，保留其余内容。
+
+    🔴 2026-11-18 新增。为什么需要它：
+
+      旧逻辑「审计命中 → 整段换模板」代价太大。
+      实测模型写的：
+        「它属于高配游戏本，适配 240Hz 高刷新率屏幕，适合对画面流畅度
+          有要求的玩家。适配器标称 280W，但整机实际功耗数据未记录…」
+      第一句是**好的**，只有 280W 是编的（这台 adapterW=None）。
+      整段丢掉 → 用户看到 117 字的配置罗列 → 感受是「死板」「low」。
+
+      判据：**能精确删的就不要整段丢**。删不干净（剩余太短或还有违规）
+      再由调用方退回模板。
+
+    做法：
+      ① 按句切分（。！？\\n）
+      ② 逐句重新审计，只保留干净的句子
+      ③ 如果删完不足原长 40%，认为手术失败，返回 None
+    """
+    if not text:
+        return None
+    # 按中文句末标点切句，保留标点
+    parts = re.split(r"(?<=[。！？\n])", text)
+    kept = []
+    for seg in parts:
+        if not seg.strip():
+            continue
+        a = audit(seg) if callable(audit) else audit
+        if any(a.values()):
+            continue          # 这句有违规 → 丢掉
+        kept.append(seg)
+    out = "".join(kept).strip()
+    if not out:
+        return None
+    # 删太多说明原回答主要靠违规内容撑着，手术没意义
+    if len(out) < max(60, int(len(text) * 0.4)):
+        return None
+    return out
+
+
 def _other_model_pitch(text, result):
     """把「另一台更值得买」说成了推荐理由 —— 偷偷换了推荐对象。
 
@@ -3606,7 +3676,11 @@ VALID_PURPOSE = {"office", "gaming", "dev", "video", "design"}
 # 硬约束（过滤条件，不是权重）。这些键跨轮必须继承，
 # 否则「不要封装内存」「要 32G」「不要荣耀」会在下一轮悄悄失效。
 # 新增硬约束时加到这里，不要再去写单点 if。
-HARD_KEYS = ("_minUpgrade", "_minRam", "_excludeBrand", "_cheapest", "_wantDgpu")
+# 🔴 2026-11-18：加 `_minVram`（显存下限）。
+#    专业要求里的 vramMin（如「车辆工程」要 4G 显存）必须跨轮继承，
+#    否则第二轮「换一台」时约束就丢了 —— 那正是这次事故的形态之一。
+HARD_KEYS = ("_minUpgrade", "_minRam", "_excludeBrand", "_cheapest",
+             "_wantDgpu", "_minVram")
 
 
 def normalize_slots(s):
@@ -4041,8 +4115,50 @@ def _data_corpus(result):
 
 
 def check_fabrication(text, corpus):
-    """回答里出现数据没有的硬件/服务描述 → 返回命中的词。"""
-    return [w for w in FABRICATE_WORDS if w in text and w not in corpus]
+    """回答里出现数据没有的硬件/服务描述 → 返回命中的词。
+
+    🔴🔴 2026-11-18 修：**必须区分「声称有」和「说明没有」**。
+
+      实测误杀（预算8000打游戏，模型原话）：
+        「数据里**没有**记录保修年限和具体售后政策，购买前建议直接咨询客服」
+        「只有**充电器**功率信息」
+
+      这两句都是**诚实声明**（承认库里没有数据），却命中了
+      FABRICATE_WORDS 里的「保修」「充电器」→ 判成编造 →
+      整段被删 → 用户看到干巴配置罗列。
+
+      判据：命中词所在的**分句**里如果有否定/缺失语义
+      （没有/无/未/不/缺/查不到/未记录…），那是声明缺失，不是编造。
+
+      为什么按"分句"而不是整段：
+      一段话里可能既说「没有保修数据」又说「有上门服务」，
+      按整段判断会漏掉真正的编造。所以切开看。
+    """
+    hits = []
+    for w in FABRICATE_WORDS:
+        if w not in text:
+            continue
+        if w in corpus:
+            continue
+        # 找出这个词出现的每个分句，逐个判断语境
+        fabricated = False
+        for m in re.finditer(re.escape(w), text):
+            # 取该词所在分句（前后各切到标点）
+            start = max(text.rfind(c, 0, m.start()) for c in "。！？；\n") + 1
+            ends = [text.find(c, m.end()) for c in "。！？；\n"]
+            ends = [x for x in ends if x >= 0]
+            end = min(ends) if ends else len(text)
+            clause = text[start:end]
+            # 否定/缺失语境 → 这句是在说"没有"，不是编造
+            if re.search(r"没有|没记录|未记录|无记录|未收录|没数据|无数据|"
+                         r"没有数据|查不到|找不到|不清楚|不知道|不确定|"
+                         r"缺|待确认|需确认|咨询客服|问客服|看厂商", clause):
+                continue
+            fabricated = True
+            break
+        if fabricated:
+            hits.append(w)
+    return hits
 
 
 def parse_constraints(text, slots):
@@ -4664,9 +4780,28 @@ def compose(user_text, result):
         # 导致「小新 16SE 更值得看」重写后照样放行（2026-11-11 实测）。
         a2 = _audit(txt)
         if _hit(a2):
-            # 仍然编 → 用模板兜底，宁可干巴也不许误导
-            txt = template_reply(first)
-            bad = a2["bad"] or bad
+            # 🔴🔴 2026-11-18：**重写仍违规时，不要整段丢掉换模板**。
+            #
+            #    实测（预算8000打游戏）：模型第一版写的是
+            #      「它属于高配游戏本，适配 240Hz 高刷新率屏幕，
+            #        适合对画面流畅度有要求的玩家。
+            #        适配器标称 280W，但整机实际功耗数据未记录…」
+            #    前面那句是**好的**，只有「280W」是编的（这台 adapterW=None）。
+            #    但旧逻辑一命中就 `txt = template_reply(first)` ——
+            #    整段扔进垃圾桶，用户最后看到 117 字的干巴配置罗列。
+            #    这就是用户说的「太 low」「很死板」的直接原因：
+            #    不是模型不会说，是**它说的话被整段删了**。
+            #
+            #    改法：先试**外科手术** —— 只删掉违规的那句/那个数字，
+            #    保留其余内容。手术失败（删完太短/删不干净）才退回模板。
+            _surgery = _strip_violations(txt, _audit)
+            if _surgery and len(_surgery) >= 60:
+                txt = _surgery
+                bad = a2["bad"] or bad
+            else:
+                # 手术无效 → 用模板兜底，宁可干巴也不许误导
+                txt = template_reply(first)
+                bad = a2["bad"] or bad
 
     # 超预算警告硬保证：不依赖模型愿不愿意提
     for w in budget_warn:
@@ -5804,6 +5939,30 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
             if gate.get("dim") == "upgrade" and gate.get("min"):
                 slots["_minUpgrade"] = max(int(slots.get("_minUpgrade") or 0),
                                            int(gate["min"]))
+            # 🔴 2026-11-18：**GPU 硬约束**。这一条之前完全没有。
+            #
+            #    实测事故（用户实测日志第 10-15 条）：
+            #      用户说「车辆工程专业」→ 专业要求 gpu=discrete / vramMin=4
+            #      → 系统在回答里**自己都说**「要独立显卡（4G 显存起）」
+            #      → 却连续推荐两台核显机（ThinkBook 16+ / Redmi Book Pro 14）
+            #      → 用户指出「你说我这个专业需要显卡但是给我推荐了个没有独显的」
+            #      → 换一台后**还是核显**
+            #
+            #    根因：`req.gpu` / `req.vramMin` / `hardGates[dim=gpu]`
+            #    这三项**只被用来拼文案**（见 _major_brief），
+            #    从来没有落进 slots 当筛选条件。
+            #    所以系统"嘴上说要独显，筛的时候不看"。
+            #
+            #    修法：把 GPU 要求落成 `_minVram`（显存下限，0 表示只要独显）
+            #    + `_wantDgpu`（只要有独显就行），
+            #    由 core.build_recommendation 真正过滤。
+            if gate.get("dim") == "gpu" and gate.get("min"):
+                slots["_wantDgpu"] = True
+        if (req.get("gpu") or "").lower() == "discrete":
+            slots["_wantDgpu"] = True
+        vram_min = int(req.get("vramMin") or 0)
+        if vram_min:
+            slots["_minVram"] = max(int(slots.get("_minVram") or 0), vram_min)
 
     miss = core.missing_required(slots)
     assume_note = []

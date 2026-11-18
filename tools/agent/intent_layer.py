@@ -390,6 +390,29 @@ def classify(text, focus=None, allow_model=True):
     if not t or len(han) < 2:
         return agent.INTENT_UNKNOWN, "rule:无实义"
 
+    # 2. 🔴 2026-11-18：**限电/供电约束** —— 必须在模型之前拦。
+    #
+    #    为什么加（用户实测复现）：
+    #      「宿舍限电400瓦」模型判成 ask_current / topic=battery / fit=True
+    #      正确应该是 state_new_need（在补充一个环境约束，不是问电池）
+    #
+    #    这条在 2026-11-17 修过一次，但那次修的是 **corrections 训练集**
+    #    （加了样本），模型没重训 → 行为没变 → 今天又复现。
+    #    教训：**光有训练样本不够，高频且判据明确的句子要有规则兜底。**
+    #
+    #    判据为什么可靠（这次不是猜的）：
+    #      「限电/供电 + 数字 + 瓦」这个组合，语义只有一种 ——
+    #      用户在校验环境约束。它不可能是"问电池"：
+    #      问电池会说"电池多大/能撑多久"，不会说"限电 400 瓦"。
+    #    反例排除：带问号的"限电 500W 能用吗"——那句也算补充条件
+    #      （用户拿条件问可行性，仍要记槽位），所以问号不影响判定。
+    if re.search(r"(限电|供电|插座|跳闸|功率限制|限功率)", t) and \
+            re.search(r"\d+\s*[Ww瓦千]|[一二三四五六七八九十百]+\s*瓦", t):
+        return agent.INTENT_STATE_NEW_NEED, "rule:限电/供电约束（补充条件）"
+    if re.search(r"(限电|供电|插座|跳闸)", t) and \
+            re.search(r"(宿舍|寝室|家里|学校|租房)", t):
+        return agent.INTENT_STATE_NEW_NEED, "rule:限电场景（补充条件）"
+
     if not allow_model:
         # 没有模型时的纯规则退化路径（离线/模型挂了时用）
         return agent._classify_intent_rule(t, focus), "rule:仅规则（模型禁用）"

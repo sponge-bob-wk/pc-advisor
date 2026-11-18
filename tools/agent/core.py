@@ -1787,6 +1787,50 @@ def build_recommendation(slots, data=None, exclude=None):
                 "这个价位里没有明确「内存可加装」的机型，已放宽 —— "
                 "下面几台内存能不能换，库里没有记录")
 
+    # 🔴🔴 2026-11-18：**GPU 硬约束**（专业要求 gpu=discrete / vramMin）。
+    #
+    #    实测事故：用户「车辆工程专业」→ 专业要求独显 4G 起
+    #    → 系统回答里自己都说「要独立显卡（4G 显存起）」
+    #    → 却连续推荐两台核显机，用户指出后换一台还是核显。
+    #
+    #    根因：GPU 要求只被用来拼文案，从没参与筛选。
+    #
+    #    判据演进（第一版错了，记下来）：
+    #      第一版只排除 `gpu_igpu(o)`（gpuKind=='integrated'）——
+    #      结果 Redmi Book Pro 14 被放行，因为它的 gpuKind 是 **None**
+    #      （人工层 34 台全都没有 GPU 字段）。
+    #      而它实际是核显（Ultra 5 338H，spec 里也没有独显型号）。
+    #
+    #      改成用 `has_dgpu(o)`（gpuKind==discrete **或** spec 含独显型号）。
+    #
+    #    风险评估（改之前先量的）：
+    #      采集层 gpuKind=discrete 的 129 台，has_dgpu 全部 True
+    #      → 「明确独显但 spec 没型号」的台数 = **0**
+    #      → 用 has_dgpu 判定不会误杀任何一台真独显机
+    #
+    #    ⚠️ 过滤后如果空了 → 放宽 + 明确警告（不能悄悄返回核显机，
+    #       那正是这次事故的形态）。
+    _want_dgpu = bool(slots.get("_wantDgpu"))
+    _min_vram = int(slots.get("_minVram") or 0)
+    if _want_dgpu or _min_vram:
+        _kept = []
+        for o in _cand_pool:
+            if not has_dgpu(o):
+                continue                       # 没有独显 → 排除
+            if _min_vram:
+                v = (o.get("gpu") or {}).get("vramGB")
+                if v is not None and int(v) < _min_vram:
+                    continue                   # 显存不够 → 排除
+                # v is None（显存数据缺失）→ 保留，让用户自己核对
+            _kept.append(o)
+        if _kept:
+            _cand_pool = _kept
+        else:
+            out["warnings"].append(
+                "这个条件下库里没有确认带独显的机型，已放宽 —— "
+                "下面几台的显卡配置需要你自己核对")
+            out["dgpu_relaxed"] = True
+
     ranked = rank_offers(_cand_pool, cat, budget, out["mode"], limit=12,
                           purpose=slots.get("purpose"))
 
