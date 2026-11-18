@@ -103,7 +103,12 @@ CFG = {
     "epochs": 3,
     "warmup_ratio": 0.05,
     "logging_steps": 5,
-    "save_steps": 100,
+    # 🔴 2026-11-18：save_steps 从 100 降到 50。
+    #    原因：3 epoch 只有 183 步，save_steps=100 意味着只在第 100 步存一次 ——
+    #    用户想「噪声太大就中途停」时，停在第 80 步就白跑了（没有可用检查点）。
+    #    改成 50：会在 50/100/150 各存一次，任何时刻停都有最近的权重可用。
+    #    save_total_limit=2 保证只留最近两个，不占太多磁盘。
+    "save_steps": 50,
 }
 
 
@@ -145,6 +150,8 @@ def main():
     ap.add_argument("--out", default=OUT_DIR)
     ap.add_argument("--export", action="store_true",
                     help="只做导出（不训练）")
+    ap.add_argument("--resume", action="store_true",
+                    help="从最新的 checkpoint 续训（中断后用）")
     args = ap.parse_args()
 
     # ── 数据检查（不管训不训都做）──
@@ -275,7 +282,11 @@ def main():
         num_train_epochs=args.epochs,
         max_steps=args.max_steps if args.max_steps else -1,
         learning_rate=args.lr,
-        warmup_ratio=CFG["warmup_ratio"],
+        # 🔴 transformers 5.x 移除了 `warmup_ratio`，只保留 `warmup_steps`。
+        #    实测报错：TypeError: TrainingArguments.__init__() got an
+        #    unexpected keyword argument 'warmup_ratio'
+        #    所以这里自己按比例算步数（原来是框架算的）。
+        warmup_steps=max(1, int(total_steps * CFG["warmup_ratio"])),
         logging_steps=CFG["logging_steps"],
         save_steps=CFG["save_steps"],
         save_total_limit=2,
@@ -294,16 +305,72 @@ def main():
 
     print()
     print("=== 开始训练 ===")
-    t0 = time.time()
-    trainer.train()
+    print("提示：噪声大时按 Ctrl+C 可随时中断，已训练的权重会保存下来。")
     print()
-    print("训练完成，耗时 %.1f 分钟" % ((time.time() - t0) / 60))
+    t0 = time.time()
+    interrupted = False
+    # 🔴 2026-11-18：`--resume` 从最新 checkpoint 续训。
+    #    中断后用这个，不用从头跑 28 分钟。
+    _resume = False
+    if args.resume:
+        import glob as _glob
+        _cks = sorted(_glob.glob(os.path.join(args.out, "checkpoint-*")),
+                      key=lambda p: int(p.rsplit("-", 1)[-1] or 0))
+        if _cks:
+            _resume = True
+            print("从检查点续训：%s" % os.path.basename(_cks[-1]))
+        else:
+            print("⚠ 没找到 checkpoint，从头训")
+    try:
+        trainer.train(resume_from_checkpoint=_resume)
+    except KeyboardInterrupt:
+        # 🔴 2026-11-18：用户要求「噪声太大中间可以停」。
+        #    Ctrl+C 会抛 KeyboardInterrupt，如果不捕获，
+        #    后面的 save_pretrained 根本不会执行 —— 白跑。
+        #    捕获后照常往下走，把当前权重存下来。
+        interrupted = True
+        print()
+        print("⚠ 已中断（Ctrl+C）。当前训练到第 %d 步，正在保存权重..."
+              % trainer.state.global_step)
+    elapsed_min = (time.time() - t0) / 60
+    if interrupted:
+        print("中断时已训练 %.1f 分钟，共 %d 步"
+              % (elapsed_min, trainer.state.global_step))
+    else:
+        print()
+        print("训练完成，耗时 %.1f 分钟" % elapsed_min)
 
     print()
     print("=== 保存 LoRA adapter ===")
     model.save_pretrained(args.out)
     tok.save_pretrained(args.out)
     print("  已保存到 %s" % args.out)
+
+    # 🔴 2026-11-18：训练结束（含中断）自动写一条记录。
+    #    用户要求：「训练也要记录日志，这些都是后续毕设作品的量化标准，
+    #    包括写到简历上的项目」。
+    #    所以不靠人工记得去跑 training_record.py，训练完自动落一条。
+    try:
+        import training_record as _tr
+        _rec = _tr.collect()
+        _tr.save(_rec)
+        print()
+        print("=== 训练记录已归档 ===")
+        print("  训练集 %s 条 / CoT %s 条" % (
+            (_rec.get("dataset") or {}).get("samples", "—"),
+            (_rec.get("dataset") or {}).get("cot_samples", "—")))
+        if _rec.get("loss_first") is not None:
+            print("  loss %.3f → %.3f" % (_rec["loss_first"], _rec["loss_last"]))
+        if _rec.get("eval_loss_best") is not None:
+            print("  eval 最优 %.3f" % _rec["eval_loss_best"])
+        print("  汇总：python training_record.py --report --md")
+    except Exception as _e:
+        print("  ⚠ 记录失败（不影响权重）：%s" % _e)
+    if interrupted:
+        print("  ⚠️ 这是**中断时**的权重（第 %d 步），不是训完的。"
+              % trainer.state.global_step)
+        print("     想对比的话，检查点在各 step 子目录：")
+        print("     %s/checkpoint-*/" % args.out)
     print()
     print("下一步：")
     print("  1. 合并权重 + 导出 GGUF（需要 llama.cpp）")
