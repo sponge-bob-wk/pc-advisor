@@ -2,7 +2,7 @@
  "meta": {
   "source": "Notebookcheck Mobile Processors Benchmark List",
   "url": "https://www.notebookcheck.net/Mobile-Processors-Benchmark-List.2436.0.html",
-  "capturedAt": "2026-11-16 21:34",
+  "capturedAt": "2026-11-21 23:03",
   "note": "跨机型聚合值（NBC 汇总表），不是单机实测。写进 bench.json 时必须走 bench_add.py，并标 aggregated=true，不许直接当 perfCurrent。",
   "colMap": {
    "bv_768": "r23",
