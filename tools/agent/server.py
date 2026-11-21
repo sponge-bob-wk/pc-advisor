@@ -133,12 +133,26 @@ class H(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args):
         pass
 
-    def _send(self, code, body, ctype="application/json; charset=utf-8"):
+    def _send(self, code, body, ctype="application/json; charset=utf-8",
+              extra=None):
+        """发响应。
+
+        extra: 额外的响应头（dict）。2026-11-21 加，为了给静态文件
+               设 Cache-Control（默认 no-store 对 CSS/JS 太保守，
+               每次刷新都重新下载）。
+        """
         data = body.encode("utf-8") if isinstance(body, str) else body
         self.send_response(code)
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(data)))
-        self.send_header("Cache-Control", "no-store")
+        # 默认 no-store（API 响应不许缓存）；静态文件用 extra 覆盖
+        if extra and "Cache-Control" in extra:
+            self.send_header("Cache-Control", extra["Cache-Control"])
+        else:
+            self.send_header("Cache-Control", "no-store")
+        for k, v in (extra or {}).items():
+            if k != "Cache-Control":
+                self.send_header(k, v)
         self.end_headers()
         self.wfile.write(data)
 
@@ -181,6 +195,45 @@ class H(BaseHTTPRequestHandler):
         if path in ("/", "/index.html"):
             with open(os.path.join(BASE, "index.html"), "rb") as f:
                 self._send(200, f.read(), "text/html; charset=utf-8")
+        elif path == "/favicon.ico":
+            # 2026-11-21：浏览器默认会请求，返回 204 避免日志噪音
+            self._send(204, b"", "image/x-icon")
+        elif path.startswith("/static/"):
+            # 🔴 2026-11-21：静态文件（CSS/JS）拆出来了。
+            #
+            #    为什么拆：原来 CSS 702 行 + JS 856 行全内联在 index.html 里
+            #    （1660 行 / 91KB），编辑器没语法高亮、git diff 不可读、
+            #    CSS 里积累了 2 个 :root 和 68 处硬编码颜色。
+            #    拆成 style.css / app.js / refresh.js 后，浏览器能缓存，
+            #    改样式不用动 Python。
+            #
+            #    ⚠️ 安全：必须防目录穿越（../ 读出项目文件）。
+            #    做法：规范化后确认仍在 static/ 目录内。
+            rel = path[len("/static/"):]
+            fpath = os.path.normpath(os.path.join(BASE, "static", rel))
+            static_root = os.path.normpath(os.path.join(BASE, "static"))
+            if not fpath.startswith(static_root + os.sep):
+                self._send(403, "forbidden", "text/plain; charset=utf-8")
+                return
+            ext = os.path.splitext(fpath)[1].lower()
+            ctype = {".css": "text/css; charset=utf-8",
+                     ".js": "application/javascript; charset=utf-8",
+                     ".html": "text/html; charset=utf-8",
+                     ".json": "application/json; charset=utf-8",
+                     ".svg": "image/svg+xml",
+                     ".png": "image/png",
+                     ".ico": "image/x-icon"}.get(
+                         ext, "application/octet-stream")
+            try:
+                with open(fpath, "rb") as f:
+                    data = f.read()
+                # CSS/JS 带缓存头（改文件名才能刷新，所以用 must-revalidate）
+                self._send(200, data, ctype,
+                           extra={"Cache-Control": "no-cache, must-revalidate"})
+            except FileNotFoundError:
+                self._send(404, "not found", "text/plain; charset=utf-8")
+            except Exception as e:
+                self._send(500, str(e)[:80], "text/plain; charset=utf-8")
         elif path == "/api/health":
             try:
                 import urllib.request

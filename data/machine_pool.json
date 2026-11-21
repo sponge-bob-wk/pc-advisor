@@ -9138,6 +9138,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
     "cpu.baseGHz",
     "cpu.boostGHz",
@@ -9146,6 +9147,7 @@
     "cpu.maxW",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -9260,7 +9262,9 @@
    "screenTech": "VRR可变刷新率，低蓝光，DC 调光",
    "touchpad": "HP Imagepad 支持多点触控手势",
    "bodyLengthMm": 357.5,
-   "bodyWidthMm": 269.0
+   "bodyWidthMm": 269.0,
+   "brightness": 500,
+   "dGPU": "支持"
   },
   {
    "id": "zol-2139965",
@@ -9341,12 +9345,14 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
     "cpu.vendor",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -9456,7 +9462,9 @@
    "screenTech": "DC调光，支持G-SYNC",
    "touchpad": "RGB触控板",
    "bodyLengthMm": 269.0,
-   "bodyWidthMm": 354.0
+   "bodyWidthMm": 354.0,
+   "brightness": 400,
+   "dGPU": "支持"
   },
   {
    "id": "zol-2181914",
@@ -9528,6 +9536,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "cpu.cores",
     "derivedNotes",
     "gpu.model",
@@ -9626,7 +9635,8 @@
    "screenTech": "10 亿色彩 P3 + Adobe RGB 广色域 原彩显示技术 灵动岛功能 显示屏玻璃：抗反射涂层，防油渍防指纹涂层",
    "touchpad": "力度触控板",
    "bodyLengthMm": 355.5,
-   "bodyWidthMm": 244.2
+   "bodyWidthMm": 244.2,
+   "brightness": 1000
   },
   {
    "id": "zol-2165921",
@@ -9707,6 +9717,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
     "cpu.baseGHz",
     "cpu.boostGHz",
@@ -9825,7 +9836,8 @@
    "screenTech": "窄边框、低蓝光",
    "touchpad": "HP Imagepad 支持多点触控手势",
    "bodyLengthMm": 313.5,
-   "bodyWidthMm": 221.4
+   "bodyWidthMm": 221.4,
+   "brightness": 500
   },
   {
    "id": "zol-2164280",
@@ -9909,6 +9921,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -9917,6 +9930,7 @@
     "cpu.tdpW",
     "cpu.threads",
     "cpu.vendor",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -10027,7 +10041,9 @@
    "screenTech": "DC调光，支持G-SYNC",
    "touchpad": "240Hz触控采样率超大触控板",
    "bodyLengthMm": 270.0,
-   "bodyWidthMm": 354.0
+   "bodyWidthMm": 354.0,
+   "brightness": 400,
+   "dGPU": "支持"
   },
   {
    "id": "zol-2164279",
@@ -10111,6 +10127,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -10119,6 +10136,7 @@
     "cpu.tdpW",
     "cpu.threads",
     "cpu.vendor",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -10234,7 +10252,9 @@
    "screenTech": "DC调光，支持G-SYNC",
    "touchpad": "240Hz触控采样率超大触控板",
    "bodyLengthMm": 270.0,
-   "bodyWidthMm": 354.0
+   "bodyWidthMm": 354.0,
+   "brightness": 400,
+   "dGPU": "支持"
   },
   {
    "id": "zol-2127515",
@@ -10314,7 +10334,9 @@
    "backfilled": [
     "audioSystem",
     "bluetooth",
+    "brightness",
     "certModel",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -10426,7 +10448,9 @@
    "keyboard": "背光键盘",
    "shellColor": "冰魄白，碳晶黑",
    "screenTech": "莱茵TUV认证，Dolby VISION，DisplayHDR 400",
-   "touchpad": "一体式精准触摸板"
+   "touchpad": "一体式精准触摸板",
+   "brightness": 500,
+   "cooling": "乾坤Pro散热"
   },
   {
    "id": "zol-2128381",
@@ -10489,6 +10513,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "derivedNotes",
     "keyboard",
     "ports",
@@ -10575,7 +10600,8 @@
    "screenTech": "10.7亿色",
    "touchpad": "压力触控板，支持5点触控",
    "bodyLengthMm": 382.5,
-   "bodyWidthMm": 288.5
+   "bodyWidthMm": 288.5,
+   "brightness": 700
   },
   {
    "id": "zol-2137389",
@@ -10652,11 +10678,14 @@
     "adapterW",
     "audioSystem",
     "bluetooth",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -10734,7 +10763,10 @@
    "shellMaterial": "A面金属",
    "adapterW": 230,
    "adapterText": "230W轻量化SiC电源适配器",
-   "shellColor": "白色"
+   "shellColor": "白色",
+   "brightness": 500,
+   "cooling": "全新冰霜散热架构",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2159315",
@@ -10807,6 +10839,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
     "cpu.cores",
     "cpu.model",
@@ -10909,7 +10942,8 @@
    "screenTech": "10亿色彩，sRGB色域",
    "touchpad": "多点触控板",
    "bodyLengthMm": 206.4,
-   "bodyWidthMm": 297.5
+   "bodyWidthMm": 297.5,
+   "brightness": 500
   },
   {
    "id": "zol-2168160",
@@ -10991,6 +11025,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -11111,7 +11147,9 @@
    "screenTech": "10.7亿色彩，4320Hz超高频PWM，178度可视角度，德国莱茵硬件低蓝光护眼认证，德国莱茵无频闪护眼认证，通过中标院VICO A+认证",
    "touchpad": "触摸板，支持5点触控（Windows 11 当前最多支持四点手势识别)",
    "bodyLengthMm": 319.8,
-   "bodyWidthMm": 231.8
+   "bodyWidthMm": 231.8,
+   "brightness": 700,
+   "cooling": "全新智冷散热设计"
   },
   {
    "id": "zol-2121879",
@@ -11192,6 +11230,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -11311,7 +11351,9 @@
    "screenTech": "10.7亿色彩，4320Hz超高频PWM，178度可视角度，德国莱茵硬件低蓝光护眼认证，德国莱茵无频闪护眼认证，通过中标院VICO A+认证",
    "touchpad": "触摸板，支持5点触控（Windows 11 当前最多支持四点手势识别)",
    "bodyLengthMm": 319.8,
-   "bodyWidthMm": 231.8
+   "bodyWidthMm": 231.8,
+   "brightness": 700,
+   "cooling": "全新智冷散热设计"
   },
   {
    "id": "zol-2173486",
@@ -11394,7 +11436,9 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -11523,7 +11567,9 @@
    "screenTech": "防眩光",
    "touchpad": "支持多点触控手势的高精度玻璃触控板",
    "bodyLengthMm": 200.7,
-   "bodyWidthMm": 296.9
+   "bodyWidthMm": 296.9,
+   "brightness": 500,
+   "cooling": "双风扇设计"
   },
   {
    "id": "zol-2165374",
@@ -11605,6 +11651,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
     "cpu.baseGHz",
     "cpu.boostGHz",
@@ -11727,7 +11774,8 @@
    "screenTech": "Eyesafe护眼认证，低蓝光认证，10.7亿色彩，10bits色深",
    "touchpad": "120mm加大触控板",
    "bodyLengthMm": 312.5,
-   "bodyWidthMm": 215.8
+   "bodyWidthMm": 215.8,
+   "brightness": 500
   },
   {
    "id": "zol-2165373",
@@ -11809,6 +11857,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
     "cpu.baseGHz",
     "cpu.boostGHz",
@@ -11930,7 +11979,8 @@
    "screenTech": "Eyesafe护眼认证，低蓝光认证，10.7亿色彩，10bits色深",
    "touchpad": "120mm加大触控板",
    "bodyLengthMm": 312.5,
-   "bodyWidthMm": 215.8
+   "bodyWidthMm": 215.8,
+   "brightness": 500
   },
   {
    "id": "zol-2165372",
@@ -12012,6 +12062,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
     "cpu.baseGHz",
     "cpu.boostGHz",
@@ -12133,7 +12184,8 @@
    "screenTech": "Eyesafe护眼认证，低蓝光认证，10.7亿色彩，10bits色深",
    "touchpad": "120mm加大触控板",
    "bodyLengthMm": 312.5,
-   "bodyWidthMm": 215.8
+   "bodyWidthMm": 215.8,
+   "brightness": 500
   },
   {
    "id": "zol-2137401",
@@ -12210,6 +12262,8 @@
    "confidence": "medium",
    "backfilled": [
     "bluetooth",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -12217,6 +12271,7 @@
     "cpu.maxW",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -12304,7 +12359,10 @@
    "keyboard": "全尺寸键盘> ，背光键盘",
    "shellMaterial": "A面金属",
    "shellColor": "月光灰",
-   "screenTech": "VRR可变刷新率，全DC调光，HDR高动态显示"
+   "screenTech": "VRR可变刷新率，全DC调光，HDR高动态显示",
+   "brightness": 500,
+   "cooling": "飓风散热架构，三风扇旗舰级进风配置，多维贯穿式风道，内导流聚风鳍片，全域冰封铠甲，4×高性能热管",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2128706",
@@ -12382,6 +12440,8 @@
    "backfilled": [
     "audioSystem",
     "bluetooth",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -12472,7 +12532,9 @@
    "speakers": "内置扬声器",
    "audioSystem": "内置音效芯片",
    "keyboard": "全尺寸键盘（包含独立数字键盘）",
-   "shellColor": "碳晶黑"
+   "shellColor": "碳晶黑",
+   "brightness": 500,
+   "cooling": "第二代乾坤散热"
   },
   {
    "id": "zol-1370180",
@@ -12557,11 +12619,13 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.type",
     "gpu.vendor",
@@ -12686,7 +12750,9 @@
    "screenTech": "FHD， LED背光> ，DC调光，支持Sync",
    "touchpad": "触摸板",
    "bodyLengthMm": 359.8,
-   "bodyWidthMm": 256.0
+   "bodyWidthMm": 256.0,
+   "cooling": "双风扇，四热管，三出风口，冰川散热架构",
+   "dGPU": "不支持"
   },
   {
    "id": "zol-2168787",
@@ -12768,6 +12834,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -12882,7 +12949,8 @@
    "screenTech": "AG防眩光雾面屏，菜茵护眼，DC调光",
    "touchpad": "悦滑触控板",
    "bodyLengthMm": 236.0,
-   "bodyWidthMm": 339.3
+   "bodyWidthMm": 339.3,
+   "brightness": 400
   },
   {
    "id": "zol-2165482",
@@ -12967,6 +13035,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
     "cpu.baseGHz",
     "cpu.boostGHz",
@@ -12975,6 +13044,7 @@
     "cpu.maxW",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -13087,7 +13157,9 @@
    "screenTech": "VRR可变刷新率，低蓝光，DC 调光",
    "touchpad": "HP Imagepad 支持多点触控手势",
    "bodyLengthMm": 357.5,
-   "bodyWidthMm": 269.0
+   "bodyWidthMm": 269.0,
+   "brightness": 500,
+   "dGPU": "支持"
   },
   {
    "id": "zol-2165481",
@@ -13172,6 +13244,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
     "cpu.baseGHz",
     "cpu.boostGHz",
@@ -13180,6 +13253,7 @@
     "cpu.maxW",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.model",
     "gpu.type",
@@ -13292,7 +13366,9 @@
    "screenTech": "VRR可变刷新率，低蓝光，DC 调光",
    "touchpad": "HP Imagepad 支持多点触控手势",
    "bodyLengthMm": 357.5,
-   "bodyWidthMm": 269.0
+   "bodyWidthMm": 269.0,
+   "brightness": 500,
+   "dGPU": "支持"
   },
   {
    "id": "zol-2165480",
@@ -13378,7 +13454,9 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -13386,6 +13464,7 @@
     "cpu.maxW",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -13499,7 +13578,10 @@
    "screenTech": "VRR可变刷新率，低蓝光，DC 调光",
    "touchpad": "HP Imagepad 支持多点触控手势",
    "bodyLengthMm": 357.5,
-   "bodyWidthMm": 269.0
+   "bodyWidthMm": 269.0,
+   "brightness": 500,
+   "cooling": "酷凉风暴Pro散热技术",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2165479",
@@ -13585,6 +13667,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
     "cpu.baseGHz",
     "cpu.boostGHz",
@@ -13593,6 +13676,7 @@
     "cpu.maxW",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -13705,7 +13789,9 @@
    "screenTech": "VRR可变刷新率，低蓝光，DC 调光",
    "touchpad": "HP Imagepad 支持多点触控手势",
    "bodyLengthMm": 357.5,
-   "bodyWidthMm": 269.0
+   "bodyWidthMm": 269.0,
+   "brightness": 500,
+   "dGPU": "支持"
   },
   {
    "id": "zol-2173891",
@@ -13774,6 +13860,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
     "cpu.maxW",
     "cpu.tdpW",
@@ -13884,7 +13971,8 @@
    "screenTech": "莱茵Eye Comfort 3.0认证，178度，10.7亿色",
    "touchpad": "HUAWEI Free Touch触控板，支持5点触控，支持触控板手写笔手写",
    "bodyLengthMm": 310.8,
-   "bodyWidthMm": 220.8
+   "bodyWidthMm": 220.8,
+   "brightness": 600
   },
   {
    "id": "zol-2167818",
@@ -13968,6 +14056,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -13975,6 +14065,7 @@
     "cpu.maxW",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -14089,7 +14180,10 @@
    "screenTech": "硬件级低蓝光，莱茵TUV认证，G-SYNC，FreeSync Premium，DisplayHDR 400",
    "touchpad": "一体式精准触摸板",
    "bodyLengthMm": 364.4,
-   "bodyWidthMm": 275.9
+   "bodyWidthMm": 275.9,
+   "brightness": 500,
+   "cooling": "第二代乾坤Pro散热系统",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2138630",
@@ -14172,7 +14266,9 @@
     "audioSystem",
     "batteryLifeH",
     "batteryLifeText",
+    "brightness",
     "certModel",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -14270,7 +14366,9 @@
    "shellMaterial": "金属",
    "adapterW": 100,
    "adapterText": "100W 3PIN氮化镓电源适配器",
-   "shellColor": "灰色，全金属机身"
+   "shellColor": "灰色，全金属机身",
+   "brightness": 400,
+   "cooling": "并联双热管散热架构"
   },
   {
    "id": "zol-2137419",
@@ -14354,6 +14452,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -14362,6 +14462,7 @@
     "cpu.tdpW",
     "cpu.threads",
     "cpu.vendor",
+    "dGPU",
     "derivedNotes",
     "efficiency",
     "gpu.tgpMaxW",
@@ -14462,7 +14563,10 @@
    "screenTech": "DC调光，支持G-SYNC，FreeSync，DisplayHDR 400，硬件级低蓝光莱茵TUV认证，Dolby VISION",
    "touchpad": "一体式精准触摸板",
    "bodyLengthMm": 364.4,
-   "bodyWidthMm": 268.1
+   "bodyWidthMm": 268.1,
+   "brightness": 500,
+   "cooling": "第二代乾坤散热，高速机内风道，3DMesh复合式热管，猎鹰风扇2.0",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2137418",
@@ -14546,6 +14650,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -14554,6 +14660,7 @@
     "cpu.tdpW",
     "cpu.threads",
     "cpu.vendor",
+    "dGPU",
     "derivedNotes",
     "efficiency",
     "gpu.tgpMaxW",
@@ -14654,7 +14761,10 @@
    "screenTech": "DC调光，支持G-SYNC，FreeSync，DisplayHDR 400，硬件级低蓝光莱茵TUV认证，Dolby VISION",
    "touchpad": "一体式精准触摸板",
    "bodyLengthMm": 364.4,
-   "bodyWidthMm": 268.1
+   "bodyWidthMm": 268.1,
+   "brightness": 500,
+   "cooling": "第二代乾坤散热，高速机内风道，3DMesh复合式热管，猎鹰风扇2.0",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2137417",
@@ -14738,6 +14848,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -14746,6 +14858,7 @@
     "cpu.tdpW",
     "cpu.threads",
     "cpu.vendor",
+    "dGPU",
     "derivedNotes",
     "efficiency",
     "gpu.tgpMaxW",
@@ -14848,7 +14961,10 @@
    "screenTech": "DC调光，支持G-SYNC，FreeSync，DisplayHDR 400，硬件级低蓝光莱茵TUV认证，Dolby VISION",
    "touchpad": "一体式精准触摸板",
    "bodyLengthMm": 364.4,
-   "bodyWidthMm": 268.1
+   "bodyWidthMm": 268.1,
+   "brightness": 500,
+   "cooling": "第二代乾坤散热，高速机内风道，3DMesh复合式热管，猎鹰风扇2.0",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2137416",
@@ -14932,6 +15048,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -14940,6 +15058,7 @@
     "cpu.tdpW",
     "cpu.threads",
     "cpu.vendor",
+    "dGPU",
     "derivedNotes",
     "efficiency",
     "gpu.tgpMaxW",
@@ -15040,7 +15159,10 @@
    "screenTech": "DC调光，支持G-SYNC，FreeSync，DisplayHDR 400，硬件级低蓝光莱茵TUV认证，Dolby VISION",
    "touchpad": "一体式精准触摸板",
    "bodyLengthMm": 364.4,
-   "bodyWidthMm": 268.1
+   "bodyWidthMm": 268.1,
+   "brightness": 500,
+   "cooling": "第二代乾坤散热，高速机内风道，3DMesh复合式热管，猎鹰风扇2.0",
+   "dGPU": "支持"
   },
   {
    "id": "zol-1295682",
@@ -15323,6 +15445,8 @@
     "batteryLifeH",
     "batteryLifeText",
     "bluetooth",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -15434,7 +15558,9 @@
    "audioSystem": "杜比音效认证",
    "keyboard": "背光键盘",
    "shellMaterial": "金属材质",
-   "shellColor": "颜色：灰色"
+   "shellColor": "颜色：灰色",
+   "brightness": 300,
+   "cooling": "双风扇散热，牛角式热管"
   },
   {
    "id": "zol-2127545",
@@ -15519,6 +15645,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -15526,6 +15654,7 @@
     "cpu.maxW",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -15656,7 +15785,10 @@
    "screenTech": "TB-HDR1000，G-SYNC，T?V 硬件级低蓝光认证，X-Rite 色彩管理，杜比视界，10bit色深",
    "touchpad": "120mm*75mm 一体式精准触摸板",
    "bodyLengthMm": 275.9,
-   "bodyWidthMm": 364.4
+   "bodyWidthMm": 364.4,
+   "brightness": 1100,
+   "cooling": "乾坤 Ultra 散热系统 2.0，全区 Vapor Chamber 真空液冷导热，搭配2颗猎鹰风扇+1颗内吹风扇",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2125908",
@@ -15741,6 +15873,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -15748,6 +15882,7 @@
     "cpu.maxW",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -15879,7 +16014,10 @@
    "screenTech": "TB-HDR1000，G-SYNC，T?V 硬件级低蓝光认证，X-Rite 色彩管理，杜比视界，10bit色深",
    "touchpad": "120mm*75mm 一体式精准触摸板",
    "bodyLengthMm": 275.9,
-   "bodyWidthMm": 364.4
+   "bodyWidthMm": 364.4,
+   "brightness": 1100,
+   "cooling": "乾坤 Ultra 散热系统 2.0，全区 Vapor Chamber 真空液冷导热，搭配2颗猎鹰风扇+1颗内吹风扇",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2167081",
@@ -15959,10 +16097,12 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -16073,7 +16213,9 @@
    "screenTech": "DC调光，支持G-SYNC",
    "touchpad": "RGB触控板",
    "bodyLengthMm": 269.0,
-   "bodyWidthMm": 354.0
+   "bodyWidthMm": 354.0,
+   "brightness": 400,
+   "dGPU": "支持"
   },
   {
    "id": "zol-2120369",
@@ -16147,6 +16289,7 @@
     "adapterW",
     "audioSystem",
     "bluetooth",
+    "brightness",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -16238,7 +16381,8 @@
    "speakers": "2×立体声音响",
    "audioSystem": "Dolby Atmos",
    "adapterW": 140,
-   "adapterText": "140W GT闪充"
+   "adapterText": "140W GT闪充",
+   "brightness": 1100
   },
   {
    "id": "zol-2175978",
@@ -16321,6 +16465,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -16444,7 +16590,9 @@
    "screenTech": "Display HDR1000，10.7亿色彩，莱茵无频闪，莱茵硬件低蓝光",
    "touchpad": "大尺寸触控板",
    "bodyLengthMm": 222.0,
-   "bodyWidthMm": 313.4
+   "bodyWidthMm": 313.4,
+   "brightness": 500,
+   "cooling": "极?风神MAX轻音内吹散热"
   },
   {
    "id": "zol-2175977",
@@ -16527,6 +16675,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -16650,7 +16800,9 @@
    "screenTech": "Display HDR1000，10.7亿色彩，莱茵无频闪，莱茵硬件低蓝光",
    "touchpad": "大尺寸触控板",
    "bodyLengthMm": 222.0,
-   "bodyWidthMm": 313.4
+   "bodyWidthMm": 313.4,
+   "brightness": 500,
+   "cooling": "极?风神MAX轻音内吹散热"
   },
   {
    "id": "zol-2154434",
@@ -16728,6 +16880,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -16840,7 +16994,9 @@
    "screenTech": "10亿色彩，莱茵硬件低蓝光，SGS Eye Care护眼认证",
    "touchpad": "7.1\"巨无霸触控板",
    "bodyLengthMm": 354.2,
-   "bodyWidthMm": 250.2
+   "bodyWidthMm": 250.2,
+   "brightness": 1100,
+   "cooling": "双风扇+双热管"
   },
   {
    "id": "zol-2130961",
@@ -16912,10 +17068,12 @@
    "backfilled": [
     "bodyLengthMm",
     "bodyWidthMm",
+    "cooling",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.type",
     "gpu.vendor",
@@ -16978,7 +17136,9 @@
    "keyboard": "背光键盘， 全尺寸键盘（包含独立数字键盘）",
    "shellColor": "雾屿白",
    "bodyLengthMm": 361.0,
-   "bodyWidthMm": 259.0
+   "bodyWidthMm": 259.0,
+   "cooling": "寒极3.0散热架构",
+   "dGPU": "支持"
   },
   {
    "id": "zol-1101987",
@@ -17687,7 +17847,9 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -17695,6 +17857,7 @@
     "cpu.maxW",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -17812,7 +17975,10 @@
    "screenTech": "硬件级低蓝光，莱茵TUV认证，DisplayHDR400，10bit色深",
    "touchpad": "一体式AG玻璃精准触摸板",
    "bodyLengthMm": 296.9,
-   "bodyWidthMm": 403.0
+   "bodyWidthMm": 403.0,
+   "brightness": 500,
+   "cooling": "乾坤创世散热系统",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2167676",
@@ -17896,7 +18062,9 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -17904,6 +18072,7 @@
     "cpu.maxW",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -18022,7 +18191,10 @@
    "screenTech": "硬件级低蓝光，莱茵TUV认证，DisplayHDR400，10bit色深",
    "touchpad": "一体式AG玻璃精准触摸板",
    "bodyLengthMm": 296.9,
-   "bodyWidthMm": 403.0
+   "bodyWidthMm": 403.0,
+   "brightness": 500,
+   "cooling": "乾坤创世散热系统",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2101023",
@@ -18989,7 +19161,9 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
+    "cooling",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
@@ -19113,7 +19287,9 @@
    "screenTech": "德国菜茵Method2低蓝光认证",
    "touchpad": "触摸板",
    "bodyLengthMm": 295.3,
-   "bodyWidthMm": 199.0
+   "bodyWidthMm": 199.0,
+   "brightness": 400,
+   "cooling": "双风扇，双侧进风"
   },
   {
    "id": "zol-2161082",
@@ -19192,6 +19368,7 @@
     "adapterText",
     "audioSystem",
     "bluetooth",
+    "brightness",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -19290,7 +19467,8 @@
    "audioSystem": "Dolby Atmos",
    "keyboard": "背光键盘",
    "adapterText": "自适应交流电源适配器",
-   "shellColor": "深空灰"
+   "shellColor": "深空灰",
+   "brightness": 1100
   },
   {
    "id": "zol-2164161",
@@ -19902,6 +20080,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -20026,7 +20205,8 @@
    "screenTech": "FHD， LED背光> ，6.9mm边框，180度开合",
    "touchpad": "多点触摸板，Trackpoint指点杆",
    "bodyLengthMm": 329.0,
-   "bodyWidthMm": 242.0
+   "bodyWidthMm": 242.0,
+   "cooling": "黑酷散热技术"
   },
   {
    "id": "zol-1210926",
@@ -22048,6 +22228,8 @@
     "adapterText",
     "adapterW",
     "audioSystem",
+    "brightness",
+    "cooling",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
@@ -22142,7 +22324,9 @@
    "adapterW": 90,
    "adapterText": "100V-240V 90W 自适应交流电源适配器",
    "screenTech": "莱茵TUV硬件级防蓝光认证，DC调光",
-   "touchpad": "触摸板"
+   "touchpad": "触摸板",
+   "brightness": 350,
+   "cooling": "双风扇，双热管"
   },
   {
    "id": "zol-2129143",
@@ -22222,6 +22406,7 @@
     "batteryLifeH",
     "batteryLifeText",
     "bluetooth",
+    "brightness",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -22328,7 +22513,8 @@
    "audioSystem": "Nahimic音效认证",
    "shellMaterial": "全镁合金，亲肤喷漆",
    "shellColor": "银色，进风口/C面转轴边缘一体化设计，金属+硅胶脚垫",
-   "screenTech": "TUV莱茵硬件低蓝光认证"
+   "screenTech": "TUV莱茵硬件低蓝光认证",
+   "brightness": 500
   },
   {
    "id": "zol-2122122",
@@ -22411,12 +22597,15 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -22529,7 +22718,10 @@
    "screenTech": "ROG 星云原画屏， 防眩光屏> ，Pantone 色彩认证，支持 Dolby Vision",
    "touchpad": "超大触控板",
    "bodyLengthMm": 399.0,
-   "bodyWidthMm": 298.0
+   "bodyWidthMm": 298.0,
+   "brightness": 1200,
+   "cooling": "冰川散热架构3.0增强版",
+   "dGPU": "支持"
   },
   {
    "id": "zol-1102092",
@@ -22828,6 +23020,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -22946,7 +23139,8 @@
    "screenTech": "德国莱茵软件低蓝光护眼认证，德国莱茵无频闪护眼认证，178度可视角度",
    "touchpad": "支持5点触控",
    "bodyLengthMm": 311.5,
-   "bodyWidthMm": 215.5
+   "bodyWidthMm": 215.5,
+   "brightness": 300
   },
   {
    "id": "zol-2164772",
@@ -23030,6 +23224,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
     "cpu.baseGHz",
     "cpu.boostGHz",
@@ -23149,7 +23344,8 @@
    "screenTech": "VRR可变刷新率，DC调光",
    "touchpad": "一体化多点触控触摸板",
    "bodyLengthMm": 357.5,
-   "bodyWidthMm": 269.0
+   "bodyWidthMm": 269.0,
+   "brightness": 500
   },
   {
    "id": "zol-1412659",
@@ -23228,6 +23424,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -23339,7 +23537,9 @@
    "screenTech": "DC调光，莱茵TUV硬件低蓝光认证，莱茵TUV Eyesafe认证",
    "touchpad": "触摸板",
    "bodyLengthMm": 357.0,
-   "bodyWidthMm": 252.0
+   "bodyWidthMm": 252.0,
+   "brightness": 400,
+   "cooling": "双风扇，双热管，双出风口"
   },
   {
    "id": "zol-2122121",
@@ -23418,7 +23618,9 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -23545,7 +23747,9 @@
    "adapterText": "100V-240V 200W 自适应交流电源适配器",
    "screenTech": "ROG 星云屏，镜面显示屏，Adaptive-Sync，Pantone 色彩认证，支持Dolby Vision:",
    "bodyLengthMm": 300.0,
-   "bodyWidthMm": 204.0
+   "bodyWidthMm": 204.0,
+   "brightness": 500,
+   "cooling": "冰川散热架构2.0增强版"
   },
   {
    "id": "zol-2122120",
@@ -23624,7 +23828,9 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -23751,7 +23957,9 @@
    "adapterText": "100V-240V 200W 自适应交流电源适配器",
    "screenTech": "ROG 星云屏，镜面显示屏，Adaptive-Sync，Pantone 色彩认证，支持Dolby Vision:",
    "bodyLengthMm": 300.0,
-   "bodyWidthMm": 204.0
+   "bodyWidthMm": 204.0,
+   "brightness": 500,
+   "cooling": "冰川散热架构2.0增强版"
   },
   {
    "id": "zol-2122119",
@@ -23831,7 +24039,9 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -23956,7 +24166,9 @@
    "adapterText": "100V-240V 200W 自适应交流电源适配器",
    "screenTech": "ROG 星云屏，镜面显示屏，Adaptive-Sync，Pantone 色彩认证，支持Dolby Vision:",
    "bodyLengthMm": 300.0,
-   "bodyWidthMm": 204.0
+   "bodyWidthMm": 204.0,
+   "brightness": 500,
+   "cooling": "冰川散热架构2.0增强版"
   },
   {
    "id": "zol-1313463",
@@ -24030,6 +24242,7 @@
     "adapterText",
     "audioSystem",
     "bluetooth",
+    "brightness",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -24136,7 +24349,8 @@
    "keyboard": "背光键盘",
    "adapterText": "100V-240V 自适应交流电源适配器",
    "shellColor": "黑色",
-   "touchpad": "触摸板"
+   "touchpad": "触摸板",
+   "brightness": 500
   },
   {
    "id": "zol-1396293",
@@ -24221,6 +24435,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -24228,6 +24444,7 @@
     "cpu.maxW",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -24340,7 +24557,10 @@
    "screenTech": "杜比视界，DC调光",
    "touchpad": "触摸板",
    "bodyLengthMm": 358.8,
-   "bodyWidthMm": 262.4
+   "bodyWidthMm": 262.4,
+   "brightness": 300,
+   "cooling": "双风扇，五热管，四出风口",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2122626",
@@ -24583,6 +24803,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -24703,7 +24924,8 @@
    "screenTech": "FHD， LED背光> ，IPS屏，6.7mm窄边框，84%屏占比，100%sRGB，300nits，DC调光",
    "touchpad": "触摸板",
    "bodyLengthMm": 361.0,
-   "bodyWidthMm": 267.0
+   "bodyWidthMm": 267.0,
+   "cooling": "散热模组：一体化 散热鳍片：纯铜 复合式热管：3*8mm 热管效率提升：29% 噪音降低：10% 满载核心温度降低：4℃ 双模增强显示（DDG显卡增强） TSI霜刃散热2.0 四出风口设计"
   },
   {
    "id": "zol-1313461",
@@ -24963,6 +25185,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -25096,7 +25320,9 @@
    "screenTech": "Over Drive 3ms，支持杜比视界，HDR400，支持G-Sync，支持FreeSync Premium，DC调光",
    "touchpad": "触摸板",
    "bodyLengthMm": 360.0,
-   "bodyWidthMm": 264.0
+   "bodyWidthMm": 264.0,
+   "brightness": 500,
+   "cooling": "双风扇，10mm主热管，4出风口，多区进风，霜刃Pro散热系统3.0"
   },
   {
    "id": "zol-399582",
@@ -25176,6 +25402,7 @@
     "cpu.model",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.model",
     "gpu.type",
@@ -25285,7 +25512,8 @@
    "screenTech": "HD， LED背光",
    "touchpad": "触摸板",
    "bodyLengthMm": 382.0,
-   "bodyWidthMm": 256.0
+   "bodyWidthMm": 256.0,
+   "dGPU": "不支持"
   },
   {
    "id": "zol-1339320",
@@ -25575,6 +25803,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
     "cpu.boostGHz",
     "cpu.cores",
@@ -25664,7 +25893,8 @@
    "adapterW": 100,
    "adapterText": "100V-240V 100W 自适应交流电源适配器",
    "bodyLengthMm": 312.0,
-   "bodyWidthMm": 220.2
+   "bodyWidthMm": 220.2,
+   "brightness": 400
   },
   {
    "id": "zol-2128701",
@@ -25747,6 +25977,8 @@
     "adapterW",
     "audioSystem",
     "bluetooth",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -25754,6 +25986,7 @@
     "cpu.maxW",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "efficiency",
     "gpu.tgpMaxW",
@@ -25858,7 +26091,10 @@
    "adapterText": "140W USB Type-C电源适配器",
    "shellColor": "冰魄白，碳晶黑",
    "screenTech": "HDR1000 Trueblack认证，10bit",
-   "touchpad": "一体式精准触摸板"
+   "touchpad": "一体式精准触摸板",
+   "brightness": 1100,
+   "cooling": "第二代乾坤Pro散热系统",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2127514",
@@ -25940,7 +26176,9 @@
     "adapterW",
     "audioSystem",
     "bluetooth",
+    "brightness",
     "certModel",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -25948,6 +26186,7 @@
     "cpu.maxW",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -26057,7 +26296,10 @@
    "adapterText": "140W USB Type-C电源适配器",
    "shellColor": "冰魄白，碳晶黑",
    "screenTech": "HDR1000 Trueblack认证，10bit",
-   "touchpad": "一体式精准触摸板"
+   "touchpad": "一体式精准触摸板",
+   "brightness": 1100,
+   "cooling": "第二代乾坤Pro散热系统",
+   "dGPU": "支持"
   },
   {
    "id": "zol-1161821",
@@ -26339,7 +26581,9 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -26462,7 +26706,9 @@
    "shellColor": "黑色",
    "screenTech": "AG防眩光，TUV低蓝光护眼认证",
    "bodyLengthMm": 313.0,
-   "bodyWidthMm": 217.3
+   "bodyWidthMm": 217.3,
+   "brightness": 500,
+   "cooling": "双风扇散热系统"
   },
   {
    "id": "zol-1371997",
@@ -26544,6 +26790,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -26673,7 +26921,9 @@
    "screenTech": "原生5ms，Over Drive 3ms，支持杜比视界，支持G-Sync，DC调光",
    "touchpad": "触摸板",
    "bodyLengthMm": 360.0,
-   "bodyWidthMm": 264.0
+   "bodyWidthMm": 264.0,
+   "brightness": 300,
+   "cooling": "双风扇，3热管（8mm），4出风口，多区进风，霜刃散热系统3.0"
   },
   {
    "id": "zol-2103849",
@@ -26747,6 +26997,7 @@
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.type",
     "gpu.vendor",
@@ -26830,7 +27081,8 @@
    "audioSystem": "Nahimic音效",
    "keyboard": "背光键盘",
    "shellMaterial": "A面金属",
-   "touchpad": "触摸板"
+   "touchpad": "触摸板",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2103848",
@@ -26904,6 +27156,7 @@
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.type",
     "gpu.vendor",
@@ -26987,7 +27240,8 @@
    "audioSystem": "Nahimic音效",
    "keyboard": "背光键盘",
    "shellMaterial": "A面金属",
-   "touchpad": "触摸板"
+   "touchpad": "触摸板",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2103847",
@@ -27061,6 +27315,7 @@
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.type",
     "gpu.vendor",
@@ -27144,7 +27399,8 @@
    "audioSystem": "Nahimic音效",
    "keyboard": "背光键盘",
    "shellMaterial": "A面金属",
-   "touchpad": "触摸板"
+   "touchpad": "触摸板",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2103846",
@@ -27218,6 +27474,7 @@
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.type",
     "gpu.vendor",
@@ -27301,7 +27558,8 @@
    "audioSystem": "Nahimic音效",
    "keyboard": "背光键盘",
    "shellMaterial": "A面金属",
-   "touchpad": "触摸板"
+   "touchpad": "触摸板",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2103845",
@@ -27375,6 +27633,7 @@
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.type",
     "gpu.vendor",
@@ -27458,7 +27717,8 @@
    "audioSystem": "Nahimic音效",
    "keyboard": "背光键盘",
    "shellMaterial": "A面金属",
-   "touchpad": "触摸板"
+   "touchpad": "触摸板",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2103844",
@@ -27532,6 +27792,7 @@
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.type",
     "gpu.vendor",
@@ -27615,7 +27876,8 @@
    "audioSystem": "Nahimic音效",
    "keyboard": "背光键盘",
    "shellMaterial": "A面金属",
-   "touchpad": "触摸板"
+   "touchpad": "触摸板",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2103843",
@@ -27689,6 +27951,7 @@
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.type",
     "gpu.vendor",
@@ -27772,7 +28035,8 @@
    "audioSystem": "Nahimic音效",
    "keyboard": "背光键盘",
    "shellMaterial": "A面金属",
-   "touchpad": "触摸板"
+   "touchpad": "触摸板",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2103842",
@@ -27846,6 +28110,7 @@
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.type",
     "gpu.vendor",
@@ -27929,7 +28194,8 @@
    "audioSystem": "Nahimic音效",
    "keyboard": "背光键盘",
    "shellMaterial": "A面金属",
-   "touchpad": "触摸板"
+   "touchpad": "触摸板",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2103841",
@@ -28003,6 +28269,7 @@
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.type",
     "gpu.vendor",
@@ -28086,7 +28353,8 @@
    "audioSystem": "Nahimic音效",
    "keyboard": "背光键盘",
    "shellMaterial": "A面金属",
-   "touchpad": "触摸板"
+   "touchpad": "触摸板",
+   "dGPU": "支持"
   },
   {
    "id": "zol-1974296",
@@ -28160,6 +28428,7 @@
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.type",
     "gpu.vendor",
@@ -28243,7 +28512,8 @@
    "audioSystem": "Nahimic音效",
    "keyboard": "背光键盘",
    "shellMaterial": "A面金属",
-   "touchpad": "触摸板"
+   "touchpad": "触摸板",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2167227",
@@ -28313,6 +28583,7 @@
    "confidence": "medium",
    "backfilled": [
     "bluetooth",
+    "brightness",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -28401,7 +28672,8 @@
    "bluetooth": "支持蓝牙功能",
    "webcam": "1080p FHD摄像头（IR）",
    "speakers": "内置扬声器",
-   "keyboard": "背光键盘"
+   "keyboard": "背光键盘",
+   "brightness": 1100
   },
   {
    "id": "zol-2106505",
@@ -28476,6 +28748,8 @@
    },
    "confidence": "medium",
    "backfilled": [
+    "brightness",
+    "cooling",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
@@ -28550,7 +28824,9 @@
    "wifi": "WiFi6> ， 支持802.11ax无线协议> ，160MHz",
    "keyboard": "RGB背光键盘，1.4mm键程",
    "shellMaterial": "金属+复合材质",
-   "shellColor": "灰色"
+   "shellColor": "灰色",
+   "brightness": 500,
+   "cooling": "对称式双风扇、六导热铜管、89片*0.2mm刃薄扇叶"
   },
   {
    "id": "zol-2106504",
@@ -28625,6 +28901,8 @@
    },
    "confidence": "medium",
    "backfilled": [
+    "brightness",
+    "cooling",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
@@ -28699,7 +28977,9 @@
    "wifi": "WiFi6> ， 支持802.11ax无线协议> ，160MHz",
    "keyboard": "RGB背光键盘，1.4mm键程",
    "shellMaterial": "金属+复合材质",
-   "shellColor": "灰色"
+   "shellColor": "灰色",
+   "brightness": 500,
+   "cooling": "对称式双风扇、六导热铜管、89片*0.2mm刃薄扇叶"
   },
   {
    "id": "zol-2106503",
@@ -28774,6 +29054,8 @@
    },
    "confidence": "medium",
    "backfilled": [
+    "brightness",
+    "cooling",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
@@ -28848,7 +29130,9 @@
    "wifi": "WiFi6> ， 支持802.11ax无线协议> ，160MHz",
    "keyboard": "RGB背光键盘，1.4mm键程",
    "shellMaterial": "金属+复合材质",
-   "shellColor": "灰色"
+   "shellColor": "灰色",
+   "brightness": 500,
+   "cooling": "对称式双风扇、六导热铜管、89片*0.2mm刃薄扇叶"
   },
   {
    "id": "zol-2106502",
@@ -28923,6 +29207,8 @@
    },
    "confidence": "medium",
    "backfilled": [
+    "brightness",
+    "cooling",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
@@ -28997,7 +29283,9 @@
    "wifi": "WiFi6> ， 支持802.11ax无线协议> ，160MHz",
    "keyboard": "RGB背光键盘，1.4mm键程",
    "shellMaterial": "金属+复合材质",
-   "shellColor": "灰色"
+   "shellColor": "灰色",
+   "brightness": 500,
+   "cooling": "对称式双风扇、六导热铜管、89片*0.2mm刃薄扇叶"
   },
   {
    "id": "zol-2066357",
@@ -29071,6 +29359,8 @@
    },
    "confidence": "medium",
    "backfilled": [
+    "brightness",
+    "cooling",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
@@ -29146,7 +29436,9 @@
    "wifi": "WiFi6> ， 支持802.11ax无线协议> ，160MHz",
    "keyboard": "RGB背光键盘，1.4mm键程",
    "shellMaterial": "金属+复合材质",
-   "shellColor": "灰色"
+   "shellColor": "灰色",
+   "brightness": 500,
+   "cooling": "对称式双风扇、六导热铜管、89片*0.2mm刃薄扇叶"
   },
   {
    "id": "zol-1145218",
@@ -29236,6 +29528,7 @@
     "cpu.model",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.type",
     "gpu.vendor",
@@ -29356,7 +29649,8 @@
    "screenTech": "HD， LED背光",
    "touchpad": "触摸板",
    "bodyLengthMm": 340.0,
-   "bodyWidthMm": 241.0
+   "bodyWidthMm": 241.0,
+   "dGPU": "不支持"
   },
   {
    "id": "zol-1412507",
@@ -29435,6 +29729,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -29553,7 +29849,9 @@
    "screenTech": "DC调光，莱茵TUV硬件低蓝光认证，莱茵TUV Eyesafe认证",
    "touchpad": "触摸板",
    "bodyLengthMm": 313.0,
-   "bodyWidthMm": 225.0
+   "bodyWidthMm": 225.0,
+   "brightness": 400,
+   "cooling": "双风扇，双热管，双出风口"
   },
   {
    "id": "zol-1176554",
@@ -29843,6 +30141,8 @@
     "adapterText",
     "adapterW",
     "bluetooth",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -29850,6 +30150,7 @@
     "cpu.maxW",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -29937,7 +30238,10 @@
    "adapterText": "230W AC适配器",
    "shellColor": "灰色",
    "screenTech": "IPS，DC调光",
-   "touchpad": "触摸板"
+   "touchpad": "触摸板",
+   "brightness": 300,
+   "cooling": "0.15mm超薄扇叶涡轮增压风扇，多区进出风系统，4X高性能复合式热管",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2103826",
@@ -30014,6 +30318,8 @@
     "adapterText",
     "adapterW",
     "bluetooth",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -30021,6 +30327,7 @@
     "cpu.maxW",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -30111,7 +30418,10 @@
    "adapterText": "230W AC适配器",
    "shellColor": "灰色",
    "screenTech": "IPS，DC调光",
-   "touchpad": "触摸板"
+   "touchpad": "触摸板",
+   "brightness": 300,
+   "cooling": "0.15mm超薄扇叶涡轮增压风扇，多区进出风系统，4X高性能复合式热管",
+   "dGPU": "支持"
   },
   {
    "id": "zol-1990873",
@@ -30185,10 +30495,13 @@
     "adapterText",
     "adapterW",
     "bluetooth",
+    "brightness",
+    "cooling",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -30277,7 +30590,10 @@
    "adapterText": "230W AC适配器",
    "shellColor": "灰色",
    "screenTech": "IPS，DC调光",
-   "touchpad": "触摸板"
+   "touchpad": "触摸板",
+   "brightness": 300,
+   "cooling": "0.15mm超薄扇叶涡轮增压风扇，多区进出风系统，4X高性能复合式热管",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2160947",
@@ -30355,6 +30671,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -30485,7 +30802,8 @@
    "screenTech": "玻璃盖板，支持触控 德国莱茵T?V硬件级低蓝光认证，德国莱茵T?V无频闪认证，Dolby Vision，VESA Display HDR 认证 2160Hz PWM",
    "touchpad": "触摸板，尺寸：139.65mm x 92.80mm",
    "bodyLengthMm": 316.8,
-   "bodyWidthMm": 225.0
+   "bodyWidthMm": 225.0,
+   "brightness": 500
   },
   {
    "id": "zol-2164168",
@@ -30565,6 +30883,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -30669,7 +30988,8 @@
    "adapterText": "68W 自适应交流电源适配器",
    "shellColor": "山岚灰，雪域白",
    "bodyLengthMm": 353.0,
-   "bodyWidthMm": 243.0
+   "bodyWidthMm": 243.0,
+   "cooling": "双风扇散热"
   },
   {
    "id": "zol-1992889",
@@ -30735,6 +31055,7 @@
    },
    "confidence": "medium",
    "backfilled": [
+    "brightness",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
@@ -30788,7 +31109,8 @@
      "basis": "efficiency 为空"
     }
    ],
-   "touchScreen": false
+   "touchScreen": false,
+   "brightness": 250
   },
   {
    "id": "zol-2144203",
@@ -30865,6 +31187,7 @@
    "backfilled": [
     "audioSystem",
     "bluetooth",
+    "cooling",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
@@ -30970,7 +31293,8 @@
    "shellMaterial": "丝绸铝",
    "shellColor": "鸽子灰",
    "screenTech": "无频闪全局DC调光，莱茵硬件低蓝光认证，菜茵无频闪认证",
-   "touchpad": "大尺寸触控板"
+   "touchpad": "大尺寸触控板",
+   "cooling": "超大尺寸轻音风扇搭配大直径双热管"
   },
   {
    "id": "zol-2164771",
@@ -31054,6 +31378,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -31170,7 +31495,8 @@
    "screenTech": "VRR可变刷新率",
    "touchpad": "一体化多点触控触摸板",
    "bodyLengthMm": 343.0,
-   "bodyWidthMm": 253.0
+   "bodyWidthMm": 253.0,
+   "brightness": 500
   },
   {
    "id": "zol-2164770",
@@ -31254,6 +31580,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -31370,7 +31697,8 @@
    "screenTech": "VRR可变刷新率",
    "touchpad": "一体化多点触控触摸板",
    "bodyLengthMm": 343.0,
-   "bodyWidthMm": 253.0
+   "bodyWidthMm": 253.0,
+   "brightness": 500
   },
   {
    "id": "zol-2164768",
@@ -31454,6 +31782,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -31571,7 +31900,8 @@
    "screenTech": "VRR可变刷新率",
    "touchpad": "一体化多点触控触摸板",
    "bodyLengthMm": 343.0,
-   "bodyWidthMm": 253.0
+   "bodyWidthMm": 253.0,
+   "brightness": 500
   },
   {
    "id": "zol-1473942",
@@ -31650,6 +31980,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
     "cpu.boostGHz",
     "cpu.cores",
@@ -31773,7 +32104,8 @@
    "screenTech": "10.7亿色彩，TUV+HP Eyesafe低蓝光双认证",
    "touchpad": "触摸板",
    "bodyLengthMm": 313.5,
-   "bodyWidthMm": 224.2
+   "bodyWidthMm": 224.2,
+   "brightness": 400
   },
   {
    "id": "zol-403833",
@@ -32590,6 +32922,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -32694,7 +33027,8 @@
    "screenTech": "TUV+Eyesafe“护眼”低蓝光认证， VRR 可变刷新，超窄边框",
    "touchpad": "大尺寸触控板",
    "bodyLengthMm": 357.8,
-   "bodyWidthMm": 254.8
+   "bodyWidthMm": 254.8,
+   "brightness": 500
   },
   {
    "id": "zol-2165919",
@@ -32774,6 +33108,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -32876,7 +33211,8 @@
    "screenTech": "TUV+Eyesafe“护眼”低蓝光认证， VRR 可变刷新，超窄边框",
    "touchpad": "大尺寸触控板",
    "bodyLengthMm": 357.8,
-   "bodyWidthMm": 254.8
+   "bodyWidthMm": 254.8,
+   "brightness": 500
   },
   {
    "id": "zol-2165918",
@@ -32956,6 +33292,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -33059,7 +33396,8 @@
    "screenTech": "TUV+Eyesafe“护眼”低蓝光认证， VRR 可变刷新，超窄边框",
    "touchpad": "大尺寸触控板",
    "bodyLengthMm": 357.8,
-   "bodyWidthMm": 254.8
+   "bodyWidthMm": 254.8,
+   "brightness": 500
   },
   {
    "id": "zol-1465620",
@@ -33141,11 +33479,14 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -33265,7 +33606,10 @@
    "screenTech": "DC调光",
    "touchpad": "触摸板",
    "bodyLengthMm": 354.9,
-   "bodyWidthMm": 251.9
+   "bodyWidthMm": 251.9,
+   "brightness": 250,
+   "cooling": "双风扇（Arc Flow绝生风扇，84叶片），5热管，四出风口",
+   "dGPU": "支持"
   },
   {
    "id": "zol-1842754",
@@ -33345,10 +33689,13 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.type",
     "gpu.vendor",
@@ -33451,7 +33798,10 @@
    "screenTech": "DC调光",
    "touchpad": "触摸板",
    "bodyLengthMm": 355.2,
-   "bodyWidthMm": 276.8
+   "bodyWidthMm": 276.8,
+   "brightness": 500,
+   "cooling": "双风扇，5热管，4出风口，纯铜均热板",
+   "dGPU": "支持"
   },
   {
    "id": "zol-1116741",
@@ -33738,6 +34088,7 @@
     "adapterW",
     "audioSystem",
     "bluetooth",
+    "cooling",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.threads",
@@ -33837,7 +34188,8 @@
    "adapterW": 140,
    "adapterText": "140W USB Type-C电源适配器",
    "shellColor": "碳晶黑",
-   "touchpad": "一体式精准触摸板"
+   "touchpad": "一体式精准触摸板",
+   "cooling": "第二代乾坤散热"
   },
   {
    "id": "zol-401478",
@@ -34112,11 +34464,14 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -34228,7 +34583,10 @@
    "screenTech": "ROG 星云屏， 防眩光屏> ，Pantone 色彩认证，支持 Dolby Vision",
    "touchpad": "超大触控板",
    "bodyLengthMm": 399.0,
-   "bodyWidthMm": 298.0
+   "bodyWidthMm": 298.0,
+   "brightness": 500,
+   "cooling": "冰川散热架构3.0增强版",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2142786",
@@ -34310,11 +34668,14 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -34425,7 +34786,10 @@
    "screenTech": "ROG 星云屏， 防眩光屏> ，Pantone 色彩认证，支持 Dolby Vision",
    "touchpad": "超大触控板",
    "bodyLengthMm": 399.0,
-   "bodyWidthMm": 298.0
+   "bodyWidthMm": 298.0,
+   "brightness": 500,
+   "cooling": "冰川散热架构3.0增强版",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2142785",
@@ -34507,11 +34871,14 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -34622,7 +34989,10 @@
    "screenTech": "ROG 星云屏， 防眩光屏> ，Pantone 色彩认证，支持 Dolby Vision",
    "touchpad": "超大触控板",
    "bodyLengthMm": 399.0,
-   "bodyWidthMm": 298.0
+   "bodyWidthMm": 298.0,
+   "brightness": 500,
+   "cooling": "冰川散热架构3.0增强版",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2142784",
@@ -34704,11 +35074,14 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -34819,7 +35192,10 @@
    "screenTech": "ROG 星云屏， 防眩光屏> ，Pantone 色彩认证，支持 Dolby Vision",
    "touchpad": "超大触控板",
    "bodyLengthMm": 399.0,
-   "bodyWidthMm": 298.0
+   "bodyWidthMm": 298.0,
+   "brightness": 500,
+   "cooling": "冰川散热架构3.0增强版",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2122134",
@@ -34902,12 +35278,15 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "certModel",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -35020,7 +35399,10 @@
    "screenTech": "ROG 星云屏， 防眩光屏> ，Pantone 色彩认证，支持 Dolby Vision",
    "touchpad": "超大触控板",
    "bodyLengthMm": 399.0,
-   "bodyWidthMm": 298.0
+   "bodyWidthMm": 298.0,
+   "brightness": 500,
+   "cooling": "冰川散热架构3.0增强版",
+   "dGPU": "支持"
   },
   {
    "id": "zol-1463030",
@@ -35097,6 +35479,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
@@ -35208,7 +35592,9 @@
    "screenTech": "DC调光，莱茵TUV硬件级低蓝光认证，Eyesafe认证，AG雾面屏",
    "touchpad": "触摸板",
    "bodyLengthMm": 356.0,
-   "bodyWidthMm": 251.0
+   "bodyWidthMm": 251.0,
+   "brightness": 350,
+   "cooling": "双风扇，双热管，TYPHOON 2.0散热系统"
   },
   {
    "id": "zol-2173892",
@@ -35277,6 +35663,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "cpu.maxW",
     "cpu.tdpW",
     "cpu.vendor",
@@ -35385,7 +35772,8 @@
    "screenTech": "莱茵Eye Comfort 3.0认证，展开态：18英寸，折叠态：13英寸，10.7亿色，UTG超薄玻璃",
    "touchpad": "支持5点触控触摸板",
    "bodyLengthMm": 382.5,
-   "bodyWidthMm": 288.5
+   "bodyWidthMm": 288.5,
+   "brightness": 700
   },
   {
    "id": "zol-1249820",
@@ -35463,6 +35851,7 @@
     "adapterW",
     "audioSystem",
     "bluetooth",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -35578,7 +35967,8 @@
    "adapterText": "100V-240V 200W 自适应交流电源适配器",
    "shellColor": "黑色",
    "screenTech": "FHD， LED背光> ，72%色域电竞屏，4.99mm窄边框",
-   "touchpad": "触摸板"
+   "touchpad": "触摸板",
+   "cooling": "双风扇+四铜管散热"
   },
   {
    "id": "zol-2103835",
@@ -35654,6 +36044,7 @@
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.type",
     "gpu.vendor",
@@ -35743,7 +36134,8 @@
    "adapterW": 230,
    "adapterText": "100V-240V 230W 自适应交流电源适配器",
    "shellColor": "钛晶灰，冰魄白",
-   "touchpad": "触摸板"
+   "touchpad": "触摸板",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2103834",
@@ -35819,6 +36211,7 @@
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.type",
     "gpu.vendor",
@@ -35908,7 +36301,8 @@
    "adapterW": 230,
    "adapterText": "100V-240V 230W 自适应交流电源适配器",
    "shellColor": "钛晶灰，冰魄白",
-   "touchpad": "触摸板"
+   "touchpad": "触摸板",
+   "dGPU": "支持"
   },
   {
    "id": "zol-2103833",
@@ -35984,6 +36378,7 @@
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.type",
     "gpu.vendor",
@@ -36073,7 +36468,8 @@
    "adapterW": 230,
    "adapterText": "100V-240V 230W 自适应交流电源适配器",
    "shellColor": "钛晶灰，冰魄白",
-   "touchpad": "触摸板"
+   "touchpad": "触摸板",
+   "dGPU": "支持"
   },
   {
    "id": "zol-1974294",
@@ -36149,6 +36545,7 @@
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.type",
     "gpu.vendor",
@@ -36238,7 +36635,8 @@
    "adapterW": 230,
    "adapterText": "100V-240V 230W 自适应交流电源适配器",
    "shellColor": "钛晶灰，冰魄白",
-   "touchpad": "触摸板"
+   "touchpad": "触摸板",
+   "dGPU": "支持"
   },
   {
    "id": "zol-1334027",
@@ -36323,6 +36721,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -36457,7 +36857,9 @@
    "screenTech": "FHD， LED背光> ，178°广视角，137PPI",
    "touchpad": "触摸板",
    "bodyLengthMm": 369.7,
-   "bodyWidthMm": 253.0
+   "bodyWidthMm": 253.0,
+   "brightness": 300,
+   "cooling": "双风扇，三热管，四出风口，风扇除尘通道，升降式风谷设计（升降式风谷散热系统）"
   },
   {
    "id": "zol-1139443",
@@ -36539,6 +36941,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -36673,7 +37076,8 @@
    "screenTech": "FHD， LED背光",
    "touchpad": "触摸板",
    "bodyLengthMm": 385.0,
-   "bodyWidthMm": 268.0
+   "bodyWidthMm": 268.0,
+   "cooling": "双风扇独立散热"
   },
   {
    "id": "zol-1398668",
@@ -36755,11 +37159,14 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.tgpMaxW",
     "gpu.type",
@@ -36880,7 +37287,10 @@
    "screenTech": "莱茵TUV低蓝光护眼认证",
    "touchpad": "触摸板",
    "bodyLengthMm": 357.3,
-   "bodyWidthMm": 272.1
+   "bodyWidthMm": 272.1,
+   "brightness": 300,
+   "cooling": "双风扇（106片），四出风口",
+   "dGPU": "支持"
   },
   {
    "id": "zol-393972",
@@ -36970,6 +37380,7 @@
     "cpu.model",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.model",
     "gpu.type",
@@ -37094,7 +37505,8 @@
    "screenTech": "FHD， LED背光> ，防眩光雾面屏",
    "touchpad": "触摸板",
    "bodyLengthMm": 416.0,
-   "bodyWidthMm": 318.0
+   "bodyWidthMm": 318.0,
+   "dGPU": "不支持"
   },
   {
    "id": "zol-1992944",
@@ -37174,6 +37586,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -37275,7 +37688,8 @@
    "screenTech": "莱茵硬件级低蓝光和无频闪认证，DC调光",
    "touchpad": "触摸板",
    "bodyLengthMm": 356.7,
-   "bodyWidthMm": 248.7
+   "bodyWidthMm": 248.7,
+   "brightness": 300
   },
   {
    "id": "zol-394653",
@@ -37528,6 +37942,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -37641,7 +38057,9 @@
    "screenTech": "LED背光> ，防眩光屏幕，TUV双护眼认证，全DC调光",
    "touchpad": "高精度触控板",
    "bodyLengthMm": 314.1,
-   "bodyWidthMm": 219.7
+   "bodyWidthMm": 219.7,
+   "brightness": 400,
+   "cooling": "华硕冰锋散热技术"
   },
   {
    "id": "zol-2167297",
@@ -37722,6 +38140,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -37838,7 +38258,9 @@
    "screenTech": "LED背光> ，防眩光屏幕，TUV双护眼认证，全DC调光",
    "touchpad": "高精度触控板",
    "bodyLengthMm": 314.1,
-   "bodyWidthMm": 219.7
+   "bodyWidthMm": 219.7,
+   "brightness": 400,
+   "cooling": "华硕冰锋散热技术"
   },
   {
    "id": "zol-1363649",
@@ -37921,6 +38343,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -37928,6 +38352,7 @@
     "cpu.maxW",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.type",
     "gpu.vendor",
@@ -38044,7 +38469,10 @@
    "screenTech": "0.2ms，1000000:1，HDR 500",
    "touchpad": "触摸板",
    "bodyLengthMm": 315.8,
-   "bodyWidthMm": 226.3
+   "bodyWidthMm": 226.3,
+   "brightness": 600,
+   "cooling": "双风扇，双热管",
+   "dGPU": "不支持"
   },
   {
    "id": "zol-392779",
@@ -38135,6 +38563,7 @@
     "cpu.model",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.model",
     "gpu.type",
@@ -38260,7 +38689,8 @@
    "screenTech": "FHD， LED背光> ，IPS全高清屏幕",
    "touchpad": "触摸板",
    "bodyLengthMm": 382.0,
-   "bodyWidthMm": 255.0
+   "bodyWidthMm": 255.0,
+   "dGPU": "不支持"
   },
   {
    "id": "zol-1249925",
@@ -38535,6 +38965,7 @@
     "cpu.model",
     "cpu.tdpW",
     "cpu.threads",
+    "dGPU",
     "derivedNotes",
     "gpu.type",
     "gpu.vendor",
@@ -38657,7 +39088,8 @@
    "screenTech": "LED背光",
    "touchpad": "智能型手势操控触摸板",
    "bodyLengthMm": 348.0,
-   "bodyWidthMm": 243.0
+   "bodyWidthMm": 243.0,
+   "dGPU": "不支持"
   },
   {
    "id": "zol-2104505",
@@ -38732,6 +39164,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -38844,7 +39278,9 @@
    "screenTech": "TUV莱茵硬件级低蓝光，无频闪认证，SGS EyeCare护眼认证",
    "touchpad": "触摸板",
    "bodyLengthMm": 221.9,
-   "bodyWidthMm": 310.5
+   "bodyWidthMm": 310.5,
+   "brightness": 600,
+   "cooling": "双风扇，双散热"
   },
   {
    "id": "zol-1982184",
@@ -38921,6 +39357,8 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brightness",
+    "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
     "cpu.cores",
@@ -39035,7 +39473,9 @@
    "screenTech": "TUV莱茵硬件级低蓝光，无频闪认证，SGS EyeCare护眼认证",
    "touchpad": "触摸板",
    "bodyLengthMm": 221.9,
-   "bodyWidthMm": 310.5
+   "bodyWidthMm": 310.5,
+   "brightness": 600,
+   "cooling": "双风扇，双散热"
   }
  ]
 }

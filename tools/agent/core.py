@@ -1052,6 +1052,27 @@ def _pool_to_offer(m, bench):
         "touchpad": m.get("touchpad"),
         "bodyLengthMm": m.get("bodyLengthMm"),
         "bodyWidthMm": m.get("bodyWidthMm"),
+        # ═══════════════════════════════════════════════════════════
+        # 🔴 2026-11-21：补投影 5 个字段
+        #
+        #    用户要求「把数据补全，所有的补全」。查覆盖率时发现
+        #    ports / cooling / brightness / dGPU 在 offer 里是 0% ——
+        #    但数据其实在 machine_pool.json 里（ports 217 台、
+        #    cooling 68 台、brightness 95 台）。
+        #
+        #    根因：`_pool_to_offer` 没把这些键透传到 offer，
+        #    上层（追问路径）拿不到，用户问「接口够不够」「散热怎么样」
+        #    只能答"没记录" —— 而数据明明有。
+        #
+        #    `screen` 子对象单独处理：offer 里原来只有拼好的 `spec` 串，
+        #    结构化字段（尺寸/分辨率/刷新率/色域）全丢了。
+        #    追问「屏幕多少寸」「多少赫兹」时没东西可答。
+        # ═══════════════════════════════════════════════════════════
+        "ports": m.get("ports"),
+        "cooling": m.get("cooling"),
+        "brightness": m.get("brightness"),
+        "dGPU": m.get("dGPU"),
+        "screen": dict(m.get("screen") or {}),
         # ── 2026-11-17：功耗相关（限电问题的基础数据）──
         # 🔴 `cpu.tdpW` 是 **CPU TDP**，不是整机功耗。
         #    实测验证：暗影精灵 11 的「功耗」字段是 55W，但适配器 230W、

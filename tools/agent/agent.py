@@ -1115,7 +1115,24 @@ FOLLOWUP_SYS = """用户在追问某台机器的细节。数据如下，你只�
    **不许把内部字段名、JSON 键名、null、None 这类字样写进回答。**
    实测 2026-11-13：数据里一个字段是空值时，回答写出了
    「屏幕参数为 null。」—— 用户看到的是一句程序调试信息。
-   要说"没记"，就用「库里没有记这一项」，不是「字段为 null」。"""
+   要说"没记"，就用「库里没有记这一项」，不是「字段为 null」。
+10. 🔴 **数据里有「接口」时，必须逐个报出来。**
+    问「接口够不够」「有没有雷电」「能外接显示器吗」——
+    直接把「接口」那栏的型号和数量念出来（USB-A ×2、雷电4 ×1、HDMI 2.1…），
+    然后说明够不够用要看你的外设。
+    **不许只念 CPU/内存/显卡就结束** —— 那是答非所问。
+    实测 2026-11-21：数据里明明有「USB-A ×2、USB-C ×1、雷电4 ×1」，
+    回答却把整份配置念了一遍，一个字没提接口。
+11. 🔴 **问散热时，不许给「中规中矩」「表现不错」这类评价。**
+    数据里能说的只有：散热系统描述（如果有）、CPU TDP、显卡 TGP、机身厚度。
+    这些是**发热源和设计**，不是散热效果。
+    正确的说法：「这台显卡 TGP 115W、机身 17.6mm，用的是双风扇三热管；
+    实际的温度和噪音表现库里没有实测数据，判断不了。」
+    **不许说**「散热表现中规中矩」「能维持高负载」「符合预期」——
+    库里没有任何散热实测，这些全是编的。
+    实测 2026-11-21：用户问「散热行不行」，回答写了
+    「散热表现中规中矩」「作为游戏本的核心优势就是能维持高负载下的性能释放」
+    —— 两句都是凭定位猜的。"""
 
 
 # ══════════════════════════════════════════════════════════════
@@ -1231,11 +1248,18 @@ def _topic_facts(m, user_text):
         return None, list(m.get("pros") or []), list(m.get("cons") or [])
     pros = list(m.get("pros") or [])
     cons = list(m.get("cons") or [])
-    if topic == "屏幕":
-        tp = [x for x in pros if _is_screen_fact(x)]
-        tc = [x for x in cons if _is_screen_fact(x)]
-    elif topic in ("售后", "做工", "充电", "颜色", "触控板", "创作", "续航",
-                   "重量", "内存硬盘", "性能", "键盘"):
+    # 🔴 2026-11-21：屏幕/散热/接口并入「结构化字段」这一组。
+    #
+    #    原来「屏幕」单独一支，只查 pros/cons 里带屏幕关键词的句子。
+    #    问题：采集池 223 台里只有 34 台有人工优缺点，
+    #    屏幕参数（尺寸/分辨率/刷新率/色域）明明 100% 覆盖，
+    #    却因为"没人写过屏幕评价"而裁成空 → 用户问屏幕得到"要看实机"。
+    #
+    #    现在它们和售后/重量一样走结构化字段通道（见下面 topic == "屏幕" 分支）。
+    #    pros/cons 里的屏幕评价仍然会被 _is_screen_fact 挑出来补充。
+    if topic in ("售后", "做工", "充电", "颜色", "触控板", "创作", "续航",
+                 "重量", "内存硬盘", "性能", "键盘",
+                 "屏幕", "散热", "接口"):
         # 🔴 2026-11-16：这几面的事实**在结构化字段里，不在 pros/cons 里**。
         #    「保修几年」→ warrantyYears / warrantyPolicy / warrantyNote
         #    「什么材质」→ shellMaterial
@@ -1379,6 +1403,83 @@ def _topic_facts(m, user_text):
                 facts.append("触控板：%s" % m["touchpad"])
             if m.get("touchScreen") is not None:
                 facts.append("屏幕%s支持触控" % ("支持" if m["touchScreen"] else "不"))
+        # ═══════════════════════════════════════════════════════════
+        # 🔴 2026-11-21：补三个一直是空 facts 的主题
+        #
+        #    用户实测：「问屏幕怎么样、散热行不行、接口够不够，
+        #    得到的都是"要看实机"」—— 而数据其实有：
+        #    screen 100%、ports 91.5%、cooling 29.1%。
+        #
+        #    根因：这三个主题在 _topic_facts 里**根本没有分支**，
+        #    走到 else 兜底。数据补了、也投影到 offer 了，
+        #    但事实通道没接 —— 所以模型看不到。
+        # ═══════════════════════════════════════════════════════════
+        elif topic == "屏幕":
+            sc = m.get("screen") or {}
+            bits = []
+            if sc.get("sizeInch"):
+                bits.append("%g 寸" % sc["sizeInch"])
+            if sc.get("widthPx") and sc.get("heightPx"):
+                bits.append("%d×%d" % (sc["widthPx"], sc["heightPx"]))
+            if sc.get("panel"):
+                bits.append(str(sc["panel"]))
+            if sc.get("refreshHz"):
+                bits.append("%dHz" % sc["refreshHz"])
+            if bits:
+                facts.append("屏幕：%s" % " ".join(bits))
+            # 色域：区分 sRGB / DCI-P3，别混成一个数
+            gam = sc.get("colorGamut") or {}
+            if isinstance(gam, dict) and gam:
+                gp = []
+                for key, label in (("sRGB", "sRGB"), ("srgb", "sRGB"),
+                                   ("dciP3", "DCI-P3"), ("DCI-P3", "DCI-P3"),
+                                   ("adobeRGB", "AdobeRGB")):
+                    if gam.get(key):
+                        gp.append("%s %s%%" % (label, gam[key]))
+                if gp:
+                    facts.append("色域：%s" % " / ".join(dict.fromkeys(gp)))
+            # 亮度：两个可能的键名（brightnessNit 是池里的，brightness 是补录的）
+            nit = sc.get("brightnessNit") or m.get("brightness")
+            if nit:
+                facts.append("亮度 %s nit" % nit)
+            if m.get("screenTech"):
+                facts.append("屏幕技术：%s" % m["screenTech"])
+            if not facts:
+                facts.append("库里没有这台的屏幕参数")
+
+        elif topic == "散热":
+            if m.get("cooling"):
+                facts.append("散热系统：%s" % m["cooling"])
+            # 散热能佐证的客观指标：CPU TDP + 显卡 TGP（都是发热源）
+            tdp = m.get("cpuTdpW")
+            tgp = m.get("gpuTgpW")
+            if tdp or tgp:
+                bits = []
+                if tdp:
+                    bits.append("CPU TDP %sW" % tdp)
+                if tgp:
+                    bits.append("显卡 TGP %sW" % tgp)
+                facts.append("发热源：%s（这是芯片功耗上限，不是整机功耗）"
+                             % " / ".join(bits))
+            if m.get("thicknessMm"):
+                facts.append("机身厚 %smm" % m["thicknessMm"])
+            if not facts:
+                facts.append("库里没有这台的散热描述")
+
+        elif topic == "接口":
+            if m.get("ports"):
+                _p = m["ports"]
+                # ports 可能是 list（池里存的是结构化列表）或 str（补录时拼的串）
+                if isinstance(_p, (list, tuple)):
+                    _p = "、".join(str(x) for x in _p if x)
+                facts.append("接口：%s" % _p)
+            if m.get("wifi"):
+                facts.append("无线：%s" % m["wifi"])
+            if m.get("bluetooth"):
+                facts.append("蓝牙：%s" % m["bluetooth"])
+            if not facts:
+                facts.append("库里没有这台的接口信息")
+
         elif topic == "创作":
             # 「能不能剪视频/跑PS」——只报**硬件条件**，不判断"够不够"。
             # 判断够不够需要软件实测帧数，库里没有（红线：不许编）。
@@ -2226,6 +2327,37 @@ def _answer_current(user_text, o, slots, focus):
             if not o.get("hasReview") else
             ("按「优点」「缺点」两栏说，"
              "但同样不许超出这两栏自己加内容。"),
+        # ═══════════════════════════════════════════════════════════
+        # 🔴 2026-11-21：**这条路原来完全没有接口/散热/屏幕结构化字段**。
+        #
+        #    实测：问「接口够不够」「散热行不行」时走的是 `_answer_current`
+        #    （stage=fit），不是 answer_followup —— 所以那边改了没用。
+        #    数据字典里只有「配置」一长串，模型只能从里面挑着念，
+        #    挑不到接口就念配置，挑不到散热就凭定位猜「中规中矩」。
+        #
+        #    判据：**同一个事实要在所有输出路径都传**，
+        #    不能只在一条路上补（这是这个项目第 N 次踩同一个坑，
+        #    见 audit_matrix.py 的存在理由）。
+        # ═══════════════════════════════════════════════════════════
+        **({"屏幕尺寸_寸": (o.get("screen") or {})["sizeInch"]}
+           if (o.get("screen") or {}).get("sizeInch") else {}),
+        **({"屏幕分辨率": "%d×%d" % ((o["screen"])["widthPx"],
+                                    (o["screen"])["heightPx"])}
+           if (o.get("screen") or {}).get("widthPx")
+           and (o.get("screen") or {}).get("heightPx") else {}),
+        **({"屏幕刷新率_Hz": (o.get("screen") or {})["refreshHz"]}
+           if (o.get("screen") or {}).get("refreshHz") else {}),
+        **({"屏幕面板": (o.get("screen") or {})["panel"]}
+           if (o.get("screen") or {}).get("panel") else {}),
+        **({"屏幕亮度_nit": (o.get("screen") or {})["brightnessNit"]}
+           if (o.get("screen") or {}).get("brightnessNit") else {}),
+        **({"接口": ("、".join(str(x) for x in o["ports"] if x)
+                     if isinstance(o["ports"], (list, tuple)) else o["ports"])}
+           if o.get("ports") else {}),
+        **({"散热系统": o["cooling"]} if o.get("cooling") else {}),
+        **({"独显直连": o["dGPU"]} if o.get("dGPU") else {}),
+        **({"无线网卡": o["wifi"]} if o.get("wifi") else {}),
+        **({"蓝牙": o["bluetooth"]} if o.get("bluetooth") else {}),
     }
     sys = """用户在问「刚才推荐的那台机器，适不适合我某个用途」。
 
@@ -2279,6 +2411,8 @@ def _answer_current(user_text, o, slots, focus):
             or _power_guess(rep)
             # 🔴 没人写过优缺点的机器，不许替它下结论（2026-11-12）
             or _praise_no_review(rep, o)
+            # 2026-11-21：泛泛评价（「中规中矩」「符合预期」）也要拦
+            or _vague_praise(rep)
             or VERDICT_KEY in rep or "判断依据" in rep)
 
     bad = _bad_answer(reply)
@@ -2704,6 +2838,44 @@ def answer_followup(user_text, m, asked_topics=None):
         **({"触控板": m["touchpad"]} if m.get("touchpad") else {}),
         **({"机身长_mm": m["bodyLengthMm"], "机身高_mm": m["bodyWidthMm"]}
            if m.get("bodyLengthMm") and m.get("bodyWidthMm") else {}),
+        # ═══════════════════════════════════════════════════════════
+        # 🔴 2026-11-21：补传屏幕结构化参数 / 接口 / 散热 / 独显直连
+        #
+        #    实测问题：问「屏幕怎么样」只报了尺寸分辨率，
+        #    问「接口够不够」直接念配置、问「散热行不行」给了
+        #    「中规中矩」这种评价 —— 而数据其实有。
+        #
+        #    根因：`_topic_facts` 已经把这些拼成事实了，
+        #    但**数据字典里没有对应键**，模型看不到结构化值，
+        #    只能自由发挥 → 发挥成评价词 → 违反"没人评过不许评价"。
+        #
+        #    键名用中文人话（同上面「质保年数」的教训：
+        #    英文字段名会让模型念「warrantyYears 为 1.0」这种口吻）。
+        # ═══════════════════════════════════════════════════════════
+        **({"屏幕尺寸_寸": m["screen"]["sizeInch"]}
+           if (m.get("screen") or {}).get("sizeInch") else {}),
+        **({"屏幕分辨率": "%d×%d" % (m["screen"]["widthPx"],
+                                    m["screen"]["heightPx"])}
+           if (m.get("screen") or {}).get("widthPx")
+           and (m.get("screen") or {}).get("heightPx") else {}),
+        **({"屏幕刷新率_Hz": m["screen"]["refreshHz"]}
+           if (m.get("screen") or {}).get("refreshHz") else {}),
+        **({"屏幕面板": m["screen"]["panel"]}
+           if (m.get("screen") or {}).get("panel") else {}),
+        **({"屏幕色域": "、".join(
+                "%s %s%%" % (k.upper() if k.lower() == "srgb" else k, v)
+                for k, v in (m["screen"].get("colorGamut") or {}).items()
+                if isinstance(v, (int, float)))}
+           if isinstance((m.get("screen") or {}).get("colorGamut"), dict)
+           and (m.get("screen") or {}).get("colorGamut") else {}),
+        **({"屏幕亮度_nit": m["screen"]["brightnessNit"]}
+           if (m.get("screen") or {}).get("brightnessNit") else {}),
+        **({"接口": ("、".join(str(x) for x in m["ports"] if x)
+                     if isinstance(m["ports"], (list, tuple))
+                     else m["ports"])}
+           if m.get("ports") else {}),
+        **({"散热系统": m["cooling"]} if m.get("cooling") else {}),
+        **({"独显直连": m["dGPU"]} if m.get("dGPU") else {}),
         # 🔴🔴 2026-11-12：追问路径原来**没告诉模型这台有没有人评过**。
         #   实测代价（端到端彩排）：「MateBook 14 2026 屏幕怎么样」被答成
         #     「最大的亮点是那块 OLED，分辨率高达 2880×1920，看着非常细腻通透」
@@ -2797,6 +2969,7 @@ def answer_followup(user_text, m, asked_topics=None):
             #   模型输出了「看着非常细腻通透」「保值率也就中等」「定位就是高端商务本」，
             #   六条判据全部放行，因为每个数字都是真的。
             praise=_praise_no_review(t, m),
+            vague=_vague_praise(t),
             # 🔴🔴 2026-11-12（第六次漂移）：偷换推荐对象这条判据
             #   compose() 和 _intro_model() 都挂了，追问这条路又漏了。
             #   实测代价：数据 caution 里那句「小新 16SE …同价位更值得看」
@@ -2852,6 +3025,15 @@ def answer_followup(user_text, m, asked_topics=None):
                 "你把**另一台型号**当成了这台的卖点或坑 —— 数据里那条讲的是别的机器，"
                 "搬到这台头上等于偷偷换了推荐对象。用户问的是 %s，"
                 "不许拿别的机型来比较、更不许说「更值得看」" % m["name"])
+        if a1.get("vague"):
+            why.append(
+                "「%s」是**凭定位猜的结论**，不是数据 —— "
+                "库里没有任何散热/性能实测。这类泛泛评价（中规中矩/符合预期/"
+                "核心优势/能维持）读起来像实测，用户会当真。"
+                "只能说数据里有的（散热系统描述、TDP/TGP、厚度），"
+                "然后明说实测表现判断不了。"
+                % a1["vague"])
+
         # 🔴 2026-11-18：把当前这台说成别的品牌
         if a1.get("brand"):
             why.append(
@@ -3096,6 +3278,40 @@ def _strip_violations(text, audit):
     if len(out) < max(60, int(len(text) * 0.4)):
         return None
     return out
+
+
+def _vague_praise(text):
+    """**泛泛的正面/中性评价** —— 没有具体名词，但实质是在下结论。
+
+    🔴 2026-11-21 实测抓到（这台 hasReview=False，库里没有任何评测）：
+
+      「这台机器散热表现**中规中矩**」
+      「它作为游戏本的核心优势就是**能维持高负载下的性能释放**」
+      「这点是**符合预期**的」
+      「你只能参考它的配置和定位来**推测**它的散热能力」
+
+    每一句都是**凭定位猜的结论**，但 `_praise_no_review` 抓不到 ——
+    它靠「细腻/通透/高端」这类具体形容词匹配，而这些句子用的是
+    「中规中矩」「符合预期」「核心优势」这种**更隐蔽的措辞**。
+
+    为什么必须拦：用户问"散热行不行"，得到"中规中矩"，
+    会当成实测结论去做购买决策 —— 而库里一个散热数据都没有。
+    这比"库里没有"坏得多。
+
+    判据：出现"评价性断言" + 句子里没有对应的数据支撑词。
+    """
+    t = text or ""
+    # 这些词本身是"下结论"，不是"报数据"
+    VAGUE = (
+        r"中规中矩|符合预期|符合定位|表现不错|表现良好|表现一般|"
+        r"核心优势|主要卖点|最大亮点|"
+        r"能维持|足以应对|完全够用|绰绰有余|"
+        r"推测它|大致可以判断|基本能扛|应该没问题"
+    )
+    m = re.search(VAGUE, t)
+    if not m:
+        return None
+    return m.group(0)
 
 
 def _other_model_pitch(text, result):
@@ -4710,6 +4926,7 @@ def compose(user_text, result):
             # 2026-11-12：接入 80 台采集池后新出现的错误类型。
             # bad/untr 抓不到它 —— 因为它引用的每个数字都是真的。
             praise=_praise_no_review(t, first),
+            vague=_vague_praise(t),
             # 🔴 2026-11-17：不许推测整机功耗 / 对"限电够不够"下结论。
             #    首轮推荐同样会犯（"这台限电 500W 跑不满"），
             #    原来只有 _answer_current 挂了这条判据。
@@ -4759,6 +4976,15 @@ def compose(user_text, result):
                        "只报配置和价格，"
                        "不许说「高达」「首选」「得满分」「值得买」这类判断，"
                        "也不要解释数据来源")
+        if a1.get("vague"):
+            why.append(
+                "「%s」是**凭定位猜的结论**，不是数据 —— "
+                "库里没有任何散热/性能实测。这类泛泛评价（中规中矩/符合预期/"
+                "核心优势/能维持）读起来像实测，用户会当真。"
+                "只能说数据里有的（散热系统描述、TDP/TGP、厚度），"
+                "然后明说实测表现判断不了。"
+                % a1["vague"])
+
         if a1.get("power"):
             why.append("你推测了**整机功耗**或对「限电够不够」下了结论 —— "
                        "库里没有整机功耗和实测瓦数，"
@@ -5679,7 +5905,26 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
         #      编出"保修一年"——那种句子模型给 fit=False，不受影响。
         #
         #    判据：detail 和 fit 同时成立 → **fit 优先**（模型说了算）。
-        if o and ask_detail and not ask_fit and not _is_fit_question(user_text):
+        # 🔴 2026-11-21：**参数主题优先于 fit**。
+        #
+        #    实测：「接口够不够」「散热行不行」模型给 fit=True
+        #    （它理解成"问够不够用"），于是 `not ask_fit` 失败，
+        #    走了 _answer_current（判用途匹配），答成整机配置 ——
+        #    数据里明明有「USB-A ×2、雷电4 ×1」却一个字没提。
+        #    而「屏幕怎么样」模型给 fit=False，正常走 followup，答得很好。
+        #
+        #    判据：**"够不够"问的可能是参数够不够，不一定是用途匹配。**
+        #    只要这句问的是某个**参数主题**（_topic_of 认得出），
+        #    就该按"问这台的这一面"处理，不让 fit 抢走路由。
+        #
+        #    反过来，「这个能打游戏吗」「适合学设计吗」——_topic_of 返回 None，
+        #    那是真在问用途匹配，继续走 fit 分支。
+        _topic_now = _topic_of(user_text)
+        _is_param_topic = _topic_now in (
+            "接口", "散热", "屏幕", "键盘", "续航", "重量", "颜色",
+            "做工", "触控板", "性能", "内存硬盘", "充电")
+        if o and ask_detail and (not ask_fit or _is_param_topic) \
+                and not _is_fit_question(user_text):
             reply = answer_followup(user_text, _merge_offer(o, (known or {}).get("_askedTopics")))
             return {"stage": "followup", "slots": dict(known or {}), "reply": reply,
                     "focus": focus, "focusName": o["name"],
@@ -5833,7 +6078,22 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
         #    ⚠️ 反过来不成立：purpose 里有 design/code 时 cat 可以是 thin 或 gaming，
         #       那两种都合理，所以不做反向强制。
         _purpose_now = set(slots.get("purpose") or [])
-        if "gaming" in _purpose_now and slots.get("cat") == "thin":
+        # 🔴 2026-11-21 修：**用户明确说了品类时，purpose 不许把它改回去**。
+        #
+        #    实测 bug：已有 cat=gaming / purpose=['gaming']，
+        #    用户说「轻薄本」→ extract_slots 正确抽到 cat=thin →
+        #    但这段看到 purpose 里还有 gaming，把 cat 又改回 gaming →
+        #    用户说"轻薄本"得到的还是那台游戏本，等于没听见。
+        #
+        #    本意（2026-11-17）是解决另一个问题：用户说「我想打游戏」时，
+        #    本轮没抽到 cat，known.cat='thin' 被继承下来 → 推的还是轻薄本。
+        #    那种情况是**没抽到 cat**，靠 purpose 推。
+        #
+        #    判据：只在**本轮没抽到 cat**（或抽到 None）时才按 purpose 推；
+        #    本轮明确抽到 cat 就以用户说的为准 —— 用户明说 > 用途推断。
+        _cat_from_user = bool(CAT_EXPLICIT.search(user_text or ""))
+        if "gaming" in _purpose_now and slots.get("cat") == "thin" \
+                and not _cat_from_user:
             slots["cat"] = "gaming"
         # purpose 是累加的：用户补充"偶尔打游戏"不等于放弃"学设计"。
         # 只有明确否掉才移除（"我不玩游戏了"）。

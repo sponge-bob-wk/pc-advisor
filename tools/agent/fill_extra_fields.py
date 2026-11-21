@@ -316,6 +316,94 @@ def main():
                 if bgh and 0.5 <= bgh <= 6:
                     patch["cpu.baseGHz"] = round(bgh, 1)
 
+        # ═══════════════════════════════════════════════════════════
+        # 🔴 2026-11-21：补屏幕/接口/散热字段
+        #
+        #    ⚠️ 位置很关键：`_pool_to_offer` 读的是 `m["screen"]` 子对象
+        #    （sizeInch / widthPx / heightPx / panel / refreshHz / colorGamut），
+        #    不是顶层。第一版我写到顶层，数据进了 json 但 core 读不到，
+        #    覆盖率还是 0 —— 写对位置才算补上。
+        #
+        #    原始 params 的覆盖：屏幕尺寸 162 / 刷新率 121 / 分辨率 155
+        #    数据接口 139 / 视频接口 131 / 散热系统 68 / sRGB 51 / 亮度 96
+        # ═══════════════════════════════════════════════════════════
+        sc = m.get("screen")
+        if not isinstance(sc, dict):
+            sc = {}
+            m["screen"] = sc
+
+        if not sc.get("sizeInch"):
+            v = num(p.get("屏幕尺寸"))
+            # 合理性：笔记本 10~20 寸
+            if v and 10 <= v <= 20:
+                sc["sizeInch"] = round(v, 1)
+                patch["screen.sizeInch"] = round(v, 1)
+
+        if not sc.get("refreshHz"):
+            raw = clean(p.get("屏幕刷新率"))
+            if raw:
+                hz = num(raw)
+                if hz and 30 <= hz <= 600:
+                    sc["refreshHz"] = int(round(hz))
+                    patch["screen.refreshHz"] = int(round(hz))
+
+        # 分辨率：拆成 widthPx / heightPx（_screen_text 需要分开的数字）
+        if not (sc.get("widthPx") and sc.get("heightPx")):
+            raw = clean(p.get("屏幕分辨率")) or ""
+            mt = re.search(r"(\d{3,5})\s*[×xX*]\s*(\d{3,5})", raw)
+            if mt:
+                wpx, hpx = int(mt.group(1)), int(mt.group(2))
+                if 800 <= wpx <= 8000 and 600 <= hpx <= 5000:
+                    sc["widthPx"] = wpx
+                    sc["heightPx"] = hpx
+                    patch["screen.widthPx"] = wpx
+                    patch["screen.heightPx"] = hpx
+
+        if not sc.get("panel"):
+            v = clean(p.get("屏幕类型"))
+            if v and v not in ("无", "-", "—"):
+                sc["panel"] = v[:40]
+                patch["screen.panel"] = v[:40]
+
+        # 色域：_screen_text 要的是 dict {srgb: 100, dciP3: 98}
+        if not sc.get("colorGamut"):
+            gam = {}
+            for key, out in (("sRGB色域", "srgb"),
+                             ("DCI-P3色域", "dciP3")):
+                raw = clean(p.get(key)) or ""
+                mv = re.search(r"(\d{1,3})\s*%?", raw)
+                if mv:
+                    pct = int(mv.group(1))
+                    if 40 <= pct <= 150:
+                        gam[out] = pct
+            if gam:
+                sc["colorGamut"] = gam
+                patch["screen.colorGamut"] = gam
+
+        if not m.get("brightness"):
+            v = num(p.get("亮度"))
+            if v and 200 <= v <= 2000:
+                patch["brightness"] = int(round(v))
+
+        if not m.get("ports"):
+            items = []
+            for key in ("数据接口", "视频接口", "音频接口", "其它接口"):
+                v = clean(p.get(key))
+                if v and v not in ("无", "-", "—"):
+                    items.append(v)
+            if items:
+                patch["ports"] = "；".join(items)[:200]
+
+        if not m.get("cooling"):
+            v = clean(p.get("散热系统"))
+            if v and v not in ("无", "-", "—"):
+                patch["cooling"] = v[:150]
+
+        if not m.get("dGPU"):
+            v = clean(p.get("独显直连"))
+            if v:
+                patch["dGPU"] = v[:40]
+
         if not patch:
             continue
         for k in patch:

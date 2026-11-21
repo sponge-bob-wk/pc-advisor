@@ -412,7 +412,6 @@ def classify(text, focus=None, allow_model=True):
     if re.search(r"(限电|供电|插座|跳闸)", t) and \
             re.search(r"(宿舍|寝室|家里|学校|租房)", t):
         return agent.INTENT_STATE_NEW_NEED, "rule:限电场景（补充条件）"
-
     if not allow_model:
         # 没有模型时的纯规则退化路径（离线/模型挂了时用）
         return agent._classify_intent_rule(t, focus), "rule:仅规则（模型禁用）"
@@ -754,5 +753,27 @@ def route(text, focus=None):
 
     topic = m["topic"] if m["topic"] else topic_by_rule(t)
     fit = m["fit"] if m["fit"] is not None else fit_by_rule(t)
+
+    # 🔴 2026-11-21：**规则否决 intent 时，topic/fit 也要跟着改**。
+    #
+    #    实测 bug：`classify()` 里的限电规则把 intent 判成 state_new_need（对），
+    #    但 topic/fit 仍取模型值 → 得到 topic=battery / fit=True（错）。
+    #    对抗测试抓到：「宿舍限电400瓦」期望 none/False，实际 battery/True。
+    #
+    #    为什么必须一起改：intent 是 state_new_need（在补充条件），
+    #    那 topic 就该是 none（不是在问某个面）、fit 该是 False（不是在问匹配）。
+    #    三个字段是一个整体，只改一个会自相矛盾。
+    #
+    #    判据：why 以 "rule:" 开头 = 规则否决了模型 → topic/fit 用规则值。
+    if why.startswith("rule:"):
+        topic = topic_by_rule(t) or None
+        fit = fit_by_rule(t)
+        # 🔴 限电/供电约束是**补充环境条件**，不是在问某个面、也不是问匹配。
+        #    「限电500W能用吗」里的「能用吗」会误命中 FIT_KW → fit=True（错）。
+        #    用户是拿条件问可行性，该记槽位后重判，不是在问这台适不适合。
+        if re.search(r"(限电|供电|插座|跳闸|功率限制|限功率)", t):
+            topic = None
+            fit = False
+
     return {"intent": intent, "why": why, "topic": topic, "fit": fit,
             "model_ok": True}

@@ -72,6 +72,11 @@ SOURCES = [
     #      真实：「那我不想要这种的」「再看看别的」「换一台这台我不想要」
     #    语气、省略、口语化程度完全不同。
     ("cot-log.jsonl", "真实日志+思维链"),
+    # 🔴 2026-11-21：整链对抗测试的失败样本（带纠错思维链）。
+    #    来源：adversarial_v2.py --collect
+    #    每条都是**真跑出来的错**，不是猜的。
+    #    这批最值钱：它记录的是模型当前的真实弱点。
+    ("adversarial-v2.jsonl", "整链对抗失败样本"),
 ]
 
 OUT_TRAIN = os.path.join(LORA_DIR, "route-train.jsonl")
