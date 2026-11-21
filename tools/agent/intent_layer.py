@@ -66,13 +66,14 @@ import agent  # noqa: E402
 _CACHE = {}
 _MODEL_DEAD = [False]
 
-# 模型的六类，和 agent 的常量对齐（不许各写一遍 —— 宪法第 9 条）
+# 模型的七类，和 agent 的常量对齐（不许各写一遍 —— 宪法第 9 条）
 _LABEL_MAP = {
     "ask_current": agent.INTENT_ASK_CURRENT,
     "refuse_switch": agent.INTENT_REFUSE_SWITCH,
     "state_range": agent.INTENT_STATE_RANGE,
     "state_new_need": agent.INTENT_STATE_NEW_NEED,
     "list_others": agent.INTENT_LIST_OTHERS,
+    "analyze": agent.INTENT_ANALYZE,
     "unknown": agent.INTENT_UNKNOWN,
 }
 
@@ -83,10 +84,19 @@ SYS_TMPL = """用户在挑电脑，助手上一轮给他推荐了下面这台。
 只输出 JSON，**三个字段一次给全**（一次推理出全部路由决策，不许只给 intent）：
 {{"intent": "...", "topic": "...", "fit": true|false}}
 
-【intent】六选一 —— 这句话的主动作是什么
+【intent】七选一 —— 这句话的主动作是什么
 - ask_current     问**这台**的细节：屏幕/保修/重量/续航/散热/够不够用/值不值/有什么缺点
 - refuse_switch   不想要这台，想换台。特征：带否定词（不行/不喜欢/太丑/太贵/换个/算了）
 - state_range     在说价位段、品类、条件范围，不指向某一台。特征："六七千的""轻薄本""一万以内"
+- analyze         问**整个库的统计量**。必须同时满足：
+                  ① 有明确的统计动作（多少台/几台/平均/中位数/分布/排行/各品牌对比）
+                  ② **不是**在问当前这一台
+                  例子：「有多少台有独显」「8000以内平均多重」
+                        「各品牌售后评分对比」「32G内存的价格分布」「性能最强的五台」
+                  ⚠️ 关键区分：
+                    「这个价算什么水平」问的是**这一台**的价位 → 不是 analyze
+                    「哪个最便宜」是在找**一台机器** → 不是 analyze（那是 state_range）
+                    只有明确要**一个数或一张表**才算 analyze
 - state_new_need  提出**新的要求**：要某种配置、某种用途、某个偏好。
                   特征："要32G""要独显""要台式"——这是在**加条件**，不是拒绝当前这台
                   ⚠️ **问这台"有没有/是不是/怎么样"的一律不是 state_new_need**，
@@ -254,9 +264,32 @@ def model_route(text, focus=None):
             if topic not in _TOPICS:
                 topic = None          # 非法主题不采信，交给词表兜底 —— 不猜
             fit = d.get("fit")
+            # 🔴 2026-11-21：**analyze 意图的否决层**。
+            #
+            #    加 analyze 后模型把两类句子误判了（用 git 旧版对照实测）：
+            #      「这个价在市场上算什么水平」旧=ask_current → 新=analyze
+            #        （问的是**这一台**的价位水平，不是全库统计）
+            #      「我要这个机器的升级版」旧=state_new_need → 新=refuse_switch
+            #        （"升级版"不是换台 —— 这条是 SYS 改动连带影响的）
+            #
+            #    判据：analyze 必须有**明确的统计动作**，光有"算什么水平"
+            #    这种模糊问法不算。宁可走 ask_current（有数据支撑），
+            #    也不要走 analyze（会去算全库统计，答非所问）。
+            _vetoed = False
+            if lab == agent.INTENT_ANALYZE:
+                _t = text or ""
+                _has_stat = re.search(
+                    r"多少台|几台|平均|中位数|分布|各品牌|各品类|按品牌|"
+                    r"排行|排名|占比|统计|一共|总共|加起来", _t)
+                _about_current = re.search(r"这个价|这台|它|该机|这款", _t)
+                if not _has_stat or _about_current:
+                    lab = (agent.INTENT_ASK_CURRENT if _about_current
+                           else agent.INTENT_STATE_RANGE)
+                    _vetoed = True
             res = {"intent": lab, "topic": topic or None,
                    "fit": bool(fit) if fit is not None else None,
-                   "why": "model:" + (d.get("intent") or "").strip(), "ok": True}
+                   "why": "model:" + (d.get("intent") or "").strip()
+                          + ("(analyze否决)" if _vetoed else ""), "ok": True}
     except Exception as e:
         _MODEL_DEAD[0] = True
         res = {"intent": agent.INTENT_UNKNOWN, "topic": None, "fit": None,
@@ -666,6 +699,54 @@ def classify(text, focus=None, allow_model=True):
         rule_lab = agent._classify_intent_rule(t, focus)
         if rule_lab != agent.INTENT_UNKNOWN:
             return rule_lab, "rule:模型判不出，退回规则"
+
+    # 7. 🔴 2026-11-21：**analyze 意图的否决层**。
+    #
+    #    加 analyze 后模型把这类句子误判了（用 git 旧版对照实测）：
+    #      「这个价在市场上算什么水平」旧=ask_current → 新=state_range
+    #        （不是 analyze，但也被带偏了 —— SYS 加了一类，模型整体判断漂了）
+    #      「我要这个机器的升级版」旧=state_new_need → 新=refuse_switch
+    #        （"升级版"是**要更好的**，不是"不要这台"）
+    #
+    #    判据：问的是**当前这一台的价位水平**（"这个价…算什么水平"），
+    #    既不是全库统计（analyze），也不是"说价位段"（state_range）——
+    #    它在问这一台贵不贵。
+    #
+    #    ⚠️ 但**不能判成 ask_current**：这类问题在 agent 里有一条专门的
+    #    `compare` 路径（用库内数据算出真实排名，见 _answer_price_position）。
+    #    判成 ask_current 会走追问分支，答成"这台多重"那种参数复述，
+    #    反而丢了"第几名"这个有价值的信息（test_attack6 三条用例就是测这个）。
+    #
+    #    所以这里**不动 intent**，只保证它不被 analyze 抢走。
+    #    price 相关的问题交给 state_range 语义，由 agent 的 ask_price 分支接。
+    if m_lab == agent.INTENT_ANALYZE:
+        _is_price_ask = bool(
+            re.search(r"(这个价|这价格|这价|这个价钱)", t)
+            and re.search(r"算什么|什么水平|怎么样|划算|贵不贵|值不值|合理", t))
+        if _is_price_ask:
+            return (agent.INTENT_STATE_RANGE,
+                    "rule:问当前这台的价位水平（走价格位置分支，不是全库统计）")
+
+    # 「我要这个机器的升级版」「想要更高配的」—— 是**提新需求**，不是换台。
+    # 判据：「升级版/更高配/更好的」指向"要更强的"，而换台是否定当前这台。
+    # 实测：旧版 state_new_need（对），加 analyze 后变 refuse_switch（错）。
+    if re.search(r"(升级版|升级款|更高配|更高配版|顶配版|加强版)", t) and \
+            not re.search(r"(不要|不想要|换掉|算了)", t):
+        return (agent.INTENT_STATE_NEW_NEED,
+                "rule:要更高配的（不是不要这台）")
+
+    if m_lab == agent.INTENT_ANALYZE:
+        _has_stat = re.search(
+            r"多少台|几台|平均|中位数|分布|各品牌|各品类|按品牌|"
+            r"排行|排名|占比|统计|一共|总共|加起来", t)
+        _about_current = re.search(r"这个价|这台|它|该机|这款", t)
+        if not _has_stat or _about_current:
+            if _about_current:
+                return (agent.INTENT_ASK_CURRENT,
+                        "rule:问的是当前这台的价位水平，不是全库统计（analyze 否决）")
+            return (agent.INTENT_STATE_RANGE,
+                    "rule:没有明确统计动作，不是 analyze（否决）")
+
     return m_lab, m_why
 
 # ================================================================

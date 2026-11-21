@@ -318,6 +318,19 @@ INTENT_STATE_RANGE = "state_range"        # 说价位段 / 品类 / 条件
 INTENT_STATE_NEW_NEED = "state_new_need"  # 提新需求
 INTENT_UNKNOWN = "unknown"                # 没听清，需要反问
 INTENT_LIST_OTHERS = "list_others"        # 把其余候选列出来（2026-11-12 新增）
+# 🔴 2026-11-21 新增：**数据分析**（毕设题目要求）
+#
+#    用户问的是**整个库的统计特征**，不是"给我推荐一台"：
+#      「有多少台有独显」「各品牌售后评分对比」
+#      「8000以内平均多重」「32G内存的价格分布」「性能最强的五台」
+#
+#    原来这些都走 state_range → clarify → 回一句"是笔记本还是台式？"
+#    （实测：5 个分析类问题，4 个被这么打回）。
+#
+#    为什么必须单独一个意图：它的**回答形态完全不同** ——
+#    推荐是"一台机器 + 理由"，分析是"一个数/一张表 + 样本量"。
+#    走推荐路径必然答非所问。
+INTENT_ANALYZE = "analyze"                # 对整个库做统计分析
 
 # 「把其余推荐的列出来」—— 这是要清单，不是要换台，也不是追问某台细节。
 # 🔴 实测 2026-11-12：用户说「其余推荐的给我列举出信息我看看」，
@@ -2710,6 +2723,115 @@ def _price_label(o):
     这个键名，就不会把它说成到手价。
     """
     return "平台标价（不含国补/券）" if o.get("priceIsEstimate") else "到手价"
+
+
+def _render_analysis(user_text, res, q):
+    """把分析结果组织成人话。
+
+    🔴 2026-11-21：**模型组织语言，数字全部来自 res**。
+
+    为什么不直接把 res 丢给模型让它说：
+      那样它可能"顺手"改数字（实测编过「最贵的一台」）。
+      这里先把结构化结果拼成事实句子，再让模型润色 ——
+      模型看到的每个数字都是算好的，它没机会编。
+
+    ⚠️ 模型失败时退回纯事实拼接（不能因为模型挂了就答不出来）。
+    """
+    n = res.get("n") or 0
+    agg = res.get("agg")
+    field = res.get("field")
+    label = {
+        "price": "价格", "perf": "性能分", "weightKg": "重量",
+        "ram": "内存", "batteryWh": "电池容量", "thicknessMm": "厚度",
+        "refreshHz": "刷新率", "sizeInch": "屏幕尺寸",
+        "brand": "品牌", "cat": "品类", "gpuKind": "显卡类型",
+    }.get(field, field or "")
+
+    # ── 拼事实（纯代码，不靠模型）──
+    facts = []
+    if agg == "count":
+        facts.append("符合条件的共 %d 台" % n)
+    elif agg in ("mean", "median", "min", "max"):
+        facts.append(res.get("text") or "")
+    elif agg == "groupby":
+        groups = res.get("groups") or {}
+        facts.append("按「%s」共 %d 组" % (
+            {"brand": "品牌", "cat": "品类", "gpuKind": "显卡类型"}.get(
+                q.get("group_by") or "brand", q.get("group_by") or "品牌"),
+            len(groups)))
+        # 只报前 5 组，避免回答变成表格倾倒
+        for g, v in list(groups.items())[:5]:
+            if "mean" in v:
+                facts.append("%s：%d 台，%s 平均 %s（%s~%s）" % (
+                    g, v["n"], label, v["mean"], v["min"], v["max"]))
+            else:
+                facts.append("%s：%d 台" % (g, v["n"]))
+        if len(groups) > 5:
+            facts.append("其余 %d 组略" % (len(groups) - 5))
+    elif agg == "distribution":
+        buckets = res.get("value") or {}
+        facts.append(res.get("text") or "")
+        for k, v in buckets.items():
+            facts.append("%s：%d 台" % (k, v))
+    elif agg in ("top", "bottom"):
+        for i, row in enumerate(res.get("rows") or [], 1):
+            facts.append("%d. %s —— %s" % (i, row["name"], row["value"]))
+    if res.get("note"):
+        facts.append(res["note"])
+
+    _fact_txt = "；".join(x for x in facts if x)
+
+    # ── 让模型润色（数字不许改）──
+    SYS = """你在回答一个**数据统计**问题。下面是系统算好的事实，你只负责组织成人话。
+
+硬规则：
+1. **每个数字都必须来自「事实」，一个都不许改、不许补充、不许推算。**
+   事实里写「样本 18 台」就只能说 18，不许写成 80。
+   事实里没说「其余 N 台」就不许提。
+2. 不许推荐具体机型（除非事实里就是排行）。
+3. 不许评价"性价比高""值得买"这类 —— 这是统计，不是导购。
+4. 两到四句。先给结论，再补一句样本量或口径。
+5. 不许把字段名念出来（不要写"agg""field"这种）。"""
+    try:
+        out = chat([{"role": "system", "content": SYS},
+                    {"role": "user",
+                     "content": "用户问：%s\n\n事实：%s" % (user_text, _fact_txt)}],
+                   num_predict=260).strip()
+        # 🔴 2026-11-21：**数字校验**。模型润色时会把「18 台」写成「80 台」
+        #    （实测：引擎算 18 台，回答写"80 台有明确记录"+"其余 10 台没记录"，
+        #    两个数都是编的）。这类错比不回答更坏 —— 用户会当真。
+        #
+        #    判据：回答里出现的每个数字，必须能在「事实」文本里找到。
+        #    找不到 → 这个润色作废，退回纯事实拼接。
+        if out and len(out) >= 20 and _numbers_ok(out, _fact_txt):
+            return out
+    except Exception:
+        pass
+    # 模型不可用 / 数字编了 → 纯事实拼接
+    return _fact_txt
+
+
+def _numbers_ok(reply, facts):
+    """回答里的数字必须都能在事实里找到。
+
+    只校验**2 位以上的数字**（"1.75" 拆成 1 和 75 会误判），
+    以及带单位/百分号的。个位数（1-9）不校验 —— 太容易误伤
+    （「5 台」「前 3 名」这类表述里的数字经常是序号）。
+    """
+    if not reply:
+        return False
+    # 抽出回答里的所有数字（含小数）
+    nums = re.findall(r"\d+(?:\.\d+)?", reply)
+    for x in nums:
+        if len(x.replace(".", "")) < 2:
+            continue          # 个位数不校验
+        if x in facts:
+            continue
+        # 允许「2.49」在事实里写成「2.49 kg」或「2.49kg」
+        if any(x in f for f in facts.split("；")):
+            continue
+        return False
+    return True
 
 
 def answer_followup(user_text, m, asked_topics=None):
@@ -5612,6 +5734,60 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
             pass
     is_compare = any(k in user_text for k in COMPARE_KW)
     on_current = bool(focus) and not want_switch and refers_to_current(user_text, focus)
+
+    # ═══════════════════════════════════════════════════════════
+    # 0b2. 🔴 2026-11-21 新增：**数据分析**路径（毕设题目要求）
+    #
+    #    用户问的是整个库的统计特征，不是要一台机器：
+    #      「有多少台有独显」「8000以内平均多重」
+    #      「各品牌售后评分对比」「32G内存的价格分布」「性能最强的五台」
+    #
+    #    原来这些都走 state_range → clarify → 回「是笔记本还是台式？」
+    #    （实测 5 个分析类问题，4 个被这么打回 —— 完全答非所问）。
+    #
+    #    架构：**模型理解 + 代码计算**
+    #      ① 模型把问题解析成 {agg, field, filter, group_by}（不碰数字）
+    #      ② analyze.analyze() 确定性计算（可复现、可追溯）
+    #      ③ 模型把结果组织成人话
+    #
+    #    为什么不让模型直接算：
+    #      · 223 台的聚合计算模型必然出错（它连"第几名"都编过）
+    #      · 答辩要能说清每个数字怎么来的 → 代码可复现
+    #
+    #    判据：模型路由给 analyze，**或**规则认出分析句式（模型不可用时兜底）。
+    #    位置必须在 0c（点名机型）之前 —— 否则「有多少台有独显」里的
+    #    "独显"可能被当机型名去匹配。
+    # ═══════════════════════════════════════════════════════════
+    _lr_an = _LAST_ROUTE[0]
+    _want_analyze = bool(_lr_an and _lr_an.get("model_ok")
+                         and _lr_an.get("intent") == INTENT_ANALYZE)
+    if not _want_analyze:
+        # 规则兜底：明显的统计句式
+        _want_analyze = bool(re.search(
+            r"多少台|几台|平均|中位数|分布|各品牌|各品类|按品牌|"
+            r"最强|最弱|最贵|最便宜|排行|排名|占比|统计|对比一下各", user_text or ""))
+    if _want_analyze:
+        try:
+            import analyze as _an
+            _q = _an.parse_query(user_text)
+            if _q:
+                _res = _an.analyze(_q)
+                if _res.get("ok"):
+                    _reply = _render_analysis(user_text, _res, _q)
+                    return {"stage": "analyze", "slots": dict(known or {}),
+                            "reply": _reply, "focus": focus,
+                            "focusName": None,
+                            "questions": [], "warnings": [],
+                            "dataAsOf": core.data_as_of(),
+                            "analysis": {k: _res.get(k) for k in
+                                         ("n", "agg", "field", "value",
+                                          "groups", "rows", "text")},
+                            "outside_products": check_outside_products(_reply),
+                            "untraceable_numbers": [],
+                            "fabricated_words": []}
+        except Exception:
+            # 分析失败不吞掉：落到下面正常流程（最差也是普通推荐）
+            pass
 
     # 0c. 用户**直接点名**了库里某台机型 → 就地切 focus 回答，不进推荐流程。
     #
