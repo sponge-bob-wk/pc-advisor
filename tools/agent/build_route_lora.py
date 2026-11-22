@@ -90,6 +90,35 @@ def norm(s):
     return re.sub(r"[\s，。？！、；：,.?!;:]+", "", str(s or "")).lower()
 
 
+def _sys_prompt():
+    """返回**和推理时完全相同**的 system prompt。
+
+    🔴🔴 2026-11-23：这是本轮最严重的发现。
+
+      训练用 system:  56 字符（"你是选机助手的路由器。只输出 JSON：…"）
+      推理用 system: 2170 字符（intent_layer.SYS_TMPL，含七类意图定义）
+      **差 39 倍，根本不是同一个 prompt**
+
+      实测后果：v3 adapter 对「好的」输出 1219 字符的思维链死循环，
+      一个 JSON 都没有。同一个 adapter 换成 56 字符的极简 system
+      就正常输出 JSON。
+
+      为什么之前两版能 work：基座模型够强，能忽略这种不一致 ——
+      但它一直在"猜"任务是什么，恰好猜对了。**这是运气，不是设计。**
+
+    做法：直接从 intent_layer 取，不在这里另写一份 ——
+    **判据抄两遍一定会漂**（这个项目已经复现过 9 次）。
+    """
+    try:
+        import intent_layer as il
+        # 训练时用一个固定的占位 ctx（真实推理时 ctx 是当前讨论的机型）
+        return il.SYS_TMPL.format(ctx="（当前讨论：zol-2103842）")
+    except Exception:
+        # 退化：至少保证有 JSON 格式说明
+        return ('你是选机助手的路由器。只输出 JSON：'
+                '{"intent":...,"topic":...,"fit":...}')
+
+
 def load_route_file(path):
     """只收路由层格式（assistant 是 {"intent","topic","fit"}）。"""
     out, skipped = [], 0
@@ -315,9 +344,26 @@ def main():
                         json.dumps(r["gold"], ensure_ascii=False)
                     f.write(json.dumps({
                         "messages": [
-                            {"role": "system",
-                             "content": "你是选机助手的路由器。只输出 JSON："
-                                        '{"intent":...,"topic":...,"fit":...}'},
+                            # 🔴🔴 2026-11-23：**system prompt 必须和推理时一模一样**。
+                            #
+                            #    这是本轮最严重的发现：
+                            #      训练用 system:  56 字符（一句话）
+                            #      推理用 system: 2170 字符（七类意图的详细定义）
+                            #      **差 39 倍，根本不是同一个 prompt**
+                            #
+                            #    后果（实测）：v3 adapter 对「好的」输出
+                            #    1219 字符的思维链死循环，一个 JSON 都没有。
+                            #    而同一个 adapter 换成 56 字符的极简 system
+                            #    就正常输出 JSON（252 字符）。
+                            #
+                            #    为什么之前两版能 work：基座模型够强，
+                            #    能忽略这种不一致。但它一直在"猜"任务是什么，
+                            #    只是恰好猜对了 —— 这是运气，不是设计。
+                            #
+                            #    ⚠️ 现在直接用 intent_layer.SYS_TMPL，
+                            #    而不是在这里另写一份。**判据抄两遍一定会漂**
+                            #    （这个项目已经复现过 9 次）。
+                            {"role": "system", "content": _sys_prompt()},
                             {"role": "user", "content": r["user"]},
                             {"role": "assistant", "content": content},
                         ],

@@ -236,9 +236,31 @@ def model_route(text, focus=None):
         return res
     sysmsg = SYS_TMPL.format(ctx=_ctx_of(focus))
     try:
+        # 🔴🔴 2026-11-22：num_predict 从 120 提到 **400**。
+        #
+        #    这是**思维链训练和推理预算的冲突**，实测代价很严重：
+        #
+        #    v3 模型（带 CoT 训练）对「好的」的输出：
+        #      「「好的」是同意，不是换台。判据：**只有出现否定/拒绝/换台动词
+        #        才算 refuse_switch**。「好的」没有否定也没有换台，只是个应答。
+        #        ⚠️ 陷阱：「好的，我拿去试」里的「拿去试」是动词，但整句没有
+        #        「不行/算了/换」，所以还是 ask_current。…」
+        #      ← **200 token 用完了，JSON 一个字没输出**
+        #
+        #    训练集里思维链中位 52 token、90 分位 107 token，
+        #    加 JSON（约 30 token）= 82~137 token。
+        #    **120 预算在 90 分位样本上必然截断** → JSON 出不来 → 解析返回 None
+        #    → 被当成"模型失败"→ 降级到纯规则。
+        #
+        #    教训：**训练数据加了思维链，推理预算必须同步放大**。
+        #    这两个参数是绑定的，改一个不改另一个会让模型"学了但用不出来"。
+        #
+        #    ⚠️ 代价：单次推理从约 0.2 秒涨到约 0.5 秒（CoT 本身就要算）。
+        #       但 `_extract_json` 从后往前找 JSON，所以即使模型只输出
+        #       思维链没有 JSON，也能正确判定为失败并降级 —— 不会更糟。
         out = agent.chat([{"role": "system", "content": sysmsg},
                           {"role": "user", "content": (text or "").strip()}],
-                         fmt="json", num_predict=120, temperature=0)
+                         fmt="json", num_predict=400, temperature=0)
         # 🔴 2026-11-17：解析从「严格 json.loads 整段」改成「提取最后一个 JSON」。
         #
         #    为什么必须改：训练数据要带**思维链**（见 docs/归档-20261117/

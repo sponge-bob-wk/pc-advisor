@@ -113,12 +113,44 @@ def parse(txt):
         d["trainable"] = int(m.group(1).replace(",", ""))
         d["trainable_pct"] = float(m.group(2))
 
-    # ── 进度条（取最后一个匹配）──
+    # ── 进度条 ──
+    #
+    # 🔴 2026-11-22 修了两次，最后靠**前缀**区分。
+    #
+    #    日志里有三种进度条：
+    #      Loading weights: 100%|██████| 398/398 [00:12<00:00, 31.34it/s]
+    #      Loading weights:   0%|      |   1/398 [00:01<09:50,  1.49s/it]  ← 也是 s/it！
+    #      100%|██████| 9/9 [00:08<00:00, 1.17s/it]                        ← eval
+    #      26%|██▋ | 50/189 [05:52<17:34, 7.59s/it]                        ← 训练
+    #
+    #    第一版取 prog[-1] → eval（9/9，显示"100% 完成"）
+    #    第二版取分母最大 → 加载（398/398，显示"0%"）
+    #    第三版只认 s/it + 分母最大 → 还是加载（刚开始加载也是 s/it）
+    #
+    #    **最终判据：先剔掉带 `Loading weights:` 前缀的行**，
+    #    剩下的里取分母最大 —— 那就是训练主循环。
+    #    前缀匹配比单位/分母都可靠，因为它是语义标记，不是数值巧合。
+    _lines = [ln for ln in txt.split("\n") if "Loading weights" not in ln]
+    _body = "\n".join(_lines)
     prog = re.findall(
         r"(\d+)%\|[^|]*\|\s*(\d+)/(\d+)\s*\[([\d:]+)<([\d:]+),\s*([\d.]+)s/it\]",
-        txt)
+        _body)
     if prog:
-        pct, cur, tot, used, eta, spd = prog[-1]
+        # 🔴 2026-11-22 第四次修：**取最后一条**，不是分母最大那条。
+        #
+        #    日志是追加写的，所以同一个进度条会重复出现：
+        #      1/189, 2/189, 3/189, ..., 50/189, ...
+        #    取 max(分母) 会拿到**最早的**那条（1/189），
+        #    看板显示"1% 剩余 23:37"，而实际已经跑了 5 分钟。
+        #
+        #    正确做法：先按分母分组，取**每组最后一条**，
+        #    再在训练组（分母最大的那组）里取最后一条。
+        _by_tot = {}
+        for x in prog:
+            _by_tot.setdefault(int(x[2]), []).append(x)
+        # 训练组 = 分母最大的那组（eval 的分母小得多）
+        _train_tot = max(_by_tot)
+        pct, cur, tot, used, eta, spd = _by_tot[_train_tot][-1]
         d["pct"] = int(pct)
         d["cur"] = int(cur)
         d["total"] = int(tot)
@@ -126,6 +158,8 @@ def parse(txt):
         d["eta"] = eta
         d["speed"] = float(spd)
         d["ok"] = True
+        # eval 次数 = 非训练组的条数（按组算，不按条算）
+        d["eval_passes"] = len(_by_tot) - 1
 
     # ── loss 记录 ──
     losses = re.findall(r"'loss':\s*'([\d.]+)'", txt)
@@ -152,14 +186,32 @@ def parse(txt):
     # ── checkpoint ──
     cks = re.findall(r"checkpoint-(\d+)", txt)
     d["ckpt"] = "checkpoint-%s" % max(cks, key=int) if cks else None
-    # 也从文件系统看（日志里不一定有）
+    # 🔴 2026-11-22 修：**从输出目录看，不写死 lora_out**。
+    #
+    #    原来写死 `lora_out/checkpoint-*`，导致看板显示上一个训练的
+    #    checkpoint-186（旧目录），而当前训练的输出在 `lora_v3`（还没到 50 步）。
+    #    用户会以为"已经存了 186 步"，实际一步没存。
+    #
+    #    做法：从日志里抠出 --out 指定的目录，没有再退回 lora_out。
     try:
-        dirs = [p for p in glob.glob(os.path.join(HERE, "lora_out", "checkpoint-*"))
+        _out = None
+        _m = re.search(r"--out\s+[‘’'\"]?([^‘’'\"\s]+)", txt)
+        if _m:
+            _out = _m.group(1)
+        if not _out:
+            _out = os.path.join(HERE, "lora_out")
+        elif not os.path.isabs(_out):
+            _out = os.path.join(HERE, _out)
+        dirs = [p for p in glob.glob(os.path.join(_out, "checkpoint-*"))
                 if os.path.isdir(p)]
         if dirs:
             nums = [int(re.sub(r".*-(\d+)$", r"\1", p) or 0) for p in dirs]
             d["ckpt"] = "checkpoint-%d" % max(nums)
             d["ckpt_count"] = len(dirs)
+        else:
+            # 当前输出目录还没有 checkpoint —— 明确显示，不要沿用旧的
+            d["ckpt"] = None
+            d["ckpt_dir"] = os.path.basename(_out)
     except Exception:
         pass
 
@@ -266,6 +318,13 @@ def render(d, log_path):
         L.append("检查点 %s%s" % (
             d["ckpt"],
             "（共 %d 个）" % d["ckpt_count"] if d.get("ckpt_count") else ""))
+    elif d.get("ckpt_dir"):
+        # 🔴 2026-11-22：当前输出目录还没有 checkpoint。
+        #    必须**明确说出来**，不能静默省略 ——
+        #    否则用户看到"没这行"会以为检查点功能坏了。
+        #    真实含义：还没到 save_steps，中断就白跑。
+        L.append("检查点 暂无（%s 里还没到 save_steps=50，中断会丢）"
+                 % d["ckpt_dir"])
 
     L.append("")
     L.append("日志：%s" % name)

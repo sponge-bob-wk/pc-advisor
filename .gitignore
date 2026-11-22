@@ -77,3 +77,10 @@ tools/agent/multiturn_result.json
 tools/agent/lora_out/
 tools/agent/lora_bench/
 tools/agent/train-*.log
+
+# 训练产出（体积大，可重训）
+tools/agent/lora_v3/
+tools/agent/lora_probe/
+tools/agent/lora_test/
+tools/agent/train-v3.log
+tools/agent/train-v2.log

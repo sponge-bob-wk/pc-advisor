@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""eval_lora.py —— 用训练好的 LoRA adapter 跑评估
+r"""eval_lora.py —— 用训练好的 LoRA adapter 跑评估
 
 ## 这个脚本解决什么问题
 
@@ -138,6 +138,8 @@ def main():
     ap.add_argument("--suite", default="adversarial",
                     choices=["adversarial", "train", "eval", "all"])
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--adapter", default=None,
+                    help="adapter 目录（默认 lora_out）")
     ap.add_argument("--no-adapter", action="store_true",
                     help="用基座模型（对照组）")
     args = ap.parse_args()
@@ -149,8 +151,11 @@ def main():
     if not torch.cuda.is_available():
         print("✗ CUDA 不可用，必须用 E:\\ai2026\\Scripts\\python.exe")
         return 1
-    if not os.path.isdir(ADAPTER) and not args.no_adapter:
-        print("✗ 找不到 adapter：%s" % ADAPTER)
+    _adapter = args.adapter or ADAPTER
+    if not os.path.isabs(_adapter):
+        _adapter = os.path.join(HERE, _adapter)
+    if not os.path.isdir(_adapter) and not args.no_adapter:
+        print("✗ 找不到 adapter：%s" % _adapter)
         return 1
 
     suites = build_suites()
@@ -175,7 +180,7 @@ def main():
         MODEL_DIR, quantization_config=bnb, device_map="auto",
         trust_remote_code=True, torch_dtype=torch.bfloat16)
     if not args.no_adapter:
-        model = PeftModel.from_pretrained(model, ADAPTER)
+        model = PeftModel.from_pretrained(model, _adapter)
     model.eval()
 
     # 用和推理时一样的 system prompt
@@ -199,7 +204,12 @@ def main():
                                              add_generation_prompt=True)
             ids = tok(prompt, return_tensors="pt").to(model.device)
             with torch.no_grad():
-                gen = model.generate(**ids, max_new_tokens=200,
+                # 🔴 2026-11-22：max_new_tokens 从 200 提到 400。
+                #    必须和 intent_layer 的 num_predict 保持一致 ——
+                #    否则评估测的不是真实推理条件。
+                #    实测：v3 模型的思维链 90 分位 107 token，加 JSON 约 137，
+                #    200 会截断，400 有余量。
+                gen = model.generate(**ids, max_new_tokens=400,
                                      do_sample=False, temperature=0.0,
                                      pad_token_id=tok.pad_token_id)
             out = tok.decode(gen[0][ids["input_ids"].shape[1]:],

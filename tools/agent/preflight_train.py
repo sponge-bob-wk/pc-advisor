@@ -38,10 +38,27 @@ import sys
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
-# 训练峰值内存（GB）。实测值，不是估的。
-PEAK_NEED_GB = 11.0
-SAFE_GB = 11.0
-TIGHT_GB = 9.0
+# 🔴🔴 2026-11-22 深夜更正：**之前的判据算错了**。
+#
+#    原判据：物理可用 >= 11 GB 才能训练。
+#    但 11 GB 这个数字来自蓝屏日志里的「python.exe 使用了 10.99 GB」——
+#    那是 **commit（提交内存）**，包含页面文件预分配，**不是物理占用**。
+#
+#    实测（measure_real.py）：
+#      · 进程 RSS 峰值只有 **1.0 GB**
+#      · 训练中系统物理可用还有 2.99 GB 剩余
+#      · 真正吃紧的是**显存**（峰值 11.76 GB > 8 GB 上限，
+#        真实训练靠 gradient_checkpointing 压到约 6.4 GB）
+#
+#    所以正确判据应该看**两件事**：
+#      ① commit 余量（页面文件够不够）—— 蓝屏的直接原因
+#      ② 物理余量（别把机器卡死）—— 留 2 GB 给系统
+#
+#    教训：**同一个数字（11 GB）在 commit 和 RSS 里含义完全不同**。
+#    拿错口径会得出完全相反的结论（"内存不够" vs "内存充足"）。
+COMMIT_NEED_GB = 11.0    # 训练 commit 峰值（来自蓝屏日志，是真数）
+PHYS_FLOOR_GB = 3.0      # 物理内存至少留这么多给系统（防卡死）
+VRAM_NEED_GB = 6.4       # 显存峰值（实测，已含 gradient checkpointing）
 
 # 建议关闭的程序（按占用排序，只是提示，不强制）
 CLOSE_HINT = [
@@ -54,6 +71,37 @@ CLOSE_HINT = [
     ("ollama", "Ollama 推理服务（还占显存）"),
     ("llama-server", "Ollama 后端"),
 ]
+
+
+def commit_info():
+    """返回 (提交上限 GB, 提交可用 GB)。
+
+    🔴 为什么必须看 commit 而不只看物理内存：
+        蓝屏日志写「python.exe 使用了 10.99 GB」，那是 commit，
+        不是 RSS（实测 RSS 只有 1.0 GB）。
+        物理内存不够会换页到磁盘（慢但不崩）；
+        **commit 不够会直接分配失败 → 0x3B 蓝屏**。
+    """
+    import ctypes
+
+    class MEMORYSTATUSEX(ctypes.Structure):
+        _fields_ = [
+            ("dwLength", ctypes.c_ulong),
+            ("dwMemoryLoad", ctypes.c_ulong),
+            ("ullTotalPhys", ctypes.c_ulonglong),
+            ("ullAvailPhys", ctypes.c_ulonglong),
+            ("ullTotalPageFile", ctypes.c_ulonglong),
+            ("ullAvailPageFile", ctypes.c_ulonglong),
+            ("ullTotalVirtual", ctypes.c_ulonglong),
+            ("ullAvailVirtual", ctypes.c_ulonglong),
+            ("ullAvailExtendedVirtual", ctypes.c_ulonglong),
+        ]
+
+    st = MEMORYSTATUSEX()
+    st.dwLength = ctypes.sizeof(MEMORYSTATUSEX)
+    ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(st))
+    # ullTotalPageFile 是「物理+页面文件」的总提交上限
+    return st.ullTotalPageFile / 1024 ** 3, st.ullAvailPageFile / 1024 ** 3
 
 
 def mem_info():
@@ -134,12 +182,18 @@ def main():
     print("=" * 64)
 
     total, avail, pct = mem_info()
+    commit_total, commit_avail = commit_info()
+
     print()
     print("【内存】")
     print("  物理总计: %.1f GB" % total)
-    print("  当前可用: %.1f GB（已用 %d%%）" % (avail, pct))
-    print("  训练需要: 约 %.0f GB（实测峰值，不是估的）" % PEAK_NEED_GB)
-    print("  余量:     %+.1f GB" % (avail - PEAK_NEED_GB))
+    print("  物理可用: %.1f GB（已用 %d%%）" % (avail, pct))
+    print()
+    print("【提交内存 commit】← 蓝屏的直接原因看这个")
+    print("  提交上限: %.1f GB（物理 + 页面文件）" % commit_total)
+    print("  提交可用: %.1f GB" % commit_avail)
+    print("  训练需要: 约 %.0f GB" % COMMIT_NEED_GB)
+    print("  余量:     %+.1f GB" % (commit_avail - COMMIT_NEED_GB))
 
     used_v, total_v = vram_info()
     if used_v is not None:
@@ -163,21 +217,45 @@ def main():
     print()
     print("=" * 64)
 
-    # ── 判定 ──
-    if avail >= SAFE_GB:
-        print("✓ 内存充足，可以开始训练")
+    # ── 判定（双判据：commit 防蓝屏，物理防卡死）──
+    ok_commit = commit_avail >= COMMIT_NEED_GB
+    ok_phys = avail >= PHYS_FLOOR_GB
+
+    if ok_commit and ok_phys:
+        print("✓ 可以开始训练")
+        print("    commit 余量 %+.1f GB，物理余量 %+.1f GB"
+              % (commit_avail - COMMIT_NEED_GB, avail - PHYS_FLOOR_GB))
         return 0
 
-    if avail >= TIGHT_GB:
-        print("⚠️  内存偏紧（%.1f GB < %.0f GB 安全线）" % (avail, SAFE_GB))
+    if not ok_commit:
+        print("✗ **commit 不足，拒绝训练**（这是蓝屏的直接原因）")
         print()
-        print("  建议先关掉上面标了原因的程序。")
-        print("  如果坚持训练，蓝屏风险较高 —— 2026-11-22 就是这么崩的。")
+        print("  提交可用 %.1f GB < 需要 %.0f GB" % (commit_avail, COMMIT_NEED_GB))
+        print()
+        print("  2026-11-22 18:56 的蓝屏就是 commit 耗尽：")
+        print("  日志记录 python.exe 提交了 10.99 GB，超过当时的可用 commit。")
+        print()
+        print("  提交内存不够会**直接分配失败 → 0x3B 蓝屏**，")
+        print("  而物理内存不够只是换页变慢（不会崩）。所以这条最要紧。")
+        print()
+        print("  解法：关程序（释放 commit），或调大页面文件，或重启。")
         if args.force:
             print()
-            print("  （--force 已指定，继续）")
+            print("  （--force 已指定，继续 —— 但蓝屏风险真实存在）")
             return 0
         return 1
+
+    # commit 够但物理太少
+    print("⚠️  物理内存偏少（%.1f GB < %.0f GB），训练中系统会频繁换页"
+          % (avail, PHYS_FLOOR_GB))
+    print()
+    print("  不会蓝屏（commit 够），但训练会很慢，鼠标可能卡。")
+    print("  建议关掉上面标了原因的程序。")
+    if args.force:
+        print()
+        print("  （--force 已指定，继续）")
+        return 0
+    return 1
 
     # 不足
     print("✗ 内存不足，**拒绝训练**")

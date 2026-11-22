@@ -172,6 +172,55 @@ def main():
         print("✗ 训练集为空，先跑 build_route_lora.py --write")
         return 1
 
+    # ═══════════════════════════════════════════════════════════
+    # 🔴🔴 2026-11-22：**训练前断言 system prompt 和推理一致**。
+    #
+    #    这是本项目训练环节最严重的事故，必须自动化检查。
+    #
+    #    事故：训练集用 56 字符的极简 system，推理用 2170 字符的详细版，
+    #    **差 39 倍**。前两版 adapter 能 work 是基座模型够强、恰好猜对；
+    #    v3 加了 analyze 意图（六类→七类）后，猜的难度超临界，
+    #    模型对「好的」输出 1219 字符死循环，一个 JSON 都没有。
+    #
+    #    代价：v3 训了 20.8 分钟，白跑；排查花了 1.5 小时。
+    #
+    #    判据：训练集第一条的 system message 必须**字节级等于**
+    #    intent_layer.SYS_TMPL 用固定 ctx 渲染的结果。
+    # ═══════════════════════════════════════════════════════════
+    try:
+        import intent_layer as _il
+        _infer_sys = _il.SYS_TMPL.format(ctx="（当前讨论：zol-2103842）")
+        _train_sys = ""
+        for _m in train[0].get("messages") or []:
+            if _m.get("role") == "system":
+                _train_sys = _m.get("content") or ""
+                break
+        if not _train_sys:
+            print()
+            print("✗ 训练集第一条没有 system message —— 训练/推理必然不一致")
+            return 1
+        if _train_sys != _infer_sys:
+            print()
+            print("✗ **system prompt 和推理时不一致，拒绝训练**")
+            print()
+            print("  训练用: %d 字符" % len(_train_sys))
+            print("  推理用: %d 字符" % len(_infer_sys))
+            print()
+            print("  这是 2026-11-22 那次事故的根因：")
+            print("  训练用 56 字符极简版、推理用 2170 字符详细版，差 39 倍。")
+            print("  前两版 adapter 靠基座模型'猜'对了任务，但 v3 猜错，")
+            print("  对「好的」输出 1219 字符死循环，一个 JSON 都没有。")
+            print()
+            print("  修法：跑 build_route_lora.py --write 重新生成训练集")
+            print("  （它现在从 intent_layer.SYS_TMPL 取，不再硬编码）")
+            print()
+            print("  训练用前 100 字: %r" % _train_sys[:100])
+            print("  推理用前 100 字: %r" % _infer_sys[:100])
+            return 1
+        print("  ✓ system prompt 与推理一致（%d 字符）" % len(_infer_sys))
+    except Exception as _e:
+        print("  ⚠ system prompt 检查跳过（%s）" % str(_e)[:50])
+
     # 统计带思维链的比例
     n_cot = sum(1 for s in train
                 if len((s["messages"][-1].get("content") or "").split("\n")) > 1)
@@ -250,16 +299,43 @@ def main():
     #    比"跑到一半蓝屏"好得多 —— 蓝屏会丢工作、还可能损坏文件。
     try:
         import psutil
-        _avail = psutil.virtual_memory().available / 1024 ** 3
+        import ctypes
+
+        class _MS(ctypes.Structure):
+            _fields_ = [
+                ("dwLength", ctypes.c_ulong), ("dwMemoryLoad", ctypes.c_ulong),
+                ("ullTotalPhys", ctypes.c_ulonglong),
+                ("ullAvailPhys", ctypes.c_ulonglong),
+                ("ullTotalPageFile", ctypes.c_ulonglong),
+                ("ullAvailPageFile", ctypes.c_ulonglong),
+                ("ullTotalVirtual", ctypes.c_ulonglong),
+                ("ullAvailVirtual", ctypes.c_ulonglong),
+                ("ullAvailExtendedVirtual", ctypes.c_ulonglong),
+            ]
+
+        _st = _MS()
+        _st.dwLength = ctypes.sizeof(_MS)
+        ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(_st))
+        _commit_avail = _st.ullAvailPageFile / 1024 ** 3
+        _phys_avail = psutil.virtual_memory().available / 1024 ** 3
+
         print()
         print("=== 内存检查 ===")
-        print("  可用 %.1f GB（训练需约 11 GB）" % _avail)
-        if _avail < 9.0:
+        print("  commit 可用 %.1f GB（训练需约 11 GB）" % _commit_avail)
+        print("  物理可用   %.1f GB（至少留 3 GB 给系统）" % _phys_avail)
+
+        # 🔴 2026-11-22 深夜更正：判据从「物理 >= 11 GB」改成
+        #    「commit >= 11 GB 且 物理 >= 3 GB」。
+        #
+        #    原判据错在把蓝屏日志的「python.exe 用了 10.99 GB」当成物理占用 ——
+        #    那是 **commit**，实测进程 RSS 峰值只有 1.0 GB。
+        #    物理不够只会换页变慢（不会崩），commit 不够才直接 0x3B 蓝屏。
+        if _commit_avail < 11.0:
             print()
-            print("✗ 内存不足，拒绝训练（防蓝屏）")
+            print("✗ commit 不足，拒绝训练（这是蓝屏的直接原因）")
             print()
-            print("  2026-11-22 18:56 就是因为训练吃 11 GB、物理内存只有 15.2 GB")
-            print("  导致蓝屏（0x3B），那次白跑了 31 步。")
+            print("  2026-11-22 18:56 就是 commit 耗尽：")
+            print("  日志记录 python.exe 提交了 10.99 GB，超过当时可用 commit。")
             print()
             print("  请先关掉这些程序再试：")
             for _n, _why in (("Fusion360", "三维建模，很吃内存"),
@@ -273,9 +349,18 @@ def main():
                 if _p:
                     print("    · %-16s %s（正在运行）" % (_n, _why))
             print()
-            print("  或者重启电脑 —— 蓝屏后驱动可能锁着内存，重启能释放。")
-            print("  （确实要冒险就跑 preflight_train.py --force 确认后加 --force）")
+            print("  或者调大页面文件 / 重启电脑。")
             return 1
+
+        if _phys_avail < 3.0:
+            print()
+            print("⚠️  物理内存偏少（%.1f GB < 3 GB）" % _phys_avail)
+            print("  不会蓝屏（commit 够），但训练会很慢、系统可能卡。")
+            print("  建议关掉一些程序再开始。")
+            print("  （继续训练会在 5 秒后开始，Ctrl+C 可中止）")
+            import time as _t
+            _t.sleep(5)
+
         print("  ✓ 内存充足")
     except ImportError:
         print("  （psutil 未装，跳过内存检查 —— 建议 pip install psutil）")
