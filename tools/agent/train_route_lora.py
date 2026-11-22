@@ -232,6 +232,54 @@ def main():
         print("✗ CUDA 不可用 —— 必须用 E:\\ai2026\\Scripts\\python.exe")
         return 1
 
+    # 🔴🔴 2026-11-22：**训练前内存守门**（防蓝屏）。
+    #
+    #    事故：2026-11-22 18:56 蓝屏（0x0000003B SYSTEM_SERVICE_EXCEPTION）。
+    #    查系统日志，根因不是显卡驱动，是**内存耗尽**：
+    #      18:42:39  虚拟内存不足：python.exe 用了 10.2 GB
+    #      18:44:54  虚拟内存不足：python.exe 用了 10.6 GB
+    #      18:47:16  虚拟内存不足：python.exe 用了 10.6 GB
+    #      18:50:04  虚拟内存不足：python.exe 用了 11.0 GB
+    #      18:56:02  蓝屏
+    #    训练吃 11 GB，物理内存 15.2 GB，其他程序（Fusion360、SQL Server、
+    #    浏览器）加起来就耗尽了 → 内核分配内存失败 → 蓝屏。
+    #
+    #    这次训练白跑了 31 步（还没到 save_steps=50，一个 checkpoint 都没存）。
+    #
+    #    判据：可用内存 < 9 GB 就拒绝训练，让人先腾内存。
+    #    比"跑到一半蓝屏"好得多 —— 蓝屏会丢工作、还可能损坏文件。
+    try:
+        import psutil
+        _avail = psutil.virtual_memory().available / 1024 ** 3
+        print()
+        print("=== 内存检查 ===")
+        print("  可用 %.1f GB（训练需约 11 GB）" % _avail)
+        if _avail < 9.0:
+            print()
+            print("✗ 内存不足，拒绝训练（防蓝屏）")
+            print()
+            print("  2026-11-22 18:56 就是因为训练吃 11 GB、物理内存只有 15.2 GB")
+            print("  导致蓝屏（0x3B），那次白跑了 31 步。")
+            print()
+            print("  请先关掉这些程序再试：")
+            for _n, _why in (("Fusion360", "三维建模，很吃内存"),
+                             ("sqlservr", "SQL Server，训练用不到"),
+                             ("msedge", "浏览器"),
+                             ("firefox", "浏览器"),
+                             ("Weixin", "微信"),
+                             ("lceda-pro", "立创EDA")):
+                _p = [p for p in psutil.process_iter(["name"])
+                      if _n.lower() in (p.info["name"] or "").lower()]
+                if _p:
+                    print("    · %-16s %s（正在运行）" % (_n, _why))
+            print()
+            print("  或者重启电脑 —— 蓝屏后驱动可能锁着内存，重启能释放。")
+            print("  （确实要冒险就跑 preflight_train.py --force 确认后加 --force）")
+            return 1
+        print("  ✓ 内存充足")
+    except ImportError:
+        print("  （psutil 未装，跳过内存检查 —— 建议 pip install psutil）")
+
     print()
     print("=== 加载模型（4bit）===")
     t0 = time.time()
