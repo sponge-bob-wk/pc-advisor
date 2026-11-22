@@ -187,6 +187,54 @@ def test_e2e():
            "stage=%s reply=%s" % (r.get("stage"), rep[:70]))
 
 
+def test_context():
+    """④ 分析上下文：追问能接住指代。
+
+    🔴 2026-11-22 实测 bug：
+        Q1「各品牌数量对比」→ 最大组 联想（100 台）
+        Q2「那它平均价格多少」→ 解析 filter={}
+            → 算出全库平均 ¥11,360（223 台）
+            期望 联想平均 ¥13,070（100 台）
+
+        **用户以为是联想的，系统给了全库的。**
+        数字是真的，但答的不是问的问题 —— 比不回答更危险。
+    """
+    import analyze_ctx
+    print("\n[9] 分析上下文：指代消解（调模型）")
+
+    analyze_ctx.clear()
+
+    # 第 1 轮：分组
+    q1 = {"agg": "groupby", "group_by": "brand"}
+    r1 = analyze.analyze(q1)
+    analyze_ctx.remember(r1, q1)
+
+    top = max(r1["groups"].items(), key=lambda x: x[1]["n"])
+    ck("第 1 轮记住最大组 = %s" % top[0],
+       analyze_ctx.get() and analyze_ctx.get().get("top_group") == top[0],
+       str(analyze_ctx.get()))
+
+    # 第 2 轮：带指代的追问
+    q2 = analyze.parse_query("那它平均价格多少", ctx=analyze_ctx.get())
+    ck("第 2 轮解析带上了品牌筛选",
+       bool(q2) and (q2.get("filter") or {}).get("brand") == top[0],
+       str(q2))
+
+    if q2:
+        r2 = analyze.analyze(q2)
+        # 必须只算这个品牌，不是全库
+        ck("第 2 轮只算 %s（%d 台），不是全库" % (top[0], top[1]["n"]),
+           r2.get("n") == top[1]["n"],
+           "引擎 n=%s / 期望 %d" % (r2.get("n"), top[1]["n"]))
+
+    # 对照：不带上下文时不该有品牌筛选
+    analyze_ctx.clear()
+    q3 = analyze.parse_query("那它平均价格多少", ctx=None)
+    ck("不带上下文时 filter 为空（对照）",
+       q3 is not None and not (q3.get("filter") or {}).get("brand"),
+       str(q3))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--engine", action="store_true", help="只跑引擎层")
@@ -200,6 +248,7 @@ def main():
     if not args.engine:
         test_parse()
         test_e2e()
+        test_context()
 
     print()
     print("=" * 70)

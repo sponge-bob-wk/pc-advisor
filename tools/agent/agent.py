@@ -5769,10 +5769,23 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
     if _want_analyze:
         try:
             import analyze as _an
-            _q = _an.parse_query(user_text)
+            import analyze_ctx as _actx
+            # 🔴 2026-11-22：**带上上一轮的分析上下文**，解决指代丢失。
+            #
+            #    实测 bug：
+            #      Q1「各品牌数量对比」→ 最大组 联想（98 台）
+            #      Q2「那它平均价格多少」→ 解析 filter={}
+            #          → 算出全库平均 ¥11,360（223 台）
+            #          期望 联想平均 ¥13,206（98 台）  ← 差 2000 元
+            #
+            #    **用户以为是联想的，系统给了全库的。** 数字是真的，
+            #    但答的不是问的问题 —— 这比不回答更危险。
+            _q = _an.parse_query(user_text, ctx=_actx.get())
             if _q:
                 _res = _an.analyze(_q)
                 if _res.get("ok"):
+                    # 记下这一轮，供下一轮追问用
+                    _actx.remember(_res, _q)
                     _reply = _render_analysis(user_text, _res, _q)
                     return {"stage": "analyze", "slots": dict(known or {}),
                             "reply": _reply, "focus": focus,

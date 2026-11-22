@@ -6262,7 +6262,7 @@
   {
    "id": "add-laikuair16",
    "name": "联想来酷 Air16 2026",
-   "brand": "联想来酷",
+   "brand": "联想",
    "cat": "thin",
    "cpu": {
     "model": "Core 5 320",
@@ -6317,7 +6317,8 @@
    "confidence": "medium",
    "dataFrom": {
     "spec": "2026-11-11 九机网销量榜",
-    "price": "2026-11-11 九机网销量榜"
+    "price": "2026-11-11 九机网销量榜",
+    "brand": "联想来酷 归入 联想（子品牌统一）"
    },
    "price": {
     "list": 4588,
@@ -6808,7 +6809,7 @@
   {
    "id": "add-laiku-zhan7000",
    "name": "联想来酷 斗战者 战7000",
-   "brand": "联想来酷",
+   "brand": "联想",
    "cat": "gaming",
    "cpu": {
     "model": "R9-8945HX",
@@ -6865,7 +6866,8 @@
    "confidence": "medium",
    "dataFrom": {
     "spec": "2026-11-11 九机网销量榜",
-    "price": "2026-11-11 九机网销量榜"
+    "price": "2026-11-11 九机网销量榜",
+    "brand": "联想来酷 归入 联想（子品牌统一）"
    },
    "price": {
     "list": 10439,

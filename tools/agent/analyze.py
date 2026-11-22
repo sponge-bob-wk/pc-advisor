@@ -354,16 +354,45 @@ PARSE_SYS = """你是数据分析助手。把用户的问题解析成结构化�
 ⚠️ 用户没提的筛选条件不要加。"""
 
 
-def parse_query(text):
+def parse_query(text, ctx=None):
     """让模型把自然语言解析成结构化查询。
 
     模型只做「理解」，不碰数字 —— 解析结果交给 analyze() 算。
+
+    🔴 2026-11-22：加 `ctx` 参数（上一轮分析上下文），解决指代丢失。
+
+        实测 bug：
+          Q1「各品牌数量对比」→ 最大组 联想（98 台）
+          Q2「那它平均价格多少」→ 解析 {'agg':'mean','field':'price','filter':{}}
+                                  结果 = 全库平均 ¥11,360（223 台）
+          期望 = 联想平均 ¥13,206（98 台）  ← 差 2000 元
+
+        **用户以为是联想的，系统给了全库的。** 这比不回答更危险 ——
+        数字是对的（真是全库平均），但答的不是问的问题。
+
+        为什么用上下文而不是规则：
+          「它」可能指上一句提到的任何东西（最大组 / 某个机型 / 某个品牌）。
+          规则穷举不完，这正是该让模型看着上下文判断的地方。
     """
     import agent
     try:
+        sysmsg = PARSE_SYS
+        user = text
+        if ctx:
+            import analyze_ctx
+            _brief = analyze_ctx.brief(ctx)
+            if _brief:
+                sysmsg = PARSE_SYS + (
+                    "\n\n【上一轮的分析】%s\n"
+                    "如果用户这句话用了指代（它/这个/那 XX 呢），"
+                    "就按上一轮的对象去理解，并把对应的筛选条件写进 filter。\n"
+                    "例：上一轮按品牌分组、最大组是联想，"
+                    "用户问「那它平均价格多少」→ "
+                    "{\"agg\":\"mean\",\"field\":\"price\",\"filter\":{\"brand\":\"联想\"}}"
+                    % _brief)
         out = agent.chat(
-            [{"role": "system", "content": PARSE_SYS},
-             {"role": "user", "content": text}],
+            [{"role": "system", "content": sysmsg},
+             {"role": "user", "content": user}],
             fmt="json", num_predict=200)
         d = json.loads(out)
         if not isinstance(d, dict):
@@ -387,6 +416,18 @@ def parse_query(text):
             elif "台式" in t:
                 flt["cat"] = "desktop"
             d["filter"] = flt
+
+        # 🔴 2026-11-22：**指代兜底**（代码层，不依赖模型）。
+        #    模型有时会忽略上下文（实测「它的平均价格呢」→ filter={}）。
+        #    判据：这句有指代词 + 解析结果没有品牌筛选 + 上一轮有最大组
+        #          → 补上 brand=top_group。
+        #    只在「有明确指代 + filter 空」时补，不覆盖模型给的其它条件。
+        if ctx and not flt.get("brand"):
+            import analyze_ctx
+            if analyze_ctx.has_reference(text) and ctx.get("top_group"):
+                flt = dict(flt)
+                flt["brand"] = ctx["top_group"]
+                d["filter"] = flt
         return d
     except Exception:
         return None
