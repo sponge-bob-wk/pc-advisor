@@ -12192,7 +12192,7 @@
    "name": "来酷斗战者 战7000  酷睿版",
    "skuLabel": "i7-14650HX/16G/1T/RTX5060",
    "source": "zol",
-   "brand": null,
+   "brand": "联想",
    "cat": "gaming",
    "cpu": {
     "model": "i7-14650HX",
@@ -12257,11 +12257,13 @@
     "price": "zol",
     "backfill_zol_params": "2026-11-16 17:30",
     "priceSnapshots": "ZOL detail 页 2026-11-16 18:46",
-    "extra_fields": "ZOL 参数页补录（保修/续航/厚度/触控/网络/音频…）"
+    "extra_fields": "ZOL 参数页补录（保修/续航/厚度/触控/网络/音频…）",
+    "brand": "来酷是联想子品牌，归入联想"
    },
    "confidence": "medium",
    "backfilled": [
     "bluetooth",
+    "brand",
     "brightness",
     "cooling",
     "cpu.baseGHz",
@@ -18311,7 +18313,7 @@
    "name": "vivo",
    "skuLabel": "56G/256G",
    "source": "zol",
-   "brand": null,
+   "brand": "vivo",
    "cat": null,
    "cpu": null,
    "ram": {
@@ -18350,7 +18352,8 @@
    "dataFrom": {
     "spec": "zol",
     "price": "zol",
-    "extra_fields": "ZOL 参数页补录（保修/续航/厚度/触控/网络/音频…）"
+    "extra_fields": "ZOL 参数页补录（保修/续航/厚度/触控/网络/音频…）",
+    "brand": "从机型名推断（名称前缀）"
    },
    "confidence": "medium",
    "backfilled": [
@@ -18358,6 +18361,7 @@
     "batteryLifeText",
     "bluetooth",
     "bodyLengthMm",
+    "brand",
     "derivedNotes",
     "screen.brightnessNit",
     "screen.colorGamut",
@@ -18982,7 +18986,7 @@
    "name": "vivo",
    "skuLabel": "56G/256G",
    "source": "zol",
-   "brand": null,
+   "brand": "vivo",
    "cat": null,
    "cpu": null,
    "ram": {
@@ -19021,12 +19025,14 @@
    "dataFrom": {
     "spec": "zol",
     "price": "zol",
-    "extra_fields": "ZOL 参数页补录（保修/续航/厚度/触控/网络/音频…）"
+    "extra_fields": "ZOL 参数页补录（保修/续航/厚度/触控/网络/音频…）",
+    "brand": "从机型名推断（名称前缀）"
    },
    "confidence": "medium",
    "backfilled": [
     "bluetooth",
     "bodyLengthMm",
+    "brand",
     "derivedNotes",
     "screen.brightnessNit",
     "screen.colorGamut"
@@ -19669,7 +19675,7 @@
    "name": "微软Surface Pro",
    "skuLabel": "骁龙 X2系列/16G/512G",
    "source": "zol",
-   "brand": null,
+   "brand": "微软",
    "cat": null,
    "cpu": {
     "model": "Snapdragon X2 ELite",
@@ -19726,7 +19732,8 @@
     "backfill_zol_params": "2026-11-16 17:31",
     "priceSnapshots": "ZOL detail 页 2026-11-16 18:47",
     "weightKg": "单位修正：原值 895.0 疑为克，按 /1000 换算为 0.9 kg",
-    "extra_fields": "ZOL 参数页补录（保修/续航/厚度/触控/网络/音频…）"
+    "extra_fields": "ZOL 参数页补录（保修/续航/厚度/触控/网络/音频…）",
+    "brand": "从机型名推断（名称前缀）"
    },
    "confidence": "medium",
    "backfilled": [
@@ -19735,6 +19742,7 @@
     "batteryLifeH",
     "batteryLifeText",
     "bluetooth",
+    "brand",
     "cpu.boostGHz",
     "cpu.cores",
     "cpu.model",
@@ -33808,7 +33816,7 @@
    "name": "东芝C50-CK30B1 典雅黑",
    "skuLabel": "英特尔 赛扬双核",
    "source": "zol",
-   "brand": null,
+   "brand": "东芝",
    "cat": "thin",
    "cpu": {
     "model": "英特尔 赛扬双核",
@@ -33872,7 +33880,8 @@
     "price": null,
     "backfill_zol_params": "2026-11-16 17:33",
     "priceSnapshots": "ZOL detail 页 2026-11-16 18:48",
-    "extra_fields": "ZOL 参数页补录（保修/续航/厚度/触控/网络/音频…）"
+    "extra_fields": "ZOL 参数页补录（保修/续航/厚度/触控/网络/音频…）",
+    "brand": "从机型名推断（名称前缀）"
    },
    "confidence": "medium",
    "backfilled": [
@@ -33883,6 +33892,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brand",
     "cpu.baseGHz",
     "cpu.cores",
     "cpu.l3CacheMB",
@@ -36866,7 +36876,7 @@
    "name": "机械师T57-D3",
    "skuLabel": "英特尔 酷睿i5 6代系列",
    "source": "zol",
-   "brand": null,
+   "brand": "机械师",
    "cat": "gaming",
    "cpu": {
     "model": "酷睿i5 6300HQ",
@@ -36931,7 +36941,8 @@
     "price": null,
     "backfill_zol_params": "2026-11-16 17:34",
     "priceSnapshots": "ZOL detail 页 2026-11-16 18:48",
-    "extra_fields": "ZOL 参数页补录（保修/续航/厚度/触控/网络/音频…）"
+    "extra_fields": "ZOL 参数页补录（保修/续航/厚度/触控/网络/音频…）",
+    "brand": "从机型名推断（名称前缀）"
    },
    "confidence": "medium",
    "backfilled": [
@@ -36941,6 +36952,7 @@
     "bluetooth",
     "bodyLengthMm",
     "bodyWidthMm",
+    "brand",
     "cooling",
     "cpu.baseGHz",
     "cpu.boostGHz",
