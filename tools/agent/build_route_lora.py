@@ -77,13 +77,29 @@ SOURCES = [
     #    每条都是**真跑出来的错**，不是猜的。
     #    这批最值钱：它记录的是模型当前的真实弱点。
     ("adversarial-v2.jsonl", "整链对抗失败样本"),
+    # 🔴🔴 2026-11-23：**analyze 意图的种子数据**。
+    #
+    #    事故：v4 把「有多少台有独显」判成 ask_current，应该判 analyze。
+    #    查训练集发现 **analyze 样本数 = 0**。
+    #
+    #    原因：analyze 意图是 11-21 加的，只写了代码（analyze.py +
+    #    agent.py 的 0b2 分支 + 规则兜底），**从没加进训练集**。
+    #    模型压根没见过这个类别，只能归到最像的 ask_current。
+    #
+    #    内容：35 条正例（覆盖 8 种聚合操作）+ 8 条负例
+    #    （"这个价算什么水平""哪个最便宜" 这类容易误判成 analyze 的）。
+    #    负例很重要 —— 没有它们，模型会把 analyze 用滥。
+    ("analyze-seed.jsonl", "analyze 意图种子"),
 ]
 
 OUT_TRAIN = os.path.join(LORA_DIR, "route-train.jsonl")
 OUT_EVAL = os.path.join(LORA_DIR, "route-eval.jsonl")
 
+# 🔴 2026-11-23：LABELS 加上 analyze。
+#    这个元组用于**校验**（检查样本的 intent 是否合法）。
+#    之前没有 analyze，加了种子数据后必须同步，否则样本会被当非法丢掉。
 LABELS = ("ask_current", "refuse_switch", "state_range",
-          "state_new_need", "list_others", "unknown")
+          "state_new_need", "list_others", "unknown", "analyze")
 
 
 def norm(s):
