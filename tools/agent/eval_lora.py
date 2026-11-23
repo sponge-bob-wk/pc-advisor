@@ -187,7 +187,8 @@ def main():
         _mark()
     except ImportError:
         pass          # safe_run 不在时跳过（不阻塞脚本）
-        tok = AutoTokenizer.from_pretrained(MODEL_DIR, trust_remote_code=True)
+
+    tok = AutoTokenizer.from_pretrained(MODEL_DIR, trust_remote_code=True)
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
     bnb = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4",

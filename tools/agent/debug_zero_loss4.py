@@ -83,7 +83,8 @@ def run_case(name, tok, ds, coll, bf16, gc, optim):
         _mark()
     except ImportError:
         pass          # safe_run 不在时跳过（不阻塞脚本）
-        model = AutoModelForCausalLM.from_pretrained(
+
+    model = AutoModelForCausalLM.from_pretrained(
         MODEL_DIR, quantization_config=bnb, device_map="auto",
         trust_remote_code=True, torch_dtype=torch.bfloat16)
     model = prepare_model_for_kbit_training(model)

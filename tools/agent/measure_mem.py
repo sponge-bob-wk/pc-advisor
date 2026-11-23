@@ -78,7 +78,8 @@ def main():
         _mark()
     except ImportError:
         pass          # safe_run 不在时跳过（不阻塞脚本）
-        tok = AutoTokenizer.from_pretrained(MODEL_DIR, trust_remote_code=True)
+
+    tok = AutoTokenizer.from_pretrained(MODEL_DIR, trust_remote_code=True)
     print("  进程内存: %.1f GB" % mem())
 
     print()
