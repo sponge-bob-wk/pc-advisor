@@ -63,8 +63,44 @@ def _read_json(path):
         return None
 
 
-def _find_state(out_dir=OUT_DIR):
+def _latest_adapter_dir():
+    """找最新的 adapter 输出目录（lora_out / lora_v3 / lora_v4 / lora_v5 …）。
+
+    🔴 2026-11-24 修：原来 `_find_state` 写死 `lora_out`，
+        导致记录 v5 训练时读到的是 **lora_out 的旧 trainer_state**：
+
+          记录写: loss 首 3.808 → 末 0.182，eval 首 0.580 → 末 0.183
+          实际是: loss 首 2.555 → 末 0.100，eval 首 0.591 → 末 0.200
+
+        **训练记录是给论文用的材料，数据错了比没有更糟。**
+
+        判据：在 HERE 下找所有含 `checkpoint-*` 或
+        `adapter_model.safetensors` 的子目录，按修改时间取最新。
+    """
+    best = None
+    best_mtime = 0
+    try:
+        for name in os.listdir(HERE):
+            d = os.path.join(HERE, name)
+            if not os.path.isdir(d):
+                continue
+            # 有 adapter 或 checkpoint 才算训练输出目录
+            has = (os.path.exists(os.path.join(d, "adapter_model.safetensors"))
+                   or bool(glob.glob(os.path.join(d, "checkpoint-*"))))
+            if not has:
+                continue
+            mt = os.path.getmtime(d)
+            if mt > best_mtime:
+                best, best_mtime = d, mt
+    except Exception:
+        pass
+    return best or OUT_DIR
+
+
+def _find_state(out_dir=None):
     """找最新的 trainer_state.json（优先根目录，其次最新 checkpoint）。"""
+    if out_dir is None:
+        out_dir = _latest_adapter_dir()
     root = os.path.join(out_dir, "trainer_state.json")
     if os.path.exists(root):
         return root
