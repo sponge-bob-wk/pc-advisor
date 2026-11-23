@@ -61,7 +61,24 @@ def main():
 
     print()
     print("=== ① 加载 tokenizer ===")
-    tok = AutoTokenizer.from_pretrained(MODEL_DIR, trust_remote_code=True)
+    # ══════════════════════════════════════════════════════════════
+    # 🔴 安全守门（2026-11-23 加，防蓝屏）
+    #
+    # 已经蓝屏两次，都是加载模型时内存耗尽：
+    #   11-22 18:56  0x3B  训练跑到 31 步
+    #   11-23 16:17  0x1E  测试脚本连续加载 4 次模型
+    #
+    # 这个守门做两件事：
+    #   ① 加载前检查 commit 余量 >= 13 GB
+    #   ② **同一进程最多加载一次**（连续加载必蓝屏）
+    # ══════════════════════════════════════════════════════════════
+    try:
+        from safe_run import check_before_load as _guard, mark_loaded as _mark
+        _guard()
+        _mark()
+    except ImportError:
+        pass          # safe_run 不在时跳过（不阻塞脚本）
+        tok = AutoTokenizer.from_pretrained(MODEL_DIR, trust_remote_code=True)
     print("  进程内存: %.1f GB" % mem())
 
     print()

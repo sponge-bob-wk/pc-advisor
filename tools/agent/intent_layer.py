@@ -77,64 +77,26 @@ _LABEL_MAP = {
     "unknown": agent.INTENT_UNKNOWN,
 }
 
-SYS_TMPL = """用户在挑电脑，助手上一轮给他推荐了下面这台。现在用户接了一句话，判断他想干什么。
+SYS_TMPL = """判断用户这句话在挑电脑时想干什么。只输出 JSON：
+{{"intent":"...","topic":"...","fit":true|false}}
 
-{ctx}
+intent 七选一：
+ask_current=问这台细节 | refuse_switch=不要这台 | state_range=说价位品类范围
+analyze=问全库统计量 | state_new_need=加条件 | list_others=要剩余清单 | unknown=没说清
 
-只输出 JSON，**三个字段一次给全**（一次推理出全部路由决策，不许只给 intent）：
-{{"intent": "...", "topic": "...", "fit": true|false}}
+topic 十一选一：service screen keyboard noise build weight battery price config pros_cons none
 
-【intent】七选一 —— 这句话的主动作是什么
-- ask_current     问**这台**的细节：屏幕/保修/重量/续航/散热/够不够用/值不值/有什么缺点
-- refuse_switch   不想要这台，想换台。特征：带否定词（不行/不喜欢/太丑/太贵/换个/算了）
-- state_range     在说价位段、品类、条件范围，不指向某一台。特征："六七千的""轻薄本""一万以内"
-- analyze         问**整个库的统计量**。必须同时满足：
-                  ① 有明确的统计动作（多少台/几台/平均/中位数/分布/排行/各品牌对比）
-                  ② **不是**在问当前这一台
-                  例子：「有多少台有独显」「8000以内平均多重」
-                        「各品牌售后评分对比」「32G内存的价格分布」「性能最强的五台」
-                  ⚠️ 关键区分：
-                    「这个价算什么水平」问的是**这一台**的价位 → 不是 analyze
-                    「哪个最便宜」是在找**一台机器** → 不是 analyze（那是 state_range）
-                    只有明确要**一个数或一张表**才算 analyze
-- state_new_need  提出**新的要求**：要某种配置、某种用途、某个偏好。
-                  特征："要32G""要独显""要台式"——这是在**加条件**，不是拒绝当前这台
-                  ⚠️ **问这台"有没有/是不是/怎么样"的一律不是 state_new_need**，
-                     哪怕句子里带"要"或"快"这种词：
-                       "有别的颜色吗" → ask_current（问这台的配色，不是要求换颜色）
-                       "充电快吗"     → ask_current（问这台的充电，不是要求快充）
-                       "保修几年"     → ask_current（问这台的保修，不是加保修条件）
-                     判据：**问的是"这台是什么样" = ask_current；
-                           说"我要什么" = state_new_need**
-- list_others     要把剩下的候选都列出来。特征："剩下的""都列出来""还有几个"
-- unknown         什么都没说清（嗯、哦、在吗、纯标点）
+fit：true=拿用途问这台行不行；false=不是
 
-【topic】这句话在问这台机器的**哪一面**，十选一；不在问细节就给 none
-- service   品控/售后/保修/质量/耐用/返修/维修
-- screen    屏幕
-- keyboard  键盘
-- noise     噪音/风扇声
-- build     做工/手感/材质/颜色/配色/外壳
-- weight    重不重/沉不沉/多重/好不好带
-- battery   续航/电池/充电/充电器/适配器/多少瓦
-- price     多少钱/保值吗/二手值多少
-- config    什么配置/参数/接口
-- pros_cons 优点缺点/短板/毛病/坑/值不值
-- none      没在问细节
+易混：
+· 换一台=refuse_switch；换个32G的=state_new_need
+· 有别的颜色吗/充电快吗/保修几年 → ask_current
+· 多重啊/散热行不行 → ask_current + 对应 topic
+· 这个价算什么水平 → ask_current+price
+· 哪个最便宜 → state_range（是找一台机器，不是统计）
+· 拿不准不要选 ask_current
 
-【fit】布尔。**true = 他在拿自己的用途/要求问"这台行不行"**：
-  合适吗 / 适合做设计吗 / 够用吗 / 能跑PS吗 / 带得动吗 / 撑四年不 / 编程够吗
-false = 不是在问匹配（哪怕句子里有"怎么样"，只要主语不是"他的需求"就是 false）
-
-关键区分（这几条最容易混）：
-· "换个32G的" = 加条件 → state_new_need（不是 refuse_switch）
-· "换一台" = 不要了 → refuse_switch
-· "再给我看几个" / "能看看别的不" = 想换台 → refuse_switch
-· 省略主语的追问（"多重啊""散热行不行""能撑四年不"）= ask_current，topic 给对应面
-· "这价格能买到吗" 是 price；"值不值" 是 pros_cons
-· "能跑PS吗" 是 fit=true 且 intent=ask_current（问这台能不能，不是要新的）
-· 拿不准时不要选 ask_current —— 那会让用户的新需求被当成追问而丢掉
-"""
+{ctx}"""
 
 
 def _ctx_of(focus):

@@ -84,3 +84,6 @@ tools/agent/lora_probe/
 tools/agent/lora_test/
 tools/agent/train-v3.log
 tools/agent/train-v2.log
+
+# 训练探测临时目录
+tools/agent/_probe_*/
