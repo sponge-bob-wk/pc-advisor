@@ -5763,9 +5763,35 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
                          and _lr_an.get("intent") == INTENT_ANALYZE)
     if not _want_analyze:
         # 规则兜底：明显的统计句式
-        _want_analyze = bool(re.search(
+        #
+        # 🔴🔴 2026-11-23：**加了否定条件**，修一个实测 bug。
+        #
+        #    事故：「可以，放宽预算推荐几台」（上下文：7000 元轻薄本）
+        #    走成了 analyze 分支，回答：
+        #      「放宽预算后，华硕无畏 Pro16、华为 MateBook Pro S、
+        #        联想小新 Pro14、拯救者 R9000P 和荣耀猎人游戏本
+        #        这五台机型价格均为 7999 元。」
+        #
+        #    **完全荒诞**：用户要的是推荐，系统给了一句"五台同价"的废话。
+        #
+        #    根因：正则里的 `几台` 命中了「推荐**几台**」。
+        #    `几台` 在「有多少台」里是计数，在「推荐几台」里只是量词。
+        #
+        #    修法：命中统计词之后，再看有没有**明确的推荐/换台动作**。
+        #    有 → 不是统计，是推荐（analyze 否决）。
+        #
+        #    为什么用否决而不是删掉 `几台`：
+        #    「有几台带独显」是合法的统计问句，删了会漏。
+        _t = user_text or ""
+        _hit_stat = bool(re.search(
             r"多少台|几台|平均|中位数|分布|各品牌|各品类|按品牌|"
-            r"最强|最弱|最贵|最便宜|排行|排名|占比|统计|对比一下各", user_text or ""))
+            r"最强|最弱|最贵|最便宜|排行|排名|占比|统计|对比一下各", _t))
+        # 「推荐几台」「换个几台」里的「几台」是量词，不是统计
+        _is_recommend = bool(re.search(
+            r"推荐|推几台|给几台|来几台|看几台|挑几台|选几台|"
+            r"换[一台两三四五六七八九十]|再来|再给|放宽|"
+            r"帮我找|给我找|列几台|来几款|推荐几款", _t))
+        _want_analyze = _hit_stat and not _is_recommend
     if _want_analyze:
         try:
             import analyze as _an

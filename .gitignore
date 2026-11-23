@@ -92,3 +92,6 @@ tools/agent/lora_test20/
 tools/agent/lora_server.log
 tools/agent/lora_server.err
 tools/agent/lora_v5/
+
+# 旧版本归档（不参与开发）
+_归档_*/

@@ -82,11 +82,20 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DIR = os.path.join(HERE, "lora_data")
+
+# 🔴 2026-11-23：路径改从 paths.py 取，不再硬编码。
+#    体检发现 25 个文件有 40+ 处硬编码绝对路径，换机器就跑不了。
+#    paths.py 从 __file__ 推导项目内路径，项目外的（模型权重）用环境变量覆盖。
+try:
+    from paths import LORA_DATA as DIR
+    from paths import MODEL_DIR
+except ImportError:
+    # 退化：paths.py 不在时用旧逻辑（不阻塞脚本）
+    DIR = os.path.join(HERE, "lora_data")
+    MODEL_DIR = r"E:\models\Qwen3-4B-Instruct-2507"
+
 TRAIN = os.path.join(DIR, "route-train.jsonl")
 EVAL = os.path.join(DIR, "route-eval.jsonl")
-
-MODEL_DIR = r"E:\models\Qwen3-4B-Instruct-2507"
 OUT_DIR = os.path.join(HERE, "lora_out")
 
 # 训练超参（8GB 显存下的保守配置）
