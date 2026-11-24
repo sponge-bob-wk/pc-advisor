@@ -60,7 +60,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 MODEL_DIR = r"E:\models\Qwen3-4B-Instruct-2507"
-ADAPTER = os.path.join(HERE, "lora_v4")
+ADAPTER = os.path.join(HERE, "lora_v5")
 PORT = 11435
 
 # 全局模型（常驻）
@@ -175,7 +175,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == "/api/version":
-            self._send(200, {"version": "lora-v4-1.0"})
+            self._send(200, {"version": os.path.basename(ADAPTER)})
         elif self.path == "/api/tags":
             self._send(200, {"models": [{"name": "route-v4",
                                          "size": 0}]})
