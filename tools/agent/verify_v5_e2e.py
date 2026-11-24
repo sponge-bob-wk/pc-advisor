@@ -19,6 +19,7 @@ v5 在对抗测试上 88.0%，但那是**离线测 adapter**。
 不是「输出里有 JSON 就算过」，而是**判断的 intent 对不对**。
 """
 import json
+import os
 import sys
 import time
 import urllib.error
@@ -30,12 +31,12 @@ sys.stdout.reconfigure(encoding='utf-8')
 import intent_layer as il
 
 SYSMSG = il.SYS_TMPL.format(ctx="（当前讨论：zol-2103842）")
-URL = "http://127.0.0.1:11435/api/chat"
+URL = os.environ.get("E2E_URL") or "http://127.0.0.1:11434/api/chat"
 
 
 def ask(text, np_=400):
     d = json.dumps({
-        "model": "route-v5", "stream": False,
+        "model": os.environ.get("E2E_MODEL") or "route-v5", "stream": False,
         "messages": [{"role": "system", "content": SYSMSG},
                      {"role": "user", "content": text}],
         "options": {"num_predict": np_},
