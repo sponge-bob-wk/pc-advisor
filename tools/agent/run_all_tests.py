@@ -45,9 +45,18 @@ TESTS = [
     ("test_analyze", True, "数据分析"),
     ("test_named", True, "点名机型"),
     ("test_multiturn", True, "多轮语义"),
-    ("test_attack6", True, "对抗攻击 v6"),
-    ("test_attack7", True, "对抗攻击 v7"),
-    ("test_attack8", True, "对抗攻击 v8"),
+    # 🔴 2026-11-25：补上八轮对抗测试的前五轮。
+    #    之前只注册了 attack6/7/8，前三轮漏了 —— 它们**还能跑**
+    #    （实测 test_attack 有 29 条攻击），只是输出格式不同。
+    #    漏注册 = 那 1300 多行测试从来没进过回归。
+    ("test_attack", True, "对抗第1轮：刁难"),
+    ("test_attack2", True, "对抗第2轮：看着对其实错"),
+    ("test_attack3", True, "对抗第3轮：金额解析"),
+    ("test_attack4", True, "对抗第4轮：多轮状态"),
+    ("test_attack5", True, "对抗第5轮：状态机"),
+    ("test_attack6", True, "对抗第6轮：数字对标签错"),
+    ("test_attack7", True, "对抗第7轮：指代与否定"),
+    ("test_attack8", True, "对抗第8轮：真实用户视角"),
     ("test_neg", True, "否定判据"),
     ("test_chain", True, "思维链"),
     ("test_intent", True, "意图分类"),
@@ -60,13 +69,24 @@ TESTS = [
 ]
 
 # 各种输出格式 → (通过数, 总数)
+#
+# 🔴 2026-11-25：扩展了 4 种格式。
+#    八轮对抗测试的汇总行各写各的：
+#      test_attack   攻击 N 条，硬问题 M 条，可接受项 K 条
+#      test_attack2  第二轮攻击：通过 N/M
+#      test_attack3  第三轮攻击：全部通过 / 失败 N 条
+#    这个项目已经因为「判据抄两遍会漂」吃过 9 次亏，
+#    测试输出格式不统一是同一个病根 —— 但改 1300 行测试不如改解析。
 PARSE_PATTERNS = [
     (r"通过\s*(\d+)\s*/\s*(\d+)", "通过 N/M"),
     (r"(\d+)\s*/\s*(\d+)\s*=\s*[\d.]+%", "N/M=x%"),
     (r"判据分辨力\s*(\d+)\s*/\s*(\d+)", "判据分辨力"),
     (r"违规\s*(\d+)\s*/\s*(\d+)", "违规 N/M"),      # 违规 0/60 = 全过
     (r"(\d+)\s*个通过\s*/\s*(\d+)", "N 个通过"),
+    # 「攻击 29 条，硬问题 2 条」→ 通过 27/29
+    (r"攻击\s*(\d+)\s*条[，,]\s*硬问题\s*(\d+)\s*条", "攻击N硬问题M"),
 ]
+
 
 
 def ollama_up():
@@ -79,6 +99,21 @@ def ollama_up():
 
 def parse_result(out, rc):
     """从输出里解析 (通过, 总数, 备注)。"""
+    # 「攻击 N 条，硬问题 M 条」→ 通过 = N - M
+    m = re.search(r"攻击\s*(\d+)\s*条[，,]\s*硬问题\s*(\d+)\s*条", out)
+    if m:
+        n, hard = int(m.group(1)), int(m.group(2))
+        return n - hard, n, "攻击 %d（硬问题 %d）" % (n, hard)
+
+    # 「第 N 轮攻击：全部通过」→ 没有数字，用 exit code 判定
+    if re.search(r"第[一二三四五六七八]轮攻击：全部通过", out):
+        return None, None, "全部通过"
+
+    # 「第 N 轮攻击：失败 M 条」→ 有失败，具体总数未知
+    m = re.search(r"第[一二三四五六七八]轮攻击：失败\s*(\d+)\s*条", out)
+    if m:
+        return None, None, "失败 %s 条" % m.group(1)
+
     for pat, name in PARSE_PATTERNS:
         m = re.search(pat, out)
         if m:
