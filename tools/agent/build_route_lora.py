@@ -90,6 +90,19 @@ SOURCES = [
     #    （"这个价算什么水平""哪个最便宜" 这类容易误判成 analyze 的）。
     #    负例很重要 —— 没有它们，模型会把 analyze 用滥。
     ("analyze-seed.jsonl", "analyze 意图种子"),
+    # 🔴 2026-11-25 新增：**state_new_need 的「我要 X」样本**。
+    #
+    #    问题：实测「我要一台游戏本」被判成 state_range（应该 state_new_need）。
+    #    查训练集发现「要/买 + 品类」这个模式只有 3 条，而且全标成了
+    #    state_range（标错）。
+    #
+    #    语义边界（用户确认）：
+    #      「我要一台游戏本」  → state_new_need（主动索取，加条件）
+    #      「6000 的游戏本」    → state_range（纯描述范围）
+    #
+    #    内容：40 条正例（要/想买/来一台/帮我找 + 品类或配置要求）
+    #         + 10 条负例（纯范围描述，防止模型过度泛化）
+    ("new-need-seed.jsonl", "state_new_need 种子"),
 ]
 
 OUT_TRAIN = os.path.join(LORA_DIR, "route-train.jsonl")

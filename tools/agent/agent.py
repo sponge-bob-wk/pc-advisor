@@ -12,7 +12,7 @@ import core
 # 模型地址与名字走环境变量（2026-11-13）：不同机器的 Ollama 地址/模型名不一样，
 # 写死会让别人 clone 下来直接跑不起来。默认值仍是本机 + 原来那个名字。
 API = (os.environ.get("OLLAMA_URL") or "http://127.0.0.1:11434/api/chat")
-MODEL = (os.environ.get("MODEL") or "route-v5-q8")
+MODEL = (os.environ.get("MODEL") or "route-v6-q8")
 
 SLOT_SYS = """你是购买电脑需求的解析器。从用户的话中抽取槽位，只输出 JSON。
 
