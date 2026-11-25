@@ -3828,7 +3828,8 @@
    "platformSkuId": null,
    "dataFrom": {
     "spec": "crawl/jd-apple-macbookair15-m4-16g-512g-20261109（结构化配置，未经交叉核实）",
-    "price": "crawl/jd-apple-macbookair15-m4-16g-512g-20261109"
+    "price": "crawl/jd-apple-macbookair15-m4-16g-512g-20261109",
+    "batteryLifeH": "厂商官网宣称值 https://www.apple.com.cn/macbook-air/specs/"
    },
    "subsidyTheoretical": 1500,
    "subsidyEligible": false,
@@ -3846,8 +3847,16 @@
     }
    ],
    "backfilled": [
+    "batteryLifeH",
     "derivedNotes"
-   ]
+   ],
+   "batteryLifeH": 18.0,
+   "batteryLifeBasis": {
+    "type": "vendor-claim",
+    "scenario": "video",
+    "source": "https://www.apple.com.cn/macbook-air/specs/",
+    "note": "厂商宣称值，测试条件与实际使用不同"
+   }
   },
   {
    "id": "jd-apple-macbookpro14-m5-16g-512g-20261109",
@@ -3931,7 +3940,8 @@
    "platformSkuId": null,
    "dataFrom": {
     "spec": "crawl/jd-apple-macbookpro14-m5-16g-512g-20261109（结构化配置，未经交叉核实）",
-    "price": "crawl/jd-apple-macbookpro14-m5-16g-512g-20261109"
+    "price": "crawl/jd-apple-macbookpro14-m5-16g-512g-20261109",
+    "batteryLifeH": "厂商官网宣称值 https://www.apple.com.cn/macbook-pro/specs/"
    },
    "subsidyTheoretical": 1500,
    "subsidyEligible": false,
@@ -3949,8 +3959,16 @@
     }
    ],
    "backfilled": [
+    "batteryLifeH",
     "derivedNotes"
-   ]
+   ],
+   "batteryLifeH": 24.0,
+   "batteryLifeBasis": {
+    "type": "vendor-claim",
+    "scenario": "video",
+    "source": "https://www.apple.com.cn/macbook-pro/specs/",
+    "note": "厂商宣称值，测试条件与实际使用不同"
+   }
   },
   {
    "id": "jd-apple-macbookair13-m4-16g-256g-20261109",
@@ -4034,7 +4052,8 @@
    "platformSkuId": null,
    "dataFrom": {
     "spec": "crawl/jd-apple-macbookair13-m4-16g-256g-20261109（结构化配置，未经交叉核实）",
-    "price": "crawl/jd-apple-macbookair13-m4-16g-256g-20261109"
+    "price": "crawl/jd-apple-macbookair13-m4-16g-256g-20261109",
+    "batteryLifeH": "厂商官网宣称值 https://www.apple.com.cn/macbook-air/specs/"
    },
    "subsidyTheoretical": 1087.35,
    "subsidyEligible": false,
@@ -4057,8 +4076,16 @@
     }
    ],
    "backfilled": [
+    "batteryLifeH",
     "derivedNotes"
-   ]
+   ],
+   "batteryLifeH": 18.0,
+   "batteryLifeBasis": {
+    "type": "vendor-claim",
+    "scenario": "video",
+    "source": "https://www.apple.com.cn/macbook-air/specs/",
+    "note": "厂商宣称值，测试条件与实际使用不同"
+   }
   },
   {
    "id": "jd-apple-macbookpro14-m5-24g-1t-20261109",
@@ -4141,7 +4168,8 @@
    "platformSkuId": null,
    "dataFrom": {
     "spec": "crawl/jd-apple-macbookpro14-m5-24g-1t-20261109（结构化配置，未经交叉核实）",
-    "price": "crawl/jd-apple-macbookpro14-m5-24g-1t-20261109"
+    "price": "crawl/jd-apple-macbookpro14-m5-24g-1t-20261109",
+    "batteryLifeH": "厂商官网宣称值 https://www.apple.com.cn/macbook-pro/specs/"
    },
    "subsidyTheoretical": 1500,
    "subsidyEligible": false,
@@ -4159,8 +4187,16 @@
     }
    ],
    "backfilled": [
+    "batteryLifeH",
     "derivedNotes"
-   ]
+   ],
+   "batteryLifeH": 24.0,
+   "batteryLifeBasis": {
+    "type": "vendor-claim",
+    "scenario": "video",
+    "source": "https://www.apple.com.cn/macbook-pro/specs/",
+    "note": "厂商宣称值，测试条件与实际使用不同"
+   }
   },
   {
    "id": "jd-mechrevo-jiaolong15k-r57640h-3050-16g-512g-20261109",
