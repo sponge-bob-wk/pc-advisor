@@ -696,10 +696,38 @@
     .facts b{font-size:22px}
     .hero h1{font-size:29px}
   }
-  @media (max-width:700px){
-    .hint{flex-direction:column;gap:2px}
-    .facts b{font-size:22px}
-    .hero h1{font-size:29px}
+  /* ── 手机适配（2026-11-25 新增）────────────────────────────────
+     为什么单独加：原来只有 900/700 两个断点，700 以下就不管了。
+     手机（375-430px）上问题很明显：
+       · 输入框和发送按钮挤在一行，按钮被压扁
+       · 右栏数据卡片太宽，横向溢出
+       · 软键盘弹出时输入框被顶到看不见
+       · 触摸目标小于 44px（iOS 人机指南的下限）
+     ─────────────────────────────────────────────────────────── */
+  @media (max-width:520px){
+    .app{padding:0 12px}
+    .chat{height:calc(100dvh - 52px)}   /* dvh：软键盘弹出时自动缩，vh 不会 */
+    .hero h1{font-size:25px}
+    .facts b{font-size:20px}
+    /* 输入区：按钮不能被压扁，触摸目标 >= 44px */
+    .dock{padding:8px 0 10px}
+    .field{gap:6px}
+    #inp{font-size:16px}                /* 16px 以下 iOS 会自动放大页面 */
+    #send{min-width:52px;min-height:44px;padding:0 14px}
+    /* 右栏卡片：窄屏单列，避免横向溢出 */
+    .rail{padding:18px 0 32px}
+    /* 长内容不撑破容器 */
+    .turn,.banner{word-break:break-word;overflow-wrap:anywhere}
+    /* 表格/预格式块横向滚动，不撑破页面 */
+    .turn pre,.turn table{overflow-x:auto;max-width:100%}
+    /* 刷新面板占满宽度 */
+    .rf-panel{right:8px;left:8px;width:auto;top:52px;max-height:70dvh}
+  }
+  /* 极窄屏（iPhone SE 320-375px）*/
+  @media (max-width:380px){
+    .app{padding:0 8px}
+    .hero h1{font-size:22px}
+    #send{min-width:46px;padding:0 10px}
   }
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 /* ── 刷新数据（2026-11-16）────────────────────────────────────────

@@ -5,6 +5,26 @@ var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelect
 var stream=$('#stream'), inp=$('#inp'), sendBtn=$('#send');
 
 /* ═══════════════════════════════════════════════════════════════
+   设备判定（2026-11-25 新增）
+   ─────────────────────────────────────────────────────────────
+   为什么需要：手机上自动 focus 输入框会弹软键盘，把回答顶掉。
+   桌面端 focus 是好的（省一次点击），移动端是坏的。
+
+   判据用 pointer:coarse（触屏）而不是屏幕宽度：
+     · 窄窗口的桌面浏览器 → 有鼠标，focus 无害，保留
+     · 触屏笔记本 → 不该弹软键盘，跳过
+     · 手机/平板 → 触屏，跳过
+   ═══════════════════════════════════════════════════════════════ */
+function isTouch(){
+  try{
+    return window.matchMedia('(pointer:coarse)').matches;
+  }catch(e){
+    // 老浏览器没有 matchMedia：退回 UA 判断
+    return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent||'');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
    状态管理（手册第 5 节）
    ─────────────────────────────────────────────────────────────
    规则：
@@ -286,8 +306,15 @@ function rail(ov){
   $$('#railBody .bk').forEach(function(b){
     b.onclick=function(){
       inp.value='预算 '+b.dataset.bucket;
-      inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length);
-      $('#hintRight').textContent='已填入预算，按 Enter 发送';
+      // 移动端只填入不 focus：用户点按钮是想「用这个预算」，
+      // 不是想打字；focus 会把键盘弹出来挡住他刚点的内容。
+      if(isTouch()){
+        autoGrow();
+        $('#hintRight').textContent='已填入预算，点发送即可';
+      }else{
+        inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length);
+        $('#hintRight').textContent='已填入预算，按 Enter 发送';
+      }
     };
   });
 }
@@ -764,7 +791,17 @@ function send(text){
       + '再发一次通常就好；如果一直这样，说明本地模型没起来，可以先用上面的示例问题。</div>';
     stream.appendChild(t); toBottom();
   }).then(function(){
-    S.busy=false; busy=false; sendBtn.disabled=false; inp.focus();
+    S.busy=false; busy=false; sendBtn.disabled=false;
+    // 🔴 2026-11-25：**移动端不自动 focus**。
+    //
+    //    问题：每轮回答完成后 focus 输入框，手机上会弹出软键盘，
+    //    把刚出来的回答顶掉一大半 —— 用户想读答案，键盘挡住视线。
+    //
+    //    桌面端保留 focus：物理键盘不会遮挡，而且省一次点击，体验更好。
+    //
+    //    判据用 matchMedia('(pointer: coarse)')（触屏）而不是屏幕宽度：
+    //    窄窗口的桌面浏览器仍然需要 focus，触屏笔记本也不该弹键盘。
+    if(!isTouch()) inp.focus();
   });
 }
 
@@ -824,7 +861,9 @@ jget('/api/overview').then(function(ov){
   $('#railBody').innerHTML='<div class="ov"><div class="cap">数据概览没读出来：接口 /api/overview 没响应。对话仍然可用，只是右边这些图暂时空着。</div></div>';
 });
 jget('/api/demo').then(function(d){ if(d.ok) demo(d) }).catch(function(){});
-inp.focus();
+// 🔴 2026-11-25：启动时不自动 focus（移动端会一进页面就弹键盘，挡住首屏）。
+//    桌面端保留 —— 用户进来就想打字，省一次点击。
+if(!isTouch()) inp.focus();
 
 /* ── ?q= 直接带一句话进来（可分享的链接，也方便自动化验收） ──
    例：http://127.0.0.1:7860/?q=学设计的，预算5100，要带去教室 */

@@ -235,7 +235,9 @@ def main():
         #    fix_weight_unit.py：只做「克→千克」单位换算，输出是命令行报告，
         #    不进任何用户可见文案，所以放行。
         #    （2026-11-16 加：它出现后 W8 报了 4 处，但都是合理用法。）
-        if fn in ("fix_weight_unit.py",):
+        # 2026-11-25 加：fill_from_zol.py 是数据补全脚本，
+        # 从 ZOL 参数页往池子里写字段（含 weightKg），不进用户可见文案。
+        if fn in ("fix_weight_unit.py", "fill_from_zol.py"):
             continue
         fp = os.path.join(code_dir, fn)
         try:
