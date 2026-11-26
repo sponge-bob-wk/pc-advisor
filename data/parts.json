@@ -3,7 +3,7 @@
   "label": "CPU",
   "source": "https://detail.zol.com.cn/cpu/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 18:09",
+  "fetchedAt": "2026-11-26 18:38",
   "items": [
    {
     "name": "AMD Ryzen 5 9600X",
@@ -56,12 +56,12 @@
     "url": "https://detail.zol.com.cn/cpu/index1393371.shtml"
    },
    {
-    "name": "Intel 酷睿 i7 14700K酷睿14代",
+    "name": "Intel 酷睿 i7 14700K",
     "price": 3499.0,
     "url": "https://detail.zol.com.cn/cpu/index1814492.shtml"
    },
    {
-    "name": "Intel 酷睿 i9 14900K酷睿14代",
+    "name": "Intel 酷睿 i9 14900K",
     "price": 4999.0,
     "url": "https://detail.zol.com.cn/cpu/index1805095.shtml"
    },
@@ -111,12 +111,12 @@
     "url": "https://detail.zol.com.cn/cpu/index2111489.shtml"
    },
    {
-    "name": "Intel 酷睿i7",
+    "name": "Intel 酷睿i7 8700",
     "price": 2859.0,
     "url": "https://detail.zol.com.cn/cpu/index1177029.shtml"
    },
    {
-    "name": "Intel 酷睿i3",
+    "name": "Intel 酷睿i3 8100",
     "price": 899.0,
     "url": "https://detail.zol.com.cn/cpu/index1179798.shtml"
    },
@@ -136,7 +136,7 @@
     "url": "https://detail.zol.com.cn/cpu/index1394653.shtml"
    },
    {
-    "name": "Intel 酷睿 i7 14700KF酷睿14代",
+    "name": "Intel 酷睿 i7 14700KF",
     "price": 3299.0,
     "url": "https://detail.zol.com.cn/cpu/index1929613.shtml"
    },
@@ -171,7 +171,7 @@
     "url": "https://detail.zol.com.cn/cpu/index1440555.shtml"
    },
    {
-    "name": "Intel 酷睿i7",
+    "name": "Intel 酷睿i7 7700",
     "price": 2898.0,
     "url": "https://detail.zol.com.cn/cpu/index1159128.shtml"
    },
@@ -181,7 +181,7 @@
     "url": "https://detail.zol.com.cn/cpu/index1428845.shtml"
    },
    {
-    "name": "Intel 酷睿i5",
+    "name": "Intel 酷睿i5 7500",
     "price": 1999.0,
     "url": "https://detail.zol.com.cn/cpu/index1159124.shtml"
    },
@@ -196,12 +196,12 @@
     "url": "https://detail.zol.com.cn/cpu/index1277885.shtml"
    },
    {
-    "name": "Intel 酷睿i7",
+    "name": "Intel 酷睿i7 9700",
     "price": 2599.0,
     "url": "https://detail.zol.com.cn/cpu/index1269848.shtml"
    },
    {
-    "name": "Intel 酷睿i5",
+    "name": "Intel 酷睿i5 8400",
     "price": 1689.0,
     "url": "https://detail.zol.com.cn/cpu/index1177032.shtml"
    },
@@ -216,14 +216,9 @@
     "url": "https://detail.zol.com.cn/cpu/index1366838.shtml"
    },
    {
-    "name": "AMD Ryzen 5",
+    "name": "AMD Ryzen 5 3600",
     "price": 1199.0,
     "url": "https://detail.zol.com.cn/cpu/index1277878.shtml"
-   },
-   {
-    "name": "AMD Ryzen ThreadRipper Pro 5995WX",
-    "price": 49999.0,
-    "url": "https://detail.zol.com.cn/cpu/index1427773.shtml"
    },
    {
     "name": "AMD 锐龙 9 9950X3D2",
@@ -236,7 +231,7 @@
   "label": "显卡",
   "source": "https://detail.zol.com.cn/vga/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 18:09",
+  "fetchedAt": "2026-11-26 18:38",
   "items": [
    {
     "name": "瀚铠Radeon RX 9070 XT 红色超合金PRO",
@@ -299,11 +294,6 @@
     "url": "https://detail.zol.com.cn/vga/index1794057.shtml"
    },
    {
-    "name": "NVIDIA RTX PRO 6000 Blackwell 服务器版",
-    "price": 88299.0,
-    "url": "https://detail.zol.com.cn/vga/index2156115.shtml"
-   },
-   {
     "name": "msi微星GeForce RTX 5060 Ti 8G GAMING TRIO OC",
     "price": 3599.0,
     "url": "https://detail.zol.com.cn/vga/index2130975.shtml"
@@ -312,11 +302,6 @@
     "name": "NVIDIA GeForce RTX 3060 12G",
     "price": 3899.0,
     "url": "https://detail.zol.com.cn/vga/index1355946.shtml"
-   },
-   {
-    "name": "NVIDIA RTX A6000显卡NVIDIA AMPERE 架构",
-    "price": 38499.0,
-    "url": "https://detail.zol.com.cn/vga/index1365533.shtml"
    },
    {
     "name": "七彩虹战斧 GeForce RTX 5060 DUO 8GB",
@@ -394,11 +379,6 @@
     "url": "https://detail.zol.com.cn/vga/index2119727.shtml"
    },
    {
-    "name": "NVIDIA Tesla A100 80G",
-    "price": 86999.0,
-    "url": "https://detail.zol.com.cn/vga/index1432224.shtml"
-   },
-   {
     "name": "华硕DUAL RTX 3050 O6G",
     "price": 1989.0,
     "url": "https://detail.zol.com.cn/vga/index1993043.shtml"
@@ -419,19 +399,9 @@
     "url": "https://detail.zol.com.cn/vga/index1350133.shtml"
    },
    {
-    "name": "NVIDIA RTX Pro6000D 84GB 服务器版",
-    "price": 47999.0,
-    "url": "https://detail.zol.com.cn/vga/index2167305.shtml"
-   },
-   {
     "name": "华硕ATS-RTX5060TI-O8G",
     "price": 3819.0,
     "url": "https://detail.zol.com.cn/vga/index2131127.shtml"
-   },
-   {
-    "name": "NVIDIA RTX A2000 12G",
-    "price": 4800.0,
-    "url": "https://detail.zol.com.cn/vga/index1400012.shtml"
    },
    {
     "name": "华硕DUAL-RTX4060-O8G",
@@ -479,7 +449,7 @@
   "label": "内存",
   "source": "https://detail.zol.com.cn/memory/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 18:09",
+  "fetchedAt": "2026-11-26 18:38",
   "items": [
    {
     "name": "金百达银爵 16GB（2×8GB）DDR4 3200",
@@ -572,7 +542,7 @@
     "url": "https://detail.zol.com.cn/memory/index1416322.shtml"
    },
    {
-    "name": "金士顿骇客神",
+    "name": "金士顿骇客神条FURY 16GB DDR4 3200（HX432C18FB/16-SP）RGB 灯条",
     "price": 470.0,
     "url": "https://detail.zol.com.cn/memory/index1270269.shtml"
    },
@@ -587,7 +557,7 @@
     "url": "https://detail.zol.com.cn/memory/index1985006.shtml"
    },
    {
-    "name": "金士顿骇客神",
+    "name": "金士顿骇客神条FURY 16GB（2×8GB）DDR4 3200（HX432C18FB2K2/16）RGB 灯条",
     "price": 679.0,
     "url": "https://detail.zol.com.cn/memory/index1270273.shtml"
    },
@@ -632,7 +602,7 @@
     "url": "https://detail.zol.com.cn/memory/index1336582.shtml"
    },
    {
-    "name": "海盗船统治者",
+    "name": "海盗船统治者铂金 RGB 128GB（8×16GB）DDR4 3200",
     "price": 8499.0,
     "url": "https://detail.zol.com.cn/memory/index1328822.shtml"
    },
@@ -657,7 +627,7 @@
     "url": "https://detail.zol.com.cn/memory/index1465799.shtml"
    },
    {
-    "name": "长城台式机内",
+    "name": "长城台式机内存条 8GB DDR4 3200",
     "price": 269.0,
     "url": "https://detail.zol.com.cn/memory/index2171392.shtml"
    },
@@ -717,7 +687,7 @@
     "url": "https://detail.zol.com.cn/memory/index1985000.shtml"
    },
    {
-    "name": "金士顿骇客神",
+    "name": "金士顿骇客神条FURY 8GB DDR4 2400（HX424C15FB/8）RGB 灯条",
     "price": 329.0,
     "url": "https://detail.zol.com.cn/memory/index1115558.shtml"
    }
@@ -727,7 +697,7 @@
   "label": "主板",
   "source": "https://detail.zol.com.cn/motherboard/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 18:09",
+  "fetchedAt": "2026-11-26 18:38",
   "items": [
    {
     "name": "华硕TUF GAMING B760M-PLUS D4重炮手",
@@ -970,7 +940,7 @@
   "label": "硬盘",
   "source": "https://detail.zol.com.cn/hard_drives/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 18:09",
+  "fetchedAt": "2026-11-26 18:38",
   "items": [
    {
     "name": "希捷酷狼NAS 8TB 7200转 256MB SATA3（ST8000VN004）?NAS硬盘",
@@ -1198,7 +1168,7 @@
     "url": "https://detail.zol.com.cn/hard_drives/index307507.shtml"
    },
    {
-    "name": "西部数据新金",
+    "name": "西部数据新金盘 10TB 7200转 256M SATA3（WUS721010ALE6L4）网络存储",
     "price": 2759.0,
     "url": "https://detail.zol.com.cn/hard_drives/index1347369.shtml"
    },
@@ -1213,7 +1183,7 @@
   "label": "电源",
   "source": "https://detail.zol.com.cn/power/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 18:09",
+  "fetchedAt": "2026-11-26 18:38",
   "items": [
    {
     "name": "航嘉WD750K全模组 新版",
@@ -1446,7 +1416,7 @@
   "label": "机箱",
   "source": "https://detail.zol.com.cn/case/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 18:09",
+  "fetchedAt": "2026-11-26 18:38",
   "items": [
    {
     "name": "航嘉S960暴风雪X 全景版 黑色",
@@ -1534,7 +1504,7 @@
     "url": "https://detail.zol.com.cn/case/index1432961.shtml"
    },
    {
-    "name": "动力火车未知",
+    "name": "动力火车未知玩家P40支持MATX/ITX主板",
     "price": 204.0,
     "url": "https://detail.zol.com.cn/case/index2125072.shtml"
    },
@@ -1579,7 +1549,7 @@
     "url": "https://detail.zol.com.cn/case/index1948579.shtml"
    },
    {
-    "name": "动力火车未知",
+    "name": "动力火车未知玩家X100 USB3.0版ITX手提",
     "price": 162.0,
     "url": "https://detail.zol.com.cn/case/index1980881.shtml"
    },
@@ -1694,7 +1664,7 @@
   "label": "固态",
   "source": "https://detail.zol.com.cn/solid_state_drive/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 18:09",
+  "fetchedAt": "2026-11-26 18:38",
   "items": [
    {
     "name": "致态TiPlus7100（512GB）",
@@ -2162,7 +2132,7 @@
   "label": "散热器",
   "source": "https://detail.zol.com.cn/cooling_product/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 18:09",
+  "fetchedAt": "2026-11-26 18:38",
   "items": [
    {
     "name": "利民AX120R SE逆重力热管",
@@ -2255,7 +2225,7 @@
     "url": "https://detail.zol.com.cn/cooling_product/index2114816.shtml"
    },
    {
-    "name": "九州风神大霜",
+    "name": "九州风神大霜塔双高塔式CPU散热器",
     "price": 219.0,
     "url": "https://detail.zol.com.cn/cooling_product/index330336.shtml"
    },
@@ -2320,7 +2290,7 @@
     "url": "https://detail.zol.com.cn/cooling_product/index1367396.shtml"
    },
    {
-    "name": "超频三红海至",
+    "name": "超频三红海至尊版多平台CPU散热器",
     "price": 119.0,
     "url": "https://detail.zol.com.cn/cooling_product/index189906.shtml"
    },
@@ -2340,7 +2310,7 @@
     "url": "https://detail.zol.com.cn/cooling_product/index2179071.shtml"
    },
    {
-    "name": "酷冷至尊挑战",
+    "name": "酷冷至尊挑战者SE ARGB 3DHP两热管散热器金属顶盖",
     "price": 99.0,
     "url": "https://detail.zol.com.cn/cooling_product/index2152201.shtml"
    },

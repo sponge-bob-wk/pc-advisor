@@ -110,6 +110,38 @@ CHANNELS = {
 #        单品页实测能拿到「致态TiPlus7100（512GB）¥359」这种精确信息。
 SSD_CHANNEL = "ssd"
 
+# ── 服务器/工作站级配件过滤 ──
+#
+# 🔴 2026-11-26 体检发现：库里混着服务器卡/工作站 CPU
+#     ¥88,299  NVIDIA RTX PRO 6000 Blackwell 服务器版
+#     ¥86,999  NVIDIA Tesla A100 80G
+#     ¥49,999  AMD Ryzen ThreadRipper Pro 5995WX
+#
+# 这些不该进学生装机推荐：
+#   · 价格是消费级的 10-20 倍，预算根本够不着
+#   · 用 ECC 显存/专业驱动，游戏性能反而更差
+#   · ThreadRipper 用 sTR5 插槽，普通主板装不上
+#
+# ⚠️ 判据要保守，别误伤消费级：
+#   「RTX 5060 / RTX 5090」都是消费卡 → 保留
+#   「RTX A6000 / RTX PRO 6000 / Tesla」是专业卡 → 过滤
+PRO_ONLY_PAT = {
+    "gpu": re.compile(
+        r"(Tesla|Quadro|RTX\s*A\d{4}|RTX\s*Pro\s*\d|RTX\s*PRO\s*\d|"
+        r"服务器版|数据中心|计算卡|加速卡)", re.I),
+    "cpu": re.compile(
+        r"(ThreadRipper|Threadripper|Xeon|EPYC|至强|霄龙)", re.I),
+}
+
+
+def is_pro_only(name, category):
+    """是不是服务器/工作站专用配件。"""
+    pat = PRO_ONLY_PAT.get(category)
+    if not pat:
+        return False
+    return bool(pat.search(name or ""))
+
+
 # 各类配件的**合理价格下限**（低于这个值就是抓错或非整件）。
 #
 # 🔴 2026-11-26 实测发现的问题：
@@ -149,7 +181,12 @@ PRICE_FLOOR = {
 #      "金百达银爵"5 字、"西部数据黑盘"6 字，再长基本是文案）
 NAME_CUT_HARD = re.compile(r"，")
 NAME_CUT_WORDS = re.compile(
-    r"(\d+核\d+线程|\d+核心/\d+线程|"
+    # 🔴 2026-11-26 修（体检发现的严重 bug）：
+    #    `\d+核\d+线程` 里的 `\d+` 是贪婪的，会咬到型号数字。
+    #    实测 `Intel 酷睿i7 87006核心/12线程` → 切成「Intel 酷睿i7」，
+    #    型号 8700 丢了，导致 3 台不同的 i7 都叫同一个名字。
+    #    改成 `\d{1,2}`（核心数最多两位），就不会吃进型号。
+    r"(\d{1,2}核\d{1,3}线程|\d{1,2}核心/\d{1,3}线程|"
     r"\d+相供电|相供电|"                 # 「12+1+2相供电」这类
     r"高品质|闪电传输|支持风扇启停|全平台兼容|"
     r"便携移动|大容量|超频|散热系统|风之力|"
@@ -157,12 +194,56 @@ NAME_CUT_WORDS = re.compile(
     r"电竞|游戏电源|宽幅稳定|高效节能|"
     r"笔记本硬盘|笔记本机械|台式电脑机械|"
     r"\d+转\d+MB|NVIDIA\s+Ampere|Super\s+系列|"
-    r"OC\s+|DLSS|XMP)")
+    r"OC\s+|DLSS|XMP|"
+    # 🔴 2026-11-26：代际后缀也是卖点，不是型号的一部分
+    #    实测「Intel 酷睿 i7 14700K酷睿14代」→ 切到 14700K 为止
+    r"酷睿\d+代|锐龙\d+代|第\d+代)")
+
+
+def _split_model_core(name):
+    """处理「型号 + 核心数」粘连的情况。
+
+    🔴 2026-11-26：ZOL 的 CPU 名字经常写成「87006核心/12线程」——
+        型号 8700 和核心数 6 中间没有分隔符。
+        正则没法直接分，但可以按常识拆：
+          Intel 型号是 4-5 位数字（8700 / 12700 / 9100），核心数是 1-2 位。
+
+    做法：找到「数字串 + 核」，如果数字串长度 ≥5，就认为
+          「前 N-1 位是型号 + 最后 1 位是核心数」；长度 4 位则是纯型号。
+    """
+    n = name or ""
+
+    def repl(m):
+        digits = m.group(1)      # 粘连的数字串，如 "87006"
+        suffix = m.group(2)      # "核心" 或 "核"
+        if len(digits) < 5:
+            # 4 位及以下：整个是型号，核心数在别处或没有
+            return m.group(0)
+        # 5 位以上：最后 1-2 位是核心数
+        # Intel/AMD 型号常见 4 位（8700 / 5600）或 5 位（12700）
+        # 优先按「型号 5 位 + 核心 1 位」拆
+        for model_len in (5, 4):
+            if len(digits) > model_len:
+                core = digits[model_len:]
+                if 1 <= len(core) <= 2:
+                    return digits[:model_len] + "\u0000" + core + suffix
+        return m.group(0)
+
+    # 匹配「数字 + 核」，数字至少 4 位
+    n2 = re.sub(r"(\d{4,})(核心?)(?=[/，,]|\d|$)", repl, n)
+    # 用 \u0000 标记切分点，后面 clean_name 会在这里切
+    return n2
 
 
 def clean_name(name):
     """切掉型号名后面的推广文案。"""
     n = (name or "").strip()
+
+    # ⓪ 先处理「型号 + 核心数粘连」（如「87006核心」→「8700\x006核心」）
+    n = _split_model_core(n)
+    # 有切分标记时直接切在那里（这是最可靠的分界）
+    if "\u0000" in n:
+        n = n.split("\u0000")[0]
 
     # ① 中文逗号直接切
     m = NAME_CUT_HARD.search(n)
@@ -209,8 +290,11 @@ def clean_name(name):
         else:
             cn_run = 0
         out.append(ch)
-    if len(out) >= 4:
-        n = "".join(out)
+    cand = "".join(out)
+    # 🔴 2026-11-26 加保护：切开后如果不足原长 40%，说明触发点太靠前，
+    #    多半是误伤型号（实测「Intel 酷睿i7 8700…」被切成「Intel 酷睿i7」）。
+    if len(cand) >= 4 and len(cand) >= len(n) * 0.4:
+        n = cand
 
     # ④ 括号闭合：切掉「（WD1003FZEX」这种没闭合的残尾
     if n.count("（") > n.count("）"):
@@ -356,6 +440,9 @@ def parse_items(html, category=""):
         name = clean_name(name)
         if len(name) < 3:
             continue
+        # ③ 过滤服务器/工作站专用件
+        if is_pro_only(name, category):
+            continue
         out.append((name, price, "https://detail.zol.com.cn" + link))
 
     # 去重（同名同价保留一条）
@@ -447,6 +534,8 @@ def main():
                             continue
                         # 价格下限过滤（PRICE_FLOOR 里 ssd 是 100）
                         if pr < PRICE_FLOOR.get("ssd", 100):
+                            continue
+                        if is_pro_only(nm, "ssd"):
                             continue
                         items.append({"name": nm, "price": pr,
                                       "url": g["url"]})
