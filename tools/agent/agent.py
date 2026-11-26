@@ -6558,7 +6558,11 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
     #      两者的数据源、约束、输出格式都不同，混在一起会互相污染。
     #
     #    判据：有明确的组装意图词（组装/装机/自己配/攒机/配件清单…）。
-    #      只说「台式机」「主机」不算 —— 那可能就是想买整机。
+    #      🔴 2026-11-26 改（用户要求）：**台式机一律走装机，不推整机**。
+    #        「台式机是要按照装机标准，根据用户需求你去推荐的不是说整件」
+    #        整机池只有 2 台排不了序，而且整机是别人配好的固定方案，
+    #        用户要台式的本质诉求就是「按我的需求配」，整机反而限制选择。
+    #        所以：品类=desktop 或原话提台式 → 进这里，用 327 个配件拼。
     #      见 pc_build_intent.wants_build() 的注释。
     #
     #    ⚠️ 数据来源 data/parts.json（fetch_parts.py 抓的 ZOL 参考价）。
@@ -6566,7 +6570,7 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
     # ═══════════════════════════════════════════════════════════
     try:
         import pc_build_intent as _pbi
-        if _pbi.wants_build(user_text or ""):
+        if _pbi.wants_build(user_text or "", slots):
             import build_pc as _bpc
             _budget = _pbi.budget_of(user_text, slots)
             _parts = _bpc.load_parts()
@@ -6575,16 +6579,19 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
                         "reply": ("配件库还没抓数据 —— 先跑一次 "
                                   "fetch_parts.py，我才有配件价格能拼配置。"),
                         "known": slots, "questions": [], "warnings": []}
+            _purposes = list(slots.get("purpose") or [])
             if _budget:
                 _best = min(_bpc.TIERS, key=lambda t: min(
                     abs(_budget - t["budget"][0]),
                     abs(_budget - t["budget"][1])))
-                _one = _bpc.build_plan(_parts, _best, _budget)
+                _one = _bpc.build_plan(_parts, _best, _budget,
+                                        purposes=_purposes)
                 _plans = [_one] if _one else []
             else:
                 _plans = []
                 for _t in _bpc.TIERS:
-                    _p = _bpc.build_plan(_parts, _t)
+                    _p = _bpc.build_plan(_parts, _t,
+                                         purposes=_purposes)
                     if _p:
                         _plans.append(_p)
             if _plans:

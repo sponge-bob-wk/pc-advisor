@@ -39,13 +39,47 @@ BUILD_PAT = re.compile(
 # 排除：说"不要组装"、"别装机"
 NEG_PAT = re.compile(r"(不要组装|别装机|不组装|不用装机|不要散件)")
 
+# 🔴 2026-11-26：**台式机一律走装机，不推整机**（用户明确要求）
+#
+#    「台式机是要按照装机标准，根据用户需求你去推荐的不是说整件」
+#
+# 为什么整机池不适合推荐：
+#   · 只有 2 台（DIY 整机 + 只换板U），根本排不了序
+#   · 「整机」是别人配好的固定方案，改不了任何一个部件
+#   · 用户要台式机的本质诉求是「按我的需求配」，{品牌}整机反而限制了选择
+#
+# 所以：只要品类是台式，就进装机分支，用 327 个配件按需求拼。
+DESKTOP_PAT = re.compile(
+    r"(台式|台式机|桌面机|主机|塔式|DIY\s*机)", re.I)
 
-def wants_build(text):
-    """用户是不是想自己组装台式机。"""
+
+def wants_build(text, slots=None):
+    """用户是不是要「台式机方案」（一律按装机处理）。
+
+    两层判据：
+      ① 有明确组装意图词 → 是
+      ② 品类被识别成 desktop → 也是（台式机不推整机，只推装机单）
+
+    ⚠️ 例外：明确说「不要组装」「要买整机」→ 不是。
+    """
     t = text or ""
     if NEG_PAT.search(t):
         return False
-    return bool(BUILD_PAT.search(t))
+
+    # ① 明确说组装
+    if BUILD_PAT.search(t):
+        return True
+
+    # ② 品类是台式 → 默认走装机
+    cat = (slots or {}).get("cat")
+    if cat == "desktop":
+        return True
+
+    # ③ 原话里提到台式（即使槽位还没识别出来）
+    if DESKTOP_PAT.search(t):
+        return True
+
+    return False
 
 
 def budget_of(text, slots=None):

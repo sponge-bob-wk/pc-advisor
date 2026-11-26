@@ -289,6 +289,169 @@ def load_parts():
     return {k: (v.get("items") or []) for k, v in d.items()}
 
 
+# ── 用途 → 配置比例调整 ──
+#
+# 🔴 2026-11-26 新增（用户要求）：
+#    「台式机是要按照装机标准，根据用户需求你去推荐」
+#
+# 同一预算下，不同用途的钱该花在不同地方：
+#
+#   游戏     → 显卡吃大头（50%），CPU 够用就行
+#   设计/剪辑 → CPU 和内存并重，显卡中档即可
+#   办公     → 不要显卡都行，钱花在 CPU 和 SSD 上
+#   建模/渲染 → CPU 多核 + 内存，显卡中高档
+#   AI/本地模型 → 显存优先（显卡），内存要大
+#
+# 这里只调整**比例**，不改档位本身。比例会自动归一化。
+PURPOSE_TUNING = {
+    "gaming": {
+        "gpu": 1.55, "cpu": 0.90, "ram": 0.85,
+        "storage": 0.90, "motherboard": 0.90,
+        "label": "游戏优先（显卡吃大头）",
+    },
+    "design": {
+        "gpu": 0.85, "cpu": 1.20, "ram": 1.35,
+        "storage": 1.15, "motherboard": 1.05,
+        "label": "设计剪辑（CPU + 内存优先）",
+    },
+    "video": {
+        "gpu": 1.10, "cpu": 1.30, "ram": 1.30,
+        "storage": 1.40, "motherboard": 1.00,
+        "label": "视频剪辑（CPU + 内存 + 大容量）",
+    },
+    "office": {
+        "gpu": 0.30, "cpu": 1.30, "ram": 1.10,
+        "storage": 1.25, "motherboard": 0.95,
+        "label": "办公（不需要独显，CPU + SSD 优先）",
+    },
+    "threeD": {
+        "gpu": 1.15, "cpu": 1.35, "ram": 1.30,
+        "storage": 1.10, "motherboard": 1.00,
+        "label": "3D 建模渲染（多核 + 内存）",
+    },
+    "ai": {
+        "gpu": 1.60, "cpu": 0.90, "ram": 1.40,
+        "storage": 1.10, "motherboard": 1.05,
+        "label": "本地跑模型（显存 + 内存优先）",
+    },
+    "dev": {
+        "gpu": 0.55, "cpu": 1.25, "ram": 1.40,
+        "storage": 1.05, "motherboard": 1.00,
+        "label": "写代码（内存 + CPU 优先，显卡够用就行）",
+    },
+}
+
+
+def tune_ratio(base, purposes):
+    """按用途调整配件预算比例。
+
+    purposes: 用途列表，如 ['gaming'] 或 ['design','video']
+    返回：归一化后的比例字典 + 调整说明
+    """
+    ratio = dict(base)
+    notes = []
+
+    for p in (purposes or []):
+        t = PURPOSE_TUNING.get(p)
+        if not t:
+            continue
+        notes.append(t["label"])
+        for k, mul in t.items():
+            if k == "label" or k not in ratio:
+                continue
+            ratio[k] = ratio[k] * mul
+
+    # 归一化：保证加起来还是 100%
+    total = sum(ratio.values())
+    if total > 0:
+        ratio = {k: v / total for k, v in ratio.items()}
+
+    return ratio, notes
+
+
+def purpose_tier(base_tier, purposes):
+    """用途改了内存下限和标题吗？"""
+    tier = dict(base_tier)
+    ps = set(purposes or [])
+
+    # 视频剪辑 / 3D / 本地模型：16G 明显不够
+    if ps & {"video", "threeD", "ai"}:
+        tier["minRam"] = max(tier.get("minRam") or 16, 32)
+
+    # 办公：不需要独显预算，但也别低于 16G
+    if ps & {"office"} and not (ps & {"gaming", "design", "video"}):
+        tier["minRam"] = max(tier.get("minRam") or 16, 16)
+
+    # 🔴 2026-11-26：**档位名要跟着用途走**。
+    #    实测：问「办公用的台式，八千」，标题还是「主流游戏」——
+    #    因为档位是按预算挑的（8000 落在 main 档），名字写死了。
+    #    用户看到"办公需求 → 主流游戏"，会觉得没听懂他。
+    _NAME_BY_PURPOSE = {
+        "gaming": "游戏主机",
+        "design": "设计主机",
+        "video": "剪辑主机",
+        "threeD": "渲染主机",
+        "ai": "本地模型主机",
+        "office": "办公主机",
+        "dev": "开发主机",
+    }
+    for p in (purposes or []):
+        if p in _NAME_BY_PURPOSE:
+            tier["name"] = _NAME_BY_PURPOSE[p]
+            break
+
+    # 用途描述也换成用户说的
+    _USE_BY_PURPOSE = {
+        "gaming": "1080p/2K 游戏",
+        "design": "平面设计 / 修图",
+        "video": "视频剪辑 / 调色",
+        "threeD": "3D 建模 / 渲染",
+        "ai": "本地跑模型",
+        "office": "办公 / 网课 / 文档",
+        "dev": "写代码 / 虚拟机",
+    }
+    _uses = [_USE_BY_PURPOSE[p] for p in (purposes or [])
+             if p in _USE_BY_PURPOSE]
+    if _uses:
+        tier["use"] = " / ".join(_uses[:2])
+
+    return tier
+
+
+# ── 不需要独显的用途 ──
+#
+# 🔴 2026-11-26 实测发现的问题：
+#    办公用途配置里出现了「GTX 1650 + 1250W 电源」——
+#    调低显卡比例（gpu: 0.30）只是让它选到便宜的卡，
+#    不是「不配显卡」。而办公真的不需要独显。
+#
+#    同理：CPU + 显卡的搭配要平衡，不能 i5-12490F 配 RTX 5060 Ti
+#    （CPU 会成瓶颈，显卡的 4000 块发挥不出来）。
+NO_DGPU_PURPOSE = {"office", "dev"}
+
+
+def needs_dgpu(purposes):
+    """这个用途要不要独显。"""
+    ps = set(purposes or [])
+    # 只要有一个用途需要显卡就要
+    if ps & {"gaming", "design", "video", "threeD", "ai"}:
+        return True
+    if ps and not (ps & NO_DGPU_PURPOSE):
+        return True
+    return not ps   # 没说用途 → 保守给一张
+
+
+def balance_cpu_gpu(cpu_price, gpu_price):
+    """检查 CPU/显卡是否失衡。
+
+    经验规则：显卡价格超过 CPU 的 2.5 倍时，CPU 大概率拖后腿
+    （游戏/设计都是这个量级）。这时要求 CPU 往上提一档。
+    """
+    if not cpu_price or not gpu_price:
+        return False
+    return gpu_price > cpu_price * 2.5
+
+
 def pick_near(items, target, used=None, key=None):
     """从 items 里挑价格最接近 target 的一个。
 
@@ -306,15 +469,24 @@ def pick_near(items, target, used=None, key=None):
     return min(cand, key=lambda x: abs(x["price"] - target))
 
 
-def build_plan(parts, tier, budget=None):
-    """按档位生成一套配置。
+def build_plan(parts, tier, budget=None, purposes=None):
+    """按档位 + 用途生成一套配置。
+
+    🔴 2026-11-26 加 purposes 参数（用户要求）：
+        「台式机是要按照装机标准，根据用户需求你去推荐」
+        —— 同一预算下，打游戏和剪视频的钱该花在不同地方：
+           游戏 → 显卡吃大头；剪辑 → CPU+内存+大容量；办公 → 不要独显。
 
     返回 {"tier":..., "rows":[...], "total":..., "issues":[...]}
     """
     lo, hi = tier["budget"]
     budget = budget or (lo + hi) / 2
-    ratio = tier["pick"]
-    issues = []
+
+    # 按用途调整比例 + 内存下限
+    ratio, tune_notes = tune_ratio(tier["pick"], purposes)
+    tier = purpose_tier(tier, purposes)
+
+    issues = list(tune_notes)   # 把「按什么用途调的」写进 issues，用户看得到
 
     plan = {}
 
@@ -383,10 +555,44 @@ def build_plan(parts, tier, budget=None):
     plan["ram"] = ram
 
     # ④ 显卡
-    gpu = pick_near(parts.get("gpu") or [], budget * ratio["gpu"])
-    if not gpu:
-        return None
-    plan["gpu"] = gpu
+    #
+    # 🔴 2026-11-26 加两条规则（实测发现的问题）：
+    #    ① 办公/写代码**不需要独显** —— 原来只是把比例调到 0.30，
+    #       结果还是选出一张 GTX 1650。改成：这类用途直接不配显卡，
+    #       把那部分预算转给 CPU 和存储。
+    #    ② **CPU/显卡要平衡** —— 实测出现过 i5-12490F 配 RTX 5060 Ti，
+    #       显卡 4199 而 CPU 只有 1280，游戏时 CPU 会成瓶颈，
+    #       那张显卡的钱发挥不出来。
+    if needs_dgpu(purposes):
+        gpu = pick_near(parts.get("gpu") or [], budget * ratio["gpu"])
+        if not gpu:
+            return None
+        plan["gpu"] = gpu
+
+        # 平衡检查：显卡太贵而 CPU 太便宜 → 把 CPU 往上提
+        if balance_cpu_gpu(cpu["price"], gpu["price"]):
+            better = pick_near(parts.get("cpu") or [],
+                               gpu["price"] / 1.8,
+                               key=lambda it: cpu_socket(it["name"]) == sock
+                               if sock else True)
+            if better and better["price"] > cpu["price"] * 1.2:
+                plan["cpu"] = better
+                cpu = better
+                issues.append("CPU 已上调到 %s（原配显卡 %s 会拖后腿）"
+                              % (better["name"][:20], gpu["name"][:16]))
+    else:
+        # 不配独显：用核显，预算转给 CPU/存储
+        #
+        # ⚠️ 局部变量 gpu 也要赋值 —— 下面的电源计算要用到它
+        #    （靠 gpu["price"]==0 判断是不是核显方案）。
+        #    原来只写了 plan["gpu"]，导致 UnboundLocalError。
+        gpu = {
+            "name": "核显（不配独立显卡）",
+            "price": 0,
+            "url": None,
+        }
+        plan["gpu"] = gpu
+        issues.append("这个用途不需要独立显卡，用 CPU 核显即可")
 
     # ⑤ 硬盘
     sto = pick_near(parts.get("storage") or [], budget * ratio["storage"])
@@ -395,11 +601,32 @@ def build_plan(parts, tier, budget=None):
     plan["storage"] = sto
 
     # ⑥ 电源：按 CPU+GPU 功耗 × 1.5 留余量
-    need_w = int((cpu_watt(cpu["name"]) + gpu_watt(gpu["name"]) + 80) * 1.5)
-    psu_key = lambda it, n=need_w: (psu_watt(it["name"]) or 0) >= n
-    psu = pick_near(parts.get("psu") or [], budget * ratio["psu"], key=psu_key)
-    if not psu:
+    #
+    # 🔴 2026-11-26 实测发现两个问题：
+    #    ① 不配独显时 gpu["price"]==0，不能按 150W 算 ——
+    #       核显整机满载也就 200W，按价格比例会选到 1250W 的电源，
+    #       实测出现过「办公配置 + 1250W 电源」这种离谱组合。
+    #    ② **电源不能按预算比例选，要按实际功率选** ——
+    #       电源不是"越贵越好"，够用就行，多余的钱应该给 CPU/显卡。
+    #       所以这里改成：先算 need_w，再选**能带得动的最便宜那档**。
+    _gpu_w = gpu_watt(gpu["name"]) if gpu.get("price") else 0
+    need_w = int((cpu_watt(cpu["name"]) + _gpu_w + 80) * 1.5)
+
+    def psu_ok(it):
+        w = psu_watt(it["name"])
+        return w is not None and w >= need_w
+
+    _psu_pool = [x for x in (parts.get("psu") or []) if psu_ok(x)]
+    if _psu_pool:
+        # 够用的里面选最便宜的 —— 电源不是越贵越好
+        psu = min(_psu_pool, key=lambda x: x["price"])
+    else:
+        # 库里没有够功率的：退到最接近的，并告警
         psu = pick_near(parts.get("psu") or [], budget * ratio["psu"])
+        if psu:
+            have = psu_watt(psu["name"]) or 0
+            issues.append("电源可能不够：需要约 %dW，这台只有 %s"
+                          % (need_w, ("%dW" % have) if have else "未知"))
         if psu:
             have = psu_watt(psu["name"]) or 0
             issues.append("电源可能不够：需要约 %dW，这台 %s"
