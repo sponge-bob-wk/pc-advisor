@@ -443,6 +443,24 @@ def _is_pure_use(t):
     return True
 
 
+# ── 台式品类词兜底（2026-11-26）──
+#
+# v8 把「台式机」「要台式机」「桌面机行吗」「得有台式」判成 refuse_switch。
+# 这几句是**首次提台式需求**（加条件），不是"不要当前这台换掉"。
+#
+# 为什么模型会判错：训练数据里「换个台式的」这类带"换"字的也标 state_new_need，
+# 和纯"台式"句混在一起，模型学到"台式 → 倾向换台"。
+#
+# 规则兜底判据（要保守，别把真换台改掉）：
+#   台式品类词 + 模型判 refuse_switch + **无换台动词** → state_new_need
+#
+#   「台式机」            → 无换台动词 → state_new_need ✓
+#   「换个台式的」        → 有"换"   → 不动（refuse_switch）✓
+#   「不要笔记本了，台式」 → 有"不要" → 不动 ✓
+_DESKTOP_CAT = re.compile(r"台式|桌面机|主机|整机|台机")
+_SWITCH_VERB = re.compile(r"换|不要|别的|其他|下一个|再来|不看|pass|算了")
+
+
 _HARD_ANCHOR = (
     "够用", "够不", "能跑", "能带", "能撑", "能玩",
     "值不值", "划不划算", "撑得住",
@@ -929,6 +947,16 @@ def classify(text, focus=None, allow_model=True):
     if m_lab == agent.INTENT_ASK_CURRENT and _is_pure_use(t):
         return (agent.INTENT_STATE_NEW_NEED,
                 "rule:纯用途短句（无主语无疑问，模型判 ask_current，改为加条件）")
+
+    # 🔴 2026-11-26：**台式品类词兜底**。
+    #    v8 把「台式机」「要台式机」「桌面机行吗」「得有台式」
+    #    判成 refuse_switch（模型学到"台式→倾向换台"，因为训练数据里
+    #    「换个台式的」和纯"台式"句混着）。这几句是首次提台式需求。
+    #    判据：台式词 + 模型判 refuse_switch + 无换台动词。
+    if m_lab == agent.INTENT_REFUSE_SWITCH and _DESKTOP_CAT.search(t) \
+            and not _SWITCH_VERB.search(t):
+        return (agent.INTENT_STATE_NEW_NEED,
+                "rule:台式品类词且无换台动词（模型判 refuse_switch，改为加条件）")
 
     return m_lab, m_why
 

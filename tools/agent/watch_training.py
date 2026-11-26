@@ -302,7 +302,7 @@ def render(d, log_path):
 
     # eval
     if d.get("eval_best") is not None:
-        L.append("eval  最优 %.3f | 最近 %.3f | 已评 %d 次"
+        L.append("eval_loss  最优 %.3f | 最近 %.3f | 已评 %d 次（越低越好）"
                  % (d["eval_best"], d["eval_last"], d["eval_count"]))
 
     # 数据
