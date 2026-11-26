@@ -7147,11 +7147,6 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
         _pct_word = ("到手" in reply or "标价" in reply
                      or "参考价" in reply or "售价" in reply)
         _has_price = re.search(r"[¥￥]\s*\d|\d{3,}\s*元", reply)
-        with open(r"E:\deepseek harness tests\_tr.txt", "a",
-                  encoding="utf-8") as _f:
-            _f.write("cond: price=%r has=%r pct=%r len=%d\n"
-                     % (_top0.get("price"), bool(_has_price),
-                        _pct_word, len(reply)))
         if _top0.get("price") and _has_price and not _pct_word:
             _lab = _price_label(_top0)
             if _lab == "到手价":

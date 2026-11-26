@@ -74,6 +74,16 @@ sys.path.insert(0, HERE)
 import agent            # noqa: E402
 import intent_layer     # noqa: E402
 
+# 🔴 2026-11-26 加：**强制 stdout/stderr 用 UTF-8**。
+#    Windows 控制台默认 GBK，打印 ⚠️/✓/✗ 这类字符会 UnicodeEncodeError 直接崩。
+#    不依赖外部 PYTHONIOENCODING 环境变量，在代码里写死。
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
+
 FOCUS = "thin-wujie14x"
 BASE = {"cat": "thin", "budget": 5000, "purpose": ["office"]}
 # 🔴 seen 里必须放**真实 id**（带品类前缀）。

@@ -13,6 +13,18 @@
   I4 卡片不引入 result 里没有的机型（候选只能是 ranked 的第 2、3 名）
 """
 import sys, io, os, re
+
+# 🔴 2026-11-26 加：**强制 stdout/stderr 用 UTF-8**。
+#    Windows 控制台默认 GBK，打印 ⚠️/✓/✗ 这类字符会 UnicodeEncodeError 直接崩。
+#    实测：server.py 第 588 行的 ⚠️ 导致服务起不来。
+#    不依赖外部 PYTHONIOENCODING 环境变量，在代码里写死。
+#    errors="replace" 是双保险 —— 宁可显示成 ? 也不能让脚本崩。
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 

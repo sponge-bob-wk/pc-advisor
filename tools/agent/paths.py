@@ -37,6 +37,16 @@ r"""paths.py —— 集中管理路径，消除硬编码
     p = pool_path()                    # data/machine_pool.json
     d = os.path.join(AGENT, "lora_v4")
 """
+import sys
+
+# 🔴 2026-11-26 加：强制 stdout 用 UTF-8。
+#    实测：GBK 控制台跑 paths.py 崩在 L128 的 ✓（U+2713）。
+#    不依赖 PYTHONIOENCODING 环境变量，代码里写死。
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
 import os
 
 # ── 项目根目录（从本文件位置推导，不写死）──
