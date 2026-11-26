@@ -24,12 +24,34 @@
   var cur=$('#rfCur'), steps=$('#rfSteps'), cross=$('#rfCross'), msg=$('#rfMsg');
   if(!btn||!panel) return;
 
-  var PRESET_LABEL={
-    quick:['快速重算','不联网，只重算判定/统计/页面（约 2 秒）'],
-    prices:['刷新价格','去 ZOL 抓最新价格并交叉验证（约 1-3 分钟）'],
-    bench:['刷新跑分','去 Notebookcheck 抓 CPU 跑分（约 1-2 分钟）'],
-    full:['全量刷新','价格 + 跑分 + 全部重算（约 5 分钟）']
-  };
+  /* 🔴 2026-11-26 重构（用户要求）：
+     「全量刷新，分笔记本和台式机吧，各取所需」
+
+     笔记本和台式机是两套独立数据：
+       笔记本 → machine_pool.json（243 台机型）
+       台式机 → parts.json（459 个配件）
+     抓取源、耗时都不同，混在一起刷很浪费。
+
+     按数据域分组，每组一个标题 + 若干按钮。 */
+  var PRESET_GROUPS = [
+    { title:'笔记本', hint:'机型价格 · 跑分 · 判定统计', items:[
+      ['laptop','全量刷新笔记本','价格+跑分+重算，约 8 分钟'],
+      ['prices','只刷价格','去 ZOL 抓最新机型价格，约 2 分钟'],
+      ['bench','只刷跑分','去 Notebookcheck 抓 CPU 跑分，约 2 分钟'],
+      ['quick','快速重算','不联网，只重算判定/统计/页面，约 2 秒']
+    ]},
+    { title:'台式机', hint:'装机配件价格 · 物理尺寸', items:[
+      ['desktop','全量刷新台式机','配件价格+尺寸，实测约 4.5 分钟'],
+      ['parts','只刷配件价格','9 类配件，约 90 秒'],
+      ['partsAll','价格+尺寸','顺带抓显卡长度/机箱限长，约 4.5 分钟']
+    ]},
+    { title:'全部', hint:'两块数据一起刷', items:[
+      ['all','全部刷新','笔记本 + 台式机，约 12 分钟']
+    ]}
+  ];
+
+  /* 老预设名兼容：后端可能还有 full，映射到 all */
+  var PRESET_ALIAS = { full:'all' };
   var timer=null, jobId=null;
 
   function openPanel(){
@@ -44,13 +66,35 @@
       .then(function(d){
         if(!d.ok) throw new Error(d.err||'加载失败');
         choices.innerHTML='';
-        (d.presets||[]).forEach(function(p){
-          var lab=PRESET_LABEL[p.id]||[p.id,(p.desc||[]).join(' / ')];
-          var b=document.createElement('button');
-          b.className='rf-opt';
-          b.innerHTML='<b>'+lab[0]+'</b><span>'+lab[1]+'</span>';
-          b.onclick=function(){ run(p.id); };
-          choices.appendChild(b);
+        /* 🔴 2026-11-26：按「笔记本 / 台式机 / 全部」分组渲染。
+       只渲染后端真实存在的预设 —— 防止前端有、后端没有时点了 404。
+       （实测踩过：前端写死 4 个标签，后端加了新预设却看不到。） */
+        var _have={};
+        (d.presets||[]).forEach(function(p){ _have[p.id]=p });
+
+        PRESET_GROUPS.forEach(function(g){
+          // 组内先过滤出后端真实存在的
+          var items=g.items.filter(function(it){
+            return _have[it[0]] || _have[PRESET_ALIAS[it[0]]];
+          });
+          if(!items.length) return;
+
+          var box=document.createElement('div');
+          box.className='rf-group';
+          var hd=document.createElement('div');
+          hd.className='rf-group-hd';
+          hd.innerHTML='<b>'+g.title+'</b><span>'+(g.hint||'')+'</span>';
+          box.appendChild(hd);
+
+          items.forEach(function(it){
+            var pid=it[0], title=it[1], note=it[2];
+            var b=document.createElement('button');
+            b.className='rf-opt';
+            b.innerHTML='<b>'+title+'</b><span>'+note+'</span>';
+            b.onclick=function(){ run(pid); };
+            box.appendChild(b);
+          });
+          choices.appendChild(box);
         });
         choices.dataset.ready='1';
       })

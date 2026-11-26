@@ -204,7 +204,7 @@ STEPS = {
         "timeout": 600,
         # 9 类配件：CPU/显卡/内存/主板/机械盘/固态/散热器/电源/机箱
         # 固态频道要翻 5 页 + 逐个抓单品页，是最慢的一环（约 2 分钟）
-        "desc": "抓 9 类装机配件价格（实测约 90 秒，固态要翻 5 页）",
+        "desc": "抓 9 类装机配件价格（实测约 87 秒）",
         "produces": ["data/parts.json"],
         "depends": [],
     },
@@ -216,7 +216,7 @@ STEPS = {
         # 抓显卡/机箱/散热器/主板的物理尺寸，用于兼容性校验：
         #   显卡长度 / 机箱显卡限长 / 散热器限高 / 板型支持
         # 每个配件要单独抓一次参数页，所以慢
-        "desc": "抓配件尺寸参数（约 3 分钟，用于兼容性校验）",
+        "desc": "抓配件尺寸参数（实测约 3 分钟）",
         "produces": ["data/parts_fit.json"],
         "depends": ["parts"],
     },
@@ -241,23 +241,46 @@ STEPS = {
 #    但 quick 里没有 apply_prices，结果三步全被跳过、什么都没干）。
 #    下面每个预设都自检过依赖闭合。
 PRESETS = {
-    # 纯本地重算，不联网，1-2 分钟。
-    # 依赖链：notes / fix_weight / extra → stats → coverage → pages
+    # ══════════════════════════════════════════════════════════════
+    # 按数据域分三大类：笔记本 / 台式机 / 全部
+    #
+    # 🔴 2026-11-26（用户要求）：
+    #    「全量刷新，分笔记本和台式机吧，各取所需」
+    #
+    #    笔记本和台式机是**两套完全独立的数据**：
+    #      笔记本 → data/machine_pool.json（243 台机型）
+    #      台式机 → data/parts.json（459 个配件）
+    #    抓取源、脚本、耗时都不同，混在一起刷很浪费。
+    # ══════════════════════════════════════════════════════════════
+
+    # ── 笔记本：全量 ──
+    # 按依赖顺序：抓价 → 落库 → 抓跑分 → 合并 → 验证
+    #            → 派生提示 → 补字段 → 修重量 → 统计 → 覆盖 → 页面
+    "laptop": ["prices", "apply_prices", "bench", "apply_bench", "verify",
+               "notes", "extra", "fix_weight", "stats", "coverage", "pages"],
+
+    # ── 台式机：全量 ──
+    # 配件价格 → 尺寸参数 → 体检
+    "desktop": ["parts", "parts_fit", "parts_audit"],
+
+    # ── 全部 ──
+    "all": ["prices", "apply_prices", "bench", "apply_bench", "verify",
+            "notes", "extra", "fix_weight", "stats", "coverage", "pages",
+            "parts", "parts_fit", "parts_audit"],
+
+    # ── 细粒度（各取所需）──
+    # 纯本地重算，不联网，约 2 秒
     "quick": ["notes", "fix_weight", "extra", "stats", "coverage", "pages"],
-    # 只刷价格：抓 → 落 → 推导 → 统计 → 覆盖
+    # 只刷机型价格
     "prices": ["prices", "apply_prices", "notes", "fix_weight", "extra",
                "stats", "coverage"],
-    # 只刷跑分：抓 → 合 → 验证 → 推导 → 统计 → 覆盖
+    # 只刷跑分
     # （notes 必须在，因为 stats 依赖它；见下方依赖闭合自检）
     "bench": ["bench", "apply_bench", "verify", "notes", "fix_weight", "extra",
               "stats", "coverage"],
-    # 全量（按 STEPS 的插入顺序，保证依赖在前）
-    "full": list(STEPS.keys()),
-
-    # 🔴 2026-11-26 新增：装机配件
-    #   parts  只刷价格（最常用：价格变得快）
-    #   partsAll 价格 + 尺寸（尺寸很少变，偶尔刷一次就够）
+    # 只刷配件价格（不含尺寸，最快）
     "parts": ["parts", "parts_audit"],
+    # 配件价格 + 尺寸
     "partsAll": ["parts", "parts_fit", "parts_audit"],
 }
 

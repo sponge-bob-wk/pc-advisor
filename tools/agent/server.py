@@ -7,6 +7,23 @@ import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
+# 🔴 2026-11-26 修：**强制 stdout/stderr 用 UTF-8**。
+#
+#    实测：Windows 控制台默认 GBK，下面的启动横幅里有 ⚠️（U+26A0），
+#    GBK 编码不了 → 直接 UnicodeEncodeError，服务起不来。
+#
+#    之前没暴露是因为启动时带了 PYTHONIOENCODING=utf-8；
+#    换了启动方式（Start-Process 不继承）就崩了。
+#
+#    所以不依赖外部环境变量，在代码里写死。
+#    errors="replace" 是双保险 —— 万一还有别的怪字符，
+#    宁可显示成 ? 也不能让服务起不来。
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import agent
 import core

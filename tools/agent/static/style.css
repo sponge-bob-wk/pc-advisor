@@ -1102,3 +1102,26 @@
   font-size:12px;color:var(--ink2)}
 .rf-cross .warn{color:var(--warn)}.rf-cross .error{color:var(--bad)}
 .rf-cross div{padding:2px 0}
+
+  /* ══════════════════════════════════════════════════════════════
+     🔴 2026-11-26 新增：刷新面板分组样式
+
+     用户要求「全量刷新，分笔记本和台式机吧，各取所需」。
+     原来 8 个预设平铺，用户不知道选哪个；
+     分组后一眼能看出「我要刷哪一块数据」。
+     ══════════════════════════════════════════════════════════════ */
+  .rf-group{margin-bottom:14px}
+  .rf-group:last-child{margin-bottom:0}
+  .rf-group-hd{
+    display:flex;align-items:baseline;gap:8px;
+    padding:0 2px 7px;
+    border-bottom:1px solid var(--line2);
+    margin-bottom:8px;
+  }
+  .rf-group-hd b{
+    font-size:11.6px;font-weight:600;color:var(--ink);
+    letter-spacing:.02em;
+  }
+  .rf-group-hd span{
+    font-size:10.4px;color:var(--ink3);
+  }
