@@ -68,10 +68,12 @@ PARTS = os.path.join(ROOT, "data", "parts.json")
 #    现在的规则（见 pick_storage）：
 #      · 主盘一定是 SSD（512G 起）
 #      · 预算够的话再加一块机械盘存东西
-ORDER = ["cpu", "motherboard", "ram", "gpu", "storage", "hdd", "psu", "case"]
+ORDER = ["cpu", "cooler", "motherboard", "ram", "gpu",
+         "storage", "hdd", "psu", "case"]
 
 LABEL = {
     "cpu": "CPU 处理器",
+    "cooler": "散热器",
     "motherboard": "主板",
     "ram": "内存",
     "gpu": "显卡",
@@ -178,10 +180,16 @@ def board_socket(name):
 #
 #    ⚠️ 这是工程经验值，不是精确 TDP。目的是「电源别选小」，宁可多留余量。
 CPU_WATT = [
-    # Intel K/KF 系列（可超频，功耗高）
-    (r"i9[- ]?1[3-4]\d{3}\s*K", 250),
-    (r"i7[- ]?1[3-4]\d{3}\s*K", 250),
-    (r"i5[- ]?1[3-4]\d{3}\s*K", 180),
+    # Intel K/KF 系列（可超频，功耗高到 PL2）
+    #
+    # 🔴 2026-11-26 修：原来只写了 1[3-4] 代，12 代 K 系列被漏掉 ——
+    #    实测 i5-12600KF 只算 85W，结果给它配了 ¥89 的入门风冷。
+    #    12600K 的 PL2 实测 150W，风冷压不住会降频。
+    #    改成 1[2-4] 代全覆盖。
+    (r"i9[- ]?1[2-4]\d{3}\s*K", 250),
+    (r"i7[- ]?1[2-4]\d{3}\s*K", 250),
+    (r"i5[- ]?1[2-4]\d{3}\s*K", 180),   # 12600K/13600K/14600K 的 PL2 都 ~180W
+    (r"i5[- ]?1[2-4]\d{3}\s*F", 90),    # F 系列不带 K，不能超频
     (r"Ultra\s*9.*[KS]", 250),
     (r"Ultra\s*7.*[KS]", 200),
     # 非 K 系列
@@ -467,6 +475,83 @@ def balance_cpu_gpu(cpu_price, gpu_price):
     return gpu_price > cpu_price * 2.5
 
 
+# ── 散热器选型 ──
+#
+# 🔴 2026-11-26 新增：装机单原来没有散热器，说不过去。
+#
+# 散热器要和 CPU 发热量匹配：
+#   · 65W 的 i3/R5 用 ¥65 风冷就够
+#   · 125W 的 i7 要 4-6 热管风冷或 240 水冷
+#   · 250W 的 i7-K/i9 必须水冷，风冷压不住
+# 选小了会降频（实测性能低 20-30%），选大了浪费钱。
+COOLER_TIERS = [
+    # (CPU 功耗上限, 价格区间, 类型说明)
+    (85, (40, 130), "入门风冷"),
+    (140, (130, 320), "中端风冷"),
+    (9999, (320, 900), "水冷"),
+]
+
+
+def pick_cooler(pool, cpu_name):
+    """按 CPU 功耗挑散热器。返回 (配件 dict 或 None, 说明)。
+
+    🔴 2026-11-26 实测发现的问题：
+        i5-14600KF（180W）本该配水冷，却选了 ¥85 的风冷。
+        「宽恕」逻辑写错了 —— 该档位没货时会退到「价格 ≤ 上限的任意款」，
+        这把 ¥85 的入门风冷也放进来了，压不住 180W 的 CPU。
+
+        修法：**按类型硬性过滤**，不靠价格区间猜：
+          · 水冷档 → 名字里必须有「水冷/AIO/冷排/一体式/360/240」
+          · 风冷档 → 名字里不能有水冷字样
+        价格区间只是辅助（在类型对的前提下选价格合适的）。
+    """
+    if not pool:
+        return None, "配件库里没有散热器数据"
+
+    def _is_liquid(it):
+        n = (it["name"] or "").upper()
+        return any(k in n for k in ("水冷", "AIO", "冷排", "一体式",
+                                    "360", "240", "280", "120"))
+
+    w = cpu_watt(cpu_name)
+
+    # 高功耗（>140W）→ 必须水冷
+    if w > 140:
+        liquid = [x for x in pool if _is_liquid(x)]
+        if liquid:
+            # 水冷里选价格居中的（¥320-900 区间内）
+            cand = [x for x in liquid if 300 <= (x["price"] or 0) <= 1000]
+            if not cand:
+                cand = liquid
+            best = min(cand, key=lambda x: abs((x["price"] or 0) - 500))
+            return best, "水冷（CPU 约 %dW，风冷压不住）" % w
+        # 库里没水冷 → 只能给最好的风冷，并明确告警
+        air = sorted(pool, key=lambda x: -(x["price"] or 0))
+        return air[0], ("CPU 约 %dW 需要水冷，但库里没有水冷数据，"
+                        "配了库里最好的风冷，建议人工确认" % w)
+
+    # 中功耗（86-140W）→ 中端风冷
+    if w > 85:
+        air = [x for x in pool if not _is_liquid(x)]
+        if air:
+            cand = [x for x in air if 100 <= (x["price"] or 0) <= 350]
+            if not cand:
+                cand = air
+            best = min(cand, key=lambda x: abs((x["price"] or 0) - 200))
+            return best, "中端风冷（CPU 约 %dW）" % w
+
+    # 低功耗（≤85W）→ 入门风冷够用
+    air = [x for x in pool if not _is_liquid(x)]
+    if air:
+        cand = [x for x in air if 40 <= (x["price"] or 0) <= 150]
+        if not cand:
+            cand = air
+        best = min(cand, key=lambda x: abs((x["price"] or 0) - 90))
+        return best, "入门风冷（CPU 约 %dW，够用）" % w
+
+    return None, "没找到合适的散热器"
+
+
 def pick_near(items, target, used=None, key=None):
     """从 items 里挑价格最接近 target 的一个。
 
@@ -620,6 +705,23 @@ def build_plan(parts, tier, budget=None, purposes=None):
         }
         plan["gpu"] = gpu
         issues.append("这个用途不需要独立显卡，用 CPU 核显即可")
+
+    # ①b 散热器：按 CPU **最终**功耗选
+    #
+    # ⚠️ 必须放在显卡平衡之后 —— 平衡检查可能把 CPU 换成功耗更高的型号
+    #    （实测 i5-12490F 85W → i5-14600KF 180W）。
+    #    先选散热器的话，会拿 85W 的入门风冷去压 180W 的 CPU，直接降频。
+    #
+    # 🔴 2026-11-26 新增：原来装机单没有散热器。
+    _cooler, _cooler_note = pick_cooler(parts.get("cooler") or [],
+                                        cpu["name"])
+    if _cooler:
+        plan["cooler"] = _cooler
+        if cpu_watt(cpu["name"]) > 85:
+            issues.append("散热器：%s；水冷要确认机箱支持对应冷排尺寸"
+                          % _cooler_note)
+    else:
+        issues.append("配件库里没有散热器数据，这套配置需另购散热器")
 
     # ⑤ 硬盘：**主盘一定是 SSD**
     #

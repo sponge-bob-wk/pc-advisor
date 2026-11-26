@@ -3,7 +3,7 @@
   "label": "CPU",
   "source": "https://detail.zol.com.cn/cpu/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 17:22",
+  "fetchedAt": "2026-11-26 18:09",
   "items": [
    {
     "name": "AMD Ryzen 5 9600X",
@@ -236,7 +236,7 @@
   "label": "显卡",
   "source": "https://detail.zol.com.cn/vga/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 17:22",
+  "fetchedAt": "2026-11-26 18:09",
   "items": [
    {
     "name": "瀚铠Radeon RX 9070 XT 红色超合金PRO",
@@ -479,7 +479,7 @@
   "label": "内存",
   "source": "https://detail.zol.com.cn/memory/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 17:22",
+  "fetchedAt": "2026-11-26 18:09",
   "items": [
    {
     "name": "金百达银爵 16GB（2×8GB）DDR4 3200",
@@ -727,7 +727,7 @@
   "label": "主板",
   "source": "https://detail.zol.com.cn/motherboard/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 17:22",
+  "fetchedAt": "2026-11-26 18:09",
   "items": [
    {
     "name": "华硕TUF GAMING B760M-PLUS D4重炮手",
@@ -970,7 +970,7 @@
   "label": "硬盘",
   "source": "https://detail.zol.com.cn/hard_drives/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 17:22",
+  "fetchedAt": "2026-11-26 18:09",
   "items": [
    {
     "name": "希捷酷狼NAS 8TB 7200转 256MB SATA3（ST8000VN004）?NAS硬盘",
@@ -1213,7 +1213,7 @@
   "label": "电源",
   "source": "https://detail.zol.com.cn/power/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 17:22",
+  "fetchedAt": "2026-11-26 18:09",
   "items": [
    {
     "name": "航嘉WD750K全模组 新版",
@@ -1446,7 +1446,7 @@
   "label": "机箱",
   "source": "https://detail.zol.com.cn/case/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 17:22",
+  "fetchedAt": "2026-11-26 18:09",
   "items": [
    {
     "name": "航嘉S960暴风雪X 全景版 黑色",
@@ -1694,7 +1694,7 @@
   "label": "固态",
   "source": "https://detail.zol.com.cn/solid_state_drive/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 17:22",
+  "fetchedAt": "2026-11-26 18:09",
   "items": [
    {
     "name": "致态TiPlus7100（512GB）",
@@ -1800,6 +1800,599 @@
     "name": "Colorful CF500 镭风（256GB）",
     "price": 259.0,
     "url": "https://detail.zol.com.cn/solid_state_drive/index2083488.shtml"
+   },
+   {
+    "name": "Colorful CF500 镭风（1TB）",
+    "price": 299.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1472117.shtml"
+   },
+   {
+    "name": "Colorful CF500 镭风（2TB）",
+    "price": 649.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1466050.shtml"
+   },
+   {
+    "name": "Acer宏碁 掠夺者 GM7 4TB",
+    "price": 1399.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1977301.shtml"
+   },
+   {
+    "name": "Acer宏碁 掠夺者 GM7 512GB",
+    "price": 599.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1977298.shtml"
+   },
+   {
+    "name": "Colorful CN600 PRO（256GB）",
+    "price": 155.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1435675.shtml"
+   },
+   {
+    "name": "威刚XPG 翼龙 S60 Pro（1000GB）",
+    "price": 449.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2127633.shtml"
+   },
+   {
+    "name": "威刚XPG 翼龙 S60 Pro（500GB）",
+    "price": 289.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2127632.shtml"
+   },
+   {
+    "name": "佰维NV3500 2TB",
+    "price": 729.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1990458.shtml"
+   },
+   {
+    "name": "佰维NV3500 512GB",
+    "price": 269.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1990456.shtml"
+   },
+   {
+    "name": "三星980 NVMe M.2（250GB）",
+    "price": 369.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1362030.shtml"
+   },
+   {
+    "name": "西部数据SN770M（500GB）",
+    "price": 949.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1930240.shtml"
+   },
+   {
+    "name": "致态TiPlus7100固态硬盘《黑神话·悟空》联名版（2TB）",
+    "price": 1099.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2086726.shtml"
+   },
+   {
+    "name": "西部数据BLUE SN580（250GB）",
+    "price": 629.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1794822.shtml"
+   },
+   {
+    "name": "三星9100 PRO 散热片版（1TB）",
+    "price": 1199.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2148063.shtml"
+   },
+   {
+    "name": "致态TiPro9000固态硬盘《黑神话：悟空》联名版（1TB）",
+    "price": 1089.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2129529.shtml"
+   },
+   {
+    "name": "威刚XPG 翼龙S20 1TB",
+    "price": 369.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1977652.shtml"
+   },
+   {
+    "name": "梵想SP510（1TB）",
+    "price": 379.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2115000.shtml"
+   },
+   {
+    "name": "三星990 EVO 2TB",
+    "price": 1179.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1978926.shtml"
+   },
+   {
+    "name": "梵想S690（1TB）",
+    "price": 299.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1610629.shtml"
+   },
+   {
+    "name": "致态Ti600s（1TB）",
+    "price": 1088.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2175597.shtml"
+   },
+   {
+    "name": "京东京造麒麟 NVMe M.2（256GB）",
+    "price": 219.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1408388.shtml"
+   },
+   {
+    "name": "海力士BC711（512GB）",
+    "price": 329.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2084262.shtml"
+   },
+   {
+    "name": "海力士BC711（256GB）",
+    "price": 199.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2084261.shtml"
+   },
+   {
+    "name": "佰维NV7400 4TB",
+    "price": 1699.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1990455.shtml"
+   },
+   {
+    "name": "佰维NV7400 512GB",
+    "price": 269.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1990452.shtml"
+   },
+   {
+    "name": "铠侠VE10（4TB）",
+    "price": 3299.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2152431.shtml"
+   },
+   {
+    "name": "京东京造玄武 4TB",
+    "price": 919.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1994803.shtml"
+   },
+   {
+    "name": "京东京造玄武 2TB",
+    "price": 339.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1994802.shtml"
+   },
+   {
+    "name": "长城GW3500（512GB）",
+    "price": 189.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1934911.shtml"
+   },
+   {
+    "name": "雷克沙NM610PRO（500GB）",
+    "price": 279.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1428022.shtml"
+   },
+   {
+    "name": "西部数据BLACK SN750（250GB）",
+    "price": 409.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1260398.shtml"
+   },
+   {
+    "name": "西部数据WD Blue SN5000（500GB）",
+    "price": 399.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2113443.shtml"
+   },
+   {
+    "name": "闪迪WD Blue SN5100（500GB）",
+    "price": 399.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2143275.shtml"
+   },
+   {
+    "name": "希捷酷玩520（1TB）",
+    "price": 499.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2104253.shtml"
+   },
+   {
+    "name": "三星PM1653 15.36TB",
+    "price": 18999.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2029498.shtml"
+   },
+   {
+    "name": "三星PM1653 7.68TB",
+    "price": 9499.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2029497.shtml"
+   },
+   {
+    "name": "三星PM1653 960GB",
+    "price": 2399.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2029494.shtml"
+   },
+   {
+    "name": "饥饿鲨RevoDrive 3（120GB）",
+    "price": 2599.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index295179.shtml"
+   },
+   {
+    "name": "三星PM893（960G）",
+    "price": 1239.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1410573.shtml"
+   },
+   {
+    "name": "闪迪X400（128GB）",
+    "price": 499.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1268225.shtml"
+   },
+   {
+    "name": "铠侠KBG50ZNV512GAA1AXA（512GB）",
+    "price": 800.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1419227.shtml"
+   },
+   {
+    "name": "华为eKitStor Xtreme 200E（1TB）",
+    "price": 799.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2149739.shtml"
+   },
+   {
+    "name": "三星970 EVO NVMe M.2（250GB）",
+    "price": 449.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1213937.shtml"
+   },
+   {
+    "name": "三星CM871 M.2 SATA（128GB）",
+    "price": 399.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1238681.shtml"
+   },
+   {
+    "name": "影驰战将（60GB）",
+    "price": 249.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index362303.shtml"
+   },
+   {
+    "name": "希捷酷鱼 SATA SSD（256MB）",
+    "price": 229.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2129299.shtml"
+   },
+   {
+    "name": "铨兴酷芯客 QT01（1TB）",
+    "price": 299.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2115133.shtml"
+   },
+   {
+    "name": "金士顿NV2 512GB",
+    "price": 319.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2087364.shtml"
+   },
+   {
+    "name": "长城GW7000 4TB",
+    "price": 1298.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1977728.shtml"
+   },
+   {
+    "name": "长城GW7000 1TB",
+    "price": 429.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1977726.shtml"
+   },
+   {
+    "name": "铨兴C201 4TB",
+    "price": 1289.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1975460.shtml"
+   },
+   {
+    "name": "梵想S790C 2TB",
+    "price": 699.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1974472.shtml"
+   },
+   {
+    "name": "三星PM983a（7.68TB）",
+    "price": 10699.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2171137.shtml"
+   },
+   {
+    "name": "三星PM983a（960GB）",
+    "price": 2299.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2171136.shtml"
+   },
+   {
+    "name": "西部数据Blue SA510 SATA（2TB）",
+    "price": 1199.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2129365.shtml"
+   },
+   {
+    "name": "铨兴C201 512GB",
+    "price": 195.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1975457.shtml"
+   },
+   {
+    "name": "西部数据GREEN SATA M.2 2280（240GB）",
+    "price": 249.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1225824.shtml"
+   },
+   {
+    "name": "朗科朗盛LN7000（1TB）",
+    "price": 899.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2155848.shtml"
+   },
+   {
+    "name": "联想KTN8Pro M.2 NVMe PCIe 4.0（1TB）",
+    "price": 649.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2146499.shtml"
+   },
+   {
+    "name": "佰维NV7200（4TB）",
+    "price": 1559.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1994785.shtml"
+   },
+   {
+    "name": "佰维NV7200（500GB）",
+    "price": 299.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1994782.shtml"
+   },
+   {
+    "name": "金百达KP230 Pro（1TB）",
+    "price": 569.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1384340.shtml"
+   },
+   {
+    "name": "Intel 660P M.2 2280（1TB）",
+    "price": 789.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1278790.shtml"
+   },
+   {
+    "name": "三星PM871 M.2 SATA（512GB）",
+    "price": 1280.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1238677.shtml"
+   },
+   {
+    "name": "爱国者S500T（512GB）",
+    "price": 209.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2136644.shtml"
+   },
+   {
+    "name": "爱国者S500T（1TB）",
+    "price": 379.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2136643.shtml"
+   },
+   {
+    "name": "海力士BC501 2242双通道（256GB）",
+    "price": 359.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2084229.shtml"
+   },
+   {
+    "name": "Lexar（雷克沙）NM710 500GB",
+    "price": 299.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1450528.shtml"
+   },
+   {
+    "name": "三星PM981 PCIE NVME（512GB）",
+    "price": 669.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1238684.shtml"
+   },
+   {
+    "name": "长城GW600S（1TB）",
+    "price": 399.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2123673.shtml"
+   },
+   {
+    "name": "Acer RE100（1TB）",
+    "price": 359.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2115115.shtml"
+   }
+  ]
+ },
+ "cooler": {
+  "label": "散热器",
+  "source": "https://detail.zol.com.cn/cooling_product/",
+  "priceType": "zol-reference",
+  "fetchedAt": "2026-11-26 18:09",
+  "items": [
+   {
+    "name": "利民AX120R SE逆重力热管",
+    "price": 89.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1424114.shtml"
+   },
+   {
+    "name": "九州风神玄冰400CPU散热器",
+    "price": 89.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index315192.shtml"
+   },
+   {
+    "name": "酷冷至尊Hyper 612 APEX双莫比乌斯风",
+    "price": 364.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index2129894.shtml"
+   },
+   {
+    "name": "雅浚E3",
+    "price": 69.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1476161.shtml"
+   },
+   {
+    "name": "华硕ROG STRIX LC 360 RGB WE小白龙 白色纪念版",
+    "price": 1699.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1305458.shtml"
+   },
+   {
+    "name": "超频三北境 GT360 Display水冷散热",
+    "price": 799.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index2130404.shtml"
+   },
+   {
+    "name": "利民PA120 SE 青春版逆重力",
+    "price": 179.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1424264.shtml"
+   },
+   {
+    "name": "利民Frozen Magic 360",
+    "price": 509.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1346515.shtml"
+   },
+   {
+    "name": "瓦尔基里C360-RGB VK一体式",
+    "price": 569.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1425267.shtml"
+   },
+   {
+    "name": "Tt 钢影·冰霜3604英寸全面屏",
+    "price": 399.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index2154245.shtml"
+   },
+   {
+    "name": "ProArtist B3 PRO",
+    "price": 104.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1465933.shtml"
+   },
+   {
+    "name": "微星MAG CORELIQUID A15 360EPDM水冷管",
+    "price": 449.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index2124651.shtml"
+   },
+   {
+    "name": "乔思伯CR-1400",
+    "price": 79.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1339775.shtml"
+   },
+   {
+    "name": "利民PA120 SE ARGB逆重力",
+    "price": 214.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1424152.shtml"
+   },
+   {
+    "name": "瓦尔基里B360-GT3.95吋IPS液晶屏",
+    "price": 554.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index2129968.shtml"
+   },
+   {
+    "name": "九州风神玄冰500",
+    "price": 99.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1980547.shtml"
+   },
+   {
+    "name": "瓦尔基里E360",
+    "price": 919.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1775047.shtml"
+   },
+   {
+    "name": "ProArtist UA360一体式,水冷",
+    "price": 359.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index2114816.shtml"
+   },
+   {
+    "name": "九州风神大霜",
+    "price": 219.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index330336.shtml"
+   },
+   {
+    "name": "瓦尔基里B360高性能风扇",
+    "price": 504.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index2034278.shtml"
+   },
+   {
+    "name": "利民FC140 纯黑版5热管",
+    "price": 419.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1424258.shtml"
+   },
+   {
+    "name": "瓦尔基里GL360 VKARGB光效",
+    "price": 769.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1425275.shtml"
+   },
+   {
+    "name": "利民PA120 SE ARGB版逆重力散热",
+    "price": 229.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1424265.shtml"
+   },
+   {
+    "name": "利民AXP90-X474热管",
+    "price": 209.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1424274.shtml"
+   },
+   {
+    "name": "航嘉MVP海神X360一体式水冷一",
+    "price": 599.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1363814.shtml"
+   },
+   {
+    "name": "利民AQUA ELITE 360 BLACK ARGB双平台兼容",
+    "price": 399.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1466440.shtml"
+   },
+   {
+    "name": "利民AQUA ELITE 240 ARGB双平台兼容",
+    "price": 319.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1466439.shtml"
+   },
+   {
+    "name": "利民AX120R SE ARGB逆重力热管",
+    "price": 99.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1424115.shtml"
+   },
+   {
+    "name": "猫头鹰NH-D15",
+    "price": 699.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1166760.shtml"
+   },
+   {
+    "name": "利民PA120 SE 青春ARGB版逆重力散热",
+    "price": 179.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1424266.shtml"
+   },
+   {
+    "name": "利民Peerless Assassin 120 绝双刺客逆重",
+    "price": 219.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1367396.shtml"
+   },
+   {
+    "name": "超频三红海至",
+    "price": 119.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index189906.shtml"
+   },
+   {
+    "name": "利民AQUA ELITE 240 BLACK V3双平台兼容",
+    "price": 259.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index2004653.shtml"
+   },
+   {
+    "name": "九州风神玄冰400晴雪ARGB V5",
+    "price": 85.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1980549.shtml"
+   },
+   {
+    "name": "华硕ROG龙王4 360 AMD联名版支持水",
+    "price": 2649.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index2179071.shtml"
+   },
+   {
+    "name": "酷冷至尊挑战",
+    "price": 99.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index2152201.shtml"
+   },
+   {
+    "name": "利民AK120 SE 标准逆重力热",
+    "price": 109.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1424147.shtml"
+   },
+   {
+    "name": "利民FROZEN WARFRAME 360 BLACK ARGB模块化可拆液",
+    "price": 459.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index2111863.shtml"
+   },
+   {
+    "name": "瓦尔基里CQ125 ARGB BLACK6根6mm高性能热管",
+    "price": 129.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index2153721.shtml"
+   },
+   {
+    "name": "利民FS140 霜灵AGHP热管",
+    "price": 259.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1367397.shtml"
+   },
+   {
+    "name": "利民TL-C12",
+    "price": 65.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1286443.shtml"
+   },
+   {
+    "name": "DEEPCOOL（九州风神）冰果240PWM调速水泵",
+    "price": 329.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index2129818.shtml"
+   },
+   {
+    "name": "利民AQUA ELITE 240 WHITE V2 ARGB双平台兼容",
+    "price": 264.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index2004652.shtml"
+   },
+   {
+    "name": "VALKYRIE（瓦尔基里）SL125 VALKYRIE",
+    "price": 299.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1897412.shtml"
+   },
+   {
+    "name": "瓦尔基里）C360 VALKYRIE VK超擎泵",
+    "price": 589.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1425259.shtml"
+   },
+   {
+    "name": "利民SS135 标准版双塔式",
+    "price": 169.0,
+    "url": "https://detail.zol.com.cn/cooling_product/index1424235.shtml"
    }
   ]
  }

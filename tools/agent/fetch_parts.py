@@ -73,6 +73,17 @@ CHANNELS = {
     "motherboard": ("主板", "https://detail.zol.com.cn/motherboard/"),
     "storage": ("硬盘", "https://detail.zol.com.cn/hard_drives/"),
     "ssd": ("固态", "https://detail.zol.com.cn/solid_state_drive/"),
+    # 🔴 2026-11-26：散热器路径是 `/cooling_product/`，不是 `/cooling/`。
+    #
+    #    踩的坑：`/cooling/`、`/cpu_cooler/`、`/radiator/`、`/heat_sink/`、
+    #    `/cpu_heat_sink/` 全部返回 502。试了 20 多种命名都不对。
+    #
+    #    最后从 ZOL 报价首页（detail.zol.com.cn）的整站导航里查到的：
+    #       /cooling_product/  →  散热器
+    #
+    #    教训：猜 URL 猜不出来时，**去站点的导航页拿真实路径**，
+    #    比一个个试快得多。
+    "cooler": ("散热器", "https://detail.zol.com.cn/cooling_product/"),
     "psu": ("电源", "https://detail.zol.com.cn/power/"),
     "case": ("机箱", "https://detail.zol.com.cn/case/"),
 }
@@ -115,6 +126,7 @@ PRICE_FLOOR = {
     "storage": 150,      # 500G 机械约 200
     "ssd": 100,          # 最便宜 500G SATA SSD 约 150
     "psu": 100,          # 最低端电源也要 100+
+    "cooler": 40,        # 最便宜风冷约 50
     "case": 60,          # 最便宜机箱约 60
 }
 
@@ -365,8 +377,12 @@ def main():
     ap.add_argument("--sleep", type=float, default=0.8)
     # 🔴 2026-11-26：固态要逐个抓单品页（频道页只有系列+价格区间），
     #    所以限制抓多少个，默认 30 个（约 25 秒）。
-    ap.add_argument("--ssd-max", type=int, default=30,
-                    help="固态最多抓多少个系列的单品页")
+    ap.add_argument("--ssd-max", type=int, default=60,
+                    help="固态最多抓多少个系列的单品页（默认 60）")
+    # 🔴 2026-11-26：固态频道是分页的，第 1 页只有 22-26 个系列。
+    #    要更多型号必须翻页：/solid_state_drive/2.html、3.html …
+    ap.add_argument("--ssd-pages", type=int, default=5,
+                    help="固态最多翻几页（每页约 24 个系列）")
     args = ap.parse_args()
 
     targets = ({args.category: CHANNELS[args.category]}
@@ -394,8 +410,35 @@ def main():
 
             # 🔴 2026-11-26：固态走专门的解析路径
             #    频道页只给系列和价格区间，要逐个抓单品页拿具体容量+价格。
+            #
+            #    而且频道页是**分页**的（第 1 页只有 22-26 个系列）。
+            #    要更多型号得翻页：/solid_state_drive/2.html、3.html …
             if key == SSD_CHANNEL:
                 groups = parse_ssd_list(html)
+                # 翻页收集
+                for _pg in range(2, args.ssd_pages + 1):
+                    try:
+                        _u = url.rstrip("/") + "/%d.html" % _pg
+                        _h = fetch(_u)
+                        _g = parse_ssd_list(_h)
+                        if not _g:
+                            break
+                        groups.extend(_g)
+                        print("      第 %d 页 +%d 个系列" % (_pg, len(_g)))
+                    except Exception:
+                        break
+                    time.sleep(args.sleep)
+                # 按 pid 去重（翻页可能有重复）
+                _seen_pid = set()
+                _uniq_g = []
+                for g in groups:
+                    if g["pid"] in _seen_pid:
+                        continue
+                    _seen_pid.add(g["pid"])
+                    _uniq_g.append(g)
+                groups = _uniq_g
+                print("      共 %d 个系列（%d 页）"
+                      % (len(groups), args.ssd_pages))
                 items = []
                 for g in groups[:args.ssd_max]:
                     try:
