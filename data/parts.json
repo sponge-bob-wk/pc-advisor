@@ -1,0 +1,1693 @@
+{
+ "cpu": {
+  "label": "CPU",
+  "source": "https://detail.zol.com.cn/cpu/",
+  "priceType": "zol-reference",
+  "fetchedAt": "2026-11-26 16:21",
+  "items": [
+   {
+    "name": "AMD Ryzen 5 9600X",
+    "price": 1499.0,
+    "url": "https://detail.zol.com.cn/cpu/index2018967.shtml"
+   },
+   {
+    "name": "Intel 酷睿 Ultra 9 285K",
+    "price": 4799.0,
+    "url": "https://detail.zol.com.cn/cpu/index2110066.shtml"
+   },
+   {
+    "name": "Intel 酷睿 i5 14600KF",
+    "price": 2499.0,
+    "url": "https://detail.zol.com.cn/cpu/index1929615.shtml"
+   },
+   {
+    "name": "AMD Ryzen 7 9800X3D",
+    "price": 3799.0,
+    "url": "https://detail.zol.com.cn/cpu/index2113342.shtml"
+   },
+   {
+    "name": "AMD Ryzen 7 9700X",
+    "price": 2849.0,
+    "url": "https://detail.zol.com.cn/cpu/index2018966.shtml"
+   },
+   {
+    "name": "Intel 酷睿 i5 14600K",
+    "price": 2599.0,
+    "url": "https://detail.zol.com.cn/cpu/index1929614.shtml"
+   },
+   {
+    "name": "AMD Ryzen 7 7800X3D",
+    "price": 3099.0,
+    "url": "https://detail.zol.com.cn/cpu/index1440585.shtml"
+   },
+   {
+    "name": "AMD Ryzen 7 9850X3D",
+    "price": 3699.0,
+    "url": "https://detail.zol.com.cn/cpu/index2158673.shtml"
+   },
+   {
+    "name": "AMD Ryzen 5 5600",
+    "price": 1359.0,
+    "url": "https://detail.zol.com.cn/cpu/index1403088.shtml"
+   },
+   {
+    "name": "Intel 酷睿 i5 12600KF",
+    "price": 1830.0,
+    "url": "https://detail.zol.com.cn/cpu/index1393371.shtml"
+   },
+   {
+    "name": "Intel 酷睿 i7 14700K酷睿14代",
+    "price": 3499.0,
+    "url": "https://detail.zol.com.cn/cpu/index1814492.shtml"
+   },
+   {
+    "name": "Intel 酷睿 i9 14900K酷睿14代",
+    "price": 4999.0,
+    "url": "https://detail.zol.com.cn/cpu/index1805095.shtml"
+   },
+   {
+    "name": "AMD Ryzen 7 5700X",
+    "price": 1999.0,
+    "url": "https://detail.zol.com.cn/cpu/index1403089.shtml"
+   },
+   {
+    "name": "Intel 酷睿 i5 12490F",
+    "price": 1280.0,
+    "url": "https://detail.zol.com.cn/cpu/index1396551.shtml"
+   },
+   {
+    "name": "Intel 酷睿 Ultra 7 265K",
+    "price": 3199.0,
+    "url": "https://detail.zol.com.cn/cpu/index2110067.shtml"
+   },
+   {
+    "name": "Intel 酷睿i5 9400F",
+    "price": 1119.0,
+    "url": "https://detail.zol.com.cn/cpu/index1249003.shtml"
+   },
+   {
+    "name": "Intel 酷睿 i7 12700KF",
+    "price": 2730.0,
+    "url": "https://detail.zol.com.cn/cpu/index1393369.shtml"
+   },
+   {
+    "name": "AMD Ryzen 5 5600GT",
+    "price": 1049.0,
+    "url": "https://detail.zol.com.cn/cpu/index1980887.shtml"
+   },
+   {
+    "name": "Intel 酷睿 i5 12400F",
+    "price": 1210.0,
+    "url": "https://detail.zol.com.cn/cpu/index1338644.shtml"
+   },
+   {
+    "name": "Intel 酷睿 Ultra 7 270K Plus",
+    "price": 2499.0,
+    "url": "https://detail.zol.com.cn/cpu/index2162063.shtml"
+   },
+   {
+    "name": "Intel 酷睿 i5 14490F",
+    "price": 1499.0,
+    "url": "https://detail.zol.com.cn/cpu/index2111489.shtml"
+   },
+   {
+    "name": "Intel 酷睿i7",
+    "price": 2859.0,
+    "url": "https://detail.zol.com.cn/cpu/index1177029.shtml"
+   },
+   {
+    "name": "Intel 酷睿i3",
+    "price": 899.0,
+    "url": "https://detail.zol.com.cn/cpu/index1179798.shtml"
+   },
+   {
+    "name": "Intel 酷睿 i3 12100",
+    "price": 990.0,
+    "url": "https://detail.zol.com.cn/cpu/index1394655.shtml"
+   },
+   {
+    "name": "AMD Ryzen 5 7500F5nm",
+    "price": 1239.0,
+    "url": "https://detail.zol.com.cn/cpu/index1796349.shtml"
+   },
+   {
+    "name": "Intel 酷睿 i5 12400",
+    "price": 1480.0,
+    "url": "https://detail.zol.com.cn/cpu/index1394653.shtml"
+   },
+   {
+    "name": "Intel 酷睿 i7 14700KF酷睿14代",
+    "price": 3299.0,
+    "url": "https://detail.zol.com.cn/cpu/index1929613.shtml"
+   },
+   {
+    "name": "Intel 酷睿 i9 13900K",
+    "price": 5500.0,
+    "url": "https://detail.zol.com.cn/cpu/index1428844.shtml"
+   },
+   {
+    "name": "Intel 酷睿 i5 12600K",
+    "price": 1930.0,
+    "url": "https://detail.zol.com.cn/cpu/index1393370.shtml"
+   },
+   {
+    "name": "Intel 酷睿 i5 13600K",
+    "price": 2599.0,
+    "url": "https://detail.zol.com.cn/cpu/index1428846.shtml"
+   },
+   {
+    "name": "AMD Ryzen 5 5600X",
+    "price": 1510.0,
+    "url": "https://detail.zol.com.cn/cpu/index1342305.shtml"
+   },
+   {
+    "name": "Intel 酷睿 Ultra 5 230F",
+    "price": 1599.0,
+    "url": "https://detail.zol.com.cn/cpu/index2130894.shtml"
+   },
+   {
+    "name": "Intel 酷睿 i5 13400F",
+    "price": 1699.0,
+    "url": "https://detail.zol.com.cn/cpu/index1440555.shtml"
+   },
+   {
+    "name": "Intel 酷睿i7",
+    "price": 2898.0,
+    "url": "https://detail.zol.com.cn/cpu/index1159128.shtml"
+   },
+   {
+    "name": "Intel 酷睿 i7 13700K",
+    "price": 3900.0,
+    "url": "https://detail.zol.com.cn/cpu/index1428845.shtml"
+   },
+   {
+    "name": "Intel 酷睿i5",
+    "price": 1999.0,
+    "url": "https://detail.zol.com.cn/cpu/index1159124.shtml"
+   },
+   {
+    "name": "Intel 酷睿i5 10400F",
+    "price": 880.0,
+    "url": "https://detail.zol.com.cn/cpu/index1307002.shtml"
+   },
+   {
+    "name": "Intel 酷睿i3 9100F",
+    "price": 799.0,
+    "url": "https://detail.zol.com.cn/cpu/index1277885.shtml"
+   },
+   {
+    "name": "Intel 酷睿i7",
+    "price": 2599.0,
+    "url": "https://detail.zol.com.cn/cpu/index1269848.shtml"
+   },
+   {
+    "name": "Intel 酷睿i5",
+    "price": 1689.0,
+    "url": "https://detail.zol.com.cn/cpu/index1177032.shtml"
+   },
+   {
+    "name": "AMD Ryzen 7 5800X",
+    "price": 2480.0,
+    "url": "https://detail.zol.com.cn/cpu/index1342130.shtml"
+   },
+   {
+    "name": "AMD Ryzen 5 5600G",
+    "price": 1599.0,
+    "url": "https://detail.zol.com.cn/cpu/index1366838.shtml"
+   },
+   {
+    "name": "AMD Ryzen 5",
+    "price": 1199.0,
+    "url": "https://detail.zol.com.cn/cpu/index1277878.shtml"
+   },
+   {
+    "name": "AMD Ryzen ThreadRipper Pro 5995WX",
+    "price": 49999.0,
+    "url": "https://detail.zol.com.cn/cpu/index1427773.shtml"
+   },
+   {
+    "name": "AMD 锐龙 9 9950X3D2",
+    "price": 6999.0,
+    "url": "https://detail.zol.com.cn/cpu/index2167284.shtml"
+   }
+  ]
+ },
+ "gpu": {
+  "label": "显卡",
+  "source": "https://detail.zol.com.cn/vga/",
+  "priceType": "zol-reference",
+  "fetchedAt": "2026-11-26 16:21",
+  "items": [
+   {
+    "name": "瀚铠Radeon RX 9070 XT 红色超合金PRO",
+    "price": 7299.0,
+    "url": "https://detail.zol.com.cn/vga/index2181691.shtml"
+   },
+   {
+    "name": "NVIDIA RTX 5090",
+    "price": 24399.0,
+    "url": "https://detail.zol.com.cn/vga/index2118113.shtml"
+   },
+   {
+    "name": "技嘉GeForce RTX 5060 Ti GAMING",
+    "price": 4099.0,
+    "url": "https://detail.zol.com.cn/vga/index2130983.shtml"
+   },
+   {
+    "name": "微星GeForce RTX 5060 8G GAMING TRIO OC",
+    "price": 2899.0,
+    "url": "https://detail.zol.com.cn/vga/index2128734.shtml"
+   },
+   {
+    "name": "华硕TUF-RTX5070TI-O16G双滚珠轴承风",
+    "price": 8499.0,
+    "url": "https://detail.zol.com.cn/vga/index2121275.shtml"
+   },
+   {
+    "name": "万丽雪狐GeForce RTX 5070",
+    "price": 4899.0,
+    "url": "https://detail.zol.com.cn/vga/index2140372.shtml"
+   },
+   {
+    "name": "七彩虹iGame GeForce RTX 5070 Ti Ultra W",
+    "price": 7599.0,
+    "url": "https://detail.zol.com.cn/vga/index2121268.shtml"
+   },
+   {
+    "name": "影驰GeForce RTX 5060 Ti 魔刃 OC",
+    "price": 4899.0,
+    "url": "https://detail.zol.com.cn/vga/index2128138.shtml"
+   },
+   {
+    "name": "AMD Radeon RX 5700 XT显卡",
+    "price": 3399.0,
+    "url": "https://detail.zol.com.cn/vga/index1279345.shtml"
+   },
+   {
+    "name": "瀚铠Radeon RX 9070 XT 超合金PRO",
+    "price": 5399.0,
+    "url": "https://detail.zol.com.cn/vga/index2141540.shtml"
+   },
+   {
+    "name": "NVIDIA RTX 5070",
+    "price": 4599.0,
+    "url": "https://detail.zol.com.cn/vga/index2118119.shtml"
+   },
+   {
+    "name": "七彩虹iGame GeForce RTX 4060 Ultra W DUO 8GB",
+    "price": 2499.0,
+    "url": "https://detail.zol.com.cn/vga/index1794057.shtml"
+   },
+   {
+    "name": "NVIDIA RTX PRO 6000 Blackwell 服务器版",
+    "price": 88299.0,
+    "url": "https://detail.zol.com.cn/vga/index2156115.shtml"
+   },
+   {
+    "name": "msi微星GeForce RTX 5060 Ti 8G GAMING TRIO OC",
+    "price": 3599.0,
+    "url": "https://detail.zol.com.cn/vga/index2130975.shtml"
+   },
+   {
+    "name": "NVIDIA GeForce RTX 3060 12G",
+    "price": 3899.0,
+    "url": "https://detail.zol.com.cn/vga/index1355946.shtml"
+   },
+   {
+    "name": "NVIDIA RTX A6000显卡NVIDIA AMPERE 架构",
+    "price": 38499.0,
+    "url": "https://detail.zol.com.cn/vga/index1365533.shtml"
+   },
+   {
+    "name": "七彩虹战斧 GeForce RTX 5060 DUO 8GB",
+    "price": 2699.0,
+    "url": "https://detail.zol.com.cn/vga/index2131426.shtml"
+   },
+   {
+    "name": "NVIDIA GeForce RTX 4090 24GB公版FE24GB",
+    "price": 22499.0,
+    "url": "https://detail.zol.com.cn/vga/index1406879.shtml"
+   },
+   {
+    "name": "技嘉GeForce RTX 5070 Ti Gaming",
+    "price": 7999.0,
+    "url": "https://detail.zol.com.cn/vga/index2121247.shtml"
+   },
+   {
+    "name": "NVIDIA RTX 5070 Ti",
+    "price": 6299.0,
+    "url": "https://detail.zol.com.cn/vga/index2118118.shtml"
+   },
+   {
+    "name": "技嘉GeForce RTX 5080 GAMING",
+    "price": 10999.0,
+    "url": "https://detail.zol.com.cn/vga/index2119960.shtml"
+   },
+   {
+    "name": "NVIDIA RTX 5080",
+    "price": 8299.0,
+    "url": "https://detail.zol.com.cn/vga/index2118117.shtml"
+   },
+   {
+    "name": "NVIDIA GeForce RTX 3050显卡",
+    "price": 1899.0,
+    "url": "https://detail.zol.com.cn/vga/index1395284.shtml"
+   },
+   {
+    "name": "NVIDIA RTX 5090FE公版",
+    "price": 33999.0,
+    "url": "https://detail.zol.com.cn/vga/index2124917.shtml"
+   },
+   {
+    "name": "七彩虹iGame GeForce GTX 1650 Ultra 4G超级英雄形象",
+    "price": 1199.0,
+    "url": "https://detail.zol.com.cn/vga/index1269637.shtml"
+   },
+   {
+    "name": "七彩虹iGame GeForce RTX 5060 Ultra W OC",
+    "price": 2969.0,
+    "url": "https://detail.zol.com.cn/vga/index2131417.shtml"
+   },
+   {
+    "name": "影驰GeForce RTX 5080 金属大师白金",
+    "price": 15999.0,
+    "url": "https://detail.zol.com.cn/vga/index2119814.shtml"
+   },
+   {
+    "name": "技嘉GeForce RTX 5060 Ti WINDFORCE MAX",
+    "price": 3499.0,
+    "url": "https://detail.zol.com.cn/vga/index2162756.shtml"
+   },
+   {
+    "name": "影驰GeForce RTX 5070 Ti 星曜LUNA OC12+4+",
+    "price": 7999.0,
+    "url": "https://detail.zol.com.cn/vga/index2130264.shtml"
+   },
+   {
+    "name": "影驰GeForce RTX 5060 Ti 魔刃MAX OC",
+    "price": 5099.0,
+    "url": "https://detail.zol.com.cn/vga/index2128142.shtml"
+   },
+   {
+    "name": "七彩虹iGame GeForce RTX 5090 D Vulcan",
+    "price": 22499.0,
+    "url": "https://detail.zol.com.cn/vga/index2119727.shtml"
+   },
+   {
+    "name": "NVIDIA Tesla A100 80G",
+    "price": 86999.0,
+    "url": "https://detail.zol.com.cn/vga/index1432224.shtml"
+   },
+   {
+    "name": "华硕DUAL RTX 3050 O6G",
+    "price": 1989.0,
+    "url": "https://detail.zol.com.cn/vga/index1993043.shtml"
+   },
+   {
+    "name": "技嘉GeForce RTX 5060 WINDFORCE 8G",
+    "price": 2499.0,
+    "url": "https://detail.zol.com.cn/vga/index2128729.shtml"
+   },
+   {
+    "name": "技嘉GeForce RTX 5060 Ti AERO",
+    "price": 4199.0,
+    "url": "https://detail.zol.com.cn/vga/index2130985.shtml"
+   },
+   {
+    "name": "NVIDIA GeForce RTX 3060 Ti显卡",
+    "price": 5000.0,
+    "url": "https://detail.zol.com.cn/vga/index1350133.shtml"
+   },
+   {
+    "name": "NVIDIA RTX Pro6000D 84GB 服务器版",
+    "price": 47999.0,
+    "url": "https://detail.zol.com.cn/vga/index2167305.shtml"
+   },
+   {
+    "name": "华硕ATS-RTX5060TI-O8G",
+    "price": 3819.0,
+    "url": "https://detail.zol.com.cn/vga/index2131127.shtml"
+   },
+   {
+    "name": "NVIDIA RTX A2000 12G",
+    "price": 4800.0,
+    "url": "https://detail.zol.com.cn/vga/index1400012.shtml"
+   },
+   {
+    "name": "华硕DUAL-RTX4060-O8G",
+    "price": 2499.0,
+    "url": "https://detail.zol.com.cn/vga/index1794097.shtml"
+   },
+   {
+    "name": "技嘉GeForce RTX 5060 AERO",
+    "price": 2999.0,
+    "url": "https://detail.zol.com.cn/vga/index2128726.shtml"
+   },
+   {
+    "name": "蓝宝石PURE 极地 RX 9070 XT 16G D6 OC",
+    "price": 5899.0,
+    "url": "https://detail.zol.com.cn/vga/index2126096.shtml"
+   },
+   {
+    "name": "华硕PRIME-RTX5070TI-O16G双滚珠轴承风",
+    "price": 7699.0,
+    "url": "https://detail.zol.com.cn/vga/index2121273.shtml"
+   },
+   {
+    "name": "AMD Radeon RX 6500 XT显卡",
+    "price": 1599.0,
+    "url": "https://detail.zol.com.cn/vga/index1395282.shtml"
+   },
+   {
+    "name": "索泰GeForce RTX 5070 Ti 16GB SOLID CORE",
+    "price": 7199.0,
+    "url": "https://detail.zol.com.cn/vga/index2148943.shtml"
+   },
+   {
+    "name": "NVIDIA RTX 6000 Ada",
+    "price": 53000.0,
+    "url": "https://detail.zol.com.cn/vga/index1504769.shtml"
+   },
+   {
+    "name": "技嘉GeForce RTX 5060 Ti WINDFORCE 16G",
+    "price": 3599.0,
+    "url": "https://detail.zol.com.cn/vga/index2130988.shtml"
+   }
+  ]
+ },
+ "ram": {
+  "label": "内存",
+  "source": "https://detail.zol.com.cn/memory/",
+  "priceType": "zol-reference",
+  "fetchedAt": "2026-11-26 16:21",
+  "items": [
+   {
+    "name": "金百达银爵 16GB（2×8GB）DDR4 3200",
+    "price": 359.0,
+    "url": "https://detail.zol.com.cn/memory/index1403967.shtml"
+   },
+   {
+    "name": "金士顿叛逆者Renegade 32GB(16G*2) DDR5 6000 灯条RGB白",
+    "price": 479.0,
+    "url": "https://detail.zol.com.cn/memory/index1948453.shtml"
+   },
+   {
+    "name": "金百达银爵  32GB（2×16GB）DDR5 6400",
+    "price": 999.0,
+    "url": "https://detail.zol.com.cn/memory/index1447494.shtml"
+   },
+   {
+    "name": "金士顿HyperX Savage 8GB DDR4 2400（HX424C12SB/8）RGB 灯条",
+    "price": 235.0,
+    "url": "https://detail.zol.com.cn/memory/index1109479.shtml"
+   },
+   {
+    "name": "芝奇皇家戟 EXPO版  DDR5 6000 32GB（2×16GB）银色AMD EXPO",
+    "price": 1399.0,
+    "url": "https://detail.zol.com.cn/memory/index2130169.shtml"
+   },
+   {
+    "name": "英睿达16GB DDR5 5600 笔记本内存条",
+    "price": 300.0,
+    "url": "https://detail.zol.com.cn/memory/index1708969.shtml"
+   },
+   {
+    "name": "金百达银爵 32GB（2×16GB）DDR5 6000",
+    "price": 1059.0,
+    "url": "https://detail.zol.com.cn/memory/index1440043.shtml"
+   },
+   {
+    "name": "金百达黑爵 16GB DDR4 3200",
+    "price": 429.0,
+    "url": "https://detail.zol.com.cn/memory/index1327689.shtml"
+   },
+   {
+    "name": "金士顿FURY Beast 32GB DDR5 6000",
+    "price": 759.0,
+    "url": "https://detail.zol.com.cn/memory/index1629095.shtml"
+   },
+   {
+    "name": "金百达银爵 64GB（2×32GB）DDR5 6000",
+    "price": 2199.0,
+    "url": "https://detail.zol.com.cn/memory/index1440044.shtml"
+   },
+   {
+    "name": "光威龙武系列 DDR5 6400 32GB(16GB×2) 海力士M-dieCL32时序",
+    "price": 679.0,
+    "url": "https://detail.zol.com.cn/memory/index1984003.shtml"
+   },
+   {
+    "name": "金士顿FURY Beast 32GB（2×16GB）DDR5 6000（KF560C40BBK2-32）支持",
+    "price": 1899.0,
+    "url": "https://detail.zol.com.cn/memory/index1416323.shtml"
+   },
+   {
+    "name": "芝奇焰锋戟 DDR5 6000 32GB（2×16GB）C30EXPO",
+    "price": 999.0,
+    "url": "https://detail.zol.com.cn/memory/index1985125.shtml"
+   },
+   {
+    "name": "金百达银爵 16GB（2×8GB）DDR5 6000",
+    "price": 399.0,
+    "url": "https://detail.zol.com.cn/memory/index1440042.shtml"
+   },
+   {
+    "name": "金士顿FURY Beast 64GB（2×32GB）DDR5 6000",
+    "price": 1499.0,
+    "url": "https://detail.zol.com.cn/memory/index1629096.shtml"
+   },
+   {
+    "name": "威刚XPG 龙耀 D500G DDR5 6000 32GB(16GBx2)RGB炫光",
+    "price": 979.0,
+    "url": "https://detail.zol.com.cn/memory/index1984422.shtml"
+   },
+   {
+    "name": "雷克沙Ares战神之翼 DDR5 6000 32GB(16GB×2) C26 黑色频率高达6000MT/s",
+    "price": 999.0,
+    "url": "https://detail.zol.com.cn/memory/index2116894.shtml"
+   },
+   {
+    "name": "金士顿FURY Beast 16GB DDR5 6000（KF560C40BB-16）支持",
+    "price": 979.0,
+    "url": "https://detail.zol.com.cn/memory/index1416322.shtml"
+   },
+   {
+    "name": "金士顿骇客神",
+    "price": 470.0,
+    "url": "https://detail.zol.com.cn/memory/index1270269.shtml"
+   },
+   {
+    "name": "光威天策系列 DDR5 4800 16GB",
+    "price": 249.0,
+    "url": "https://detail.zol.com.cn/memory/index1984319.shtml"
+   },
+   {
+    "name": "金百达黑刃 DDR5 6800 64GB(32GBx2)海力士颗粒",
+    "price": 779.0,
+    "url": "https://detail.zol.com.cn/memory/index1985006.shtml"
+   },
+   {
+    "name": "金士顿骇客神",
+    "price": 679.0,
+    "url": "https://detail.zol.com.cn/memory/index1270273.shtml"
+   },
+   {
+    "name": "佰维DW100 时空行者 DDR5 6000 C28 48GB（2×24GB）白色RGB灯条",
+    "price": 1189.0,
+    "url": "https://detail.zol.com.cn/memory/index2133089.shtml"
+   },
+   {
+    "name": "金百达银爵 32GB（2×16GB）DDR4 3600",
+    "price": 519.0,
+    "url": "https://detail.zol.com.cn/memory/index1465801.shtml"
+   },
+   {
+    "name": "七彩虹8GB DDR4 2666",
+    "price": 199.0,
+    "url": "https://detail.zol.com.cn/memory/index1383143.shtml"
+   },
+   {
+    "name": "芝奇幻锋戟 32GB（2×16GB）DDR5 6000流线美学",
+    "price": 899.0,
+    "url": "https://detail.zol.com.cn/memory/index1395770.shtml"
+   },
+   {
+    "name": "金士顿FURY Beast 32GB DDR4 3200",
+    "price": 1079.0,
+    "url": "https://detail.zol.com.cn/memory/index1380980.shtml"
+   },
+   {
+    "name": "英睿达16GB DDR5 5600 台式机内存条DDR5-5600频率",
+    "price": 299.0,
+    "url": "https://detail.zol.com.cn/memory/index1857413.shtml"
+   },
+   {
+    "name": "金士顿叛逆者Renegade 16GB DDR5 6000 灯条RGB白",
+    "price": 479.0,
+    "url": "https://detail.zol.com.cn/memory/index1948452.shtml"
+   },
+   {
+    "name": "金士顿16GB DDR4 3200",
+    "price": 639.0,
+    "url": "https://detail.zol.com.cn/memory/index1336582.shtml"
+   },
+   {
+    "name": "海盗船统治者",
+    "price": 8499.0,
+    "url": "https://detail.zol.com.cn/memory/index1328822.shtml"
+   },
+   {
+    "name": "金百达银爵 8G DDR4 3600",
+    "price": 145.0,
+    "url": "https://detail.zol.com.cn/memory/index1465798.shtml"
+   },
+   {
+    "name": "芝奇幻锋戟 DDR5 64GB（2×32GB）DDR5 6400 科技银流线美",
+    "price": 1794.0,
+    "url": "https://detail.zol.com.cn/memory/index1985116.shtml"
+   },
+   {
+    "name": "威刚XPG 威龙 D300 DDR5 6000 C30 16GB 釉白双平台认",
+    "price": 415.0,
+    "url": "https://detail.zol.com.cn/memory/index1984584.shtml"
+   },
+   {
+    "name": "金百达银爵 16GB DDR4 3600",
+    "price": 269.0,
+    "url": "https://detail.zol.com.cn/memory/index1465799.shtml"
+   },
+   {
+    "name": "长城台式机内",
+    "price": 269.0,
+    "url": "https://detail.zol.com.cn/memory/index2171392.shtml"
+   },
+   {
+    "name": "金士顿FURY Beast 16GB DDR5 6000 白色款",
+    "price": 399.0,
+    "url": "https://detail.zol.com.cn/memory/index1788672.shtml"
+   },
+   {
+    "name": "光威悍将 16GB DDR4 2666",
+    "price": 439.0,
+    "url": "https://detail.zol.com.cn/memory/index1275790.shtml"
+   },
+   {
+    "name": "金士顿4GB DDR3 1600",
+    "price": 229.0,
+    "url": "https://detail.zol.com.cn/memory/index1137181.shtml"
+   },
+   {
+    "name": "新乐士狂刃战",
+    "price": 1639.0,
+    "url": "https://detail.zol.com.cn/memory/index2175988.shtml"
+   },
+   {
+    "name": "七彩虹16GB DDR4 3200 8GB",
+    "price": 179.0,
+    "url": "https://detail.zol.com.cn/memory/index1629093.shtml"
+   },
+   {
+    "name": "光威天策 32GB（2×16GB）DDR4 3200",
+    "price": 859.0,
+    "url": "https://detail.zol.com.cn/memory/index1382784.shtml"
+   },
+   {
+    "name": "芝奇皇家戟 DDR5 6400 64GB（2×32GB）银色电镀镜面",
+    "price": 2059.0,
+    "url": "https://detail.zol.com.cn/memory/index2099550.shtml"
+   },
+   {
+    "name": "金士顿16GB DDR5 5600笔记本内存条",
+    "price": 429.0,
+    "url": "https://detail.zol.com.cn/memory/index1972805.shtml"
+   },
+   {
+    "name": "铭瑄 瑷雪 32GB（16GB*2） DDR4 3200 DDR4 3200",
+    "price": 1899.0,
+    "url": "https://detail.zol.com.cn/memory/index2181481.shtml"
+   },
+   {
+    "name": "芝奇皇家戟 DDR5 7200 32GB（2×16GB）金色电镀镜面",
+    "price": 2540.0,
+    "url": "https://detail.zol.com.cn/memory/index2099557.shtml"
+   },
+   {
+    "name": "金百达星刃 DDR5 6000 32GB(16GBx2)海力士颗粒",
+    "price": 799.0,
+    "url": "https://detail.zol.com.cn/memory/index1985000.shtml"
+   },
+   {
+    "name": "金士顿骇客神",
+    "price": 329.0,
+    "url": "https://detail.zol.com.cn/memory/index1115558.shtml"
+   }
+  ]
+ },
+ "motherboard": {
+  "label": "主板",
+  "source": "https://detail.zol.com.cn/motherboard/",
+  "priceType": "zol-reference",
+  "fetchedAt": "2026-11-26 16:21",
+  "items": [
+   {
+    "name": "华硕TUF GAMING B760M-PLUS D4重炮手",
+    "price": 1249.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1440076.shtml"
+   },
+   {
+    "name": "技嘉B650M GAMING WIFI",
+    "price": 749.0,
+    "url": "https://detail.zol.com.cn/motherboard/index2106519.shtml"
+   },
+   {
+    "name": "微星A520M-A PRO",
+    "price": 499.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1336519.shtml"
+   },
+   {
+    "name": "七彩虹BATTLE-AX B850M-PLUS S WIFI7 V1410+2+",
+    "price": 799.0,
+    "url": "https://detail.zol.com.cn/motherboard/index2143402.shtml"
+   },
+   {
+    "name": "铭瑄 MS-终结者 B760M D4 WIFI",
+    "price": 999.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1441184.shtml"
+   },
+   {
+    "name": "华南金牌X99-F8DPLUSC612芯片组",
+    "price": 938.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1897144.shtml"
+   },
+   {
+    "name": "华硕TUF GAMING B850M-PLUS WIFI高效供电解决",
+    "price": 1399.0,
+    "url": "https://detail.zol.com.cn/motherboard/index2118288.shtml"
+   },
+   {
+    "name": "华硕PRIME B660M-K D4",
+    "price": 899.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1396983.shtml"
+   },
+   {
+    "name": "微星PRO B760M-A WIFI DDR4 II",
+    "price": 1049.0,
+    "url": "https://detail.zol.com.cn/motherboard/index2103759.shtml"
+   },
+   {
+    "name": "华硕TUF GAMING B760M-PLUS WIFI D4重炮手",
+    "price": 1299.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1440077.shtml"
+   },
+   {
+    "name": "华硕ROG STRIX Z890-A GAMING WIFI S吹雪16+1+2+",
+    "price": 3599.0,
+    "url": "https://detail.zol.com.cn/motherboard/index2110130.shtml"
+   },
+   {
+    "name": "技嘉H610M K DDR4",
+    "price": 499.0,
+    "url": "https://detail.zol.com.cn/motherboard/index2070828.shtml"
+   },
+   {
+    "name": "华硕TUF B360M-PLUS GAMING S强化型",
+    "price": 879.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1222920.shtml"
+   },
+   {
+    "name": "微星B450M MORTAR MAX迫击炮",
+    "price": 449.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1288908.shtml"
+   },
+   {
+    "name": "微星B850MPOWER内置时钟发生",
+    "price": 2499.0,
+    "url": "https://detail.zol.com.cn/motherboard/index2141499.shtml"
+   },
+   {
+    "name": "七彩虹iGame X870E VULCAN W",
+    "price": 3999.0,
+    "url": "https://detail.zol.com.cn/motherboard/index2176809.shtml"
+   },
+   {
+    "name": "华硕ROG STRIX Z790-A GAMING WIFI吹雪",
+    "price": 2899.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1465548.shtml"
+   },
+   {
+    "name": "华硕P8B75-V全固态电容",
+    "price": 779.0,
+    "url": "https://detail.zol.com.cn/motherboard/index318872.shtml"
+   },
+   {
+    "name": "华硕ROG STRIX B850-E GAMING WIFI",
+    "price": 2799.0,
+    "url": "https://detail.zol.com.cn/motherboard/index2118270.shtml"
+   },
+   {
+    "name": "华硕PRIME A520M-K",
+    "price": 499.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1336341.shtml"
+   },
+   {
+    "name": "华硕PRIME H610M-A D4",
+    "price": 779.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1396658.shtml"
+   },
+   {
+    "name": "技嘉Z890M AORUS ELITE WIFI7",
+    "price": 1999.0,
+    "url": "https://detail.zol.com.cn/motherboard/index2109649.shtml"
+   },
+   {
+    "name": "技嘉B550M AORUS ELITE",
+    "price": 699.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1331148.shtml"
+   },
+   {
+    "name": "技嘉X870 AORUS ELITE WIFI7 ICE16(60A)+2+",
+    "price": 2799.0,
+    "url": "https://detail.zol.com.cn/motherboard/index2108996.shtml"
+   },
+   {
+    "name": "技嘉B850M AORUS ELITE WIFI6E ICE全覆盖散热装",
+    "price": 1399.0,
+    "url": "https://detail.zol.com.cn/motherboard/index2118277.shtml"
+   },
+   {
+    "name": "华硕TUF GAMING B650M-PLUS WIFI",
+    "price": 1499.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1430243.shtml"
+   },
+   {
+    "name": "技嘉A520M K V2",
+    "price": 549.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1838312.shtml"
+   },
+   {
+    "name": "华硕PRIME B760M-K D4",
+    "price": 999.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1465772.shtml"
+   },
+   {
+    "name": "华硕PRIME Z370-P双原生M.2",
+    "price": 949.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1184289.shtml"
+   },
+   {
+    "name": "微星MPG Z890 EDGE TI WIFI16+1+1+1路智能供电",
+    "price": 3299.0,
+    "url": "https://detail.zol.com.cn/motherboard/index2109652.shtml"
+   },
+   {
+    "name": "微星PRO H610M-E DDR4",
+    "price": 599.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1544325.shtml"
+   },
+   {
+    "name": "技嘉B760 AORUS MASTER DDR4",
+    "price": 1899.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1440105.shtml"
+   },
+   {
+    "name": "华硕ROG CROSSHAIR X870E HERO混合双模",
+    "price": 4899.0,
+    "url": "https://detail.zol.com.cn/motherboard/index2109015.shtml"
+   },
+   {
+    "name": "技嘉H610M H DDR4",
+    "price": 699.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1396662.shtml"
+   },
+   {
+    "name": "微星MAG B550M MORTAR WIFI11路供电",
+    "price": 849.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1327592.shtml"
+   },
+   {
+    "name": "技嘉B850M AORUS ELITE WIFI7 ICE-P支持",
+    "price": 1499.0,
+    "url": "https://detail.zol.com.cn/motherboard/index2130999.shtml"
+   },
+   {
+    "name": "技嘉B860M AORUS PRO WIFI7",
+    "price": 1599.0,
+    "url": "https://detail.zol.com.cn/motherboard/index2119173.shtml"
+   },
+   {
+    "name": "铭瑄 MS-挑战者 H610M",
+    "price": 599.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1396661.shtml"
+   },
+   {
+    "name": "微星B650M GAMING PLUS WIFI内存",
+    "price": 999.0,
+    "url": "https://detail.zol.com.cn/motherboard/index2071207.shtml"
+   },
+   {
+    "name": "微星MPG B760I EDGE WIFI DDR4",
+    "price": 1699.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1440298.shtml"
+   },
+   {
+    "name": "微星MAG B460M MORTAR迫击炮电脑主",
+    "price": 769.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1325491.shtml"
+   },
+   {
+    "name": "微星MAG B660M MORTAR WIFI",
+    "price": 1299.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1396623.shtml"
+   },
+   {
+    "name": "七彩虹B760 BATTLE-AX B760M-WHITE WIFI V20",
+    "price": 799.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1968620.shtml"
+   },
+   {
+    "name": "影驰H610M光影",
+    "price": 599.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1397566.shtml"
+   },
+   {
+    "name": "微星B760M GAMING PLUS WIFI",
+    "price": 1399.0,
+    "url": "https://detail.zol.com.cn/motherboard/index1984967.shtml"
+   },
+   {
+    "name": "微星PRO B650M-BPCI-E钢铁装甲",
+    "price": 699.0,
+    "url": "https://detail.zol.com.cn/motherboard/index2071210.shtml"
+   },
+   {
+    "name": "微星MPG B850M EDGE TI MAX WIFI14+2+1智能供电设计",
+    "price": 1599.0,
+    "url": "https://detail.zol.com.cn/motherboard/index2155378.shtml"
+   }
+  ]
+ },
+ "storage": {
+  "label": "硬盘",
+  "source": "https://detail.zol.com.cn/hard_drives/",
+  "priceType": "zol-reference",
+  "fetchedAt": "2026-11-26 16:21",
+  "items": [
+   {
+    "name": "希捷酷狼NAS 8TB 7200转 256MB SATA3（ST8000VN004）?NAS硬盘",
+    "price": 1999.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1322037.shtml"
+   },
+   {
+    "name": "西部数据蓝盘 1TB 7200转 64MB SATA3（WD10EZEX）1TB",
+    "price": 270.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index330566.shtml"
+   },
+   {
+    "name": "希捷酷狼NAS 4TB 5400转 256MB SATA3",
+    "price": 699.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1654410.shtml"
+   },
+   {
+    "name": "中科曙光SATA",
+    "price": 1950.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1983439.shtml"
+   },
+   {
+    "name": "东芝N300 8TB 7200转 512MB SATA3 (HDWG780UZSVA)3.5英寸",
+    "price": 3209.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index2168852.shtml"
+   },
+   {
+    "name": "海康威视WD82HKAI-78",
+    "price": 4299.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index2176453.shtml"
+   },
+   {
+    "name": "希捷Barracuda 3TB 7200转 64MB SATA3（ST3000DM008）台式机机械硬",
+    "price": 479.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1158643.shtml"
+   },
+   {
+    "name": "西部数据红盘Pro 8TB 7200转 256M SATA3",
+    "price": 2099.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1347288.shtml"
+   },
+   {
+    "name": "希捷BarraCuda 2TB 7200转 256MB SATA3（ST2000DM008）台式机械硬盘",
+    "price": 358.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1211351.shtml"
+   },
+   {
+    "name": "西部数据WD Blue 4TB 5400转 128MB SATA3",
+    "price": 1299.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index2166007.shtml"
+   },
+   {
+    "name": "希捷Barracuda 1TB 7200转 64MB SATA3",
+    "price": 269.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1158631.shtml"
+   },
+   {
+    "name": "西部数据蓝盘 1TB 5400转 128MB SATA3（WD10SPZX）7200转游戏黑盘",
+    "price": 250.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1174928.shtml"
+   },
+   {
+    "name": "西部数据蓝盘 2TB 7200转 256MB SATA3",
+    "price": 355.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1374417.shtml"
+   },
+   {
+    "name": "希捷酷鱼 20TB 7200转 512MB SATA",
+    "price": 5088.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index2165673.shtml"
+   },
+   {
+    "name": "希捷酷鱼 2TB 5400转 SATA",
+    "price": 1159.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index2165492.shtml"
+   },
+   {
+    "name": "西部数据蓝盘 4TB 5400转 256MB SATA3",
+    "price": 470.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1374406.shtml"
+   },
+   {
+    "name": "西部数据黑盘 1TB 7200转 64MB SATA3",
+    "price": 599.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index391341.shtml"
+   },
+   {
+    "name": "希捷酷鱼 1TB 7200转 SATA",
+    "price": 1169.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index2165490.shtml"
+   },
+   {
+    "name": "希捷银河Exos X24 16TB 512MB 7200转 SATA（ST16000NM002H）CMR垂直磁记录",
+    "price": 7188.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index2168034.shtml"
+   },
+   {
+    "name": "西部数据紫盘 4TB 64MB SATA3（WD40PURX）全天候监控",
+    "price": 539.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1137878.shtml"
+   },
+   {
+    "name": "希捷酷狼NAS 6TB 7200转 256MB SATA3",
+    "price": 1199.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1322031.shtml"
+   },
+   {
+    "name": "希捷酷狼PRO 4TB 7200转 256MB SATA3",
+    "price": 1178.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1374529.shtml"
+   },
+   {
+    "name": "西部数据红盘Plus 4TB 5400转 256MB SATA3",
+    "price": 729.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1523461.shtml"
+   },
+   {
+    "name": "西部数据蓝盘 2TB 5400转 128MB SATA3（WD20SPZX）2.5英寸PC存储硬盘",
+    "price": 355.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1248971.shtml"
+   },
+   {
+    "name": "希捷Barracuda 1TB 5400转 128MB SATA3",
+    "price": 279.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1158443.shtml"
+   },
+   {
+    "name": "西部数据蓝盘 4TB 5400转 64M SATA3（WD40EZRZ）PC存储硬盘",
+    "price": 525.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1104430.shtml"
+   },
+   {
+    "name": "西部数据黑盘 1TB 7200转 64M SATA3",
+    "price": 409.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1347307.shtml"
+   },
+   {
+    "name": "东芝1TB 5400转 128M SATA3",
+    "price": 249.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1182773.shtml"
+   },
+   {
+    "name": "希捷银河Exos X24 12TB 512MB 7200转 SATA",
+    "price": 5699.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index2165671.shtml"
+   },
+   {
+    "name": "希捷Barracuda 2TB 5400转 256MB SATA3（ST2000DM005）台式机硬盘",
+    "price": 339.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1248332.shtml"
+   },
+   {
+    "name": "希捷酷狼PRO 24TB 7200转 256MB SATA3(ST24000NT001)7200转256缓存",
+    "price": 11399.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index2168780.shtml"
+   },
+   {
+    "name": "西部数据蓝盘 2TB 5400转 256MB SATA3（WD20EZAZ）3.5英寸台式机械",
+    "price": 330.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1347324.shtml"
+   },
+   {
+    "name": "希捷银河Exos X16 16TB 7200转 256MB SATA3（ST16000NM001G）SATA接口?",
+    "price": 5099.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1297921.shtml"
+   },
+   {
+    "name": "西部数据黑盘 4TB 7200转 256M SATA3",
+    "price": 1199.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1347299.shtml"
+   },
+   {
+    "name": "希捷BarraCuda 4TB 5900转 256MB SATA3（ST4000DM004）台式机硬盘",
+    "price": 529.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1174349.shtml"
+   },
+   {
+    "name": "西部数据黑盘 500GB 7200转 32MB SATA3（WD5000LPLX）高性能",
+    "price": 218.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index402899.shtml"
+   },
+   {
+    "name": "希捷酷鱼 4TB 5400转 SATA",
+    "price": 1349.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index2165493.shtml"
+   },
+   {
+    "name": "东芝1TB 7200转 32MB SATA3（DT01ACA100）SATA接口",
+    "price": 235.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index348246.shtml"
+   },
+   {
+    "name": "西部数据蓝盘 2TB 5400转 64M SATA3",
+    "price": 349.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1104425.shtml"
+   },
+   {
+    "name": "得力（PSSD） 标准",
+    "price": 599.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1983590.shtml"
+   },
+   {
+    "name": "希捷酷狼NAS 12TB 7200转 256MB SATA3",
+    "price": 2659.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1322044.shtml"
+   },
+   {
+    "name": "西部数据蓝盘 3TB 5400转 64M SATA3",
+    "price": 525.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1104421.shtml"
+   },
+   {
+    "name": "西部数据红盘Plus 2TB 5400转 128MB SATA3",
+    "price": 549.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1374580.shtml"
+   },
+   {
+    "name": "东芝2TB 5400转 128MB SATA3",
+    "price": 369.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1208542.shtml"
+   },
+   {
+    "name": "希捷Barracuda 2TB 7200转 64MB SATA3（ST2000DM001）机械硬盘",
+    "price": 379.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index307507.shtml"
+   },
+   {
+    "name": "西部数据新金",
+    "price": 2759.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1347369.shtml"
+   },
+   {
+    "name": "西部数据蓝盘 6TB 5400转 256M SATA3",
+    "price": 879.0,
+    "url": "https://detail.zol.com.cn/hard_drives/index1347331.shtml"
+   }
+  ]
+ },
+ "psu": {
+  "label": "电源",
+  "source": "https://detail.zol.com.cn/power/",
+  "priceType": "zol-reference",
+  "fetchedAt": "2026-11-26 16:21",
+  "items": [
+   {
+    "name": "航嘉WD750K全模组 新版",
+    "price": 479.0,
+    "url": "https://detail.zol.com.cn/power/index1999767.shtml"
+   },
+   {
+    "name": "振华LEADEX III HG 750W",
+    "price": 699.0,
+    "url": "https://detail.zol.com.cn/power/index1342457.shtml"
+   },
+   {
+    "name": "海韵FOCUS GX-850",
+    "price": 1079.0,
+    "url": "https://detail.zol.com.cn/power/index1379628.shtml"
+   },
+   {
+    "name": "长城G7 GW-ATX750BL14cm睡眠级风扇",
+    "price": 699.0,
+    "url": "https://detail.zol.com.cn/power/index1261595.shtml"
+   },
+   {
+    "name": "鑫谷GM750W",
+    "price": 559.0,
+    "url": "https://detail.zol.com.cn/power/index1465843.shtml"
+   },
+   {
+    "name": "华硕ROG-LOKI-850P-SFX-GAMING支持控温",
+    "price": 549.0,
+    "url": "https://detail.zol.com.cn/power/index1911547.shtml"
+   },
+   {
+    "name": "海韵FOCUS GX-750",
+    "price": 919.0,
+    "url": "https://detail.zol.com.cn/power/index1379618.shtml"
+   },
+   {
+    "name": "航嘉GX850全模组金牌全",
+    "price": 564.0,
+    "url": "https://detail.zol.com.cn/power/index2119720.shtml"
+   },
+   {
+    "name": "长城HOPE-6000DSATX电源标准",
+    "price": 259.0,
+    "url": "https://detail.zol.com.cn/power/index352863.shtml"
+   },
+   {
+    "name": "技嘉猎鹰白金 850PG5白金认证",
+    "price": 569.0,
+    "url": "https://detail.zol.com.cn/power/index2170269.shtml"
+   },
+   {
+    "name": "鑫谷全模750",
+    "price": 299.0,
+    "url": "https://detail.zol.com.cn/power/index1265387.shtml"
+   },
+   {
+    "name": "鑫谷GM850W冰山版80PLUS金牌认证",
+    "price": 899.0,
+    "url": "https://detail.zol.com.cn/power/index1397008.shtml"
+   },
+   {
+    "name": "鑫谷GM650W",
+    "price": 398.0,
+    "url": "https://detail.zol.com.cn/power/index1465842.shtml"
+   },
+   {
+    "name": "技嘉猎鹰白金 1000PG5白金认证",
+    "price": 699.0,
+    "url": "https://detail.zol.com.cn/power/index2170268.shtml"
+   },
+   {
+    "name": "海韵FOCUS v5 GX 850W白金认证",
+    "price": 1199.0,
+    "url": "https://detail.zol.com.cn/power/index2164677.shtml"
+   },
+   {
+    "name": "海盗船AX1600i钛金全模组",
+    "price": 3449.0,
+    "url": "https://detail.zol.com.cn/power/index1229188.shtml"
+   },
+   {
+    "name": "利民TR-KG750-WATX3.1金牌电源",
+    "price": 349.0,
+    "url": "https://detail.zol.com.cn/power/index2124586.shtml"
+   },
+   {
+    "name": "鑫谷核动力 超级战舰 S7",
+    "price": 159.0,
+    "url": "https://detail.zol.com.cn/power/index348383.shtml"
+   },
+   {
+    "name": "美商海盗船WS3000全模组化",
+    "price": 6599.0,
+    "url": "https://detail.zol.com.cn/power/index2175381.shtml"
+   },
+   {
+    "name": "航嘉WD750EVO炫金战神全模",
+    "price": 379.0,
+    "url": "https://detail.zol.com.cn/power/index2138282.shtml"
+   },
+   {
+    "name": "航嘉重火力AX850P80PLUS白金牌全模",
+    "price": 899.0,
+    "url": "https://detail.zol.com.cn/power/index2122910.shtml"
+   },
+   {
+    "name": "航嘉WD750K全模组",
+    "price": 659.0,
+    "url": "https://detail.zol.com.cn/power/index1403112.shtml"
+   },
+   {
+    "name": "Tt 钢影Toughpower GF1 850W全模组化",
+    "price": 599.0,
+    "url": "https://detail.zol.com.cn/power/index1981702.shtml"
+   },
+   {
+    "name": "金河田白金牌A+850W白金认证",
+    "price": 599.0,
+    "url": "https://detail.zol.com.cn/power/index1914234.shtml"
+   },
+   {
+    "name": "航嘉WD600KWD系列",
+    "price": 379.0,
+    "url": "https://detail.zol.com.cn/power/index1228004.shtml"
+   },
+   {
+    "name": "鑫谷GP600G黑金版",
+    "price": 329.0,
+    "url": "https://detail.zol.com.cn/power/index363405.shtml"
+   },
+   {
+    "name": "航嘉WD500K",
+    "price": 299.0,
+    "url": "https://detail.zol.com.cn/power/index1208867.shtml"
+   },
+   {
+    "name": "海盗船RM650x金牌认证",
+    "price": 680.0,
+    "url": "https://detail.zol.com.cn/power/index1137351.shtml"
+   },
+   {
+    "name": "利民TR-GN650日系主电容",
+    "price": 288.0,
+    "url": "https://detail.zol.com.cn/power/index2124592.shtml"
+   },
+   {
+    "name": "航嘉WD650Evo炫金战神金牌",
+    "price": 339.0,
+    "url": "https://detail.zol.com.cn/power/index2115394.shtml"
+   },
+   {
+    "name": "长城机电F8日系电容",
+    "price": 669.0,
+    "url": "https://detail.zol.com.cn/power/index1975197.shtml"
+   },
+   {
+    "name": "长城X6漏电监测",
+    "price": 449.0,
+    "url": "https://detail.zol.com.cn/power/index1899919.shtml"
+   },
+   {
+    "name": "微星MAG A750GL PCIE5",
+    "price": 749.0,
+    "url": "https://detail.zol.com.cn/power/index1823231.shtml"
+   },
+   {
+    "name": "长城X7 白色",
+    "price": 629.0,
+    "url": "https://detail.zol.com.cn/power/index1629089.shtml"
+   },
+   {
+    "name": "航嘉WD850K全模组",
+    "price": 799.0,
+    "url": "https://detail.zol.com.cn/power/index1431045.shtml"
+   },
+   {
+    "name": "长城金牌巨龙GW-EPS1250DA",
+    "price": 999.0,
+    "url": "https://detail.zol.com.cn/power/index299158.shtml"
+   },
+   {
+    "name": "鑫谷GM 1250W 强大输出",
+    "price": 859.0,
+    "url": "https://detail.zol.com.cn/power/index1913327.shtml"
+   },
+   {
+    "name": "海韵SPX750",
+    "price": 149.0,
+    "url": "https://detail.zol.com.cn/power/index1907458.shtml"
+   },
+   {
+    "name": "长城V8自动启停",
+    "price": 699.0,
+    "url": "https://detail.zol.com.cn/power/index1899944.shtml"
+   },
+   {
+    "name": "航嘉WD750EVO",
+    "price": 549.0,
+    "url": "https://detail.zol.com.cn/power/index1408520.shtml"
+   },
+   {
+    "name": "航嘉WD650EVO",
+    "price": 459.0,
+    "url": "https://detail.zol.com.cn/power/index1376560.shtml"
+   },
+   {
+    "name": "海韵FOCUS GX750 White白色限定版",
+    "price": 899.0,
+    "url": "https://detail.zol.com.cn/power/index1348130.shtml"
+   },
+   {
+    "name": "航嘉WD650K",
+    "price": 499.0,
+    "url": "https://detail.zol.com.cn/power/index1319776.shtml"
+   },
+   {
+    "name": "长城金牌巨龙GW-6800",
+    "price": 449.0,
+    "url": "https://detail.zol.com.cn/power/index391971.shtml"
+   },
+   {
+    "name": "长城G7 金牌80PLUS认证",
+    "price": 669.0,
+    "url": "https://detail.zol.com.cn/power/index1913250.shtml"
+   }
+  ]
+ },
+ "case": {
+  "label": "机箱",
+  "source": "https://detail.zol.com.cn/case/",
+  "priceType": "zol-reference",
+  "fetchedAt": "2026-11-26 16:21",
+  "items": [
+   {
+    "name": "航嘉S960暴风雪X 全景版 黑色",
+    "price": 219.0,
+    "url": "https://detail.zol.com.cn/case/index1841482.shtml"
+   },
+   {
+    "name": "SAMA（先马）光之神mini 机箱",
+    "price": 124.0,
+    "url": "https://detail.zol.com.cn/case/index1948359.shtml"
+   },
+   {
+    "name": "微星MAG FORGE 320R AIRFLOW360冷排位",
+    "price": 319.0,
+    "url": "https://detail.zol.com.cn/case/index2180707.shtml"
+   },
+   {
+    "name": "乔思伯D300无立柱曲面",
+    "price": 404.0,
+    "url": "https://detail.zol.com.cn/case/index1981741.shtml"
+   },
+   {
+    "name": "联力L216",
+    "price": 589.0,
+    "url": "https://detail.zol.com.cn/case/index1955966.shtml"
+   },
+   {
+    "name": "爱国者星璨 岚",
+    "price": 359.0,
+    "url": "https://detail.zol.com.cn/case/index1947816.shtml"
+   },
+   {
+    "name": "航嘉S900沙尘暴",
+    "price": 129.0,
+    "url": "https://detail.zol.com.cn/case/index1999765.shtml"
+   },
+   {
+    "name": "乔思伯X400简约布局",
+    "price": 599.0,
+    "url": "https://detail.zol.com.cn/case/index2150533.shtml"
+   },
+   {
+    "name": "先马趣造2桌面小机箱",
+    "price": 364.0,
+    "url": "https://detail.zol.com.cn/case/index1948017.shtml"
+   },
+   {
+    "name": "乔思伯Z20",
+    "price": 399.0,
+    "url": "https://detail.zol.com.cn/case/index1970858.shtml"
+   },
+   {
+    "name": "先马平头哥M2",
+    "price": 129.0,
+    "url": "https://detail.zol.com.cn/case/index1389602.shtml"
+   },
+   {
+    "name": "Phanteks追风者P500APH-EC500ATG,追风者侧透水",
+    "price": 599.0,
+    "url": "https://detail.zol.com.cn/case/index1358420.shtml"
+   },
+   {
+    "name": "微星MPG VIXTA 300R AIRFLOW PZ35mm背部理线",
+    "price": 599.0,
+    "url": "https://detail.zol.com.cn/case/index2180704.shtml"
+   },
+   {
+    "name": "华硕海王星 标准高效散热",
+    "price": 399.0,
+    "url": "https://detail.zol.com.cn/case/index2118284.shtml"
+   },
+   {
+    "name": "航嘉S980 龙卷风",
+    "price": 399.0,
+    "url": "https://detail.zol.com.cn/case/index1433194.shtml"
+   },
+   {
+    "name": "爱国者炫影 G10精巧机身",
+    "price": 214.0,
+    "url": "https://detail.zol.com.cn/case/index2161177.shtml"
+   },
+   {
+    "name": "华硕TUF GAMING GT502双仓设计",
+    "price": 1049.0,
+    "url": "https://detail.zol.com.cn/case/index1432961.shtml"
+   },
+   {
+    "name": "动力火车未知",
+    "price": 204.0,
+    "url": "https://detail.zol.com.cn/case/index2125072.shtml"
+   },
+   {
+    "name": "航嘉GX750A掠夺者精致铁",
+    "price": 189.0,
+    "url": "https://detail.zol.com.cn/case/index1999756.shtml"
+   },
+   {
+    "name": "爱国者星璨 小岚垂直风道",
+    "price": 299.0,
+    "url": "https://detail.zol.com.cn/case/index1935497.shtml"
+   },
+   {
+    "name": "航嘉G63战戟快拆玻璃",
+    "price": 184.0,
+    "url": "https://detail.zol.com.cn/case/index2109051.shtml"
+   },
+   {
+    "name": "瓦尔基里VK03优化散热",
+    "price": 439.0,
+    "url": "https://detail.zol.com.cn/case/index2090335.shtml"
+   },
+   {
+    "name": "乔思伯U3全铝工艺打造",
+    "price": 359.0,
+    "url": "https://detail.zol.com.cn/case/index377901.shtml"
+   },
+   {
+    "name": "骨伽乘风MX600支持E",
+    "price": 524.0,
+    "url": "https://detail.zol.com.cn/case/index1955915.shtml"
+   },
+   {
+    "name": "联力鬼斧",
+    "price": 659.0,
+    "url": "https://detail.zol.com.cn/case/index1313096.shtml"
+   },
+   {
+    "name": "金河田预见 海景房 Mini1 plus支持M",
+    "price": 199.0,
+    "url": "https://detail.zol.com.cn/case/index1948579.shtml"
+   },
+   {
+    "name": "动力火车未知",
+    "price": 162.0,
+    "url": "https://detail.zol.com.cn/case/index1980881.shtml"
+   },
+   {
+    "name": "爱国者YOGO T21",
+    "price": 139.0,
+    "url": "https://detail.zol.com.cn/case/index1935586.shtml"
+   },
+   {
+    "name": "玩嘉孤勇者MINIMATX海景房",
+    "price": 184.0,
+    "url": "https://detail.zol.com.cn/case/index1950085.shtml"
+   },
+   {
+    "name": "航嘉S960暴风雪 X",
+    "price": 279.0,
+    "url": "https://detail.zol.com.cn/case/index1435136.shtml"
+   },
+   {
+    "name": "微星PAG PANO M120L 碉堡支持40系显卡",
+    "price": 209.0,
+    "url": "https://detail.zol.com.cn/case/index2166582.shtml"
+   },
+   {
+    "name": "先马黑洞前置USB3.0接口",
+    "price": 299.0,
+    "url": "https://detail.zol.com.cn/case/index1099796.shtml"
+   },
+   {
+    "name": "酷冷至尊HAF II 500低风阻设计",
+    "price": 1099.0,
+    "url": "https://detail.zol.com.cn/case/index2173465.shtml"
+   },
+   {
+    "name": "华硕ROG GR801幻世神 曲面豪华版强",
+    "price": 2349.0,
+    "url": "https://detail.zol.com.cn/case/index2170761.shtml"
+   },
+   {
+    "name": "华硕ROG GR701 创世神",
+    "price": 3299.0,
+    "url": "https://detail.zol.com.cn/case/index1466473.shtml"
+   },
+   {
+    "name": "微星PAG PANO M110L 水晶塔侧透机",
+    "price": 184.0,
+    "url": "https://detail.zol.com.cn/case/index2125241.shtml"
+   },
+   {
+    "name": "先马黑洞X兼容E",
+    "price": 388.0,
+    "url": "https://detail.zol.com.cn/case/index1373371.shtml"
+   },
+   {
+    "name": "微星MPG VIXTA 300R AIRFLOW PZ W35mm背部理线",
+    "price": 629.0,
+    "url": "https://detail.zol.com.cn/case/index2180705.shtml"
+   },
+   {
+    "name": "爱国者御风W20高效对流",
+    "price": 214.0,
+    "url": "https://detail.zol.com.cn/case/index2136119.shtml"
+   },
+   {
+    "name": "玩嘉孤勇者",
+    "price": 249.0,
+    "url": "https://detail.zol.com.cn/case/index1490098.shtml"
+   },
+   {
+    "name": "先马平头哥M8",
+    "price": 154.0,
+    "url": "https://detail.zol.com.cn/case/index1948010.shtml"
+   },
+   {
+    "name": "爱国者星璨 辰",
+    "price": 449.0,
+    "url": "https://detail.zol.com.cn/case/index2157711.shtml"
+   },
+   {
+    "name": "酷冷至尊MB520",
+    "price": 279.0,
+    "url": "https://detail.zol.com.cn/case/index1277799.shtml"
+   },
+   {
+    "name": "航嘉GS500C",
+    "price": 169.0,
+    "url": "https://detail.zol.com.cn/case/index1235067.shtml"
+   },
+   {
+    "name": "ICE（玩嘉）绝尘玩家支持M",
+    "price": 154.0,
+    "url": "https://detail.zol.com.cn/case/index1949786.shtml"
+   },
+   {
+    "name": "华硕ProArt PA602",
+    "price": 1499.0,
+    "url": "https://detail.zol.com.cn/case/index1935499.shtml"
+   },
+   {
+    "name": "先马朱雀air",
+    "price": 179.0,
+    "url": "https://detail.zol.com.cn/case/index1389598.shtml"
+   },
+   {
+    "name": "联力包豪斯-O11",
+    "price": 799.0,
+    "url": "https://detail.zol.com.cn/case/index1277230.shtml"
+   }
+  ]
+ }
+}

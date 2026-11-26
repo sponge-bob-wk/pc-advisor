@@ -4946,6 +4946,13 @@ def answer_card(result, slots=None, note="", carry="", mnote=""):
     for x in ranked[1:3]:
         cands.append({
             "name": x["name"],
+            # 🔴 2026-11-26：**补 id**，让前端能「点卡片跳到这台」。
+            #
+            #    用户要求：「推荐别的我可以直接点卡片跳到另一个推荐的机型的信息」
+            #
+            #    原来这里只给 name + price，前端拿到名字没法可靠定位 ——
+            #    同名机型（不同配置）会被认错。id 是唯一键，必须带上。
+            "id": x.get("id"),
             "price": x.get("price"),
             "hasReview": bool(x.get("hasReview")),
             "note": "只报参数" if not x.get("hasReview") else "",
@@ -6533,6 +6540,75 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
         if vram_min and _gpu_req == "discrete":
             slots["_minVram"] = max(int(slots.get("_minVram") or 0), vram_min)
 
+
+    # 🔴 2026-11-26：**装机检测必须在 clarify 之前**。
+    #    实测：「我想自己组装一台台式机，预算 8000」原来返回
+    #    clarify「主要拿来干什么？」—— 因为缺 purpose 在下面
+    #    就 return 了，装机分支永远走不到。
+    #    装机场景本来就不该补齐所有槽位：给配置单就行。
+    # 🔴 2026-11-26 新增：**自己组装台式机**（用户要求）
+    #
+    #    「台式机也可以考虑，抓取主流的零部件去进行采集价格，
+    #      如果有人想组装台式机，就可以推荐不同组合，
+    #      然后把每个部分列举出来价格，再汇总价格，整机多少钱」
+    #
+    #    为什么单独一个分支，不走 build_recommendation：
+    #      整机推荐是「从 243 台里挑一台」，
+    #      装机是「从 327 个配件里拼一套」。
+    #      两者的数据源、约束、输出格式都不同，混在一起会互相污染。
+    #
+    #    判据：有明确的组装意图词（组装/装机/自己配/攒机/配件清单…）。
+    #      只说「台式机」「主机」不算 —— 那可能就是想买整机。
+    #      见 pc_build_intent.wants_build() 的注释。
+    #
+    #    ⚠️ 数据来源 data/parts.json（fetch_parts.py 抓的 ZOL 参考价）。
+    #       价格口径和机型池一样是「参考价」，不是到手价。
+    # ═══════════════════════════════════════════════════════════
+    try:
+        import pc_build_intent as _pbi
+        if _pbi.wants_build(user_text or ""):
+            import build_pc as _bpc
+            _budget = _pbi.budget_of(user_text, slots)
+            _parts = _bpc.load_parts()
+            if sum(len(v) for v in _parts.values()) == 0:
+                return {"stage": "build_pc", "slots": slots,
+                        "reply": ("配件库还没抓数据 —— 先跑一次 "
+                                  "fetch_parts.py，我才有配件价格能拼配置。"),
+                        "known": slots, "questions": [], "warnings": []}
+            if _budget:
+                _best = min(_bpc.TIERS, key=lambda t: min(
+                    abs(_budget - t["budget"][0]),
+                    abs(_budget - t["budget"][1])))
+                _one = _bpc.build_plan(_parts, _best, _budget)
+                _plans = [_one] if _one else []
+            else:
+                _plans = []
+                for _t in _bpc.TIERS:
+                    _p = _bpc.build_plan(_parts, _t)
+                    if _p:
+                        _plans.append(_p)
+            if _plans:
+                _md = "\n\n".join(_pbi.render_plan(p) for p in _plans)
+                _md = ("按你的预算和用途，这几个组合能装起来。"
+                       "每个配件都列了型号和参考价，最后是整机合计：\n\n"
+                       + _md)
+                return {"stage": "build_pc", "slots": slots,
+                        "reply": _md, "known": slots,
+                        "questions": ["想要 Intel 还是 AMD 平台？",
+                                      "机箱有尺寸要求吗"
+                                      "（桌面小机箱 / 标准中塔）？"],
+                        "warnings": ["配件价格是 ZOL 参考价，"
+                                     "不是电商到手价，实际可能更低。"],
+                        "buildPlans": _plans}
+            return {"stage": "build_pc", "slots": slots,
+                    "reply": ("配件库里有数据，但按这个预算拼不出完整的一套。"
+                              "换个预算试试，或者先说用途"
+                              "（办公 / 游戏 / 剪辑）。"),
+                    "known": slots, "questions": [], "warnings": []}
+    except Exception as _e:
+        # 装机模块出错不能拖垮整个对话 —— 记日志，继续走正常推荐
+        print("[agent] 装机分支失败: %r" % _e, flush=True)
+
     miss = core.missing_required(slots)
     assume_note = []
     # 🔴 2026-11-17：**有 focus 且在问细节时，不许先问槽位。**
@@ -6889,6 +6965,9 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
     _wants_more = _relaxed or bool(re.search(
         r"推荐几台|来几台|多给几台|再推|列几台|几个选择|都列|全部列出", user_text or ""))
     _excl = seen if (want_switch or _wants_more) else None
+
+    # ═══════════════════════════════════════════════════════════
+
     if focus and BRAND_SWITCH.search(user_text or "") \
             and not BRAND_PRICE_Q.search(user_text or ""):
         _cur = core.get_offer(focus) or {}

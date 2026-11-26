@@ -32,8 +32,12 @@
   <div class="brand"><span class="mark"></span><b>选机助手</b><span class="ver">Demo</span></div>
   <div class="stat">
     <span class="live"><i class="dot" id="dot"></i><span id="stx">连接中</span></span>
-    <span class="sep"></span>
-    <span id="asof">数据 —</span>
+    <!-- 🔴 2026-11-26 减法（用户要求）：
+         去掉了「数据快照 2026-11-02」。
+         这个日期对用户没意义 —— 他关心的是"现在买哪台"，
+         不是"你的数据是哪天抓的"。真正需要日期时，
+         回答里的价格口径那句已经说了（「这个价是平台标价快照」）。
+         元素 id="asof" 删了，app.js 的 set() 有空值保护，不会报错。 -->
     <span class="sep"></span>
     <span id="pool">库内 — 台</span>
     <span class="sep"></span>
@@ -60,32 +64,24 @@
   <section class="chat">
     <div class="stream" id="stream">
       <div class="hero" id="hero">
-        <div class="eyebrow">Decision Agent</div>
+        <div class="eyebrow">选机助手</div>
         <h1>说清楚预算和用途，<br>我告诉你<em>具体买哪一台</em>。</h1>
         <p class="lede">
-          不罗列参数表。直接给机型、到手价，以及这台机器<b>在你这个用途下的短板</b>。
-          每个数字都能追到数据源；库里没有的，明说没有。
+          直接给机型、到手价，以及这台机器<b>在你这个用途下的短板</b>。
+          库里没有的，明说没有。
         </p>
 
-        <div class="facts">
-          <div><b id="fTotal">—</b><span>可推荐机型</span></div>
-          <div><b id="fPerf">—</b><span>有跑分实测</span></div>
-          <div><b id="fWeight">—</b><span>有实测重量</span></div>
-          <div><b id="fCat">—</b><span>覆盖品类</span></div>
-        </div>
-
-        <div class="audit"><i>✓</i><span>出口审计：<b>编造数字 0 条</b>，推荐锁定内核、模型无排序权与数字写权</span></div>
-
-        <p class="scope" id="scope">
-          这 <b id="fTotal2">—</b> 台机型，规格与价格来自公开渠道抓取并交叉核对：
-          <b id="fPerf2">—</b> 台有 CPU 跑分实测（Cinebench R23），
-          <b id="fWeight2">—</b> 台有实测重量，
-          价格分「到手价」与「平台快照价」两种口径分别标注。
-          库里没有的字段会如实说明，不猜。
-        </p>
-        <button class="scope-more" id="scopeMore">展开口径说明</button>
+        <!-- 🔴 2026-11-26 减法：删掉了原来的「四宫格数字」和「审计横幅」。
+             原因（用户原话）：「你想表达很多严谨性，但是没必要展示给用户看」
+             这四块是给开发/评审看的（可推荐机型 239 / 有跑分实测 162…），
+             用户打开首页只想说需求，不想先读一份数据报告。
+             数字本身没删 —— 侧边栏「数据概览」里还能看到。 -->
 
         <div class="acts" id="acts"></div>
+
+        <!-- 🔴 减法：原来这里还有一段 scope 口径长文 +「展开口径说明」按钮。
+             价格口径该在**回答里**说（已做成一行小字），不需要在首页先讲一遍
+             方法论。删掉。 -->
       </div>
     </div>
 
@@ -104,7 +100,7 @@
   </section>
 
   <aside class="rail" id="rail">
-    <div class="rail-hd"><b>这批数据</b><button id="railBtn" title="收起侧边栏">收起 ⟩</button></div>
+    <div class="rail-hd"><b>数据概览</b><button id="railBtn" title="收起侧边栏">收起 ⟩</button></div>
     <div id="railBody">
       <div id="railNow" class="nowbox"></div>
       <div class="ov">

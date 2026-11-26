@@ -189,14 +189,12 @@ function facts(ov){
   //   原来这里直接 .textContent=，元素不在就抛 TypeError，
   //   外层 .catch 会把它误报成「接口 /api/overview 没响应」——  接口其实好好的。
   function set(id,v){ var n=$('#'+id); if(n) n.textContent=v }
-  set('fTotal',ov.total); set('fTotal2',ov.total);
-  // 2026-11-16：不再展示「有人写过优缺点」，改成**真实数据覆盖**。
-  // 理由：用户要求不要暴露"人工/没人评过"这种内部区分，
-  // 展示"数据覆盖到哪"才对用户有意义。
-  var wp=(ov.perf||{}).withPerf, ww=(ov.weight||{}).withWeight;
-  set('fPerf', wp!=null?wp:'—'); set('fPerf2', wp!=null?wp:'—');
-  set('fWeight', ww!=null?ww:'—'); set('fWeight2', ww!=null?ww:'—');
-  set('fCat',ov.byCat.length+' 类');
+  // 🔴 2026-11-26 减法：fTotal/fPerf/fWeight/fCat 这些 id 已从 index.html 删掉。
+  //    用户原话：「你想表达很多严谨性，但是没必要展示给用户看」——
+  //    首屏那四个数字方块（可推荐机型 / 有跑分实测 / 有实测重量 / 覆盖品类）
+  //    是给评审看的，用户打开页面只想说需求。
+  //    数字本身没删，侧边栏「数据概览」里还在。
+  //    set() 有空值保护，找不到元素会静默跳过，所以不需要额外判空。
   set('asof','数据快照 '+ov.dataAsOf);
   set('pool','库内 '+ov.total+' 台');
   set('hintRight','数据截至 '+ov.dataAsOf+' · 只做 Windows 笔记本 / 台式整机 / 内存固态');
@@ -821,11 +819,18 @@ inp.addEventListener('keydown',function(e){
   if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){ e.preventDefault(); send() }
 });
 sendBtn.onclick=function(){ send() };
-$('#scopeMore').onclick=function(){
-  var s=$('#scope');
-  s.classList.toggle('open');
-  this.textContent=s.classList.contains('open')?'收起口径说明':'展开口径说明';
-};
+// 🔴 2026-11-26 减法：scopeMore / scope 已从 index.html 删掉，
+//    这里必须判空 —— 原来直接 $('#scopeMore').onclick 会抛
+//    TypeError: Cannot set properties of null，整段初始化中断，
+//    后面的发送按钮绑定、侧边栏逻辑全都不执行（页面看起来"死了"）。
+(function(){
+  var sm=$('#scopeMore'), sc=$('#scope');
+  if(!sm||!sc) return;
+  sm.onclick=function(){
+    sc.classList.toggle('open');
+    this.textContent=sc.classList.contains('open')?'收起口径说明':'展开口径说明';
+  };
+})();
 /* ── 侧边栏收纳 ──
    收起后右侧留一个竖排把手「数据概览」，点一下就回来。
    状态存 localStorage，下次打开还是上次的样子（?rail=0/1 可以强制指定）。 */
@@ -866,14 +871,30 @@ jget('/api/demo').then(function(d){ if(d.ok) demo(d) }).catch(function(){});
 if(!isTouch()) inp.focus();
 
 /* ── ?q= 直接带一句话进来（可分享的链接，也方便自动化验收） ──
-   例：http://127.0.0.1:7860/?q=学设计的，预算5100，要带去教室 */
+   例：http://127.0.0.1:7860/?q=学设计的，预算5100，要带去教室
+
+   🔴 2026-11-26 加 ?id=：**按机型 id 直接打开这台的信息**。
+   用户要求「推荐别的我可以直接点卡片跳到另一个推荐的机型的信息」。
+
+   为什么不用 ?q=<机型名>：
+     实测「ThinkBook 14+ 怎么样」识别失败（名字里有 + 和括号），
+     而 id 是唯一键，不会撞。见 openai_bridge.py 的注释。
+   例：http://127.0.0.1:7860/?id=add-xingbookproair14
+*/
 (function(){
   var sp;
   try{ sp=new URLSearchParams(location.search) }catch(e){ return }
   var q=(sp.get('q')||'').trim(), fill=(sp.get('fill')||'').trim();
+  var mid=(sp.get('id')||'').trim();
   // ?fill= 只填不发（给「先填好再让人按回车」的分享链接、也给自动化验收用）
   if(fill){ inp.value=fill; autoGrow(); inp.focus();
     inp.setSelectionRange(fill.length,fill.length) }
+  // ?id= 按机型 id 直接问这台（后端 run(text, focus=id)）
+  if(mid){
+    S.focus=mid;
+    send('这台怎么样');
+    return;
+  }
   if(q){ inp.value=q; autoGrow(); send(q); }
 })();
 

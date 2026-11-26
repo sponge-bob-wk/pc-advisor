@@ -71,6 +71,10 @@
   /* 排版 */
   --serif:"Source Serif Pro",Georgia,"Songti SC","Noto Serif SC",serif;
   --m:62ch;
+  /* 🔴 2026-11-26：输入框和发送按钮的**共同高度**。
+     实测原来 textarea 算出 32px、button 算出 37px，差 5px，
+     视觉上「按钮比输入框高一截」—— 用户说的"对不齐"里就有这一条。 */
+  --field-h:36px;
 }
   html,body{height:100%}
   body{
@@ -124,8 +128,17 @@
   .rail::-webkit-scrollbar-button{display:none;width:0;height:0}
   .rail::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:6px;border:3px solid var(--bg)}
 
-  /* ── 首屏 ── */
-  .hero{padding:12px 0 0;max-width:var(--m)}
+  /* ── 首屏 ──
+     🔴 2026-11-26 修排版（用户反馈「感觉都对不齐」）。
+
+        `.hero` 原来写了 `max-width:var(--m)`（62ch ≈ 468px），
+        而下方 `.dock`（输入区）是满宽 760px ——
+        首屏比输入区窄 292px，视觉上就是「标题缩在左边，输入框撑到头」。
+
+        修法：`.hero` 去掉 max-width，与 `.dock` 同宽。
+        阅读性靠 `.lede` 自己的 56ch 控着 —— 长文案才需要限宽，
+        标题和按钮区不需要。 */
+  .hero{padding:12px 0 0}
   .eyebrow{display:flex;align-items:center;gap:9px;font-size:10.5px;letter-spacing:1.5px;
     text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:16px}
   .eyebrow::after{content:"";width:46px;height:1px;background:var(--accent-line)}
@@ -380,7 +393,7 @@
   .field:focus-within{border-color:var(--accent-line);box-shadow:0 7px 22px -16px color-mix(in srgb, var(--accent) 50%, transparent)}
   .field textarea{flex:1;border:0;outline:none;resize:none;background:none;font:inherit;font-size:13.6px;
     line-height:1.65;padding:5px 0;color:var(--ink);font-family:inherit;
-    overflow-y:auto;overscroll-behavior:contain}
+    overflow-y:auto;overscroll-behavior:contain;height:var(--field-h)}
   /* 🔴 2026-11-13 用户截图：「发送按钮左边的小图标是干嘛的，点了没反应」——
      那是 textarea 自带的**原生滚动条**（Windows 那套带上下三角的），当时出现在
      内容还没溢出的时候：高度取整差 1px 就让浏览器判定"有溢出"，画出一个点不动的滚动条。
@@ -400,7 +413,7 @@
   .field textarea::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:8px;border:2px solid var(--surface)}
   .field textarea::-webkit-scrollbar-thumb:hover{background:var(--line-strong)}
   .field textarea::placeholder{color:var(--ink3)}
-  .field button{flex:none;background:var(--accent);color:var(--surface);border-radius:9px;padding:9px 18px;font-size:12.8px;font-weight:500}
+  .field button{flex:none;background:var(--accent);color:var(--surface);border-radius:9px;padding:0 18px;font-size:12.8px;font-weight:500;height:var(--field-h);display:flex;align-items:center;justify-content:center}
   .field button:hover{background:var(--accent-hover)}
   .field button:disabled{background:var(--line);cursor:not-allowed}
   .hint{margin-top:7px;font-size:10.4px;color:var(--ink3);letter-spacing:.2px;display:flex;justify-content:space-between;gap:10px}
@@ -540,7 +553,7 @@
   .field{border-color:var(--line-strong);box-shadow:var(--sh-1)}
   .field:hover{border-color:var(--ctrl-bd)}
   .field:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent)}
-  .field button{padding:10px 20px;font-weight:600;letter-spacing:.4px;
+  .field button{padding:0 20px;font-weight:600;letter-spacing:.4px;
     box-shadow:var(--sh-btn);transition:background .15s,transform .08s,box-shadow .15s}
   .field button:active{transform:translateY(1px);box-shadow:none}
 
