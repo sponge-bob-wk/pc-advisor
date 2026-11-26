@@ -6398,10 +6398,37 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
             g = next((x for x in (core.majors_data().get("groups") or [])
                       if x.get("id") == known["_majorId"]), None)
             mname = known.get("_majorName") or mname
+    # 🔴🔴 2026-11-26：**用户本轮明确描述了专业、只是表里没有这个泛称时，
+    #    不许沿用上一轮的旧专业**。
+    #
+    #    事故（用户实测）：
+    #      第1轮「我学人工智能的，预算6000」→ _majorName=人工智能 ✓
+    #      第2轮「学设计的，预算5100，要带去教室」
+    #        「学设计的」是个泛称，majors.json 表里没有这个条目
+    #        → match_major 返回 None（这是对的，宁可弃权）
+    #        → 但 L6401 无条件沿用 known 的「人工智能」
+    #        → 套用人工智能的硬件要求（`_wantDgpu`）
+    #        → 5100 以内的轻薄本全被筛掉
+    #        → 走"放宽预算"分支，推荐 ¥12999（超预算 ¥7899）
+    #
+    #    判据：原话里出现「学/专业/主修 + XX」这种专业描述，
+    #    但 match_major 认不出 → **清空专业约束**，不要沿用旧的。
+    #    理由：用户已经换了描述方向，沿用旧专业会套错硬件门槛。
+    #
+    #    对比：用户没提专业（如「屏幕怎么样」「换一台」）→ 继续沿用。
+    _MAJOR_MENTION = re.compile(
+        r"(我是学|我学|我专业是|我读|就读|学的|专业是|主修|"
+        r"学[^\s，,。]{1,6}的|搞[^\s，,。]{1,6}的|做[^\s，,。]{1,6}的)")
+    _mentions_major = bool(_MAJOR_MENTION.search(user_text or ""))
+
     if g is None and known and known.get("_majorId"):
-        g = next((x for x in (core.majors_data().get("groups") or [])
-                  if x.get("id") == known["_majorId"]), None)
-        mname = known.get("_majorName") or mname
+        if _mentions_major:
+            # 用户提了专业描述但认不出 → 清空，不沿用
+            pass
+        else:
+            g = next((x for x in (core.majors_data().get("groups") or [])
+                      if x.get("id") == known["_majorId"]), None)
+            mname = known.get("_majorName") or mname
     if g:
         slots["_majorId"] = g.get("id")
         slots["_majorGroup"] = g.get("name")
