@@ -52,6 +52,7 @@ import re
 import sys
 
 import pc_rules
+import vrm_rules
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -611,20 +612,116 @@ def build_plan(parts, tier, budget=None, purposes=None):
     if not sock:
         issues.append("CPU 插槽需确认（型号里没识别出来）")
 
-    # ② 主板：必须和 CPU 同插槽
-    mb_key = None
-    if sock:
-        mb_key = lambda it, s=sock: board_socket(it["name"]) == s
-    mb = pick_near(parts.get("motherboard") or [],
-                   budget * ratio["motherboard"], key=mb_key)
+    # ④ 显卡
+    #
+    # 🔴 2026-11-26 加两条规则（实测发现的问题）：
+    #    ① 办公/写代码**不需要独显** —— 原来只是把比例调到 0.30，
+    #       结果还是选出一张 GTX 1650。改成：这类用途直接不配显卡，
+    #       把那部分预算转给 CPU 和存储。
+    #    ② **CPU/显卡要平衡** —— 实测出现过 i5-12490F 配 RTX 5060 Ti，
+    #       显卡 4199 而 CPU 只有 1280，游戏时 CPU 会成瓶颈，
+    #       那张显卡的钱发挥不出来。
+    if rule["needDgpu"][0]:
+        gpu = pick_near(parts.get("gpu") or [], budget * ratio["gpu"])
+        if not gpu:
+            return None
+        plan["gpu"] = gpu
+
+        # 平衡检查：显卡太贵而 CPU 太便宜 → 把 CPU 往上提
+        if balance_cpu_gpu(cpu["price"], gpu["price"]):
+            better = pick_near(parts.get("cpu") or [],
+                               gpu["price"] / 1.8,
+                               key=lambda it: cpu_socket(it["name"]) == sock
+                               if sock else True)
+            if better and better["price"] > cpu["price"] * 1.2:
+                plan["cpu"] = better
+                cpu = better
+                issues.append("CPU 已上调到 %s（原配显卡 %s 会拖后腿）"
+                              % (better["name"][:20], gpu["name"][:16]))
+    else:
+        # 不配独显：用核显，预算转给 CPU/存储
+        #
+        # ⚠️ 局部变量 gpu 也要赋值 —— 下面的电源计算要用到它
+        #    （靠 gpu["price"]==0 判断是不是核显方案）。
+        #    原来只写了 plan["gpu"]，导致 UnboundLocalError。
+        gpu = {
+            "name": "核显（不配独立显卡）",
+            "price": 0,
+            "url": None,
+        }
+        plan["gpu"] = gpu
+        issues.append("这个用途不需要独立显卡，用 CPU 核显即可")
+
+    # 🔴 2026-11-26 重排：主板/内存的选型**必须在显卡平衡之后**。
+    #    原因：CPU 的最终型号要到显卡选完才确定（平衡检查可能换芯），
+    #    而主板的插槽和供电都要匹配 CPU —— 先选主板会配到带不动的板子。
+    #    实测：i5-12490F(90W) 配 H610 没问题，但平衡后换成
+    #    i5-14600KF(180W)，H610 就带不动了。
+
+    # ② 主板：必须和 CPU 同插槽，且**供电要带得动 CPU**
+    #
+    # 🔴 2026-11-26 新增供电校验（实测问题）：
+    #    i5-14600KF（PL2 180W）配了「微星PRO H610M-E」（¥599）。
+    #    H610 是最低端芯片组，供电 4-6 相带不动 180W —— 满载 VRM 过热降频，
+    #    花 2499 买的 CPU 实际只能跑在 65W。参数都对但配起来是坑。
+    #
+    #    判据在 vrm_rules.py（按芯片组分档 + 型号名里的相数）。
+    _cpu_w = cpu_watt(cpu["name"])
+    _mb_pool = parts.get("motherboard") or []
+
+    def _mb_ok(it):
+        # ① 插槽要对
+        if sock and board_socket(it["name"]) != sock:
+            return False
+        # ② 供电要够
+        ok, _ = vrm_rules.check(it["name"], _cpu_w)
+        return ok
+
+    mb = pick_near(_mb_pool, budget * ratio["motherboard"], key=_mb_ok)
+
     if not mb:
-        # 同插槽的板子没抓到 → 退一步：不限制插槽，但标警告
-        mb = pick_near(parts.get("motherboard") or [],
-                       budget * ratio["motherboard"])
-        if mb:
-            issues.append("主板插槽未与 CPU 匹配（库里没有对应芯片组），需人工确认")
-    if not mb:
-        return None
+        # 供电够的同插槽板子没有（或太贵）→ 找最接近的，然后明确告警
+        _loose = None
+        if sock:
+            _loose = pick_near(
+                _mb_pool, budget * ratio["motherboard"],
+                key=lambda it, s=sock: board_socket(it["name"]) == s)
+        if not _loose:
+            _loose = pick_near(_mb_pool, budget * ratio["motherboard"])
+
+        if _loose:
+            mb = _loose
+            _ok, _why = vrm_rules.check(mb["name"], _cpu_w)
+            if not _ok:
+                # 供电不足：把预算挪一点再试一次（往上一档找）
+                _better = [
+                    x for x in _mb_pool
+                    if (sock is None or board_socket(x["name"]) == sock)
+                    and vrm_rules.check(x["name"], _cpu_w)[0]
+                    and (x["price"] or 0) <= budget * 0.25
+                ]
+                if _better:
+                    mb = min(_better, key=lambda x: x["price"] or 0)
+                    issues.append(
+                        "主板从原方案换成 %s（原配板子供电不足：%s）"
+                        % (mb["name"][:26], _why))
+                else:
+                    issues.append(
+                        "主板供电可能不足：%s。%s。"
+                        "预算内找不到更强的板子，建议加钱或换低功耗 CPU"
+                        % (mb["name"][:30], _why))
+        if not mb:
+            return None
+    else:
+        # 正常选到了，但如果 CPU 功耗高，提示一下这套搭配的合理性
+        if _cpu_w > 140:
+            _lv, _cs = vrm_rules.board_level(mb["name"])
+            if _lv is not None and _lv == 1:
+                issues.append(
+                    "%dW 的 CPU 配 B 系列板（%s），主流型号没问题，"
+                    "但如果是丐版可能降频，建议确认具体供电相数"
+                    % (_cpu_w, _cs))
+
     plan["motherboard"] = mb
 
     # ③ 内存：代数要和主板一致，容量要不低于档位底线
@@ -665,46 +762,6 @@ def build_plan(parts, tier, budget=None, purposes=None):
     if not ram:
         return None
     plan["ram"] = ram
-
-    # ④ 显卡
-    #
-    # 🔴 2026-11-26 加两条规则（实测发现的问题）：
-    #    ① 办公/写代码**不需要独显** —— 原来只是把比例调到 0.30，
-    #       结果还是选出一张 GTX 1650。改成：这类用途直接不配显卡，
-    #       把那部分预算转给 CPU 和存储。
-    #    ② **CPU/显卡要平衡** —— 实测出现过 i5-12490F 配 RTX 5060 Ti，
-    #       显卡 4199 而 CPU 只有 1280，游戏时 CPU 会成瓶颈，
-    #       那张显卡的钱发挥不出来。
-    if rule["needDgpu"][0]:
-        gpu = pick_near(parts.get("gpu") or [], budget * ratio["gpu"])
-        if not gpu:
-            return None
-        plan["gpu"] = gpu
-
-        # 平衡检查：显卡太贵而 CPU 太便宜 → 把 CPU 往上提
-        if balance_cpu_gpu(cpu["price"], gpu["price"]):
-            better = pick_near(parts.get("cpu") or [],
-                               gpu["price"] / 1.8,
-                               key=lambda it: cpu_socket(it["name"]) == sock
-                               if sock else True)
-            if better and better["price"] > cpu["price"] * 1.2:
-                plan["cpu"] = better
-                cpu = better
-                issues.append("CPU 已上调到 %s（原配显卡 %s 会拖后腿）"
-                              % (better["name"][:20], gpu["name"][:16]))
-    else:
-        # 不配独显：用核显，预算转给 CPU/存储
-        #
-        # ⚠️ 局部变量 gpu 也要赋值 —— 下面的电源计算要用到它
-        #    （靠 gpu["price"]==0 判断是不是核显方案）。
-        #    原来只写了 plan["gpu"]，导致 UnboundLocalError。
-        gpu = {
-            "name": "核显（不配独立显卡）",
-            "price": 0,
-            "url": None,
-        }
-        plan["gpu"] = gpu
-        issues.append("这个用途不需要独立显卡，用 CPU 核显即可")
 
     # ①b 散热器：按 CPU **最终**功耗选
     #
