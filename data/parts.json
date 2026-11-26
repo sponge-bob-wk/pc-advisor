@@ -3,7 +3,7 @@
   "label": "CPU",
   "source": "https://detail.zol.com.cn/cpu/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 18:38",
+  "fetchedAt": "2026-11-26 18:46",
   "items": [
    {
     "name": "AMD Ryzen 5 9600X",
@@ -231,7 +231,7 @@
   "label": "显卡",
   "source": "https://detail.zol.com.cn/vga/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 18:38",
+  "fetchedAt": "2026-11-26 18:46",
   "items": [
    {
     "name": "瀚铠Radeon RX 9070 XT 红色超合金PRO",
@@ -449,7 +449,7 @@
   "label": "内存",
   "source": "https://detail.zol.com.cn/memory/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 18:38",
+  "fetchedAt": "2026-11-26 18:46",
   "items": [
    {
     "name": "金百达银爵 16GB（2×8GB）DDR4 3200",
@@ -697,7 +697,7 @@
   "label": "主板",
   "source": "https://detail.zol.com.cn/motherboard/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 18:38",
+  "fetchedAt": "2026-11-26 18:46",
   "items": [
    {
     "name": "华硕TUF GAMING B760M-PLUS D4重炮手",
@@ -940,7 +940,7 @@
   "label": "硬盘",
   "source": "https://detail.zol.com.cn/hard_drives/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 18:38",
+  "fetchedAt": "2026-11-26 18:46",
   "items": [
    {
     "name": "希捷酷狼NAS 8TB 7200转 256MB SATA3（ST8000VN004）?NAS硬盘",
@@ -1183,7 +1183,7 @@
   "label": "电源",
   "source": "https://detail.zol.com.cn/power/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 18:38",
+  "fetchedAt": "2026-11-26 18:46",
   "items": [
    {
     "name": "航嘉WD750K全模组 新版",
@@ -1416,7 +1416,7 @@
   "label": "机箱",
   "source": "https://detail.zol.com.cn/case/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 18:38",
+  "fetchedAt": "2026-11-26 18:46",
   "items": [
    {
     "name": "航嘉S960暴风雪X 全景版 黑色",
@@ -1664,7 +1664,7 @@
   "label": "固态",
   "source": "https://detail.zol.com.cn/solid_state_drive/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 18:38",
+  "fetchedAt": "2026-11-26 18:46",
   "items": [
    {
     "name": "致态TiPlus7100（512GB）",
@@ -2132,7 +2132,7 @@
   "label": "散热器",
   "source": "https://detail.zol.com.cn/cooling_product/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 18:38",
+  "fetchedAt": "2026-11-26 18:46",
   "items": [
    {
     "name": "利民AX120R SE逆重力热管",

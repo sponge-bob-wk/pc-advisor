@@ -188,6 +188,50 @@ STEPS = {
         "produces": ["按专业选电脑.html"],
         "depends": ["coverage"],
     },
+
+    # ══════════════════════════════════════════════════════════════
+    # 🔴 2026-11-26 新增：装机配件数据（用户要求纳入刷新链路）
+    #
+    # 为什么单独一组而不是并进 prices：
+    #   配件和机型是两套完全独立的数据（parts.json vs machine_pool.json），
+    #   抓取逻辑也不同（配件要翻页、要逐个抓单品页）。
+    #   混在一起会让"只刷机型价格"变成"顺带刷 459 个配件"，很慢。
+    # ══════════════════════════════════════════════════════════════
+    "parts": {
+        "script": "fetch_parts.py",
+        "where": "tools/agent",
+        "args": ["--ssd-pages", "5", "--ssd-max", "100"],
+        "timeout": 600,
+        # 9 类配件：CPU/显卡/内存/主板/机械盘/固态/散热器/电源/机箱
+        # 固态频道要翻 5 页 + 逐个抓单品页，是最慢的一环（约 2 分钟）
+        "desc": "抓 9 类装机配件价格（实测约 90 秒，固态要翻 5 页）",
+        "produces": ["data/parts.json"],
+        "depends": [],
+    },
+    "parts_fit": {
+        "script": "fetch_fit_params.py",
+        "where": "tools/agent",
+        "args": ["--limit", "40"],
+        "timeout": 600,
+        # 抓显卡/机箱/散热器/主板的物理尺寸，用于兼容性校验：
+        #   显卡长度 / 机箱显卡限长 / 散热器限高 / 板型支持
+        # 每个配件要单独抓一次参数页，所以慢
+        "desc": "抓配件尺寸参数（约 3 分钟，用于兼容性校验）",
+        "produces": ["data/parts_fit.json"],
+        "depends": ["parts"],
+    },
+    "parts_audit": {
+        "script": "audit_parts_data.py",
+        "where": "tools/agent",
+        "args": [],
+        "timeout": 60,
+        # ⚠️ 只读体检，不改任何文件。
+        #    故意不放进 depends —— 它失败不该阻塞数据更新，
+        #    只是让用户看到"数据现在什么状况"。
+        "desc": "配件数据体检（只读：重复/异常值/覆盖率）",
+        "produces": [],
+        "depends": [],
+    },
 }
 
 # 预设：前端按钮给用户选的粒度
@@ -209,6 +253,12 @@ PRESETS = {
               "stats", "coverage"],
     # 全量（按 STEPS 的插入顺序，保证依赖在前）
     "full": list(STEPS.keys()),
+
+    # 🔴 2026-11-26 新增：装机配件
+    #   parts  只刷价格（最常用：价格变得快）
+    #   partsAll 价格 + 尺寸（尺寸很少变，偶尔刷一次就够）
+    "parts": ["parts", "parts_audit"],
+    "partsAll": ["parts", "parts_fit", "parts_audit"],
 }
 
 # ── 任务状态（进程内，单例）─────────────────────────────────────────────
