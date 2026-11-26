@@ -120,6 +120,131 @@
   .stream::-webkit-scrollbar{width:9px}
   .stream::-webkit-scrollbar-button{display:none;width:0;height:0}
   .stream::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:6px;border:3px solid var(--bg)}
+
+  /* ══════════════════════════════════════════════════════════════
+     🔴 2026-11-26 新增：左侧会话栏（仿 open-webui）
+
+     用户反馈：「开启新对话，或者对话记录等是不完善的，
+                openwebui 那些就很完善」
+     ══════════════════════════════════════════════════════════════ */
+
+  /* 会话栏宽度放在变量里，折叠和响应式都用它 */
+  :root{--side-w:212px}
+
+  /* header 里那个 ☰ 按钮：桌面端隐藏（侧栏常驻），移动端显示 */
+  .side-btn{
+    display:none;
+    width:26px;height:26px;margin-right:2px;
+    align-items:center;justify-content:center;
+    border:1px solid var(--line);border-radius:7px;
+    background:var(--surface);color:var(--ink2);
+    font-size:13px;line-height:1;cursor:pointer;
+    transition:color .15s,border-color .15s;
+  }
+  .side-btn:hover{color:var(--accent);border-color:var(--accent-line)}
+
+  /* ── 会话栏本体 ──
+     🔴 2026-11-26：改成 **固定定位**，不参与 .app 的 grid。
+
+        原因：DOM 上 `.side` 是 `<main class="app">` 的**兄弟元素**，
+        grid 只管 main 内部，管不到它。要放进去就得改嵌套，
+        而 app.js 里到处都是 `#app` / `#stream` 选择器，风险大。
+
+        固定定位更接近 open-webui 的实际做法，而且：
+          · 主对话滚动不影响会话栏
+          · 移动端天然支持抽屉式滑出 */
+  .side{
+    position:fixed;left:0;top:54px;bottom:0;z-index:30;
+    display:flex;flex-direction:column;
+    width:var(--side-w);
+    border-right:1px solid var(--line);
+    background:var(--soft);
+    transition:transform .22s ease;
+  }
+  /* 主内容让出左侧空间（只在桌面端） */
+  body{padding-left:var(--side-w)}
+
+  .side-top{padding:14px 12px 10px}
+  .new-chat{
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    width:100%;padding:8px 10px;
+    border:1px solid var(--line);border-radius:9px;
+    background:var(--surface);color:var(--ink);
+    font-size:12.6px;font-weight:500;cursor:pointer;
+    transition:border-color .15s,background .15s,box-shadow .15s;
+  }
+  .new-chat span{font-size:14px;line-height:1;color:var(--accent)}
+  .new-chat:hover{
+    border-color:var(--accent-line);background:var(--accent-soft);
+    box-shadow:var(--sh-1);
+  }
+
+  .sess-list{
+    flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+    padding:2px 8px 8px;
+  }
+  .sess-empty{
+    padding:14px 8px;font-size:11.6px;color:var(--ink3);
+    text-align:center;line-height:1.7;
+  }
+
+  .sess-item{
+    display:flex;align-items:center;gap:6px;
+    padding:7px 8px;margin-bottom:2px;
+    border-radius:7px;cursor:pointer;
+    transition:background .13s;
+  }
+  .sess-item:hover{background:var(--surface)}
+  .sess-item.active{background:var(--surface);box-shadow:var(--sh-1)}
+  .sess-item.active .sess-t{color:var(--ink);font-weight:500}
+
+  .sess-t{
+    flex:1;min-width:0;
+    font-size:12.4px;color:var(--ink2);line-height:1.5;
+    /* 单行省略：标题太长会撑破侧栏 */
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+
+  /* 删除按钮：平时不显，hover 才出来（减少视觉噪音） */
+  .sess-x{
+    flex:none;width:18px;height:18px;
+    display:flex;align-items:center;justify-content:center;
+    border:0;border-radius:5px;background:none;
+    color:var(--ink3);font-size:10px;line-height:1;cursor:pointer;
+    opacity:0;transition:opacity .13s,color .13s,background .13s;
+  }
+  .sess-item:hover .sess-x{opacity:1}
+  .sess-x:hover{color:var(--bad);background:var(--bad-bg)}
+
+  .side-foot{
+    padding:9px 12px 12px;
+    font-size:10.2px;color:var(--ink3);line-height:1.6;
+    border-top:1px solid var(--line2);
+  }
+
+  /* 移动端遮罩：抽屉打开时压暗主区 */
+  .side-mask{display:none}
+
+  /* ── 移动端：会话栏变抽屉 ── */
+  @media (max-width:900px){
+    :root{--side-w:248px}
+    body{padding-left:0}
+    .side{
+      top:0;              /* 移动端盖住顶栏，全屏抽屉 */
+      transform:translateX(-100%);
+      box-shadow:0 0 32px rgba(23,24,28,.18);
+    }
+    body.side-open .side{transform:translateX(0)}
+    .side-btn{display:flex}
+    .side-mask{
+      display:block;position:fixed;inset:0;z-index:29;
+      background:rgba(23,24,28,.32);
+      opacity:0;pointer-events:none;
+      transition:opacity .22s;
+    }
+    body.side-open .side-mask{opacity:1;pointer-events:auto}
+  }
+
   /* ── 侧栏 ──
      🔴 2026-11-26 修三处（用户反馈）：
         「数据概览 / 收起 ⟩ 这个部分做着很难看，收起放在主对话和

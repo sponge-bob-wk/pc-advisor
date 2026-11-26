@@ -204,23 +204,10 @@ function facts(ov){
 function rail(ov){
   var h='';
 
-  /* 1. 数据覆盖（2026-11-16 改：原来展示"有人写过优缺点/仅参数"，
-        用户要求不要暴露这个内部区分，改成展示**字段覆盖**——
-        跑分、重量、价格这些对用户才有意义）*/
-  var wp=(ov.perf||{}).withPerf||0, np=(ov.perf||{}).noPerf||0;
-  var ww=(ov.weight||{}).withWeight||0, nw=(ov.weight||{}).noWeight||0;
-  var tot=ov.total;
-  h+='<div class="ov"><h3>数据覆盖 <span>'+tot+' 台</span></h3>'
-   + '<div class="sbar"><i class="rv" style="width:'+(wp/tot*100).toFixed(1)+'%"></i>'
-   + '<i class="nr" style="width:'+(np/tot*100).toFixed(1)+'%"></i></div>'
-   + '<div class="lg"><span><i class="rv"></i>有跑分 '+wp+'</span>'
-   + '<span><i class="nr"></i>无跑分 '+np+'</span></div>'
-   + '<div class="cap" style="margin-top:9px">跑分来自 Cinebench R23 实测，'
-   + '<b>'+wp+' 台</b>可比快慢；其余按价格排序。</div>'
-   + '<div class="cap" style="margin-top:6px">实测重量 <b>'+ww+' 台</b>'
-   + (ov.weight&&ov.weight.min!=null?'（'+ov.weight.min+'~'+ov.weight.max+' kg）':'')
-   + '。</div></div>';
-
+  /* 🔴 2026-11-26 精简：删掉原「1. 数据覆盖」块。
+     理由：① 它和「5. 覆盖度」讲同一件事（跑分/重量台数），一处说两遍；
+           ② 「多少台有跑分」是数据质量指标，用户挑电脑时不需要先读报告。
+     台数信息没丢：「全库统计」标题右边还写着 N 台。 */
   /* 2. 价位段 */
   var maxN=0;
   ov.priceBuckets.forEach(function(b){ if(b.n>maxN) maxN=b.n });
@@ -252,30 +239,13 @@ function rail(ov){
   });
   h+='<div class="rng-note">内存固态（'+ (ov.byCat.filter(function(c){return c.cat==='upgrade'})[0]||{}).n +' 条）不是整机，价格不能和笔记本横向比。</div></div>';
 
-  /* 4. 可加装分布 */
-  var maxU=0;
-  ov.upgrade.forEach(function(u){ if(u.n>maxU) maxU=u.n });
-  h+='<div class="ov"><h3>可加装分布 <span>0–3 档</span></h3>'
-   + '<div class="cap">0 分 = 内存焊死，四年后没有后路</div><div class="up">';
-  ov.upgrade.forEach(function(u){
-    h+='<div><em>'+u.n+'</em><i class="'+(u.score===0?'z':'')+'" style="height:'+Math.max(u.n/maxU*46,2).toFixed(0)+'px"></i></div>';
-  });
-  h+='</div><div class="up-x">'+ov.upgrade.map(function(u){return '<span>'+u.score+' 档</span>'}).join('')+'</div></div>';
-
-  /* 5. 覆盖度 */
-  h+='<div class="ov"><h3>数据覆盖 <span>缺的就是缺的</span></h3>';
-  h+='<div class="sbar" style="margin-top:6px">'
-   + '<i class="rv" style="width:'+(ov.perf.withPerf/tot*100).toFixed(1)+'%"></i>'
-   + '<i class="unk" style="width:'+(ov.perf.noPerf/tot*100).toFixed(1)+'%"></i></div>'
-   + '<div class="lg"><span><i class="rv"></i>有跑分 '+ov.perf.withPerf+'</span>'
-   + '<span><i class="unk"></i>无跑分 '+ov.perf.noPerf+'（图上标未知）</span></div>';
-  h+='<div class="sbar" style="margin-top:9px">'
-   + '<i class="rv" style="width:'+(ov.weight.withWeight/tot*100).toFixed(1)+'%"></i>'
-   + '<i class="unk" style="width:'+(ov.weight.noWeight/tot*100).toFixed(1)+'%"></i></div>'
-   + '<div class="lg"><span><i class="rv"></i>有重量 '+ov.weight.withWeight+'</span>'
-   + '<span><i class="unk"></i>没记重量 '+ov.weight.noWeight+'</span></div>'
-   + '<div class="cap" style="margin-top:9px">'+esc(ov.weight.note||'')+'</div>';
-
+  /* 🔴 2026-11-26 精简：删掉「4. 可加装分布」全库柱状图。
+     理由：每台机器详情里已有「内存 16G（可加装）」这一行。
+     用户关心「我看的这台能不能加」，不是全库分布长什么样。 */
+  /* 🔴 2026-11-26 精简：删掉原「5. 覆盖度」块。
+     理由：和上面第 1 块重复（都在讲跑分/重量台数）。
+     数据缺失该在**回答里**说 —— 比如「库里没记这台的实测重量」，
+     而不是在侧栏画一张全库斜纹图让用户自己体会。 */
   /* 6. 价格冲突 */
   var pc=ov.priceConflicts||[];
   if(pc.length){
@@ -291,14 +261,24 @@ function rail(ov){
   }
   h+='</div>';
 
-  h+='<div class="rail-foot">图上每个数字都直接来自接口；缺数据的地方画成斜纹「未知」，不当 0 处理。数据截至 '+ov.dataAsOf+'。</div>';
+  // 🔴 2026-11-26 精简：页脚那句技术声明收进 summary 的 title，
+  //    不再单独占 48px。信息没丢，只是不摆在明面上。
 
   // 右栏结构（2026-11-13）：上面是「当前这台」（跟着对话走），下面才是全库统计。
   // 全库统计裹进 <details>，开聊后自动折起来一次 —— 用户要看的是"我在问的这台"，
   // 不是每轮都盯着库构成。
   $('#railBody').innerHTML='<div id="railNow" class="nowbox"></div>'
-    + '<details class="rail-global" id="railGlobal" open>'
-    + '<summary><span class="t">全库统计</span><span class="n">'+ov.total+' 台</span></summary>'
+    + // 🔴 2026-11-26：默认改成折叠。用户打开页面先看的是「当前这台」和自己的问题，
+      //    不是一屏数据报告。要看统计时点一下展开。
+      '<details class="rail-global" id="railGlobal">'
+      + '<summary title="图上每个数字都直接来自接口；缺数据的地方不画，不当 0 处理。数据截至 '+esc(ov.dataAsOf)+'">'
+      // 🔴 2026-11-26 修：这里原来漏了 `<span class="n">` 和 `</summary>` 闭合标签！
+      //    后果：`.rg-body` 被浏览器当成 <summary> 的子元素，
+      //    而 <summary> 里的内容**永远显示**（不受 <details> 控制），
+      //    所以去掉 open 属性后高度还是 610px，折叠完全失效。
+      //    实测证据：details 高 633 = summary 高 633，.rg-body display=block。
+      + '<span class="t">全库统计</span>'
+      + '<span class="n">'+ov.total+' 台</span></summary>'
     + '<div class="rg-body">'+h+'</div></details>';
   paintNow();
   $$('#railBody .bk').forEach(function(b){
@@ -361,8 +341,50 @@ function paintNow(){
   }).catch(function(){});
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   🔴 2026-11-26 新增：首屏重建 + 状态重置
+
+   为什么需要：
+     「新对话」和「切回旧会话」都要清空对话区并恢复首屏，
+     但原代码里没有这个能力 —— hero 在第一条消息时就被 remove() 了，
+     而且示例按钮的数据来自 /api/demo（异步），重建时得复用缓存。
+   ══════════════════════════════════════════════════════════════════ */
+
+/* /api/demo 的结果缓存：重建首屏时直接用，不重复请求网络 */
+/* 首屏 HTML 模板 —— newSession / loadSession 重建首屏时用。
+   原来这段只在 index.html 里写死，第一条消息后 hero 被 remove() 就没了，
+   没有备份就恢复不了。 */
+var HERO_HTML = '<div class="eyebrow">选机助手</div>'
+  + '<h1>说清楚预算和用途，<br>我告诉你<em>具体买哪一台</em>。</h1>'
+  + '<p class="lede">直接给机型、到手价，以及这台机器'
+  + '<b>在你这个用途下的短板</b>。库里没有的，明说没有。</p>'
+  + '<div class="acts" id="acts"></div>';
+
+var demoCache = null;
+
+/* 重建首屏（hero + 示例按钮） */
+function renderHero(){
+  var h = document.createElement('div');
+  h.className = 'hero';
+  h.id = 'hero';
+  h.innerHTML = HERO_HTML;
+  stream.appendChild(h);
+  /* 有缓存就把示例按钮填回去 */
+  if(demoCache) demo(demoCache);
+}
+
+/* 重置会话状态（切会话/新建时必须清，否则条件串到另一个会话） */
+function resetState(){
+  slots = {}; S.slots = {};
+  asked = []; S.asked = [];
+  seen.length = 0; S.seen = [];
+  focus = null; S.focus = null;
+  lastStage = null; S.lastStage = null;
+}
+
 /* ── 示例（来自 /api/demo，前端不写死） ── */
 function demo(d){
+  demoCache = d;   /* 🔴 2026-11-26：存下来，新对话时重建首屏要用 */
   var acts=(d.acts||[]).filter(function(a){return a.turns&&a.turns.length});
   $('#demoChips').innerHTML=acts.slice(0,5).map(function(a){
     return '<button data-q="'+esc(a.turns[0])+'" title="'+esc(a.note||'')+'">'+esc(a.title)+'</button>';
@@ -753,6 +775,12 @@ function send(text){
   var hero=$('#hero'); if(hero) hero.remove();
   inp.value=''; autoGrow();
   addUser(text);
+  /* 🔴 2026-11-26：用户消息落库。
+     注意顺序 —— 必须在 addUser 之后、请求之前，
+     这样即使请求失败，用户说过的话也还在历史里。 */
+  if(window.WB && window.WB.logMsg){
+    window.WB.logMsg('user', text, '', null);
+  }
   var ph=addTyping();
 
   apiCall('/api/chat',{
@@ -769,6 +797,15 @@ function send(text){
     if(d.asked){ asked=d.asked; S.asked=asked; }
     lastStage=d.stage; S.lastStage=lastStage;
     if(d.focus!==undefined){ focus=d.focus; S.focus=focus; }
+    /* 🔴 2026-11-26：助手回复落库。带 state ——
+       切回旧会话时需要它才能续上「换一台」「那它多重」这类追问，
+       否则会失忆重推已经看过的机器。 */
+    if(window.WB && window.WB.logMsg){
+      window.WB.logMsg('assistant', d.reply || '', '', {
+        slots: slots, asked: asked, seen: seen,
+        focus: focus, stage: lastStage
+      });
+    }
     // 🔴 2026-11-17：原来只从 kernel.ranked 累积 seen ——
     //    fit / followup 分支没有 kernel.ranked，所以前端不记。
     //    后果（用户实测）：问了 MateBook D16（fit 分支）→ 说「换一台」
@@ -819,6 +856,40 @@ inp.addEventListener('keydown',function(e){
   if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){ e.preventDefault(); send() }
 });
 sendBtn.onclick=function(){ send() };
+
+/* ══════════════════════════════════════════════════════════════
+   🔴 2026-11-26 新增：会话栏交互
+
+   ⚠️ 教训：这里不能再写 `window.WB.xxx = ...` ——
+   `window.WB` 在文件**末尾**（L901 附近）才定义，
+   而这段代码在 L821 执行，那时 window.WB 还是 undefined，
+   直接赋值会抛 `Cannot set properties of undefined`，
+   **整段 IIFE 中断，后面的 UI 绑定全都不执行**（页面看起来"死了"）。
+
+   所以这里用局部函数 closeSide，最后统一挂到 window.WB 上。
+   ══════════════════════════════════════════════════════════════ */
+var closeSide = function(){
+  document.body.classList.remove('side-open');
+};
+(function(){
+  // 新对话
+  var nb = $('#newChat');
+  if(nb) nb.onclick = function(){
+    if(window.WB && window.WB.newSession) window.WB.newSession();
+    closeSide();
+  };
+
+  // 移动端抽屉
+  var sb = $('#sideBtn'), mask = $('#sideMask');
+  if(sb) sb.onclick = function(ev){
+    ev.stopPropagation();
+    document.body.classList.toggle('side-open');
+  };
+  if(mask) mask.onclick = closeSide;
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') closeSide();
+  });
+})();
 // 🔴 2026-11-26 减法：scopeMore / scope 已从 index.html 删掉，
 //    这里必须判空 —— 原来直接 $('#scopeMore').onclick 会抛
 //    TypeError: Cannot set properties of null，整段初始化中断，
@@ -923,7 +994,107 @@ window.WB = {
   wbHeaders: wbHeaders,
   toast: toast,
   esc: esc,
-  money: money
+    money: money,
+    closeSide: closeSide,
+
+    /* ═══════════════════════════════════════════════════════════
+       🔴 2026-11-26 新增：会话管理接口（给 sessions.js 调用）
+
+       为什么这些函数要放在 app.js 而不是 sessions.js：
+        它们需要操作 app.js 内部的 `S` / `slots` / `stream` 等私有状态。
+        如果搬到 sessions.js，就得把这些状态全导出去，反而更乱。
+
+       所以分工是：
+         · sessions.js —— 管存储和左侧列表渲染（不知道对话内容怎么显示）
+         · app.js      —— 管对话区渲染和状态（不知道存储细节）
+       ═══════════════════════════════════════════════════════════ */
+
+    /* 新建对话：清空对话区，重置状态 */
+    newSession: function(){
+      /* 🔴 2026-11-26 重写。上一版有三个 bug：
+         ① hero 恢复调了 bindActs()/paintHero() —— 这两个函数不存在
+         ② 新建后 getCur() 返回 ''，导致消息写进旧会话
+         ③ #acts 没清，旧按钮残留
+         现在统一走 renderHero()，它负责重建首屏 + 填示例按钮。 */
+      stream.innerHTML = '';
+      renderHero();
+      resetState();
+      if(window.Sessions){
+        window.Sessions.setCur(null);   /* null → 下次发送时才创建新会话 */
+        window.Sessions.render();
+      }
+      inp.value = ''; autoGrow();
+      /* ⚠️ 移动端不要 focus，会把键盘弹出来挡住界面 */
+      if(!isTouch()) inp.focus();
+    },
+
+    /* 加载某个会话：把历史消息画回对话区，恢复状态 */
+    loadSession: function(id){
+      if(!window.Sessions) return;
+      var conv = window.Sessions.readConv(id);
+
+      /* 空会话 → 当新建处理（但保留这个会话 id，不要新建一条） */
+      if(!conv.length){
+        stream.innerHTML = '';
+        renderHero();
+        resetState();
+        window.Sessions.setCur(id);
+        window.Sessions.render();
+        return;
+      }
+
+      stream.innerHTML = '';
+      var lastState = null;
+      conv.forEach(function(m){
+        if(m.role === 'user'){
+          stream.appendChild(
+            el('div', 'turn u', '<div class="ubb">' + esc(m.text) + '</div>'));
+        } else {
+          stream.appendChild(
+            el('div', 'turn', m.html || ('<div class="say">' + esc(m.text || '') + '</div>')));
+          if(m.state) lastState = m.state;
+        }
+      });
+
+      /* 恢复会话状态 —— 否则下一轮「换一台」会失忆重推已看过的机器 */
+      if(lastState){
+        slots = lastState.slots || {};
+        S.slots = slots;
+        asked = lastState.asked || [];
+        S.asked = asked;
+        seen = (lastState.seen || []).slice();
+        S.seen = seen;
+        focus = lastState.focus || null;
+        S.focus = focus;
+        lastStage = lastState.stage || null;
+        S.lastStage = lastStage;
+      }
+      window.Sessions.setCur(id);
+      window.Sessions.render();
+      toBottom();
+    },
+
+    /* 🔴 2026-11-26 新增：把当前会话的状态拿出来（给外部调试/测试用） */
+    getState: function(){
+      return {slots: slots, asked: asked, seen: seen,
+              focus: focus, stage: lastStage,
+              sessionId: window.Sessions ? window.Sessions.getCur() : null};
+    },
+
+
+    /* 记录一条消息到当前会话 */
+    logMsg: function(role, text, html, state){
+      if(!window.Sessions) return;
+      var sid = window.Sessions.getCur();
+      if(!sid){
+        sid = window.Sessions.create(role === 'user' ? text : '');
+      }
+      window.Sessions.append(sid, {
+        role: role, text: text || '', html: html || '',
+        ts: Date.now(), state: state || null
+      });
+      window.Sessions.render();
+    }
 };
 
 })();

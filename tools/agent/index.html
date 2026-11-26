@@ -29,7 +29,11 @@
 <body>
 
 <header class="top">
-  <div class="brand"><span class="mark"></span><b>选机助手</b><span class="ver">Demo</span></div>
+  <div class="brand">
+    <!-- 🔴 2026-11-26 新增：左侧栏开关（移动端用，桌面端常驻） -->
+    <button id="sideBtn" class="side-btn" title="对话记录" aria-label="对话记录">☰</button>
+    <span class="mark"></span><b>选机助手</b>
+  </div>
   <div class="stat">
     <span class="live"><i class="dot" id="dot"></i><span id="stx">连接中</span></span>
     <!-- 🔴 2026-11-26 减法（用户要求）：
@@ -45,6 +49,36 @@
     <span id="rfMsg" class="rf-msg"></span>
   </div>
 </header>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     🔴 2026-11-26 新增：左侧会话栏（仿 open-webui）
+
+     用户反馈：「开启新对话，或者对话记录等是不完善的，openwebui那些就很完善」
+
+     结构：
+       · 顶部「新对话」按钮
+       · 中间会话列表（sessions.js 渲染）
+       · 底部提示（对话只存本地，不上传）
+
+     为什么放最左边而不是复用右侧「数据概览」：
+       两者是不同的东西 —— 左边是「我和系统聊过什么」（历史），
+       右边是「库里的数据长什么样」（现状）。
+       混在一栏会让用户分不清"这是在说我的对话还是说数据"。
+     ══════════════════════════════════════════════════════════════════ -->
+<aside class="side" id="side">
+  <div class="side-top">
+    <button id="newChat" class="new-chat">
+      <span>＋</span> 新对话
+    </button>
+  </div>
+  <div class="sess-list" id="sessList">
+    <div class="sess-empty">还没有对话记录</div>
+  </div>
+  <div class="side-foot">
+    对话只存在这台电脑上，不上传
+  </div>
+</aside>
+<div class="side-mask" id="sideMask"></div>
 
 <!-- 刷新面板：选粒度 → 跑 → 看进度 → 看交叉验证结果 -->
 <div id="rfPanel" class="rf-panel" hidden>
@@ -122,6 +156,10 @@
 <div class="toast" id="toast"></div>
 
 <script src="/static/app.js"></script>
+<!-- 🔴 2026-11-26：会话管理。必须在 app.js 之后加载 ——
+     它挂到 window.Sessions，而 app.js 的 window.WB.newSession 会调它；
+     两者通过 window 交互，顺序反了会导致 Sessions 未定义。 -->
+<script src="/static/sessions.js"></script>
 <script src="/static/refresh.js"></script>
 </body>
 </html>
