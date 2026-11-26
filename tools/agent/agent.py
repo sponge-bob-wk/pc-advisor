@@ -2126,10 +2126,19 @@ def _answer_price_position(user_text, o, focus):
         pos = "在库里 %d 台%s里排第 %d 贵（比它贵的有 %d 台，比它便宜的有 %d 台）" % (
             n, cat_name, rank, len(pricier), len(cheaper))
 
+    # 🔴 2026-11-26：**不许硬编码「到手」**。
+    #
+    #    问题：223 台里有 147 台的价是「平台标价/ZOL参考价」，
+    #    不是到手价（占 66%）。这里写死「到手 ¥%s」，
+    #    用户看到的全是"到手价"，但实际是标价。
+    #
+    #    这是本项目最难抓的一类错：**数字没错，口径错了**。
+    #    用 _price_label() 让口径跟着值走。
+    _plab = _price_label(o)
     lines = [
-        "%s 到手 ¥%s，%s。" % (o["name"], price, pos),
-        "价格我没有「市场均价」这个概念 —— 库里只有这 %d 台自己的到手价，"
-        "所以「划算不划算」我只能按这个范围说，不代表市面。" % n,
+        "%s %s ¥%s，%s。" % (o["name"], _plab, price, pos),
+        "价格我没有「市场均价」这个概念 —— 库里只有这 %d 台自己的%s，"
+        "所以「划算不划算」我只能按这个范围说，不代表市面。" % (n, _plab),
     ]
     if pricier:
         cheapest_up = min(pricier, key=lambda x: x["price"])
@@ -2531,7 +2540,9 @@ def _fit_template(b):
     """匹配度问答的兜底。全是库里原文，不生成。"""
     VERDICT = {"match": "匹配", "partial": "算部分匹配", "mismatch": "不太匹配"}
     head = VERDICT.get(b["fitVerdict"], "")
-    parts = ["%s，%s，到手 ¥%s。" % (b["name"], b["spec"], b["price"])]
+    # 🔴 2026-11-26：价格口径跟着值走，不硬编码「到手」（见 _price_label）
+    parts = ["%s，%s，%s ¥%s。" % (b["name"], b["spec"],
+                                  _price_label(b), b["price"])]
     if head:
         parts.append("就你的用途看，%s。" % head)
     if b["fit"]:
@@ -3400,6 +3411,38 @@ def _strip_violations(text, audit):
     if len(out) < max(60, int(len(text) * 0.4)):
         return None
     return out
+
+
+def _leak_marker(text):
+    """**模型把自己的指令当回答输出** —— 泄漏内部提示词。
+
+    🔴 2026-11-26 实测抓到（问「13000以内的游戏本」）：
+
+      「这台是苍龙16 Pro，12499 元，配置是……
+        没有用户写过优缺点，所以只说配置和价格。
+        **（系统会自动补上警告内容）**」
+
+    最后那句「系统会自动补上警告内容」是我写在 ANSWER_SYS 里的
+    指令（告诉模型"代码后面会补警告"），模型把它念出来了。
+
+    为什么必须拦：用户看到"系统会自动补上"，会觉得这系统还没做完；
+    而且它暴露了内部实现（有代码在补内容），削弱"每句话都有出处"的印象。
+
+    根因：提示词里凡是描述"系统行为"的句子，模型都可能当正文念。
+    教训：**给模型的指令里不要写"系统会做什么"，只写"你要做什么"。**
+
+    判据：出现这些"元描述"短语 → 返回到位置（交给调用方截断）。
+    """
+    t = text or ""
+    LEAK = (
+        r"系统会自动|系统会补|会自动补上|系统将自动|"
+        r"（系统|\(系统|【系统|"
+        r"注意：这句|这句没有说|那是用户的事|不是我的事|"
+        r"按规则|根据判据|判据是|我只陈述|我只报|"
+        r"由代码|交给代码|代码会"
+    )
+    m = re.search(LEAK, t)
+    return m.start() if m else None
 
 
 def _vague_praise(text):
@@ -6975,6 +7018,66 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
     mnote = _major_note(slots, result)
     if mnote:
         reply = reply + mnote
+
+
+    # ═══════════════════════════════════════════════════════════
+    # 🔴 2026-11-26：**截断模型泄漏的指令文本**（见 _leak_marker）
+    #
+    #    实测：「……没有用户写过优缺点，所以只说配置和价格。
+    #           （系统会自动补上警告内容）」
+    #    最后一句是 ANSWER_SYS 里的指令，模型念出来了。
+    #
+    #    做法：从泄漏点截断，保留前面正常的内容。
+    #    ⚠️ 截断后如果太短（<40 字），说明主要内容就是泄漏，
+    #       保留原文交给下游 `_too_thin` 处理更安全。
+    # ═══════════════════════════════════════════════════════════
+    try:
+        _lp = _leak_marker(reply)
+        if _lp is not None and _lp >= 40:
+            reply = reply[:_lp].rstrip()
+    except Exception:
+        pass
+
+    # ═══════════════════════════════════════════════════════════
+    # 🔴🔴 2026-11-26：**价格口径补全**（用户反馈"价格很不准确"）
+    #
+    #    问题：223 台里有 147 台（66%）是「平台标价/ZOL参考价」，
+    #    只有 76 台有真实到手价。但模型输出经常只写「12499 元」，
+    #    不说是到手价还是标价 —— 用户默认理解成到手价，就错了。
+    #
+    #    实测：
+    #      问「13000以内的游戏本」→ 「这台是苍龙16 Pro，12499 元」
+    #      那 12499 其实是真实到手价（final），但回答没标口径，
+    #      用户看到同一台机器在别处标 14699，会以为是错。
+    #
+    #    判据：回答里出现价格数字（¥xxx 或 xxx 元），但**没有**口径词
+    #    （到手/标价/参考价/售价）→ 按榜首那台的口径补一句说明。
+    #
+    #    为什么放在代码里：`_price_label` 的注释已经验证过 ——
+    #    模型念的是自己习惯的词，不是数据里的键名。提示词管不住。
+    # ═══════════════════════════════════════════════════════════
+    try:
+        _top0 = (result.get("ranked") or [{}])[0]
+        _pct_word = ("到手" in reply or "标价" in reply
+                     or "参考价" in reply or "售价" in reply)
+        _has_price = re.search(r"[¥￥]\s*\d|\d{3,}\s*元", reply)
+        with open(r"E:\deepseek harness tests\_tr.txt", "a",
+                  encoding="utf-8") as _f:
+            _f.write("cond: price=%r has=%r pct=%r len=%d\n"
+                     % (_top0.get("price"), bool(_has_price),
+                        _pct_word, len(reply)))
+        if _top0.get("price") and _has_price and not _pct_word:
+            _lab = _price_label(_top0)
+            if _lab == "到手价":
+                reply = reply.rstrip() + (
+                    "\n（%s 是到手价，已含国补；别的平台标价可能更高。）"
+                    % _money(_top0["price"]))
+            else:
+                reply = reply.rstrip() + (
+                    "\n（这个价是平台标价快照，不含国补和平台券，"
+                    "不是到手价；实际到手可能更低。）")
+    except Exception:
+        pass
 
     out = {"stage": "recommend", "slots": slots, "reply": reply,
            # 固定字段版回答（前端主展示）。正文不再当主视图 —— 见 answer_card 的说明。
