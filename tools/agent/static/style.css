@@ -173,7 +173,24 @@
     font-size:12.6px;font-weight:500;cursor:pointer;
     transition:border-color .15s,background .15s,box-shadow .15s;
   }
-  .new-chat span{font-size:14px;line-height:1;color:var(--accent)}
+  /* 🔴🔴 2026-11-26 修「新对话」文字偏移。
+     
+     原来：#newChat 里「＋」是 <span>，「新对话」是裸文本节点。
+     flex 容器把裸文本包成匿名 item，但它**不继承 span 的字号/行高**：
+         ＋       → font-size:14px（匹配 .new-chat span）、line-height:1
+         新对话   → font-size:12.6px（继承 .new-chat）、line-height:normal
+     两个 item 行盒高度不同，align-items:center 各自居中 →
+     视觉上文字和加号不在一条基线上，看起来"偏了"。
+
+     修法：两个都包进 span，都设 line-height:1 + flex 居中。 */
+  .new-chat .nc-plus{
+    font-size:14px;line-height:1;color:var(--accent);
+    display:flex;align-items:center;
+  }
+  .new-chat .nc-text{
+    font-size:12.6px;line-height:1;color:var(--ink);
+    display:flex;align-items:center;
+  }
   .new-chat:hover{
     border-color:var(--accent-line);background:var(--accent-soft);
     box-shadow:var(--sh-1);

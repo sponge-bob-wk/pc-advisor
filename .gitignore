@@ -103,3 +103,14 @@ _tunnel.log
 _pids.json
 _server.log
 _server.err
+
+# 🔴 2026-11-26：训练产物统一用通配（原来只写了具体版本 lora_v5/v6、lora_out/，
+#    这次用了新目录名 lora_out_v7 → 漏网，把 500MB adapter+checkpoint 提交了）
+tools/agent/lora_out*/
+tools/agent/lora_v*/
+tools/agent/*.gguf
+# 配件库尺寸参数备份（体积大且可重抓）
+data/parts.json.bak-*
+data/parts_fit.json.bak-*
+# 训练日志
+tools/agent/train-*.log

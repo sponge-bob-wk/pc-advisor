@@ -103,7 +103,43 @@ SOURCES = [
     #    内容：40 条正例（要/想买/来一台/帮我找 + 品类或配置要求）
     #         + 10 条负例（纯范围描述，防止模型过度泛化）
     ("new-need-seed.jsonl", "state_new_need 种子"),
+    # 🔴 2026-11-26 新增（对抗测试发现准确率只有 65.3%，针对性补数据）
+    #
+    # ① 装机/台式机专项（76 条）
+    #    诊断：装机 43 条样本判错 27 条（37% 正确率）。
+    #    训练集里**一条装机样本都没有** —— 模型完全不认识
+    #    「组装/装机/攒机/DIY/配一台/弄个主机」这类说法。
+    #    语义归属：装机 = state_new_need（提了个新需求要台式机），
+    #    由 pc_build_intent 规则判断是不是自己装。
+    ("desktop-build-seed.jsonl", "装机/台式机专项"),
+    # ② 意图边界专项（78 条）
+    #    诊断出的三组混淆：
+    #      refuse_switch ↔ list_others（「还有别的吗」vs「全部列出」）
+    #      state_new_need ↔ ask_current（「组一台打游戏的」vs「这台多重」）
+    #      analyze ↔ state_range（「性能最强的五台」vs「8000以内」）
+    #    每对都给了正例和对照负例，教模型区分边界。
+    ("boundary-seed.jsonl", "意图边界专项"),
 ]
+
+# 🔴🔴 2026-11-26：**均衡数据优先**。
+#
+# 背景：对抗测试发现准确率只有 65.3%，诊断出三类问题：
+#   ① 装机/台式机完全没有训练样本（43 条测试判错 27 条）
+#   ② 意图边界混淆（refuse_switch↔list_others / analyze↔state_range）
+#   ③ 分布严重失衡（unknown 只占 2.4%）
+#
+# 扩充数据后（新增 6 个种子文件，共 2000+ 条），
+# 用 seed_rebalance.py 重采样成 1479 条、7 类分布按目标比例：
+#   state_new_need 30% / ask_current 22% / state_range 16% /
+#   refuse_switch 12% / analyze 10% / list_others 6% / unknown 4%
+#
+# 为什么**只用它、不叠加原始来源**：
+#   route-balanced.jsonl 已经包含了全部原始数据（去重后按比例采样）。
+#   同时加会导致：① 重复样本 ② 分布被原始失衡数据破坏。
+_BALANCED = os.path.join(LORA_DIR, "route-balanced.jsonl")
+if os.path.exists(_BALANCED):
+    SOURCES = [("route-balanced.jsonl", "均衡成品（含全部扩充）")]
+
 
 OUT_TRAIN = os.path.join(LORA_DIR, "route-train.jsonl")
 OUT_EVAL = os.path.join(LORA_DIR, "route-eval.jsonl")
