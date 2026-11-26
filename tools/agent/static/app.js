@@ -399,8 +399,137 @@ function demo(d){
   });
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   🔴 2026-11-26 新增：轻量 markdown 渲染
+
+   为什么需要（用户反馈）：
+     装机分支返回的是 markdown 表格，但 parseReply 只认「段落 + 数字列表」，
+     结果 `###` 标题、`| 表格 |`、`> 引用` 全被当普通文字显示，
+     用户看到一堆原始符号。
+
+   为什么不用第三方库：
+     项目原则是零框架依赖（README 里写着"全栈零第三方框架"）。
+     而且需要的语法就 5 种，手写 60 行比引 30KB 的 marked.js 划算。
+   ══════════════════════════════════════════════════════════════════ */
+
+/* 行内元素：**粗体** → <b> */
+function inlineMd(s){
+  var t = esc(s);
+  t = t.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  return t;
+}
+
+/* 渲染一整块 markdown 文本（parseReply 的 markdown 分支用） */
+function renderMd(text){
+  var lines = String(text || '').split('\n');
+  var out = [];
+  var i = 0;
+
+  while(i < lines.length){
+    var ln = lines[i];
+
+    /* ── 表格：当前行以 | 开头，且下一行是 |---| 分隔行 ── */
+    if(/^\s*\|/.test(ln) && i + 1 < lines.length
+       && /^\s*\|[\s:|-]+\|\s*$/.test(lines[i+1])){
+      var head = splitRow(ln);
+      i += 2;                        /* 跳过表头和数据分隔行 */
+      var body = [];
+      while(i < lines.length && /^\s*\|/.test(lines[i])){
+        body.push(splitRow(lines[i]));
+        i++;
+      }
+      out.push(mdTable(head, body));
+      continue;
+    }
+
+    /* ── 标题 # ## ### ── */
+    var mh = ln.match(/^\s*(#{1,4})\s+(.+)$/);
+    if(mh){
+      var lvl = Math.min(mh[1].length + 2, 6);   /* 后端的 ### 映射成 h5 太小的，统一压到合适字号 */
+      out.push('<div class="md-h md-h' + mh[1].length + '">'
+               + inlineMd(mh[2]) + '</div>');
+      i++;
+      continue;
+    }
+
+    /* ── 分隔线 --- ── */
+    if(/^\s*---+\s*$/.test(ln)){
+      out.push('<div class="md-hr"></div>');
+      i++;
+      continue;
+    }
+
+    /* ── 引用 > ── */
+    if(/^\s*>\s?/.test(ln)){
+      var qs = [];
+      while(i < lines.length && /^\s*>\s?/.test(lines[i])){
+        qs.push(lines[i].replace(/^\s*>\s?/, ''));
+        i++;
+      }
+      out.push('<div class="md-quote">' + inlineMd(qs.join(' ')) + '</div>');
+      continue;
+    }
+
+    /* ── 普通段落（收集连续非空行）── */
+    if(ln.trim()){
+      var ps = [];
+      while(i < lines.length && lines[i].trim()
+            && !/^\s*\|/.test(lines[i])
+            && !/^\s*#{1,4}\s/.test(lines[i])
+            && !/^\s*---+\s*$/.test(lines[i])
+            && !/^\s*>/.test(lines[i])){
+        ps.push(lines[i]);
+        i++;
+      }
+      if(ps.length) out.push('<p class="say">' + inlineMd(ps.join('\n')).replace(/\n/g, '<br>') + '</p>');
+      continue;
+    }
+
+    i++;
+  }
+  return out.join('');
+}
+
+/* 拆表格行："| a | b |" → ['a','b'] */
+function splitRow(ln){
+  var s = ln.trim().replace(/^\|/, '').replace(/\|$/, '');
+  return s.split('|').map(function(x){ return x.trim() });
+}
+
+/* 拼表格 HTML。首列做标签列（加粗、灰底），最后一列右对齐（价格） */
+function mdTable(head, rows){
+  var h = '<div class="md-table-wrap"><table class="md-table"><thead><tr>';
+  head.forEach(function(c, k){
+    var cls = (k === 0) ? ' class="k"' : (k === head.length - 1 ? ' class="num"' : '');
+    h += '<th' + cls + '>' + inlineMd(c) + '</th>';
+  });
+  h += '</tr></thead><tbody>';
+  rows.forEach(function(r){
+    /* 分隔行可能被当成数据行读进来（如果表头下面没紧贴分隔行），跳过 */
+    if(r.every(function(x){ return /^[-:\s]*$/.test(x) })) return;
+    h += '<tr>';
+    r.forEach(function(c, k){
+      var cls = (k === 0) ? ' class="k"' : (k === r.length - 1 ? ' class="num"' : '');
+      h += '<td' + cls + '>' + inlineMd(c) + '</td>';
+    });
+    h += '</tr>';
+  });
+  h += '</tbody></table></div>';
+  return h;
+}
+
 /* ── 回复解析（只做排版，不改写一个字的正文） ── */
 function parseReply(text){
+  /* 🔴 2026-11-26：先判断是不是 markdown。
+     装机单、结构化卡片这些分支返回的是 markdown（表格/标题/引用），
+     走下面那套「段落 + 数字列表」的解析会原样显示符号。
+     用户实测：「你自己看看，输出纯文本，格式化数据呢」 */
+  var raw = String(text||'');
+  if(/^\s*#{1,4}\s/m.test(raw) || /^\s*\|.*\|\s*$/m.test(raw)
+     || /^\s*>\s/m.test(raw)){
+    return {html: renderMd(raw)};
+  }
+
   var blocks=String(text||'').split(/\n{2,}/).filter(function(x){return x.trim()});
   var out='', quote='';
   blocks.forEach(function(b){
@@ -732,7 +861,8 @@ function render(d){
   bindChips(t);
   bindCmp(t);
   toBottom();
-}
+    return t;   /* 🔴 2026-11-26：返回节点，send() 要靠它取 innerHTML 存会话 */
+  }
 
 function bindChips(root){
   $$('.chips button',root).forEach(function(b){
@@ -797,15 +927,6 @@ function send(text){
     if(d.asked){ asked=d.asked; S.asked=asked; }
     lastStage=d.stage; S.lastStage=lastStage;
     if(d.focus!==undefined){ focus=d.focus; S.focus=focus; }
-    /* 🔴 2026-11-26：助手回复落库。带 state ——
-       切回旧会话时需要它才能续上「换一台」「那它多重」这类追问，
-       否则会失忆重推已经看过的机器。 */
-    if(window.WB && window.WB.logMsg){
-      window.WB.logMsg('assistant', d.reply || '', '', {
-        slots: slots, asked: asked, seen: seen,
-        focus: focus, stage: lastStage
-      });
-    }
     // 🔴 2026-11-17：原来只从 kernel.ranked 累积 seen ——
     //    fit / followup 分支没有 kernel.ranked，所以前端不记。
     //    后果（用户实测）：问了 MateBook D16（fit 分支）→ 说「换一台」
@@ -818,7 +939,26 @@ function send(text){
     ((d.kernel&&d.kernel.ranked)||[]).forEach(function(x){
       if(x&&x.id&&seen.indexOf(x.id)<0) seen.push(x.id);
     });
-    render(d);
+
+    /* 🔴 2026-11-26：助手回复落库 —— **存渲染后的 HTML**。
+       原来存的是空 html，切回旧会话时表格/卡片全丢了，
+       只能退回显示纯 markdown 源码。
+       这里从 render() 返回的节点取 innerHTML，保证还原一致。 */
+    if(window.WB && window.WB.logMsg){
+      try{
+        var _node = render(d);
+        window.WB.logMsg('assistant', d.reply || '',
+                         _node ? _node.innerHTML : '', {
+          slots: slots, asked: asked, seen: seen,
+          focus: focus, stage: lastStage
+        });
+      }catch(e){
+        render(d);
+        window.WB.logMsg('assistant', d.reply || '', '', null);
+      }
+    } else {
+      render(d);
+    }
   }).catch(function(e){
     ph.remove();
     var t=el('div','turn fadein');
