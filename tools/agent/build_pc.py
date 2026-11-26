@@ -58,17 +58,30 @@ ROOT = os.path.dirname(os.path.dirname(HERE))
 PARTS = os.path.join(ROOT, "data", "parts.json")
 
 # ── 配件顺序（装机单的展示顺序，也是逻辑顺序）──
-ORDER = ["cpu", "motherboard", "ram", "gpu", "storage", "psu", "case"]
+#
+# 🔴 2026-11-26：硬盘和固态分开。
+#    原来 storage 只存机械硬盘（「西部数据蓝盘 4TB」），
+#    2026 年装机配机械盘当系统盘是不合理的 —— 系统必须装在 SSD 上。
+#
+#    现在的规则（见 pick_storage）：
+#      · 主盘一定是 SSD（512G 起）
+#      · 预算够的话再加一块机械盘存东西
+ORDER = ["cpu", "motherboard", "ram", "gpu", "storage", "hdd", "psu", "case"]
 
 LABEL = {
     "cpu": "CPU 处理器",
     "motherboard": "主板",
     "ram": "内存",
     "gpu": "显卡",
-    "storage": "硬盘",
+    "storage": "固态硬盘",
+    "hdd": "机械硬盘",
     "psu": "电源",
     "case": "机箱",
 }
+
+# 旧数据兼容：parts.json 里 storage 是机械盘，ssd 是固态
+STORAGE_KEY = "ssd"       # 主盘从这个 key 取
+HDD_KEY = "storage"       # 从盘（可选）从这个 key 取
 
 # ── CPU 插槽识别（按型号名正则）──
 # 实测 ZOL 的商品名形如：
@@ -594,11 +607,48 @@ def build_plan(parts, tier, budget=None, purposes=None):
         plan["gpu"] = gpu
         issues.append("这个用途不需要独立显卡，用 CPU 核显即可")
 
-    # ⑤ 硬盘
-    sto = pick_near(parts.get("storage") or [], budget * ratio["storage"])
-    if not sto:
-        return None
-    plan["storage"] = sto
+    # ⑤ 硬盘：**主盘一定是 SSD**
+    #
+    # 🔴 2026-11-26 修（用户说「ssd必须修」）：
+    #    原来 storage 只取机械硬盘，结果装机单里出现「西部数据蓝盘 4TB」
+    #    当系统盘 —— 2026 年这配置说不过去，机械盘跑系统慢得没法用。
+    #
+    #    现在的规则：
+    #      · 主盘从 ssd 里选，容量至少 512G（预算紧就 500G）
+    #      · 预算够的话（>7000）再加一块机械盘存电影/素材
+    ssd_pool = parts.get(STORAGE_KEY) or []
+    if not ssd_pool:
+        # 固态没抓到 → 退回机械盘，但明确告警
+        sto = pick_near(parts.get(HDD_KEY) or [],
+                        budget * ratio["storage"])
+        if not sto:
+            return None
+        plan["storage"] = sto
+        issues.append("固态硬盘库里没数据，暂时用机械盘（性能差距大，建议补 SSD）")
+    else:
+        # 优先选容量 ≥512G 的（512G 是 2026 年的底线，256G 装完系统就没空间）
+        def ssd_ok(it):
+            n = (it["name"] or "").upper()
+            # 认容量：512GB / 500GB / 1TB / 2TB …
+            if "TB" in n:
+                return True
+            m = re.search(r"(\d{3,4})\s*GB", n)
+            return bool(m and int(m.group(1)) >= 500)
+
+        sto = pick_near(ssd_pool, budget * ratio["storage"], key=ssd_ok)
+        if not sto:
+            sto = pick_near(ssd_pool, budget * ratio["storage"])
+        if not sto:
+            return None
+        plan["storage"] = sto
+
+    # ⑤b 从盘：预算够就加一块机械盘（只存素材/游戏，不装系统）
+    if budget >= 7000 and parts.get(HDD_KEY):
+        hdd_budget = budget * 0.05
+        hdd = pick_near(parts.get(HDD_KEY) or [], hdd_budget,
+                        key=lambda it: (it["price"] or 0) >= 200)
+        if hdd:
+            plan["hdd"] = hdd
 
     # ⑥ 电源：按 CPU+GPU 功耗 × 1.5 留余量
     #

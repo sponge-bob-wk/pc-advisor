@@ -3,7 +3,7 @@
   "label": "CPU",
   "source": "https://detail.zol.com.cn/cpu/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 16:21",
+  "fetchedAt": "2026-11-26 17:22",
   "items": [
    {
     "name": "AMD Ryzen 5 9600X",
@@ -236,7 +236,7 @@
   "label": "显卡",
   "source": "https://detail.zol.com.cn/vga/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 16:21",
+  "fetchedAt": "2026-11-26 17:22",
   "items": [
    {
     "name": "瀚铠Radeon RX 9070 XT 红色超合金PRO",
@@ -479,7 +479,7 @@
   "label": "内存",
   "source": "https://detail.zol.com.cn/memory/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 16:21",
+  "fetchedAt": "2026-11-26 17:22",
   "items": [
    {
     "name": "金百达银爵 16GB（2×8GB）DDR4 3200",
@@ -727,7 +727,7 @@
   "label": "主板",
   "source": "https://detail.zol.com.cn/motherboard/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 16:21",
+  "fetchedAt": "2026-11-26 17:22",
   "items": [
    {
     "name": "华硕TUF GAMING B760M-PLUS D4重炮手",
@@ -970,7 +970,7 @@
   "label": "硬盘",
   "source": "https://detail.zol.com.cn/hard_drives/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 16:21",
+  "fetchedAt": "2026-11-26 17:22",
   "items": [
    {
     "name": "希捷酷狼NAS 8TB 7200转 256MB SATA3（ST8000VN004）?NAS硬盘",
@@ -1213,7 +1213,7 @@
   "label": "电源",
   "source": "https://detail.zol.com.cn/power/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 16:21",
+  "fetchedAt": "2026-11-26 17:22",
   "items": [
    {
     "name": "航嘉WD750K全模组 新版",
@@ -1446,7 +1446,7 @@
   "label": "机箱",
   "source": "https://detail.zol.com.cn/case/",
   "priceType": "zol-reference",
-  "fetchedAt": "2026-11-26 16:21",
+  "fetchedAt": "2026-11-26 17:22",
   "items": [
    {
     "name": "航嘉S960暴风雪X 全景版 黑色",
@@ -1687,6 +1687,119 @@
     "name": "联力包豪斯-O11",
     "price": 799.0,
     "url": "https://detail.zol.com.cn/case/index1277230.shtml"
+   }
+  ]
+ },
+ "ssd": {
+  "label": "固态",
+  "source": "https://detail.zol.com.cn/solid_state_drive/",
+  "priceType": "zol-reference",
+  "fetchedAt": "2026-11-26 17:22",
+  "items": [
+   {
+    "name": "致态TiPlus7100（512GB）",
+    "price": 359.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1432186.shtml"
+   },
+   {
+    "name": "金士顿NV3 （500GB）",
+    "price": 319.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2104246.shtml"
+   },
+   {
+    "name": "西部数据SN7100（2TB）",
+    "price": 899.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2122759.shtml"
+   },
+   {
+    "name": "西部数据SN7100（500GB）",
+    "price": 459.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2122757.shtml"
+   },
+   {
+    "name": "致态TiPro9000（1TB）",
+    "price": 999.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2117180.shtml"
+   },
+   {
+    "name": "三星9100 PRO 1TB",
+    "price": 1099.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2125794.shtml"
+   },
+   {
+    "name": "三星990 PRO NVMe M.2（1TB）",
+    "price": 1099.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1425885.shtml"
+   },
+   {
+    "name": "致态TiPlus9100（2TB）",
+    "price": 1999.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2168764.shtml"
+   },
+   {
+    "name": "三星850 EVO SATA III（1TB）",
+    "price": 1199.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index393779.shtml"
+   },
+   {
+    "name": "致态TiPlus7100s（1TB）",
+    "price": 659.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2147374.shtml"
+   },
+   {
+    "name": "三星750 EVO SATA III（250GB）",
+    "price": 499.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1115471.shtml"
+   },
+   {
+    "name": "雷克沙ARES（512GB）",
+    "price": 299.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1508831.shtml"
+   },
+   {
+    "name": "雷克沙NQ790 1TB",
+    "price": 429.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1977230.shtml"
+   },
+   {
+    "name": "金士顿A400（240GB）",
+    "price": 229.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1164112.shtml"
+   },
+   {
+    "name": "长城GW3300（256GB）",
+    "price": 107.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1857382.shtml"
+   },
+   {
+    "name": "闪迪Optimus GX PRO 8100 M.2（1TB）",
+    "price": 2499.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2167443.shtml"
+   },
+   {
+    "name": "三星860 EVO SATA III（250GB）",
+    "price": 299.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1207057.shtml"
+   },
+   {
+    "name": "西部数据SN3000（500GB）",
+    "price": 319.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2122753.shtml"
+   },
+   {
+    "name": "金士顿NV2 NVMe（250GB）",
+    "price": 189.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index1432504.shtml"
+   },
+   {
+    "name": "Colorful CF500 镭风（512GB）",
+    "price": 349.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2083489.shtml"
+   },
+   {
+    "name": "Colorful CF500 镭风（256GB）",
+    "price": 259.0,
+    "url": "https://detail.zol.com.cn/solid_state_drive/index2083488.shtml"
    }
   ]
  }

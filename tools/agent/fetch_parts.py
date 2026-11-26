@@ -72,9 +72,32 @@ CHANNELS = {
     "ram": ("内存", "https://detail.zol.com.cn/memory/"),
     "motherboard": ("主板", "https://detail.zol.com.cn/motherboard/"),
     "storage": ("硬盘", "https://detail.zol.com.cn/hard_drives/"),
+    "ssd": ("固态", "https://detail.zol.com.cn/solid_state_drive/"),
     "psu": ("电源", "https://detail.zol.com.cn/power/"),
     "case": ("机箱", "https://detail.zol.com.cn/case/"),
 }
+
+# 🔴 2026-11-26：**固态频道要用专门的解析器**
+#
+#    问题（用户反馈「ssd必须修」）：
+#      · `/ssd/` 返回 502，正确路径是 `/solid_state_drive/`
+#      · 但它的页面结构和硬盘频道**完全不同**：
+#
+#        硬盘：  <h3><a href="/hard_drives/index123.shtml" title="西数蓝盘1TB">
+#                    → 一个商品一个价格，直接可解析
+#
+#        固态：  <li data-follow-id="p1432186">
+#                  <h3><a href="/series/626/10719652_1.html"
+#                         title="长江存储·致态TiPlus7100">   ← **系列**链接
+#                  <span class="price-type">359-1799</span>   ← **价格是区间**
+#                  <a href="/solid_state_drive/index1432186.shtml"> ← 单品链接
+#
+#        即：频道页是「系列视图」，一个系列含 512G/1T/2T/4T 多个容量，
+#        价格是区间。装机单要的是**具体容量 + 具体价格**，不能用区间。
+#
+#    解法：频道页按 <li> 块解析出系列 → 逐个抓单品页拿容量和价格。
+#        单品页实测能拿到「致态TiPlus7100（512GB）¥359」这种精确信息。
+SSD_CHANNEL = "ssd"
 
 # 各类配件的**合理价格下限**（低于这个值就是抓错或非整件）。
 #
@@ -90,6 +113,7 @@ PRICE_FLOOR = {
     "ram": 80,           # 单条 8G DDR4 约 100
     "motherboard": 200,  # 最低端 H610 约 400
     "storage": 150,      # 500G 机械约 200
+    "ssd": 100,          # 最便宜 500G SATA SSD 约 150
     "psu": 100,          # 最低端电源也要 100+
     "case": 60,          # 最便宜机箱约 60
 }
@@ -200,6 +224,77 @@ def fetch(url, retries=2):
     raise last
 
 
+def parse_ssd_list(html):
+    """解析固态频道页 —— 按 <li> 块拿「系列名 + 价格区间 + 单品链接」。
+
+    结构见 SSD_CHANNEL 上方的注释。
+    """
+    out = []
+    for m in re.finditer(r'<li\s+data-follow-id="p(\d+)"[^>]*>(.*?)</li>',
+                         html, re.S):
+        pid, block = m.group(1), m.group(2)
+        nm = re.search(r'<h3>\s*<a[^>]*title="([^"]{2,90})"', block)
+        if not nm:
+            continue
+        name = nm.group(1).strip()
+        pm = re.search(r'class="price-type"[^>]*>\s*([\d,\-]+)', block)
+        rng = pm.group(1).strip() if pm else ""
+        lm = re.search(r'href="(/solid_state_drive/index(\d+)\.shtml)"', block)
+        single = (lm.group(1) if lm
+                  else "/solid_state_drive/index%s.shtml" % pid)
+        out.append({
+            "name": name,
+            "priceRange": rng,
+            "pid": pid,
+            "url": "https://detail.zol.com.cn" + single,
+        })
+    return out
+
+
+def parse_ssd_detail(url):
+    """抓固态单品页，返回 (具体型号名, 单一价格)。
+
+    单品页的 <h1> 带容量：「致态TiPlus7100（512GB）」
+    price-type 是单一价格：「359」
+
+    🔴 2026-11-26：**固态的容量不能清洗掉**。
+        实测 clean_name 把「（512GB）」当推广文案切了，
+        结果装机和装机单里只写「致态TiPlus7100」，
+        用户不知道是 512G 还是 4T —— 而容量是 SSD 最关键的信息。
+
+        所以这里只做轻清洗（去掉逗号后的推广语），
+        容量、接口、协议这些**保留**。
+    """
+    html = fetch(url)
+    name = ""
+    m = re.search(r'<h1[^>]*>([^<]{2,100})</h1>', html)
+    if m:
+        name = m.group(1).strip()
+    if not name:
+        m = re.search(r'<title>【([^】]{2,80})】', html)
+        if m:
+            name = m.group(1).strip()
+
+    # 只切中文逗号后的推广文案，不碰括号里的容量/协议
+    m = re.search(r"[，,]", name)
+    if m and m.start() >= 4:
+        name = name[:m.start()]
+    # 去掉卖点词（「性能，低功耗」「NVMe协议，PCIe5.0」这类）
+    m = NAME_CUT_WORDS.search(name)
+    if m and m.start() >= 4:
+        name = name[:m.start()]
+    name = name.strip(" ，,、-")
+
+    price = None
+    pm = re.search(r'class="price-type"[^>]*>\s*([\d,]+)', html)
+    if pm:
+        try:
+            price = float(pm.group(1).replace(",", ""))
+        except ValueError:
+            price = None
+    return name, price
+
+
 def parse_items(html, category=""):
     """从频道页提取 [(型号, 参考价, 详情链接)]。
 
@@ -268,6 +363,10 @@ def main():
     ap.add_argument("--dry", action="store_true")
     ap.add_argument("--category", default="")
     ap.add_argument("--sleep", type=float, default=0.8)
+    # 🔴 2026-11-26：固态要逐个抓单品页（频道页只有系列+价格区间），
+    #    所以限制抓多少个，默认 30 个（约 25 秒）。
+    ap.add_argument("--ssd-max", type=int, default=30,
+                    help="固态最多抓多少个系列的单品页")
     args = ap.parse_args()
 
     targets = ({args.category: CHANNELS[args.category]}
@@ -292,7 +391,38 @@ def main():
     for key, (cn, url) in targets.items():
         try:
             html = fetch(url)
-            items = parse_items(html, key)
+
+            # 🔴 2026-11-26：固态走专门的解析路径
+            #    频道页只给系列和价格区间，要逐个抓单品页拿具体容量+价格。
+            if key == SSD_CHANNEL:
+                groups = parse_ssd_list(html)
+                items = []
+                for g in groups[:args.ssd_max]:
+                    try:
+                        nm, pr = parse_ssd_detail(g["url"])
+                        if not nm or not pr:
+                            continue
+                        # 价格下限过滤（PRICE_FLOOR 里 ssd 是 100）
+                        if pr < PRICE_FLOOR.get("ssd", 100):
+                            continue
+                        items.append({"name": nm, "price": pr,
+                                      "url": g["url"]})
+                    except Exception:
+                        continue
+                    time.sleep(args.sleep * 0.7)
+                # 去重
+                seen = set()
+                uniq = []
+                for it in items:
+                    k = (it["name"], it["price"])
+                    if k in seen:
+                        continue
+                    seen.add(k)
+                    uniq.append(it)
+                items = uniq
+            else:
+                items = parse_items(html, key)
+
             print("  ✓ %-12s %2d 个  %s" % (cn, len(items), url))
             if items:
                 # 只打印价格区间，不刷屏
