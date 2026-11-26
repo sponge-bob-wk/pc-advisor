@@ -101,3 +101,5 @@ tools/agent/lora_v6/
 _public_url.txt
 _tunnel.log
 _pids.json
+_server.log
+_server.err
