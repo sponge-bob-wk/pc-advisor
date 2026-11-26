@@ -5330,8 +5330,27 @@ OUTSIDE_BLACKLIST = ["XPS", "ThinkPad", "MacBook", "Mac ", "拯救者", "雷蛇"
 
 def check_outside_products(text, data=None):
     """检查是否引入了库外产品线。否定语境（声明"库里没有"）不算违规。"""
-    d = data or core.load()
-    known_text = " ".join([o.get("name", "") for o in d["offers"]])
+    # 🔴🔴 2026-11-26 修：**查错了数据源**。
+    #
+    #    原来用 `core.load()["offers"]` —— 那只有 34 条（早期手写示例）。
+    #    而 agent 实际推荐用的是 `core.pool_offers()` —— 223 台。
+    #
+    #    结果：拯救者在这 223 台里有 42 台，但不在那 34 条里
+    #    → OUTSIDE_BLACKLIST 命中 → 误报「库外机型:['拯救者']」。
+    #    实测出现在「最便宜的是哪台」的回答审计里。
+    #
+    #    危害：审计层对**正确回答**报警，可能触发重写把好答案改坏。
+    #
+    #    修法：和实际推荐用同一个数据源。
+    #    ⚠️ data 参数保留（测试时可以传自定义池子）。
+    if data is not None:
+        _offers = data.get("offers") or []
+    else:
+        try:
+            _offers = core.pool_offers()
+        except Exception:
+            _offers = (core.load() or {}).get("offers") or []
+    known_text = " ".join([o.get("name", "") for o in _offers])
     NEG = ["没提", "不包含", "没有", "不在", "未收录", "别", "不要", "无法", "不涉及"]
     hits = []
     for w in OUTSIDE_BLACKLIST:

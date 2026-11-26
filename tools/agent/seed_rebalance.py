@@ -107,7 +107,8 @@ def main():
         "expand-seed.jsonl",      # 大规模扩充
         "minority-seed.jsonl",    # 小类补充
         "unknown-expand.jsonl",   # unknown 专项
-        "gap-fill-seed.jsonl",    # 按缺口补齐（range/switch/analyze/ask/list）
+        "gap-fill-seed.jsonl",    # 按缺口补齐
+        "final-gaps-seed.jsonl",  # 最后一批（品牌换台/还有X吗/计数/指示词）
     ]
     pool = defaultdict(list)
     seen = set()

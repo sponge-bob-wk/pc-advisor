@@ -149,6 +149,32 @@ def _apply_filter(offs, flt):
     return out
 
 
+# ── 价格离群点过滤（2026-11-26）──
+#
+# 事故：「最便宜的是哪台」答了「联想拯救者创世 Ultra，84999 元」。
+#    查下来池子里真有这台（顶配市场价确实 8 万+），数据没错。
+#    错的是 **analyze 在整池上排极值**，没做合理性过滤 ——
+#    8 万的机器当"最便宜"报给用户，比不回答还糟。
+#
+# 判据：价格 > 中位数 × 6 的视为离群点，分析时排除。
+#    为什么 × 6：池子中位约 ¥8,000，×6 = ¥48,000，
+#    能留下 4 万档的真·高端机，排除 8 万+ 的顶配/工作站。
+#    为什么用中位数不用均值：均值受离群点自身影响。
+_OUTLIER_MULT = 6.0
+
+
+def _drop_price_outliers(offs):
+    """去掉价格离群的机器。返回 (过滤后列表, 去掉的条数)。"""
+    ps = sorted(x.get("price") for x in offs if x.get("price"))
+    if len(ps) < 10:
+        return offs, 0
+    med = ps[len(ps) // 2]
+    cap = med * _OUTLIER_MULT
+    kept = [x for x in offs
+            if not x.get("price") or x.get("price") <= cap]
+    return kept, len(offs) - len(kept)
+
+
 def analyze(q, offs=None):
     """执行一次分析。q 是 parse_query() 的输出（或手写同构 dict）。
 
@@ -161,6 +187,13 @@ def analyze(q, offs=None):
     """
     if offs is None:
         offs = core.pool_offers()
+
+    # 🔴 2026-11-26：极值 / 排行类查询要排除价格离群点。
+    #    否则「最便宜的是哪台」会答 8 万的顶配机（池子里真有）。
+    #    只对 top/bottom 做 —— 其他聚合（平均/分布）保留全量更真实。
+    _agg_raw = str(q.get("agg") or "").lower()
+    if AGG_ALIAS.get(_agg_raw, _agg_raw) in ("top", "bottom"):
+        offs, _dropped = _drop_price_outliers(offs)
 
     agg = AGG_ALIAS.get(str(q.get("agg") or "").lower(), q.get("agg") or "count")
     field = FIELD_ALIAS.get(str(q.get("field") or ""), q.get("field"))
