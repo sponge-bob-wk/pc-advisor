@@ -45,7 +45,6 @@ llama.cpp 下载不了。
    要么用 Ollama 基座，不能都开。
 """
 import argparse
-import io
 import json
 import os
 import sys

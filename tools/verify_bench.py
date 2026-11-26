@@ -50,7 +50,6 @@ web-search 汇编。**只要是多来源，就一定会有不一致**，而项�
     python tools/verify_bench.py --fix      # 把 spreadPct 重算并写回（只改这一个字段）
 """
 import argparse
-import io
 import json
 import os
 import sys

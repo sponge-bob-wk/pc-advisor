@@ -47,7 +47,6 @@ import gzip
 import json
 import os
 import re
-import socket
 import sys
 import time
 import urllib.request

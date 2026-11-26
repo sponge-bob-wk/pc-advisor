@@ -237,7 +237,6 @@ def main():
 
     # 标签分布（按 intent）
     from collections import Counter
-    import re
     c = Counter()
     for s in train:
         txt = s["messages"][-1].get("content") or ""

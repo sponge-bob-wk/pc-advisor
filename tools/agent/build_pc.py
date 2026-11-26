@@ -483,17 +483,6 @@ def purpose_tier(base_tier, purposes):
 NO_DGPU_PURPOSE = {"office", "dev"}
 
 
-def needs_dgpu(purposes):
-    """这个用途要不要独显。"""
-    ps = set(purposes or [])
-    # 只要有一个用途需要显卡就要
-    if ps & {"gaming", "design", "video", "threeD", "ai"}:
-        return True
-    if ps and not (ps & NO_DGPU_PURPOSE):
-        return True
-    return not ps   # 没说用途 → 保守给一张
-
-
 def balance_cpu_gpu(cpu_price, gpu_price):
     """检查 CPU/显卡是否失衡。
 

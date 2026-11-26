@@ -39,7 +39,6 @@
     python test_chain.py --only 车辆   # 只跑名字含"车辆"的
 """
 import argparse
-import json
 import os
 import sys
 

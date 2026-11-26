@@ -11,7 +11,6 @@
   python tools/energy_query.py --model "FA608"
 输出：JSON 行（型号 / 等级 / 备案号 / 生产者 / 日期），同时打印原始文本片段便于核对。
 """
-import json
 import os
 import re
 import sys

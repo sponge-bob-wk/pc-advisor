@@ -43,7 +43,6 @@ import argparse
 import io
 import json
 import os
-import re
 import sys
 
 if hasattr(sys.stdout, "reconfigure"):

@@ -6,7 +6,6 @@
 import json
 import os
 import sys
-import datetime
 import glob
 
 sys.stdout.reconfigure(encoding="utf-8")

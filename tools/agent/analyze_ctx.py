@@ -43,8 +43,6 @@ parse_query(text, ctx={
 `agent._run` 里有个模块级变量 `_LAST_ANALYSIS`，
 每次分析完写进去，下一轮解析时读出来。
 """
-import json
-import sys
 
 # 模块级：上一轮的分析上下文。None = 没有历史。
 _LAST_ANALYSIS = [None]

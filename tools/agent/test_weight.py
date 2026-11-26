@@ -36,7 +36,6 @@ W3  一句话里出现多个 kg 数（区间 / 对比）→ 弃权，不猜。
 W4  已经填在 weightKg 里的，不许被文本里的数覆盖（结构化字段优先级最高）。
 W5  修完必须验证没有引入新的品类红线 / 池子变化。
 """
-import json
 import os
 import re
 import sys

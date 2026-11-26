@@ -37,7 +37,6 @@ cores 缺 163、vramGB 缺 167、tgpMaxW 缺 205 的直接原因。
 """
 import argparse
 import gzip
-import io
 import json
 import os
 import re

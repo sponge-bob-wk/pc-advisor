@@ -10,7 +10,6 @@
 """
 import json
 import os
-import re
 import urllib.request
 
 SRC = os.path.join(os.path.dirname(os.path.abspath(__file__)), "index.html")

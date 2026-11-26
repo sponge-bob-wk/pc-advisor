@@ -52,7 +52,6 @@ ZOL 的差异（全部实测过，不是估计）：
 """
 import argparse
 import gzip
-import io
 import json
 import os
 import random

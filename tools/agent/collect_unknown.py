@@ -45,25 +45,6 @@ import budget_intent as BI  # noqa: E402
 OUT = os.path.join(HERE, "lora_data")
 
 
-def _is_meta(s):
-    """判断这句话是不是"测试脚本在描述自己的意图"，而不是用户在说话。
-
-    判据只用**元语言特征**，不靠主观判断（宪法第 4 条：判据要有分辨力）：
-      · 第三人称描述测试行为：应/必须/不许/检测/断言/校验/复读
-      · 出现"这条/该用例/期望"这类指代测试本身的词
-      · 以冒号结尾的半句式（"复读检测：..."）
-    """
-    META = re.compile(
-        r"应(该|能|当|如实|有)|必须|不许|不得|禁止|检测|断言|校验|"
-        r"复读|期望|用例|这条|该条|判据|不能出现|要求是|测试")
-    if META.search(s):
-        return True
-    # 「复读检测：按句号切，同一句出现两次以上。」这类带冒号的说明
-    if "：" in s and re.search(r"检测|校验|判据|规则", s):
-        return True
-    return False
-
-
 def iter_user_texts():
     """遍历所有日志里的用户原话，带上下文。"""
     for fp in sorted(glob.glob(os.path.join(HERE, "logs", "chat-*.log"))):

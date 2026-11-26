@@ -13,7 +13,6 @@ fill_cpuid.py —— 把已核实的 cpuId / cpu.cores / cpu.threads 填进 mach
   python tools/fill_cpuid.py --apply    # 真写
 """
 import json
-import io
 import shutil
 import sys
 from datetime import datetime

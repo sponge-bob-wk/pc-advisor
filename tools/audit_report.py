@@ -10,7 +10,6 @@
   python tools/audit_report.py            # 生成 data/audit_report.html
 """
 import json
-import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path

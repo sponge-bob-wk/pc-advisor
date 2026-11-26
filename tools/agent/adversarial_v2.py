@@ -36,8 +36,6 @@ if hasattr(sys.stdout, "reconfigure"):
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-import agent
-import core
 import intent_layer as il
 
 OUT = os.path.join(HERE, "lora_data", "adversarial-v2.jsonl")

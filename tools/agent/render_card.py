@@ -163,7 +163,6 @@ def _money(v):
 
 if __name__ == "__main__":
     # 自测
-    import json
     demo = {
         "headline": "按你给的条件，排第 1 的是 联想小新 16，到手 ¥5192",
         "rows": [

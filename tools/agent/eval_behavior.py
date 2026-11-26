@@ -63,7 +63,6 @@
     python eval_behavior.py holdout -v   # 打印每条
 """
 import io
-import json
 import os
 import sys
 

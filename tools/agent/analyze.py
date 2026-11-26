@@ -41,10 +41,8 @@
     r = analyze(q)                                # 代码计算
     print(r['value'], r['n'], r['text'])
 """
-import io
 import json
 import os
-import re
 import statistics
 import sys
 

@@ -32,7 +32,6 @@
     python preflight_train.py --force    # 忽略检查（不推荐）
 """
 import argparse
-import os
 import sys
 
 if hasattr(sys.stdout, "reconfigure"):

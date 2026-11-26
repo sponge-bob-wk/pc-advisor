@@ -77,16 +77,6 @@ def data_path(name):
     return os.path.join(DATA, name)
 
 
-def agent_path(name):
-    """tools/agent/ 下的文件。"""
-    return os.path.join(AGENT, name)
-
-
-def lora_path(name):
-    """tools/agent/lora_data/ 下的文件。"""
-    return os.path.join(LORA_DATA, name)
-
-
 def pool_path():
     """机型池。"""
     return data_path("machine_pool.json")

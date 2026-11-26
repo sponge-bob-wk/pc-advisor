@@ -29,7 +29,6 @@
     python tools/bench_add.py --write    # 写回 data/bench.json（先备份）
 """
 import argparse
-import io
 import json
 import os
 import shutil

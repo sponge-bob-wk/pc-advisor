@@ -46,7 +46,6 @@ ZOL 页面根本没有这些字段。诚实记录，不编。
 import argparse
 import io
 import json
-import os
 import re
 import sys
 import time

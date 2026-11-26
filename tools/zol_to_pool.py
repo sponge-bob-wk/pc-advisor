@@ -38,7 +38,6 @@ ZOL 的名称是页面标题（"惠普HyperX 暗影精灵 Pro"），**格式不�
 """
 import argparse
 import glob
-import io
 import json
 import os
 import re

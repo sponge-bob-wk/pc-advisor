@@ -155,10 +155,3 @@ def weight_compare(ov):
 
     return "\n".join(out)
 
-
-def summary_line(ov):
-    """一句话概况。"""
-    total = ov.get("total") or 0
-    perf = ov.get("perf") or {}
-    return ("库里现在 **%d 台**机型，价格快照 %s。"
-            % (total, ov.get("dataAsOf") or "未知"))

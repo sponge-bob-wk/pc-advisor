@@ -31,7 +31,6 @@ sys.stdout.reconfigure(encoding="utf-8")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import agent
-import core
 
 # ── 说法素材：前缀 × 动作。不是"全集"，只是**足够杂**的采样池 ──────────
 PREFIX = ["", "这台", "这个", "刚才那台", "它", "这两个", "另外的",

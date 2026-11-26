@@ -139,15 +139,6 @@ def check(name, cpu_watt):
     return True, None
 
 
-def min_level_for(cpu_watt):
-    """这颗 CPU 至少需要几档供电。"""
-    if cpu_watt <= VRM_MAX_WATT[0]:
-        return 0
-    if cpu_watt <= VRM_MAX_WATT[1]:
-        return 1
-    return 2
-
-
 if __name__ == "__main__":
     print("=" * 74)
     print("主板供电检查测试")

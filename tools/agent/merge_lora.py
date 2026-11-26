@@ -38,7 +38,6 @@ LoRA 的数学：
 用 `safe_run` 守门会拦住 —— 这里故意跳过，因为走 CPU。
 但**内存要够**：约 12 GB。
 """
-import io
 import json
 import os
 import sys

@@ -29,7 +29,6 @@
     python test_analyze.py --engine   # 只跑引擎层（快，不调模型）
 """
 import argparse
-import io
 import sys
 
 if hasattr(sys.stdout, "reconfigure"):
