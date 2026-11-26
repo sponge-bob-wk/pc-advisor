@@ -51,6 +51,8 @@ import os
 import re
 import sys
 
+import pc_rules
+
 sys.stdout.reconfigure(encoding="utf-8")
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -495,11 +497,23 @@ def build_plan(parts, tier, budget=None, purposes=None):
     lo, hi = tier["budget"]
     budget = budget or (lo + hi) / 2
 
-    # 按用途调整比例 + 内存下限
+    # 按用途调整比例 + 套用规则表
     ratio, tune_notes = tune_ratio(tier["pick"], purposes)
     tier = purpose_tier(tier, purposes)
 
-    issues = list(tune_notes)   # 把「按什么用途调的」写进 issues，用户看得到
+    # 🔴 2026-11-26：**部件硬约束从 pc_rules 表取，不再散着硬编码**。
+    #    原来 minRam 写在 TIERS 里、固态容量逻辑写在选型函数里，
+    #    改一处不知道会影响什么。现在统一到 pc_rules.RULES，
+    #    每个约束都带「为什么」，能直接说给用户听。
+    rule = pc_rules.rule_for(purposes)
+
+    # 内存下限：规则表优先，档位默认兜底
+    tier["minRam"] = max(tier.get("minRam") or 16, rule["minRam"][0])
+
+    # 解释：告诉用户「按什么配的、为什么」
+    issues = list(tune_notes)
+    for line in pc_rules.explain(rule, purposes):
+        issues.append(line)
 
     plan = {}
 
@@ -576,7 +590,7 @@ def build_plan(parts, tier, budget=None, purposes=None):
     #    ② **CPU/显卡要平衡** —— 实测出现过 i5-12490F 配 RTX 5060 Ti，
     #       显卡 4199 而 CPU 只有 1280，游戏时 CPU 会成瓶颈，
     #       那张显卡的钱发挥不出来。
-    if needs_dgpu(purposes):
+    if rule["needDgpu"][0]:
         gpu = pick_near(parts.get("gpu") or [], budget * ratio["gpu"])
         if not gpu:
             return None
@@ -626,24 +640,58 @@ def build_plan(parts, tier, budget=None, purposes=None):
         plan["storage"] = sto
         issues.append("固态硬盘库里没数据，暂时用机械盘（性能差距大，建议补 SSD）")
     else:
-        # 优先选容量 ≥512G 的（512G 是 2026 年的底线，256G 装完系统就没空间）
-        def ssd_ok(it):
-            n = (it["name"] or "").upper()
-            # 认容量：512GB / 500GB / 1TB / 2TB …
-            if "TB" in n:
-                return True
+        # 固态容量门槛：按用途从规则表取（游戏 1T / 办公 500G / 剪辑 2T）
+        #
+        # 🔴 2026-11-26 修（用户指出「打游戏配 500G、办公配 1T，这是反的」）：
+        #    原来只设「≥500G」这条通用底线，然后按价格比例挑 ——
+        #    游戏的预算大多给了显卡，留给固态的钱少，就选到 500G；
+        #    办公预算没处花，反而选了 1T。完全反了。
+        #
+        #    现在：容量下限跟着用途走（pc_rules 里定的），
+        #    在该用途够用的固态里选价格最接近目标的。
+        min_gb = max(rule["minSsdGB"][0], pc_rules.SSD_ABS_FLOOR_GB)
+
+        def ssd_gb(it):
+            n = (it["name"] or "").upper().replace(" ", "")
+            m = re.search(r"(\d+(?:\.\d+)?)\s*TB", n)
+            if m:
+                return int(float(m.group(1)) * 1000)
             m = re.search(r"(\d{3,4})\s*GB", n)
-            return bool(m and int(m.group(1)) >= 500)
+            if m:
+                return int(m.group(1))
+            return None
+
+        def ssd_ok(it):
+            g = ssd_gb(it)
+            # 认不出容量的不选（宁可少一个候选，也别配错）
+            return g is not None and g >= min_gb
 
         sto = pick_near(ssd_pool, budget * ratio["storage"], key=ssd_ok)
         if not sto:
-            sto = pick_near(ssd_pool, budget * ratio["storage"])
+            # 预算内的够不上 → 扩大价格搜索范围，只保证容量
+            _big = sorted([x for x in ssd_pool if ssd_ok(x)],
+                          key=lambda x: x["price"])
+            if _big:
+                sto = _big[0]
+                issues.append(
+                    "固态按需配到 %s（达不到 %dG 的没有，已选库里最小的够用款）"
+                    % (sto["name"][:24], min_gb))
+        if not sto:
+            # 连够容量的都没有 → 退到最大容量，但明确告警
+            _all = sorted([x for x in ssd_pool if ssd_gb(x)],
+                          key=lambda x: ssd_gb(x) or 0, reverse=True)
+            if _all:
+                sto = _all[0]
+                issues.append(
+                    "固态容量不够：这个用途建议 %dG 起，"
+                    "但库里最大的只有 %s，请人工确认"
+                    % (min_gb, sto["name"][:24]))
         if not sto:
             return None
         plan["storage"] = sto
 
     # ⑤b 从盘：预算够就加一块机械盘（只存素材/游戏，不装系统）
-    if budget >= 7000 and parts.get(HDD_KEY):
+    if budget >= pc_rules.HDD_MIN_BUDGET and parts.get(HDD_KEY):
         hdd_budget = budget * 0.05
         hdd = pick_near(parts.get(HDD_KEY) or [], hdd_budget,
                         key=lambda it: (it["price"] or 0) >= 200)
@@ -660,7 +708,7 @@ def build_plan(parts, tier, budget=None, purposes=None):
     #       电源不是"越贵越好"，够用就行，多余的钱应该给 CPU/显卡。
     #       所以这里改成：先算 need_w，再选**能带得动的最便宜那档**。
     _gpu_w = gpu_watt(gpu["name"]) if gpu.get("price") else 0
-    need_w = int((cpu_watt(cpu["name"]) + _gpu_w + 80) * 1.5)
+    need_w = int((cpu_watt(cpu["name"]) + _gpu_w + pc_rules.PSU_BASE_LOAD) * pc_rules.PSU_HEADROOM)
 
     def psu_ok(it):
         w = psu_watt(it["name"])
