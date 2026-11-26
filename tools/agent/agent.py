@@ -6435,8 +6435,32 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
                 slots["_wantDgpu"] = True
         if (req.get("gpu") or "").lower() == "discrete":
             slots["_wantDgpu"] = True
+        # 🔴🔴 2026-11-26：**`vramMin` 只在要求独显时才当硬门槛**。
+        #
+        #    事故（答辩演示脚本里发现的）：
+        #      用户：「我学视觉传达的，要跑PS和AI，预算七千」
+        #      → 系统推荐了一台 ¥12999 的机器（超预算 ¥5999）
+        #
+        #    根因链：
+        #      majors.json 里平面视觉组写的是
+        #        "gpu": "either"        ← 核显/独显都行
+        #        "vramMin": 2           ← 只是「推荐参考值」
+        #        "tagline": "吃色准和内存，不吃独显"  ← 数据自己说不需要独显
+        #
+        #      但 L6440 把 `vramMin` 无条件落成 `_minVram=2` 硬门槛，
+        #      core 里按「显存 >= 2GB」筛，**把 7000 以内的轻薄本全筛掉了**
+        #      （轻薄本多是核显，没有独立显存），
+        #      然后系统走"放宽预算"分支，推了 ¥12999。
+        #
+        #    判据：
+        #      · `gpu == "discrete"`（明确要独显）→ vramMin 才是硬门槛
+        #      · `gpu == "either"`（都行）→ vramMin 只用于**文案提示**
+        #        （"推荐 2G 以上显存"），不参与筛选
+        #
+        #    验证：修完后「视觉传达+七千」能出 7000 以内的轻薄本。
+        _gpu_req = (req.get("gpu") or "").lower()
         vram_min = int(req.get("vramMin") or 0)
-        if vram_min:
+        if vram_min and _gpu_req == "discrete":
             slots["_minVram"] = max(int(slots.get("_minVram") or 0), vram_min)
 
     miss = core.missing_required(slots)
