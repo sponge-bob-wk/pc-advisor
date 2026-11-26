@@ -100,7 +100,14 @@
   </section>
 
   <aside class="rail" id="rail">
-    <div class="rail-hd"><b>数据概览</b><button id="railBtn" title="收起侧边栏">收起 ⟩</button></div>
+    <!-- 🔴 2026-11-26 重排（用户反馈）：
+         「收起放在主对话和侧边栏交界会很好」——
+         按钮从右侧挪到最左侧，正好落在两栏分界线上。
+         同时从「收起 ⟩」三个字改成箭头图标，减轻视觉噪音。 -->
+    <div class="rail-hd" id="railHd">
+      <button id="railBtn" title="收起侧边栏" aria-label="收起侧边栏">›</button>
+      <b>数据概览</b>
+    </div>
     <div id="railBody">
       <div id="railNow" class="nowbox"></div>
       <div class="ov">

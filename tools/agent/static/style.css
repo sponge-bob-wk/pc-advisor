@@ -120,9 +120,29 @@
   .stream::-webkit-scrollbar{width:9px}
   .stream::-webkit-scrollbar-button{display:none;width:0;height:0}
   .stream::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:6px;border:3px solid var(--bg)}
+  /* ── 侧栏 ──
+     🔴 2026-11-26 修三处（用户反馈）：
+        「数据概览 / 收起 ⟩ 这个部分做着很难看，收起放在主对话和
+         侧边栏交界会很好吧，而且这个数据概览这个文字会随着下滑
+         遮挡侧边栏文字，因为他位置不变」
+
+        ① **遮挡**：`.rail-hd` 是 sticky 且背景是 --bg，但它是
+           `.rail`（有 padding-left:24px）的子元素 —— header 的背景
+           只覆盖内容宽度，左侧 24px 留白没背景，内容从那缝透上来。
+           修法：给 `.rail` 去掉水平 padding，改成让 `.rail-hd` 和
+           `#railBody` 各自带 padding。这样 sticky 背景能盖满整条。
+
+        ② **sticky 起点不对**：`top:0` 是相对滚动容器内容区算的，
+           而 `.rail` 有 padding-top:26px，导致 sticky 会停在
+           padding 上方那片空白里。去掉 .rail 的 padding-top 后，
+           `top:0` 才是真正的视觉顶部。
+
+        ③ **收起按钮位置**：原来靠右（`justify-content:space-between`），
+           用户希望它在「主对话和侧边栏交界」= 侧栏最左边。
+           修法：把按钮放到标题前面，用 flex 顺序调整。 */
   .rail{
     min-height:0;overflow-y:auto;overscroll-behavior:contain;
-    padding:26px 0 40px 24px;border-left:1px solid var(--line);
+    padding:0;border-left:1px solid var(--line);
   }
   .rail::-webkit-scrollbar{width:9px}
   .rail::-webkit-scrollbar-button{display:none;width:0;height:0}
@@ -431,10 +451,51 @@
   @keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 
   /* ── 右栏数据 ── */
-  .rail-hd{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
-    /* 侧栏内容很长，标题和「收起」要一直看得见，不然得滚回顶部才能收 */
-    position:sticky;top:0;z-index:2;background:var(--bg);
-    padding:2px 0 10px;margin-bottom:4px}
+  /* 🔴 2026-11-26：`#railBody` 原来没有自己的 padding，
+     全靠父元素 `.rail` 的 padding-left:24px。为了修 sticky 遮挡
+     （见 .rail 的注释），水平 padding 从 .rail 挪到了这里。 */
+  #railBody{padding:0 20px 40px 24px}
+
+  /* 🔴 2026-11-26 重写（用户反馈「做得很难看」+「会遮挡」）
+     ────────────────────────────────────────────────────────
+     难看的第一原因（用 CDP 量出来的）：**左边缘对不齐**。
+        header 里按钮 x=922、标题 x=958
+        内容区文字 x=938
+     三个不同的左基线，眼睛看着就是"歪的"。
+
+     统一到 --rail-pad（24px）这条基线上：
+        · header 左 padding = 24px，按钮从 24px 开始
+        · 按钮 22px 宽 + 8px gap → 标题从 54px 开始
+        · 内容区左 padding = 24px，和按钮左边缘对齐
+
+     难看第二原因：按钮原来贴边太紧（8px），看着像"掉在外面"。
+     改回 24px 与内容同基线，视觉上属于这一栏。 */
+  .rail-hd{
+    display:flex;align-items:center;gap:8px;
+    position:sticky;top:0;z-index:3;
+    background:var(--bg);
+    /* 左右 padding 和 #railBody 保持一致，让按钮与内容左边缘齐 */
+    padding:14px 20px 10px 24px;
+    border-bottom:1px solid transparent;
+    transition:border-color .18s;
+  }
+  /* 滚动后加一条细线，让 sticky 区和内容有分隔感
+     （用 JS 打 .is-stuck，见 app.js） */
+  .rail-hd.is-stuck{border-bottom-color:var(--line2)}
+
+  /* 收起按钮：图标风格，不再是「收起 ⟩」三个字 */
+  #railBtn{
+    flex:none;
+    width:22px;height:22px;
+    display:flex;align-items:center;justify-content:center;
+    border:1px solid var(--line);border-radius:6px;
+    background:var(--surface);color:var(--ink3);
+    font-size:11px;line-height:1;cursor:pointer;
+    padding:0 0 1px 0;
+    transition:color .15s,border-color .15s,background .15s;
+  }
+  #railBtn:hover{color:var(--accent);border-color:var(--accent-line);background:var(--accent-soft)}
+  .rail-hd b{margin-left:6px}
   .rail-hd b{font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:.1px}
   .rail-hd button{font-size:10.5px;color:var(--ink3);border-bottom:1px solid var(--line);padding-bottom:1px}
   .rail-hd button:hover{color:var(--accent);border-color:var(--accent-line)}

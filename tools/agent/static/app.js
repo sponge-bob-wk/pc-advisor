@@ -843,6 +843,17 @@ function setRail(mini){
 }
 $('#railBtn').onclick=function(){ setRail(true) };
 $('#railTab').onclick=function(){ setRail(false) };
+  // 🔴 2026-11-26：侧栏滚动后给 header 打 .is-stuck，显示一条细分割线。
+  //    为什么需要：`.rail-hd` 是 sticky 且背景 = --bg，滚动时
+  //    内容和 header 黏在一起，没有分隔感，看起来像"文字被压住了"。
+  //    加一条 border-bottom 就分得清"这是固定栏，下面是内容"。
+  (function(){
+    var _rail=$('#rail'), _hd=$('#railHd');
+    if(!_rail||!_hd) return;
+    _rail.addEventListener('scroll', function(){
+      _hd.classList.toggle('is-stuck', _rail.scrollTop > 2);
+    }, {passive:true});
+  })();
 (function(){
   var forced=null;
   try{ forced=(new URLSearchParams(location.search)).get('rail') }catch(e){}
