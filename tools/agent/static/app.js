@@ -638,16 +638,29 @@ function ansCard(a){
     h+='</div>';
   }
 
-  if((a.candidates||[]).length){
-    h+='<div class="ans-sec"><div class="st">其余候选</div>';
-    a.candidates.forEach(function(c){
-      // 2026-11-16：去掉「仅参数」标记（暴露了"有没有人写过"这个内部区分）。
-      // 改成标「快照价」—— 那是用户需要知道的口径差异。
-      h+='<div class="cand"><span>'+esc(c.name)
-       + (c.priceIsEstimate?'<em>快照价</em>':'')+'</span><b>¥'+money(c.price)+'</b></div>';
-    });
-    h+='</div>';
-  }
+    if((a.candidates||[]).length){
+      /* 🔴 2026-11-26 改造（用户要求）：
+         「下面再推荐同价位的，可以点直接跳转然后看另一台的配置信息」
+
+         原来候选是纯文本，点了没反应。现在每个候选是一行可点击的条目：
+         点击 → 当前这台记进 seen → focus 设为目标 → 发「这台怎么样」
+
+         ⚠️ 顺手修了个 bug：原来判断 `c.priceIsEstimate` 决定是否标「快照价」，
+            但 candidates 里根本没有这个字段（后端给的是 hasReview / note），
+            所以那个标记从来没显示过。 */
+      h+='<div class="ans-sec"><div class="st">同价位还有</div>';
+      a.candidates.forEach(function(c){
+        var hasId = !!c.id;
+        h+='<div class="cand'+(hasId?' clickable':'')+'"'
+         + (hasId?' data-cand-id="'+esc(c.id)+'"':'')
+         + (hasId?' role="button" tabindex="0"':'')
+         + '><span>'+esc(c.name)+'</span>'
+         + '<b>¥'+money(c.price)+'</b>'
+         + (hasId?'<i class="cand-go">查看 →</i>':'')
+         + '</div>';
+      });
+      h+='</div>';
+    }
   h+='</div>';
   return h;
 }
@@ -859,10 +872,36 @@ function render(d){
   t.innerHTML=h;
   stream.appendChild(t);
   bindChips(t);
+  bindCands(t);   /* 🔴 2026-11-26：候选机型点击跳转 */
   bindCmp(t);
   toBottom();
     return t;   /* 🔴 2026-11-26：返回节点，send() 要靠它取 innerHTML 存会话 */
   }
+
+/* 🔴 2026-11-26 新增：候选机型点击跳转
+   点击后：① 当前这台记进 seen ② focus 设成目标 ③ 发「这台怎么样」
+   这样回答落在同一个会话里，不整页刷新。
+
+   ⚠️ 为什么要把当前这台记进 seen：
+      不记的话，用户点 A → 看 B → 点回 A 时，A 会被当成没看过又推一遍。 */
+function bindCands(root){
+  $$('.cand.clickable', root).forEach(function(el){
+    var cid = el.dataset.candId;
+    if(!cid) return;
+    function go(ev){
+      ev.preventDefault();
+      if(busy) return;
+      if(focus && seen.indexOf(focus) < 0) seen.push(focus);
+      S.seen = seen;
+      focus = cid; S.focus = cid;
+      send('这台怎么样');
+    }
+    el.onclick = go;
+    el.onkeydown = function(ev){
+      if(ev.key === 'Enter' || ev.key === ' ') go(ev);
+    };
+  });
+}
 
 function bindChips(root){
   $$('.chips button',root).forEach(function(b){

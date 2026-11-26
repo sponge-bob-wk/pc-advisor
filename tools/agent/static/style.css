@@ -492,6 +492,62 @@
     width:20px;text-align:center}
   .numlist li b{color:var(--ink);font-weight:600}
 
+
+  /* ══════════════════════════════════════════════════════════════
+     🔴 2026-11-26 新增：候选机型可点击样式
+
+     用户要求：「下面再推荐同价位的，可以点直接跳转然后看另一台的配置信息」
+     ══════════════════════════════════════════════════════════════ */
+  .cand.clickable{
+    cursor:pointer;
+    transition:background .13s,border-color .13s;
+  }
+  .cand.clickable:hover{background:var(--accent-soft)}
+  .cand.clickable:focus-visible{
+    outline:2px solid var(--accent-line);outline-offset:1px;
+  }
+  /* 「查看 →」提示：平时半透明，hover 变实，减少视觉噪音 */
+  .cand .cand-go{
+    font-style:normal;font-size:10.4px;color:var(--accent);
+    margin-left:6px;opacity:.55;transition:opacity .13s;
+    white-space:nowrap;
+  }
+  .cand.clickable:hover .cand-go{opacity:1}
+
+  /* ── 笔记本参数表（和台式机装机单统一）──
+     🔴 2026-11-26：用户要求笔记本推荐也「这样输出参数配置」。
+     原来 ans-kv 是两列键值对，视觉上松散；改成表格后两边一致。 */
+  .ans-kv{
+    display:table;width:100%;
+    border:1px solid var(--line);border-radius:10px;
+    background:var(--surface);
+    border-collapse:separate;border-spacing:0;
+    overflow:hidden;margin-top:10px;
+  }
+  .ans-kv .rk,
+  .ans-kv .rv{
+    display:table-cell;
+    padding:8px 12px;
+    border-bottom:1px solid var(--line2);
+    vertical-align:top;
+    font-size:12.8px;line-height:1.6;
+  }
+  /* 每两格组成一行：用 nth 让最后一行去掉下边框 */
+  .ans-kv .rk{
+    width:88px;
+    background:color-mix(in srgb, var(--soft) 55%, transparent);
+    color:var(--ink2);font-weight:600;font-size:11.6px;
+    white-space:nowrap;
+  }
+  .ans-kv .rv{color:var(--ink)}
+  /* 机型行：加粗放大 */
+  .ans-kv .rv.nm{font-weight:600;font-size:13.8px}
+  /* 价格行：主色 + 等宽数字 */
+  .ans-kv .rv.pr{
+    color:var(--price);font-weight:600;
+    font-variant-numeric:tabular-nums;
+  }
+
   /* ── 首选卡 ── */
   .card{margin-top:15px;border:1px solid var(--accent-line);border-radius:12px;background:var(--surface);
     overflow:hidden;box-shadow:0 1px 2px rgba(23,23,15,.03);transition:box-shadow .2s,border-color .2s}
