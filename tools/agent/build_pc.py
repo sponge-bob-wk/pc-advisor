@@ -52,6 +52,7 @@ import re
 import sys
 
 import pc_rules
+import fit_rules
 import vrm_rules
 
 sys.stdout.reconfigure(encoding="utf-8")
@@ -87,6 +88,34 @@ LABEL = {
 # 旧数据兼容：parts.json 里 storage 是机械盘，ssd 是固态
 STORAGE_KEY = "ssd"       # 主盘从这个 key 取
 HDD_KEY = "storage"       # 从盘（可选）从这个 key 取
+
+# 🔴 2026-11-26：物理尺寸参数（fetch_fit_params.py 抓的）
+FITS_PATH = os.path.join(ROOT, "data", "parts_fit.json")
+_FITS_CACHE = {}
+
+
+def load_fits():
+    """加载配件尺寸参数。没有就返回空 dict（不影响主流程）。"""
+    global _FITS_CACHE
+    if _FITS_CACHE:
+        return _FITS_CACHE
+    try:
+        d = json.load(io.open(FITS_PATH, encoding="utf-8"))
+        _FITS_CACHE = {k: (v.get("items") or {}) for k, v in d.items()}
+    except Exception:
+        _FITS_CACHE = {}
+    return _FITS_CACHE
+
+
+def fit_of(category, name):
+    """按名字取某个配件的尺寸参数。"""
+    return (load_fits().get(category) or {}).get(name) or {}
+
+
+def case_spec_of(name):
+    """把机箱的参数拼成一行，供 fit_rules 解析。"""
+    p = fit_of("case", name).get("params") or {}
+    return "；".join("%s%s" % (k, v) for k, v in p.items())
 
 # ── CPU 插槽识别（按型号名正则）──
 # 实测 ZOL 的商品名形如：
@@ -892,11 +921,71 @@ def build_plan(parts, tier, budget=None, purposes=None):
         return None
     plan["psu"] = psu
 
-    # ⑦ 机箱
-    case = pick_near(parts.get("case") or [], budget * ratio["case"])
+    # ⑦ 机箱：**必须装得下显卡、散热器、主板**
+    #
+    # 🔴 2026-11-26 新增（用户要求）
+    #
+    #    原来机箱只按价格选，完全不看尺寸。实际会配出这种：
+    #      显卡 340mm + 限长 320mm 的机箱 → 装不进去
+    #      360 水冷 + 只支持 240 的机箱 → 装不上
+    #      ATX 主板 + MATX 机箱 → 放不下
+    #
+    #    ⚠️ 顺序：机箱必须在显卡/散热器/主板都定了之后才能选 ——
+    #       它的约束就是"装得下这些东西"。今天第四次踩顺序坑。
+    _fits = load_fits()
+    _gpu_size = (fit_of("gpu", gpu["name"]).get("params") or {}).get(
+        "产品尺寸", "")
+    # 散热器参数要**整个传**给 fit_rules —— 判水冷/风冷要靠「散热方式」字段，
+    # 只传「产品尺寸」的话会把它当风冷（实测瓦尔基里B360 名字里没有「水冷」二字，
+    # 但参数里写着 散热方式=水冷）。
+    _cooler_params = (fit_of("cooler", _cooler["name"]).get("params") or {}) \
+        if _cooler else {}
+    _cooler_size = "；".join("%s%s" % (k2, v2)
+                             for k2, v2 in _cooler_params.items())
+
+    def _case_ok(it):
+        spec = case_spec_of(it["name"])
+        if not spec:
+            return True     # 机箱参数没抓到 → 不筛（宁可选便宜也别全排除）
+        bad = fit_rules.check(
+            _gpu_size, spec,
+            cooler_name=(_cooler["name"] if _cooler else None),
+            board_name=mb["name"], cooler_spec=_cooler_size)
+        return not any(lv == "hard" for lv, _ in bad)
+
+    case = pick_near(parts.get("case") or [], budget * ratio["case"],
+                     key=_case_ok)
+
+    if not case:
+        # 装得下的机箱里没有价格合适的 → 放宽价格，但必须装得下
+        _ok_cases = [x for x in (parts.get("case") or []) if _case_ok(x)]
+        if _ok_cases:
+            case = min(_ok_cases, key=lambda x: x["price"] or 0)
+            issues.append(
+                "机箱放宽了价格（装得下的最便宜是 %s ¥%d）"
+                % (case["name"][:22], case["price"]))
+        else:
+            # 一个都装不下 → 退回原逻辑，但明确告警
+            case = pick_near(parts.get("case") or [],
+                             budget * ratio["case"])
+            if case:
+                issues.append(
+                    "⚠️ 没有尺寸合适的机箱：库里装得下这套配置的机箱为 0，"
+                    "已选 %s，需人工确认能否装下" % case["name"][:24])
     if not case:
         return None
     plan["case"] = case
+
+    # ⑦b 最终整体校验：把剩下的尺寸问题都报出来
+    _final = fit_rules.check(
+        _gpu_size, case_spec_of(case["name"]),
+        cooler_name=(_cooler["name"] if _cooler else None),
+        board_name=mb["name"], cooler_spec=_cooler_size)
+    for _lv, _msg in _final:
+        if _lv == "hard":
+            issues.append("⚠️ 尺寸问题：%s" % _msg)
+        else:
+            issues.append("尺寸：%s" % _msg)
 
     rows = []
     total = 0
