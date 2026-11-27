@@ -124,10 +124,13 @@ def case_spec_of(name):
 #   "Intel 酷睿i5 10400F"     → LGA1200
 SOCKET_RULES = [
     # AMD
-    (r"Ryzen\s*[3579]\s*(9\d{3}|8\d{3})", "AM5"),      # 9000/8000 系
-    (r"Ryzen\s*[3579]\s*(7\d{3}|6\d{3})", "AM5"),      # 7000/6000 系
-    (r"Ryzen\s*[3579]\s*5\d{3}", "AM4"),               # 5000 系
-    (r"Ryzen\s*[3579]\s*[1-4]\d{3}", "AM4"),           # 1000-4000 系
+    # 2026-11-27 修：9950X3D2 这种「型号+后缀」原来匹配不上
+    #   （\d{3} 后面还有数字）。改成 \d{3}\w* 允许后缀。
+    # 2026-11-27 修：ZOL 有些型号写「锐龙」而不是「Ryzen」
+    (r"(?:Ryzen|锐龙)\s*[3579]\s*(9\d{3}|8\d{3})\w*", "AM5"),
+    (r"(?:Ryzen|锐龙)\s*[3579]\s*(7\d{3}|6\d{3})\w*", "AM5"),
+    (r"(?:Ryzen|锐龙)\s*[3579]\s*5\d{3}", "AM4"),       # 5000 系
+    (r"(?:Ryzen|锐龙)\s*[3579]\s*[1-4]\d{3}", "AM4"),   # 1000-4000 系
     (r"Threadripper", "sTR5"),
     # Intel
     (r"Ultra\s*[579]\s*2\d{2}", "LGA1851"),            # Ultra 200 系
@@ -152,6 +155,18 @@ CHIPSET_SOCKET = {
     "H670": "LGA1700",
     "Z590": "LGA1200", "B560": "LGA1200", "H510": "LGA1200",
     "Z490": "LGA1200", "B460": "LGA1200", "H410": "LGA1200",
+    # 2026-11-27 补（数据审查发现解析失败）：
+    #   这些是 9 代及更早的老平台，仍出现在 ZOL 库里。
+    #   补映射只为"能被识别"，装机时会因 CPU 池已清理而不被选中。
+    "Z390": "LGA1151", "B365": "LGA1151", "H370": "LGA1151",
+    "B360": "LGA1151", "H310": "LGA1151", "Z370": "LGA1151",
+    "B250": "LGA1151", "Z270": "LGA1151", "H270": "LGA1151",
+    "B150": "LGA1151", "Z170": "LGA1151", "H170": "LGA1151",
+    "B85": "LGA1150", "Z97": "LGA1150", "H81": "LGA1150",
+    "B75": "LGA1155", "Z77": "LGA1155", "H61": "LGA1155",
+    # HEDT / 服务器
+    "X99": "LGA2011-3", "X299": "LGA2066",
+    "C612": "LGA2011-3", "C621": "LGA3647",
 }
 
 # ── 内存代数识别 ──
@@ -183,6 +198,19 @@ def board_ram_gen(name, socket):
         return "DDR4"          # AM4 主力 DDR4（少数 AM4 板支持 DDR4 only）
     if socket == "LGA1700":
         return "DDR4"          # LGA1700 两种都有，默认取 DDR4（更便宜）
+    # 2026-11-27 补（数据审查发现 5 个主板解析失败）：
+    #   老平台的默认内存代数。这些主板仍在 ZOL 库里，
+    #   不补的话无法参与内存兼容校验。
+    if socket == "LGA1200":
+        return "DDR4"          # 10/11 代：DDR4
+    if socket == "LGA1151":
+        return "DDR4"          # 6-9 代主力 DDR4（极少数 DDR3L）
+    if socket == "LGA1150":
+        return "DDR3"
+    if socket == "LGA1155":
+        return "DDR3"
+    if socket in ("LGA2011-3", "LGA2066"):
+        return "DDR4"
     return None
 
 
@@ -261,15 +289,42 @@ def gpu_watt(name):
 
 
 def psu_watt(name):
-    """从电源名里读出额定功率。"""
-    m = re.search(r"(\d{3,4})\s*W", name or "", re.I)
+    """从电源名里读出额定功率。
+
+    🔴 2026-11-27 修（数据审查发现 80% 解析失败）：
+        原来只认「750W」这种显式写法，但真实电源型号几乎都写成
+        WD750K / GX-850 / GW-EPS1250DA / 850PG5 / AX1600i。
+
+        功率的合理范围：桌面电源 300-2000W。
+        超出这个是型号/系列号（如 长城HOPE-6000DS 的 6000 是系列名）。
+    """
+    n = name or ""
+
+    # ① 显式：750W / 750 W / 额定750
+    m = re.search(r"(\d{3,4})\s*W\b", n, re.I)
     if m:
         w = int(m.group(1))
-        if 200 <= w <= 2000:
+        if 300 <= w <= 2000:
             return w
-    m = re.search(r"额定\s*(\d{3,4})", name or "")
+    m = re.search(r"额定\s*(\d{3,4})", n)
     if m:
         return int(m.group(1))
+
+    # ② 型号里的功率：前缀字母/横杠后跟 3-4 位数字
+    #    WD750K / GX-850 / GW-EPS1250DA / 850PG5 / AX1600i / SPX750
+    m = re.search(
+        r"(?:^|[\s\-]|[A-Z]{1,4}[\-=]?)(\d{3,4})(?=[A-Za-z\s]|$)", n)
+    if m:
+        w = int(m.group(1))
+        if 300 <= w <= 2000:
+            return w
+
+    # ③ 兜底：任何 300-2000 之间的独立数字
+    for mm in re.finditer(r"(?<!\d)(\d{3,4})(?!\d)", n):
+        w = int(mm.group(1))
+        if 300 <= w <= 2000:
+            return w
+
     return None
 
 
@@ -277,32 +332,64 @@ def psu_watt(name):
 def ram_gb(name):
     """从内存名里读出总容量（GB）。
 
-    ZOL 的写法很乱，实测样本：
+    ZOL 的写法极乱，实测：
       "金百达银爵 16GB（2×8GB）DDR4 3200"          → 16
       "金士顿叛逆者Renegade 32GB(16G*2) DDR5 6000" → 32
-      "金士顿骇客神条FURY 8GB DDR4 2400"            → 8
-      "七彩虹16GB DDR4 3200 8GB"                   → 16（取第一个明确的 GB）
+      "佰维DW100 DDR5 6000 C28 48GB（2×24GB）"     → 48
+      "金百达银爵 8G DDR4 3600"                     → 8
 
-    判据：优先找 "NNGB" 或 "NNG"；如果有 "×2"/"*2" 说明是套条，
-    但前面写的 16GB 已经是总容量，直接用。
+    🔴 2026-11-27 重写（数据审查发现 4 个失败）：
+        难点是去空格后数字粘连：「C28 48GB」→「C2848GB」。
+        直接用 (\d{1,3})GB 会抓到 "848"（超范围）或被
+        (?<!\d) 挡住（因为 48 前面还有 2）。
+
+        解法：**找 GB 位置，往前抓连续数字，从右往左逐段尝试**
+              2848 → 848(×) → 48(✓)
+
+        另外先去掉括号内容（(2×24GB) 里的 24GB 不是总容量）。
     """
-    n = (name or "").upper().replace(" ", "")
-    # 先找 "16GB" 这种明确的
-    m = re.search(r"(\d{1,3})\s*GB", n)
+    raw = (name or "").upper()
+    # 去掉括号内容（套条规格写在这里，不是总容量）
+    n = re.sub(r"[（(][^）)]*[）)]", "", raw).replace(" ", "")
+
+    def _pick_from(numstr, lo=4, hi=256):
+        """从右侧逐段尝试解析容量：2848 → 848 → 48。"""
+        for take in range(3, 0, -1):
+            if len(numstr) >= take:
+                seg = numstr[-take:]
+                try:
+                    v = int(seg)
+                except ValueError:
+                    continue
+                if lo <= v <= hi:
+                    return v
+        return None
+
+    # ① 先找 "NNGB"，从右往左逐段解析
+    for m in re.finditer(r"(\d+)GB", n):
+        v = _pick_from(m.group(1))
+        if v:
+            return v
+
+    # ② 再找 "16G*2" / "16G×2" 套条写法：单条 × 条数
+    m = re.search(r"(\d{1,3})G\s*[*×X]\s*(\d)", raw.upper().replace(" ", ""))
     if m:
-        v = int(m.group(1))
+        v = int(m.group(1)) * int(m.group(2))
         if 4 <= v <= 256:
             return v
-    # 再找 "16G*2" / "16G×2" 这种，前面是单条容量，要乘
-    m = re.search(r"(\d{1,3})\s*G\s*[*×X]\s*(\d)", n)
-    if m:
-        return int(m.group(1)) * int(m.group(2))
-    # 最后找裸的 "16G"
-    m = re.search(r"(\d{1,3})\s*G(?![A-Z])", n)
-    if m:
-        v = int(m.group(1))
-        if 4 <= v <= 256:
+
+    # ③ 兜底：裸的 "NNG"
+    #    2026-11-27：「8G DDR4」去空格后变「8GDDR4」，G 后面是 D，
+    #    (?![A-Z]) 会挡住。改成允许 G 后跟 DDR/LPDDR 这类内存术语。
+    for m in re.finditer(r"(\d+)G(?!HZ|B|BPS|B/S)", n):
+        tail = n[m.end():m.end() + 5]
+        # G 后面不能是 B（那是 GB，前面已处理）、HZ（频率）
+        if tail.startswith("B") or tail.startswith("HZ"):
+            continue
+        v = _pick_from(m.group(1))
+        if v:
             return v
+
     return None
 
 

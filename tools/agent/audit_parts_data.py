@@ -43,6 +43,97 @@ def load(path):
         return {}
 
 
+
+# ══════════════════════════════════════════════════════════════════
+#  停产 / 价格失真检测（2026-11-27 新增）
+# ══════════════════════════════════════════════════════════════════
+#
+#  为什么需要：用户实测发现「i7 7 代 CPU 要 ¥2898」。
+#  ZOL 对停产产品返回历史首发价，不是现价 —— 这些产品在二手市场
+#  只值几百块，但系统会当新货推荐，还因为"价格高"被当成高端件。
+#
+#  判定两条：
+#    ① 停产（代数老）
+#    ② 价格倒挂（老世代比新世代同档还贵）← 更硬的指标
+
+import re as _re
+
+
+def _cpu_dead(name):
+    if "Ultra" in name:
+        return None
+    s = name.replace("酷睿", "").replace(" ", "")
+    m = _re.search(r"i[3579][-\s]?(\d{4,5})(?!\d)", s)
+    if m:
+        num = m.group(1)
+        gen = int(num[0]) if len(num) == 4 else int(num[:2])
+        return gen if gen <= 9 else None
+    m = _re.search(r"Ryzen\s*[3579]\s*(\d)\d{3}", name)
+    if m and int(m.group(1)) <= 2:
+        return int(m.group(1)) + 100     # 标记 AMD
+    return None
+
+
+def _gpu_key(name):
+    n = name.upper()
+    m = _re.search(r"RTX\s*(\d{2})\s*(\d{2})", n)
+    if m:
+        return "NV", int(m.group(1)), int(m.group(2))
+    m = _re.search(r"GTX\s*(1\d)\s*(\d{2})", n)
+    if m:
+        return "NV", int(m.group(1)), int(m.group(2))
+    m = _re.search(r"RX\s*(\d)(\d{3})", n)
+    if m:
+        return "AMD", int(m.group(1)), int(m.group(2)[:2])
+    return None, None, None
+
+
+def legacy_or_inverted(data):
+    """返回 [(cat, name, price, reason)] —— 停产或价格失真的配件。"""
+    out = []
+
+    # ── CPU ──
+    for c in (data.get("cpu", {}).get("items") or []):
+        gen = _cpu_dead(c["name"])
+        if gen is not None:
+            out.append(("cpu", c["name"], c.get("price") or 0,
+                        "已停产（%s），ZOL 参考价是历史首发价"
+                        % ("AMD Zen1/2" if gen > 100 else "Intel %d 代"
+                           % gen)))
+
+    # ── GPU：停产 + 价格倒挂 ──
+    gpus = data.get("gpu", {}).get("items") or []
+    from collections import defaultdict
+    tier_min = defaultdict(dict)
+    for g in gpus:
+        if not g.get("price"):
+            continue
+        v, gen, tier = _gpu_key(g["name"])
+        if v is None:
+            continue
+        cur = tier_min[(v, tier)].get(gen)
+        if cur is None or g["price"] < cur:
+            tier_min[(v, tier)][gen] = g["price"]
+
+    for g in gpus:
+        n, p = g["name"], g.get("price") or 0
+        v, gen, tier = _gpu_key(n)
+        # 停产系
+        if _re.search(r"RTX\s*20\d{2}", n, _re.I) or \
+           _re.search(r"GTX\s*1\d{3}", n, _re.I) or \
+           _re.search(r"RX\s*5\d{3}", n, _re.I):
+            out.append(("gpu", n, p, "已停产（RTX20/GTX/RX5000 系）"))
+            continue
+        # 价格倒挂
+        if v is not None and p:
+            newer = [x for gg, x in tier_min[(v, tier)].items() if gg > gen]
+            if newer and p > min(newer):
+                out.append(("gpu", n, p,
+                            "价格倒挂：新一代同档只要 ¥%d，这张 ¥%d"
+                            % (min(newer), int(p))))
+    return out
+
+
 def main():
     parts = load(PARTS)
     fits = load(FITS)
@@ -54,6 +145,21 @@ def main():
     print("配件数据体检")
     print("=" * 80)
     print()
+
+    # ── ⓪ 停产 / 价格失真（2026-11-27 新增）──
+    # 用户实测：「i7 7 代 CPU 要 ¥2898」—— ZOL 对停产产品返回
+    # 历史首发价。必须每次体检都报，否则刷新会重新抓回来。
+    _legacy = legacy_or_inverted(parts)
+    if _legacy:
+        print("【⓪】停产 / 价格失真")
+        print("-" * 80)
+        for _c, _n, _p, _w in _legacy:
+            print("  ⚠️  [%s] %-36s ¥%-7d %s"
+                  % (_c, _n[:34], int(_p), _w))
+        print()
+        print("  → 这些配件的历史价不可信，建议从 parts.json 移除")
+        print()
+
 
     # ── ① 数量与价格 ──
     print("【一】规模与价格")

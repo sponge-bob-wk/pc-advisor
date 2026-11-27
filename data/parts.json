@@ -81,11 +81,6 @@
     "url": "https://detail.zol.com.cn/cpu/index2110067.shtml"
    },
    {
-    "name": "Intel 酷睿i5 9400F",
-    "price": 1119.0,
-    "url": "https://detail.zol.com.cn/cpu/index1249003.shtml"
-   },
-   {
     "name": "Intel 酷睿 i7 12700KF",
     "price": 2730.0,
     "url": "https://detail.zol.com.cn/cpu/index1393369.shtml"
@@ -109,16 +104,6 @@
     "name": "Intel 酷睿 i5 14490F",
     "price": 1499.0,
     "url": "https://detail.zol.com.cn/cpu/index2111489.shtml"
-   },
-   {
-    "name": "Intel 酷睿i7 8700",
-    "price": 2859.0,
-    "url": "https://detail.zol.com.cn/cpu/index1177029.shtml"
-   },
-   {
-    "name": "Intel 酷睿i3 8100",
-    "price": 899.0,
-    "url": "https://detail.zol.com.cn/cpu/index1179798.shtml"
    },
    {
     "name": "Intel 酷睿 i3 12100",
@@ -171,39 +156,14 @@
     "url": "https://detail.zol.com.cn/cpu/index1440555.shtml"
    },
    {
-    "name": "Intel 酷睿i7 7700",
-    "price": 2898.0,
-    "url": "https://detail.zol.com.cn/cpu/index1159128.shtml"
-   },
-   {
     "name": "Intel 酷睿 i7 13700K",
     "price": 3900.0,
     "url": "https://detail.zol.com.cn/cpu/index1428845.shtml"
    },
    {
-    "name": "Intel 酷睿i5 7500",
-    "price": 1999.0,
-    "url": "https://detail.zol.com.cn/cpu/index1159124.shtml"
-   },
-   {
     "name": "Intel 酷睿i5 10400F",
     "price": 880.0,
     "url": "https://detail.zol.com.cn/cpu/index1307002.shtml"
-   },
-   {
-    "name": "Intel 酷睿i3 9100F",
-    "price": 799.0,
-    "url": "https://detail.zol.com.cn/cpu/index1277885.shtml"
-   },
-   {
-    "name": "Intel 酷睿i7 9700",
-    "price": 2599.0,
-    "url": "https://detail.zol.com.cn/cpu/index1269848.shtml"
-   },
-   {
-    "name": "Intel 酷睿i5 8400",
-    "price": 1689.0,
-    "url": "https://detail.zol.com.cn/cpu/index1177032.shtml"
    },
    {
     "name": "AMD Ryzen 7 5800X",
@@ -216,14 +176,14 @@
     "url": "https://detail.zol.com.cn/cpu/index1366838.shtml"
    },
    {
-    "name": "AMD Ryzen 5 3600",
-    "price": 1199.0,
-    "url": "https://detail.zol.com.cn/cpu/index1277878.shtml"
-   },
-   {
     "name": "AMD 锐龙 9 9950X3D2",
     "price": 6999.0,
     "url": "https://detail.zol.com.cn/cpu/index2167284.shtml"
+   },
+   {
+    "name": "AMD Ryzen 5 3600",
+    "price": 1199.0,
+    "url": "https://detail.zol.com.cn/cpu/index1277878.shtml"
    }
   ]
  },
@@ -274,11 +234,6 @@
     "url": "https://detail.zol.com.cn/vga/index2128138.shtml"
    },
    {
-    "name": "AMD Radeon RX 5700 XT显卡",
-    "price": 3399.0,
-    "url": "https://detail.zol.com.cn/vga/index1279345.shtml"
-   },
-   {
     "name": "瀚铠Radeon RX 9070 XT 超合金PRO",
     "price": 5399.0,
     "url": "https://detail.zol.com.cn/vga/index2141540.shtml"
@@ -297,11 +252,6 @@
     "name": "msi微星GeForce RTX 5060 Ti 8G GAMING TRIO OC",
     "price": 3599.0,
     "url": "https://detail.zol.com.cn/vga/index2130975.shtml"
-   },
-   {
-    "name": "NVIDIA GeForce RTX 3060 12G",
-    "price": 3899.0,
-    "url": "https://detail.zol.com.cn/vga/index1355946.shtml"
    },
    {
     "name": "七彩虹战斧 GeForce RTX 5060 DUO 8GB",
@@ -342,11 +292,6 @@
     "name": "NVIDIA RTX 5090FE公版",
     "price": 33999.0,
     "url": "https://detail.zol.com.cn/vga/index2124917.shtml"
-   },
-   {
-    "name": "七彩虹iGame GeForce GTX 1650 Ultra 4G超级英雄形象",
-    "price": 1199.0,
-    "url": "https://detail.zol.com.cn/vga/index1269637.shtml"
    },
    {
     "name": "七彩虹iGame GeForce RTX 5060 Ultra W OC",
@@ -392,11 +337,6 @@
     "name": "技嘉GeForce RTX 5060 Ti AERO",
     "price": 4199.0,
     "url": "https://detail.zol.com.cn/vga/index2130985.shtml"
-   },
-   {
-    "name": "NVIDIA GeForce RTX 3060 Ti显卡",
-    "price": 5000.0,
-    "url": "https://detail.zol.com.cn/vga/index1350133.shtml"
    },
    {
     "name": "华硕ATS-RTX5060TI-O8G",
@@ -645,11 +585,6 @@
     "name": "金士顿4GB DDR3 1600",
     "price": 229.0,
     "url": "https://detail.zol.com.cn/memory/index1137181.shtml"
-   },
-   {
-    "name": "新乐士狂刃战",
-    "price": 1639.0,
-    "url": "https://detail.zol.com.cn/memory/index2175988.shtml"
    },
    {
     "name": "七彩虹16GB DDR4 3200 8GB",
@@ -1226,11 +1161,6 @@
     "url": "https://detail.zol.com.cn/power/index2119720.shtml"
    },
    {
-    "name": "长城HOPE-6000DSATX电源标准",
-    "price": 259.0,
-    "url": "https://detail.zol.com.cn/power/index352863.shtml"
-   },
-   {
     "name": "技嘉猎鹰白金 850PG5白金认证",
     "price": 569.0,
     "url": "https://detail.zol.com.cn/power/index2170269.shtml"
@@ -1269,16 +1199,6 @@
     "name": "利民TR-KG750-WATX3.1金牌电源",
     "price": 349.0,
     "url": "https://detail.zol.com.cn/power/index2124586.shtml"
-   },
-   {
-    "name": "鑫谷核动力 超级战舰 S7",
-    "price": 159.0,
-    "url": "https://detail.zol.com.cn/power/index348383.shtml"
-   },
-   {
-    "name": "美商海盗船WS3000全模组化",
-    "price": 6599.0,
-    "url": "https://detail.zol.com.cn/power/index2175381.shtml"
    },
    {
     "name": "航嘉WD750EVO炫金战神全模",
@@ -1336,24 +1256,9 @@
     "url": "https://detail.zol.com.cn/power/index2115394.shtml"
    },
    {
-    "name": "长城机电F8日系电容",
-    "price": 669.0,
-    "url": "https://detail.zol.com.cn/power/index1975197.shtml"
-   },
-   {
-    "name": "长城X6漏电监测",
-    "price": 449.0,
-    "url": "https://detail.zol.com.cn/power/index1899919.shtml"
-   },
-   {
     "name": "微星MAG A750GL PCIE5",
     "price": 749.0,
     "url": "https://detail.zol.com.cn/power/index1823231.shtml"
-   },
-   {
-    "name": "长城X7 白色",
-    "price": 629.0,
-    "url": "https://detail.zol.com.cn/power/index1629089.shtml"
    },
    {
     "name": "航嘉WD850K全模组",
@@ -1376,11 +1281,6 @@
     "url": "https://detail.zol.com.cn/power/index1907458.shtml"
    },
    {
-    "name": "长城V8自动启停",
-    "price": 699.0,
-    "url": "https://detail.zol.com.cn/power/index1899944.shtml"
-   },
-   {
     "name": "航嘉WD750EVO",
     "price": 549.0,
     "url": "https://detail.zol.com.cn/power/index1408520.shtml"
@@ -1399,16 +1299,6 @@
     "name": "航嘉WD650K",
     "price": 499.0,
     "url": "https://detail.zol.com.cn/power/index1319776.shtml"
-   },
-   {
-    "name": "长城金牌巨龙GW-6800",
-    "price": 449.0,
-    "url": "https://detail.zol.com.cn/power/index391971.shtml"
-   },
-   {
-    "name": "长城G7 金牌80PLUS认证",
-    "price": 669.0,
-    "url": "https://detail.zol.com.cn/power/index1913250.shtml"
    }
   ]
  },
