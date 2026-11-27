@@ -217,8 +217,12 @@ class H(BaseHTTPRequestHandler):
         # 页面本身不挡（挡了连输入访问码的机会都没有），只挡数据接口
         if path.startswith("/api/") and not self._gate(qs):
             return
-        if path in ("/", "/index.html"):
-            with open(os.path.join(BASE, "index.html"), "rb") as f:
+        if path in ("/", "/index.html", "/wizard.html"):
+            # 🔴 2026-11-27 加 /wizard.html：选机向导（一步步点选项）
+            #    ⚠️ 要按 path 选文件 —— 原来的写法条件里加了 wizard.html
+            #    但 open 仍写死 index.html，访问 /wizard.html 返回的是主对话页
+            _html = "wizard.html" if path == "/wizard.html" else "index.html"
+            with open(os.path.join(BASE, _html), "rb") as f:
                 self._send(200, f.read(), "text/html; charset=utf-8")
         elif path == "/favicon.ico":
             # 2026-11-21：浏览器默认会请求，返回 204 避免日志噪音

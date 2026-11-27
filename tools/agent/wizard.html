@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>选机向导 · 不问参数，只问你的日常</title>
+<style>
+:root{
+  --bg:#f7f8fa; --surface:#fff; --ink:#1a1d21; --ink2:#4a5058; --ink3:#8a919b;
+  --accent:#3d5afe; --accent-soft:#eef1ff; --accent-line:#c5cdfd;
+  --line:#e4e7ec; --ok:#12a150; --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);
+  font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  padding:32px 16px}
+.wrap{width:100%;max-width:640px}
+.top{text-align:center;margin-bottom:28px}
+.top h1{font-size:22px;font-weight:600;letter-spacing:.01em}
+.top p{color:var(--ink3);font-size:13.5px;margin-top:8px}
+.card{background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius);padding:28px;margin-bottom:16px;
+  box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.step-eyebrow{font-size:11.5px;color:var(--accent);font-weight:600;
+  letter-spacing:.08em;margin-bottom:10px}
+.step-q{font-size:17px;font-weight:600;margin-bottom:18px;line-height:1.4}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{display:flex;align-items:center;gap:12px;padding:14px 16px;
+  border:1.5px solid var(--line);border-radius:10px;cursor:pointer;
+  transition:all .15s;background:var(--surface)}
+.opt:hover{border-color:var(--accent-line);background:var(--accent-soft)}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt-emoji{font-size:22px;width:32px;text-align:center;flex:none}
+.opt-main{flex:1}
+.opt-name{font-size:14.5px;font-weight:500}
+.opt-desc{font-size:12px;color:var(--ink3);margin-top:3px}
+.opt-check{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line);
+  flex:none;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:12px}
+.opt.sel .opt-check{background:var(--accent);border-color:var(--accent)}
+.opt.sel .opt-check::after{content:"✓"}
+.budget-row{display:flex;gap:10px;flex-wrap:wrap}
+.budget-opt{padding:12px 18px;border:1.5px solid var(--line);border-radius:10px;
+  cursor:pointer;font-size:14.5px;font-weight:500;transition:all .15s;background:var(--surface)}
+.budget-opt:hover{border-color:var(--accent-line)}
+.budget-opt.sel{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.input{width:100%;padding:13px 16px;border:1.5px solid var(--line);border-radius:10px;
+  font-size:15px;outline:none;transition:border .15s}
+.input:focus{border-color:var(--accent)}
+.actions{display:flex;justify-content:space-between;margin-top:22px}
+.btn{padding:12px 26px;border-radius:10px;border:none;font-size:14.5px;
+  font-weight:500;cursor:pointer;transition:all .15s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{opacity:.9}
+.btn-primary:disabled{background:var(--line);cursor:not-allowed}
+.btn-ghost{background:transparent;color:var(--ink2);border:1px solid var(--line)}
+.btn-ghost:hover{background:var(--bg)}
+.dots{display:flex;gap:6px;justify-content:center;margin:18px 0 14px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .2s}
+.dot.on{background:var(--accent);width:22px;border-radius:4px}
+.progress-lbl{text-align:center;font-size:11.5px;color:var(--ink3)}
+/* 汇总卡 */
+.sum-row{display:flex;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+.sum-row:last-child{border-bottom:none}
+.sum-k{width:90px;color:var(--ink3);flex:none}
+.sum-v{flex:1;font-weight:500}
+.sum-v .tag{display:inline-block;padding:3px 10px;background:var(--accent-soft);
+  color:var(--accent);border-radius:6px;font-size:12.5px;margin:2px 4px 2px 0}
+.loading{text-align:center;padding:40px 0;color:var(--ink3)}
+.spinner{width:36px;height:36px;border:3px solid var(--line);border-top-color:var(--accent);
+  border-radius:50%;margin:0 auto 16px;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.result{margin-top:8px}
+.machine{border:1.5px solid var(--line);border-radius:12px;padding:18px;margin-bottom:12px}
+.machine.top1{border-color:var(--accent);background:linear-gradient(180deg,var(--accent-soft),#fff 60%)}
+.m-name{font-size:15.5px;font-weight:600;margin-bottom:8px}
+.m-price{font-size:20px;font-weight:700;color:var(--accent)}
+.m-spec{font-size:13px;color:var(--ink2);margin-top:6px;line-height:1.6}
+.m-note{font-size:12.5px;color:var(--ink3);margin-top:8px;padding-top:8px;
+  border-top:1px dashed var(--line)}
+.switch{text-align:center;margin-top:20px;color:var(--ink3);font-size:12.5px}
+.switch a{color:var(--accent);cursor:pointer;text-decoration:none}
+.fade-in{animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>选机向导</h1>
+    <p>不问参数，只问你的日常 —— 一步一步点，最后告诉你买哪台</p>
+  </div>
+  <div class="dots" id="dots"></div>
+  <div class="progress-lbl" id="progressLbl">第 1 步 / 共 5 步</div>
+  <div id="stage"></div>
+  <div class="switch">想直接打字聊？<a href="/">回到对话模式 →</a></div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   选机向导 · 5 步收集需求 → 调 /api/chat → 渲染结果
+
+   设计原则（来自项目宪法）：
+   · 收集到的需求拼成一句自然话发给 /api/chat（模型只管解析）
+   · 数字/排序全由后端算，前端零计算
+   · 独显/预算/用途等字段天然进 known 槽位
+   ════════════════════════════════════════════════════════════ */
+
+var STEPS = [
+  {
+    key:"who", q:"这台电脑主要给谁用？",
+    opts:[
+      {e:"🎓",n:"我自己（学生）",d:"上课、作业、宿舍用"},
+      {e:"💼",n:"我自己（上班族）",d:"办公、出差、通勤"},
+      {e:"🎁",n:"给家人买",d:"父母、孩子、伴侣用"},
+      {e:"🎨",n:"创作/设计工作",d:"设计、剪辑、建模为主"}
+    ]
+  },
+  {
+    key:"use", q:"日常最主要拿来干什么？", multi:true,
+    opts:[
+      {e:"🌐",n:"上网课 / 写文档",d:"浏览网页、Office、看视频",v:"办公学习"},
+      {e:"🎮",n:"打游戏",d:"网游、3A 大作",v:"打游戏"},
+      {e:"💻",n:"写代码 / 开发",d:"编程、虚拟机、docker",v:"写代码"},
+      {e:"🎬",n:"剪视频 / 修图",d:"PR、PS、设计",v:"剪视频修图"},
+      {e:"🤖",n:"跑 AI / 训练模型",d:"本地大模型、微调、炼丹",v:"训练模型"},
+      {e:"📊",n:"数据分析 / 跑程序",d:"Excel 大表、跑脚本",v:"跑数据分析"}
+    ]
+  },
+  {
+    key:"budget", q:"大概预算多少？", type:"budget",
+    opts:[
+      {n:"3000 以内",v:3000},{n:"3000 – 5000",v:5000},
+      {n:"5000 – 7000",v:7000},{n:"7000 – 9000",v:9000},
+      {n:"9000 – 12000",v:12000},{n:"12000 以上",v:15000}
+    ],
+    extra:"或者自己填一个数：", placeholder:"例如 6500"
+  },
+  {
+    key:"form", q:"想要台式机还是笔记本？",
+    opts:[
+      {e:"🖥️",n:"台式机",d:"性能强、放固定位置",v:"台式机"},
+      {e:"💻",n:"笔记本",d:"能带走、内置电池",v:"笔记本"},
+      {e:"❓",n:"都可以，看推荐",d:"让系统帮我决定",v:null}
+    ]
+  },
+  {
+    key:"extra", q:"还有什么要求？（可跳过）", type:"extra",
+    opts:[
+      {n:"要能带去教室/公司",v:"要能带着走"},
+      {n:"宿舍用，不常移动",v:"放宿舍不常移动"},
+      {n:"屏幕要好",v:"屏幕素质要好"},
+      {n:"要安静",v:"噪音要小"}
+    ],
+    extra:"其他要求（没有就留空）：", placeholder:"例如：不要 AMD"
+  }
+];
+
+var answers = {};
+var step = 0;
+var stage = document.getElementById("stage");
+var dots = document.getElementById("dots");
+var lbl = document.getElementById("progressLbl");
+
+function renderDots(){
+  dots.innerHTML = "";
+  for (var i=0;i<STEPS.length;i++){
+    var d = document.createElement("span");
+    d.className = "dot" + (i<=step ? " on" : "");
+    dots.appendChild(d);
+  }
+  lbl.textContent = step < STEPS.length
+    ? ("第 " + (step+1) + " 步 / 共 " + STEPS.length + " 步")
+    : "完成";
+}
+
+function esc(s){ var d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
+
+function render(){
+  renderDots();
+  if (step >= STEPS.length) { submit(); return; }
+  var st = STEPS[step];
+  var h = '<div class="card fade-in">';
+  h += '<div class="step-eyebrow">STEP ' + (step+1) + '</div>';
+  h += '<div class="step-q">' + esc(st.q) + '</div>';
+
+  if (st.type === "budget"){
+    h += '<div class="budget-row">';
+    st.opts.forEach(function(o,i){
+      h += '<div class="budget-opt" data-i="'+i+'">'+esc(o.n)+'</div>';
+    });
+    h += '</div>';
+    if (st.extra){
+      h += '<div style="margin-top:16px;font-size:13px;color:var(--ink3)">'+esc(st.extra)+'</div>';
+      h += '<input class="input" id="customIn" style="margin-top:8px" placeholder="'+esc(st.placeholder)+'" inputmode="numeric">';
+    }
+  } else if (st.type === "extra" || st.multi){
+    h += '<div class="opts">';
+    st.opts.forEach(function(o,i){
+      h += '<div class="opt" data-multi="'+i+'"><div class="opt-emoji">✦</div>'+
+           '<div class="opt-main"><div class="opt-name">'+esc(o.n)+'</div></div>'+
+           '<div class="opt-check"></div></div>';
+    });
+    h += '</div>';
+    if (st.extra){
+      h += '<div style="margin-top:16px;font-size:13px;color:var(--ink3)">'+esc(st.extra)+'</div>';
+      h += '<input class="input" id="customIn" style="margin-top:8px" placeholder="'+esc(st.placeholder)+'">';
+    }
+  } else {
+    h += '<div class="opts">';
+    st.opts.forEach(function(o,i){
+      h += '<div class="opt" data-i="'+i+'">'+
+           (o.e?'<div class="opt-emoji">'+o.e+'</div>':'')+
+           '<div class="opt-main"><div class="opt-name">'+esc(o.n)+'</div>'+
+           (o.d?'<div class="opt-desc">'+esc(o.d)+'</div>':'')+
+           '</div><div class="opt-check"></div></div>';
+    });
+    h += '</div>';
+  }
+
+  h += '<div class="actions">';
+  h += (step>0 ? '<button class="btn btn-ghost" id="backBtn">← 上一步</button>' : '<span></span>');
+  h += '<button class="btn btn-primary" id="nextBtn" disabled>下一步 →</button>';
+  h += '</div></div>';
+  stage.innerHTML = h;
+
+  // ── 交互 ──
+  var sel = null, selArr = [], custom = "";
+
+  function enableNext(ok){ document.getElementById("nextBtn").disabled = !ok; }
+
+  if (st.type === "budget"){
+    var bos = stage.querySelectorAll(".budget-opt");
+    bos.forEach(function(el,i){
+      el.onclick = function(){
+        bos.forEach(function(x){x.classList.remove("sel")});
+        el.classList.add("sel");
+        sel = st.opts[i].v; custom = "";
+        document.getElementById("customIn").value = "";
+        enableNext(true);
+      };
+    });
+    var ci = document.getElementById("customIn");
+    if (ci) ci.oninput = function(){
+      custom = this.value.replace(/[^0-9]/g,"");
+      if (custom){
+        bos.forEach(function(x){x.classList.remove("sel")});
+        sel = parseInt(custom,10); enableNext(true);
+      } else { sel=null; enableNext(false); }
+    };
+  } else if (st.type === "extra" || st.multi){
+    stage.querySelectorAll("[data-multi]").forEach(function(el){
+      el.onclick = function(){
+        var i = parseInt(this.dataset.multi,10);
+        this.classList.toggle("sel");
+        var v = st.opts[i].v;
+        if (selArr.indexOf(v)>=0) selArr = selArr.filter(function(x){return x!==v});
+        else selArr.push(v);
+        enableNext(selArr.length>0 || document.getElementById("customIn").value.trim()!=="");
+      };
+    });
+    var ci2 = document.getElementById("customIn");
+    if (ci2) ci2.oninput = function(){
+      custom = this.value.trim();
+      enableNext(selArr.length>0 || custom!=="");
+    };
+    enableNext(true); // extra 可跳过
+  } else {
+    stage.querySelectorAll("[data-i]").forEach(function(el){
+      el.onclick = function(){
+        stage.querySelectorAll(".opt").forEach(function(x){x.classList.remove("sel")});
+        this.classList.add("sel");
+        var i = parseInt(this.dataset.i,10);
+        sel = (st.opts[i].v !== undefined) ? st.opts[i].v : st.opts[i].n;
+        enableNext(true);
+      };
+    });
+  }
+
+  document.getElementById("backBtn") && (document.getElementById("backBtn").onclick = function(){
+    step--; render();
+  });
+
+  document.getElementById("nextBtn").onclick = function(){
+    // 把这一步的答案转成自然语言片段
+    var frag = "";
+    if (st.key === "who"){
+      frag = sel.indexOf("家人")>=0 ? "给家人买一台" : (sel.indexOf("创作")>=0 ? "我做设计创作" : (sel.indexOf("学生")>=0 ? "我是学生" : "我上班用"));
+    } else if (st.key === "use"){
+      frag = "主要用来" + selArr.join("、");
+    } else if (st.key === "budget"){
+      frag = "预算" + (sel||0) + "元";
+    } else if (st.key === "form"){
+      if (sel) frag = "要" + sel;
+    } else if (st.key === "extra"){
+      var arr = selArr.slice();
+      if (custom) arr.push(custom);
+      if (arr.length) frag = arr.join("，");
+    }
+    answers[st.key] = frag;
+    step++;
+    render();
+  };
+}
+
+/* ── 汇总自然语言 → 调后端 ── */
+function buildSentence(){
+  var parts = [];
+  if (answers.form) parts.push(answers.form);
+  if (answers.budget) parts.push(answers.budget);
+  if (answers.use) parts.push(answers.use);
+  if (answers.who && answers.who.indexOf("家人")>=0) parts.push(answers.who);
+  if (answers.extra) parts.push(answers.extra);
+  return parts.join("，");
+}
+
+function submit(){
+  renderDots();
+  lbl.textContent = "正在为你挑选…";
+  var q = buildSentence();
+  stage.innerHTML = '<div class="card"><div class="loading">'+
+    '<div class="spinner"></div>正在按「'+esc(q)+'」从库里挑…</div></div>';
+
+  fetch("/api/chat", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({text: q, uid:"wizard"})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(o){
+    var rep = o.reply || "";
+    stage.innerHTML = '<div class="card fade-in result">'+
+      '<div class="step-eyebrow">RESULT</div>'+
+      '<div class="step-q">按你的需求，推荐如下</div>'+
+      '<div style="font-size:12px;color:var(--ink3);margin-bottom:12px">需求：'+esc(q)+'</div>'+
+      '<div id="mdOut">'+renderSimpleMd(rep)+'</div>'+
+      '<div class="actions"><button class="btn btn-ghost" onclick="location.reload()">↻ 重新选</button></div>'+
+      '</div>';
+  })
+  .catch(function(e){
+    stage.innerHTML = '<div class="card"><div class="loading">出错了：'+esc(String(e))+'</div></div>';
+  });
+}
+
+/* 轻量 markdown 渲染（表格/标题/粗体），复用主前端的判据 */
+function renderSimpleMd(md){
+  var lines = md.split("\n");
+  var out = [], inTable = false;
+  lines.forEach(function(l){
+    if (/^\s*\|/.test(l)){
+      if (/^\s*\|[-\s|:]+\|\s*$/.test(l)) return;
+      var cells = l.split("|").slice(1,-1).map(function(c){return c.trim()});
+      if (!inTable){ out.push("<table class='mdt'>"); inTable=true;
+        out.push("<tr>"+cells.map(function(c){return "<th>"+c+"</th>"}).join("")+"</tr>"); }
+      else out.push("<tr>"+cells.map(function(c){return "<td>"+c+"</td>"}).join("")+"</tr>");
+    } else {
+      if (inTable){ out.push("</table>"); inTable=false; }
+      if (/^###\s/.test(l)) out.push("<h3>"+l.slice(4)+"</h3>");
+      else if (/^##\s/.test(l)) out.push("<h2>"+l.slice(3)+"</h2>");
+      else if (/^[-*]\s/.test(l)) out.push("<li>"+l.slice(2)+"</li>");
+      else if (l.trim()) out.push("<p>"+l.replace(/\*\*(.+?)\*\*/g,"<b>$1</b>")+"</p>");
+    }
+  });
+  if (inTable) out.push("</table>");
+  return out.join("\n");
+}
+
+render();
+</script>
+<style>
+.mdt{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+.mdt th,.mdt td{border:1px solid var(--line);padding:8px 10px;text-align:left}
+.mdt th{background:var(--bg);font-weight:600}
+.mdt td:first-child,.mdt th:first-child{white-space:nowrap}
+h3{font-size:15px;margin:14px 0 6px}
+p{font-size:13.5px;line-height:1.7;margin:6px 0;color:var(--ink2)}
+li{font-size:13.5px;line-height:1.7;color:var(--ink2);margin-left:18px}
+b{color:var(--ink)}
+</style>
+</body>
+</html>
