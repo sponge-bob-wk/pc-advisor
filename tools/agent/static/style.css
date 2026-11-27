@@ -6,7 +6,7 @@
      ══════════════════════════════════════════════════════════ */
 
   /* 背景层级 */
-  --bg:#FAFAFB;
+  --bg:#f7f8fa;
   --surface:#FFFFFF;
   --soft:#F6F6F9;
 
@@ -69,7 +69,7 @@
   --sh-toast:0 12px 32px rgba(23,24,28,.16);
 
   /* 排版 */
-  --serif:"Source Serif Pro",Georgia,"Songti SC","Noto Serif SC",serif;
+  --serif:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
   --m:62ch;
   /* 🔴 2026-11-26：输入框和发送按钮的**共同高度**。
      实测原来 textarea 算出 32px、button 算出 37px，差 5px，
@@ -168,7 +168,7 @@
   .new-chat{
     display:flex;align-items:center;justify-content:center;gap:6px;
     width:100%;padding:8px 10px;
-    border:1px solid var(--line);border-radius:9px;
+    border:1px solid var(--line);border-radius:12px;
     background:var(--surface);color:var(--ink);
     font-size:12.6px;font-weight:500;cursor:pointer;
     transition:border-color .15s,background .15s,box-shadow .15s;
@@ -304,7 +304,7 @@
   .eyebrow{display:flex;align-items:center;gap:9px;font-size:10.5px;letter-spacing:1.5px;
     text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:16px}
   .eyebrow::after{content:"";width:46px;height:1px;background:var(--accent-line)}
-  .hero h1{font-family:var(--serif);font-size:34px;line-height:1.35;font-weight:600;letter-spacing:-.5px}
+  .hero h1{font-family:var(--serif);font-size:30px;line-height:1.35;font-weight:600;letter-spacing:-.5px}
   .hero h1 em{font-style:normal;color:var(--accent);
     background:linear-gradient(to top,color-mix(in srgb, var(--accent) 12%, transparent) 0 36%,transparent 36%)}
   .lede{margin-top:15px;font-size:13.8px;line-height:1.92;color:var(--ink2);max-width:56ch}
@@ -328,7 +328,7 @@
   .scope-more:hover{color:var(--accent-hover)}
 
   .acts{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:26px}
-  .act{text-align:left;border:1px solid var(--line);border-radius:10px;padding:13px 14px;background:var(--surface);
+  .act{text-align:left;border:1px solid var(--line);border-radius:12px;padding:13px 14px;background:var(--surface);
     transition:.16s;display:flex;flex-direction:column;gap:4px;position:relative}
   .act:hover{border-color:var(--accent-line);box-shadow:0 8px 20px -16px color-mix(in srgb, var(--accent) 45%, transparent);transform:translateY(-1px)}
   .act .t{font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px}
@@ -388,12 +388,12 @@
   .now-pr em{font-style:normal;font-size:10px;color:var(--ink3);margin-left:3px}
   .now-sp{font-size:11.2px;color:var(--ink3);line-height:1.6;margin-top:6px}
   .now-kv{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:11px;
-    background:var(--line2);border:1px solid var(--line2);border-radius:8px;overflow:hidden}
+    background:var(--line2);border:1px solid var(--line2);border-radius:12px;overflow:hidden}
   .now-kv>div{background:var(--surface);padding:7px 9px}
   .now-kv span{display:block;font-size:9.6px;color:var(--ink3);letter-spacing:.06em}
   .now-kv b{display:block;font-size:11.6px;font-weight:600;margin-top:2px}
   .now-gaps{margin-top:10px}
-  .now-cau{margin-top:10px;padding:8px 10px;border-radius:8px;background:var(--warn-bg);
+  .now-cau{margin-top:10px;padding:8px 10px;border-radius:12px;background:var(--warn-bg);
     font-size:11.2px;line-height:1.6}
   .now-cau b{display:block;font-size:10px;letter-spacing:.1em;color:var(--price);margin-bottom:2px}
   .rail-global>summary{cursor:pointer;list-style:none;font-size:11px;letter-spacing:.12em;
@@ -420,7 +420,7 @@
 
   .md-table-wrap{
     margin:14px 0;overflow-x:auto;
-    border:1px solid var(--line);border-radius:10px;
+    border:1px solid var(--line);border-radius:12px;
     background:var(--surface);
   }
   .md-table{
@@ -486,7 +486,7 @@
   @media (max-width:700px){
     .md-table{font-size:12.2px}
     .md-table th,.md-table td{padding:8px 10px}
-    .md-table-wrap{border-radius:8px}
+    .md-table-wrap{border-radius:12px}
   }
 
   /* ── 消息 ── */
@@ -536,7 +536,7 @@
      原来 ans-kv 是两列键值对，视觉上松散；改成表格后两边一致。 */
   .ans-kv{
     display:table;width:100%;
-    border:1px solid var(--line);border-radius:10px;
+    border:1px solid var(--line);border-radius:12px;
     background:var(--surface);
     border-collapse:separate;border-spacing:0;
     overflow:hidden;margin-top:10px;
@@ -638,7 +638,7 @@
   .alt .bg{font-size:9.8px;color:var(--ink2);background:var(--soft);border:1px solid var(--line);border-radius:100px;
     padding:2px 6px;display:inline-block;margin-top:5px}
 
-  .warnbar{margin-top:11px;border-radius:8px;background:var(--warn-bg);color:var(--warn);
+  .warnbar{margin-top:11px;border-radius:12px;background:var(--warn-bg);color:var(--warn);
     padding:9px 13px;font-size:11.6px;line-height:1.75}
 
   .askbox{margin-top:14px;background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:11px;padding:13px 15px}
@@ -667,7 +667,7 @@
     border-top:3.5px solid transparent;border-bottom:3.5px solid transparent;transition:transform .18s}
   .proof[open] summary::before{transform:rotate(90deg)}
   .proof summary:hover{color:var(--accent)}
-  .proof .bd{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:13px 15px;
+  .proof .bd{margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:13px 15px;
     background:var(--surface);font-size:11.4px;line-height:1.8;color:var(--ink2);max-width:var(--m)}
   .proof .sec{font-size:10px;letter-spacing:.6px;color:var(--ink3);font-weight:600;margin:0 0 6px;text-transform:uppercase}
   .proof .sec + .sec{margin-top:13px}
@@ -707,22 +707,22 @@
   body::-webkit-scrollbar{width:10px}
   body::-webkit-scrollbar-button{display:none;width:0;height:0}
   body::-webkit-scrollbar-track{background:transparent}
-  body::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:8px;border:3px solid var(--bg)}
+  body::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:12px;border:3px solid var(--bg)}
   .field textarea::-webkit-scrollbar{width:8px}
   /* 🔴 关键一行：自定义了 scrollbar 之后，Chromium **仍然会画上下两个三角按钮**
      （就是用户截图里"点了没反应"的那个东西）。必须把 button 显式清零。 */
   .field textarea::-webkit-scrollbar-button{display:none;width:0;height:0}
   .field textarea::-webkit-scrollbar-track{background:transparent}
-  .field textarea::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:8px;border:2px solid var(--surface)}
+  .field textarea::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:12px;border:2px solid var(--surface)}
   .field textarea::-webkit-scrollbar-thumb:hover{background:var(--line-strong)}
   .field textarea::placeholder{color:var(--ink3)}
-  .field button{flex:none;background:var(--accent);color:var(--surface);border-radius:9px;padding:0 18px;font-size:12.8px;font-weight:500;height:var(--field-h);display:flex;align-items:center;justify-content:center}
+  .field button{flex:none;background:var(--accent);color:var(--surface);border-radius:12px;padding:0 18px;font-size:12.8px;font-weight:500;height:var(--field-h);display:flex;align-items:center;justify-content:center}
   .field button:hover{background:var(--accent-hover)}
   .field button:disabled{background:var(--line);cursor:not-allowed}
   .hint{margin-top:7px;font-size:10.4px;color:var(--ink3);letter-spacing:.2px;display:flex;justify-content:space-between;gap:10px}
   .hint kbd{font-family:inherit;font-size:9.6px;background:var(--line2);border:1px solid var(--line);
     border-radius:3px;padding:1px 5px;color:var(--ink2)}
-  .offline{background:var(--warn-bg);color:var(--warn);border-radius:8px;padding:8px 12px;
+  .offline{background:var(--warn-bg);color:var(--warn);border-radius:12px;padding:8px 12px;
     font-size:11.5px;line-height:1.7;margin-bottom:9px}
 
   .typing{display:flex;gap:4px;align-items:center;padding:6px 0}
@@ -854,7 +854,7 @@
     position:fixed;right:0;top:50%;transform:translateY(-50%);
     writing-mode:vertical-rl;font-size:11px;letter-spacing:2px;color:var(--ink2);
     background:var(--surface);border:1px solid var(--line);border-right:0;
-    border-radius:10px 0 0 10px;padding:12px 6px;cursor:pointer;z-index:25;
+    border-radius:12px 0 0 10px;padding:12px 6px;cursor:pointer;z-index:25;
     display:none;transition:color .18s,border-color .18s;
   }
   #railTab:hover{color:var(--accent);border-color:var(--accent-line)}
@@ -881,7 +881,7 @@
 
   /* 键盘可达：只在键盘聚焦时出现，不干扰鼠标用户 */
   :where(button,summary,a,[data-mid],.bk):focus-visible{
-    outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+    outline:2px solid var(--accent);outline-offset:2px;border-radius:12px}
 
   /* ① 快捷问答 chip（示例、接着问、澄清、下一步）—— 最常点的东西 */
   .chips button{
@@ -912,7 +912,7 @@
 
   /* ④ 折叠类（决策依据 / 详细说明）—— 原来是灰色小字，像脚注 */
   .proof summary,.prose summary{
-    padding:4px 10px;border:1px solid var(--line-strong);border-radius:8px;
+    padding:4px 10px;border:1px solid var(--line-strong);border-radius:12px;
     background:var(--surface);color:var(--ink2);box-shadow:var(--sh-1);
     transition:background .15s,border-color .15s,color .15s}
   .proof summary:hover,.prose summary:hover{
@@ -920,7 +920,7 @@
 
   /* ⑤ 侧栏「收起」/「数据概览」把手 */
   .rail-hd button{
-    border:1px solid var(--line-strong);border-radius:8px;padding:3px 9px;
+    border:1px solid var(--line-strong);border-radius:12px;padding:3px 9px;
     background:var(--surface);color:var(--ink2);box-shadow:var(--sh-1);
     transition:background .15s,border-color .15s,color .15s}
   .rail-hd button:hover{background:var(--ctrl-bg);border-color:var(--ctrl-bd);color:var(--ctrl-ink,var(--ctrl-ink))}
@@ -945,7 +945,7 @@
   .scope-more:hover{background:var(--ctrl-bg);border-color:var(--ctrl-bd);color:var(--ctrl-ink,var(--ctrl-ink))}
 
   /* ⑨ 全库统计的折叠头：整行可点，给底纹提示 */
-  .rail-global>summary{padding:11px 8px;margin:6px 0 0;border-radius:8px;
+  .rail-global>summary{padding:11px 8px;margin:6px 0 0;border-radius:12px;
     transition:background .15s}
   .rail-global>summary:hover{background:var(--ctrl-bg);color:var(--ink2)}
 
@@ -1043,7 +1043,7 @@
     .app.mini .rail{display:none}
     /* 窄屏也不挡住输入框：仍贴在右边缘竖向居中，只是窄一点 */
     #railTab{top:50%;bottom:auto;right:0;transform:translateY(-50%);writing-mode:vertical-rl;
-      border:1px solid var(--line);border-right:0;border-radius:10px 0 0 10px;
+      border:1px solid var(--line);border-right:0;border-radius:12px 0 0 10px;
       padding:10px 5px;font-size:10.5px;box-shadow:none;display:none}
     body.rail-mini #railTab{display:block}
     .acts{grid-template-columns:1fr}
@@ -1096,14 +1096,14 @@
 .rf:disabled{opacity:.55;cursor:default}
 .rf-msg{font-size:11.5px;color:var(--ink3);margin-left:6px}
 .rf-panel{position:fixed;right:18px;top:60px;width:400px;max-height:76vh;
-  overflow:auto;background:var(--surface);border:1px solid var(--line-strong);border-radius:10px;
+  overflow:auto;background:var(--surface);border:1px solid var(--line-strong);border-radius:12px;
   box-shadow:0 12px 32px rgba(20,40,70,.16);z-index:60}
 .rf-h{display:flex;align-items:center;justify-content:space-between;
   padding:10px 12px;border-bottom:1px solid var(--line2);font-size:13px}
 .rf-x{border:0;background:none;font-size:15px;color:var(--ink3);cursor:pointer;padding:0 4px}
 .rf-body{padding:10px 12px 14px}
 .rf-opt{display:block;width:100%;text-align:left;font:inherit;font-size:12.5px;
-  padding:8px 10px;margin-bottom:6px;border:1px solid var(--line);border-radius:8px;
+  padding:8px 10px;margin-bottom:6px;border:1px solid var(--line);border-radius:12px;
   background:var(--accent-soft);cursor:pointer}
 .rf-opt:hover{border-color:var(--accent-line);background:var(--accent-soft)}
 .rf-opt b{color:var(--ctrl-ink)}
