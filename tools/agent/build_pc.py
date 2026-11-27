@@ -607,6 +607,26 @@ def pick_near(items, target, used=None, key=None, max_price=None):
     return min(cand, key=lambda x: abs(x["price"] - target))
 
 
+
+# ── 统一的价格目标/上限计算（2026-11-27 去重）──
+#
+# 问题：budget * ratio[k] 这个计算散落 20 处，上限系数
+#       有的 1.25 有的 1.3 有的没有 —— 改一处漏一处。
+# 这两个函数是唯一计算处，新代码必须用它们。
+
+CAP_FACTOR = 1.3      # 单件价格相对目标的上限倍数（留给同价位好型号）
+
+
+def _target(ratio, budget, key):
+    """某类配件的目标价 = 总预算 × 该类的比例。"""
+    return budget * ratio.get(key, 0)
+
+
+def _cap_of(ratio, budget, key, factor=None):
+    """某类配件的价格上限。缺省用 CAP_FACTOR。"""
+    return _target(ratio, budget, key) * (factor or CAP_FACTOR)
+
+
 def _pick_psu(parts, ratio, budget, cpu, gpu):
     """按 CPU+GPU 实际功耗选电源（不按预算比例）。
 
@@ -633,7 +653,8 @@ def _pick_psu(parts, ratio, budget, cpu, gpu):
         return min(pool, key=lambda x: x["price"]), []
 
     # 库里没有够功率的：退到最接近的，并告警
-    psu = pick_near(parts.get("psu") or [], budget * ratio["psu"])
+    psu = pick_near(parts.get("psu") or [], _target(ratio, budget, "psu"),
+                    max_price=_cap_of(ratio, budget, "psu"))
     if not psu:
         return None, []
     have = psu_watt(psu["name"]) or 0

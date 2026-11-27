@@ -123,11 +123,6 @@ BATCH_B = [
 ]
 
 
-def all_cases():
-    """全部（A 已降级为回归，B 是当前留出）。"""
-    return BATCH_A + BATCH_B
-
-
 if __name__ == "__main__":
     print("BATCH_A %d 条（已消耗，作回归）" % len(BATCH_A))
     print("BATCH_B %d 条（当前留出，未跑过）" % len(BATCH_B))
