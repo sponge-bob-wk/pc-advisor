@@ -62,6 +62,64 @@ python test_fuzz.py 60      # 乱测夹具：0 违规才算过
 
 ---
 
+## 第一次贡献（完整流程）
+
+> 没有仓库写权限的外部贡献者走这条路径。组内成员有写权限的可跳过 fork，
+> 直接从 `main` 切分支（见下一节）。
+
+### ① Fork
+
+打开 https://github.com/sponge-bob-wk/pc-advisor ，右上角 **Fork** 按钮
+→ Create fork。你的账号下会出现 `你的用户名/pc-advisor`。
+
+### ② Clone 你自己的 fork（注意 clone 的是你的，不是我的）
+
+```bash
+git clone https://github.com/你的用户名/pc-advisor.git
+cd pc-advisor
+```
+
+### ③ 关联上游（用来同步我的更新）
+
+```bash
+git remote add upstream https://github.com/sponge-bob-wk/pc-advisor.git
+git fetch upstream
+```
+
+### ④ 开分支、改代码、提交
+
+```bash
+git checkout -b fix/你的改动名     # 例：fix/frontend-align
+# ...改代码...
+git add -A
+git commit -m "fix: 说清改了什么+为什么"
+```
+
+### ⑤ 同步上游最新代码（避免冲突）
+
+```bash
+git fetch upstream
+git rebase upstream/main
+```
+
+### ⑥ 推到你自己的 fork
+
+```bash
+git push origin fix/你的改动名
+```
+
+### ⑦ 开 Pull Request
+
+回到 GitHub 你的 fork 页面 → 会出现 **Compare & pull request** 按钮
+→ 点它 → 填 PR 模板 → **提交到 `sponge-bob-wk/pc-advisor` 的 `main`**
+
+（方向是从你的 fork → 到我的 main，别选反了）
+
+### ⑧ 我 review 后合并；有意见会在 PR 里留言，改完在同一分支再推即可
+（PR 会自动更新，不用重新开）
+
+---
+
 # 分支与提交
 
 - 从 `main` 切分支：`feat/xxx`、`fix/xxx`、`docs/xxx`
