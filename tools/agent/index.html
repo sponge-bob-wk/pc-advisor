@@ -1,70 +1,19 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>选机助手 · 说出预算和用途，告诉你买哪台</title>
-
-<!-- ══════════════════════════════════════════════════════════════
-     文件组织（手册第 2 节）
-     ────────────────────────────────────────────────────────────
-     原来 index.html 有 1660 行（CSS 702 + HTML 90 + JS 856），
-     全内联。问题：
-       · 编辑器卡顿（无语法高亮）
-       · 无法格式化（Prettier 对 <style>/<script> 内嵌支持差）
-       · git diff 不可读（改一行 CSS，整个文件都变）
-       · CSS 有 2 个 :root、68 处硬编码颜色（绕过了设计系统）
-
-     现在拆成三个文件：
-       index.html   ← 只有结构（本文件，约 100 行）
-       style.css    ← 全部样式（设计系统在 :root）
-       app.js       ← 全部逻辑（统一状态对象 S）
-       refresh.js   ← 刷新功能（独立 IIFE）
-
-     好处：浏览器可缓存 CSS/JS，编辑器完全支持高亮。
-     ══════════════════════════════════════════════════════════════ -->
-
-<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="static/style.css">
 </head>
 <body>
 
-<header class="top">
-  <div class="brand">
-    <!-- 🔴 2026-11-26 新增：左侧栏开关（移动端用，桌面端常驻） -->
-    <button id="sideBtn" class="side-btn" title="对话记录" aria-label="对话记录">☰</button>
-    <span class="mark"></span><b>选机助手</b>
-  </div>
-  <div class="stat">
-    <span class="live"><i class="dot" id="dot"></i><span id="stx">连接中</span></span>
-    <!-- 🔴 2026-11-26 减法（用户要求）：
-         去掉了「数据快照 2026-11-02」。
-         这个日期对用户没意义 —— 他关心的是"现在买哪台"，
-         不是"你的数据是哪天抓的"。真正需要日期时，
-         回答里的价格口径那句已经说了（「这个价是平台标价快照」）。
-         元素 id="asof" 删了，app.js 的 set() 有空值保护，不会报错。 -->
-    <span class="sep"></span>
-    <span id="pool">库内 — 台</span>
-    <span class="sep"></span>
-    <button id="rfBtn" class="rf" title="重新抓取数据并交叉验证">↻ 刷新数据</button>
-    <span id="rfMsg" class="rf-msg"></span>
-  </div>
-</header>
+<!-- ════════════════════════════════════════════════════════════════
+     对话页 v2 —— 与向导页完全同风格的卡片式布局
+     ════════════════════════════════════════════════════════════════ -->
 
-<!-- ══════════════════════════════════════════════════════════════════
-     🔴 2026-11-26 新增：左侧会话栏（仿 open-webui）
-
-     用户反馈：「开启新对话，或者对话记录等是不完善的，openwebui那些就很完善」
-
-     结构：
-       · 顶部「新对话」按钮
-       · 中间会话列表（sessions.js 渲染）
-       · 底部提示（对话只存本地，不上传）
-
-     为什么放最左边而不是复用右侧「数据概览」：
-       两者是不同的东西 —— 左边是「我和系统聊过什么」（历史），
-       右边是「库里的数据长什么样」（现状）。
-       混在一栏会让用户分不清"这是在说我的对话还是说数据"。
-     ══════════════════════════════════════════════════════════════════ -->
+<!-- 左侧会话栏（结构不变，样式走 style.css 新 token） -->
+<button id="sideBtn" class="side-btn" title="对话记录" aria-label="对话记录">☰</button>
 <aside class="side" id="side">
   <div class="side-top">
     <button id="newChat" class="new-chat">
@@ -74,13 +23,11 @@
   <div class="sess-list" id="sessList">
     <div class="sess-empty">还没有对话记录</div>
   </div>
-  <div class="side-foot">
-    对话只存在这台电脑上，不上传
-  </div>
+  <div class="side-foot">对话只存在这台电脑上，不上传</div>
 </aside>
 <div class="side-mask" id="sideMask"></div>
 
-<!-- 刷新面板：选粒度 → 跑 → 看进度 → 看交叉验证结果 -->
+<!-- 刷新面板（结构不变） -->
 <div id="rfPanel" class="rf-panel" hidden>
   <div class="rf-h"><b>刷新数据</b><button id="rfClose" class="rf-x" title="关闭">✕</button></div>
   <div class="rf-body">
@@ -94,42 +41,43 @@
   </div>
 </div>
 
+<!-- 主区域：向导风格的居中卡片流 -->
 <main class="app" id="app">
   <section class="chat">
+
+    <!-- 顶栏：状态 + 刷新（向导风的细条） -->
+    <header class="topbar">
+      <span class="live"><i class="dot" id="dot"></i><span id="stx">连接中</span></span>
+      <span class="topbar-right">
+        <span id="pool">库内 — 台</span>
+        <button id="rfBtn" class="rf" title="重新抓取数据并交叉验证">↻ 刷新数据</button>
+        <span id="rfMsg" class="rf-msg"></span>
+      </span>
+    </header>
+
     <div class="stream" id="stream">
       <div class="hero" id="hero">
-        <div class="eyebrow">选机助手</div>
+        <div class="eyebrow">选机助手 · 对话模式</div>
         <h1>说清楚预算和用途，<br>我告诉你<em>具体买哪一台</em>。</h1>
         <p class="lede">
           直接给机型、到手价，以及这台机器<b>在你这个用途下的短板</b>。
           库里没有的，明说没有。
         </p>
 
-        <!-- 🔴 2026-11-26 减法：删掉了原来的「四宫格数字」和「审计横幅」。
-             原因（用户原话）：「你想表达很多严谨性，但是没必要展示给用户看」
-             这四块是给开发/评审看的（可推荐机型 239 / 有跑分实测 162…），
-             用户打开首页只想说需求，不想先读一份数据报告。
-             数字本身没删 —— 侧边栏「数据概览」里还能看到。 -->
-
         <div class="acts" id="acts"></div>
 
-        <!-- 🔴 2026-11-27 加向导入口：用户反馈「跳到对话就跳不回向导」。
-             两个模式互为入口。 -->
         <div class="wizard-entry" onclick="location.href='/wizard.html'">
           <div class="we-emoji">🧭</div>
           <div class="we-main">
-            <div class="we-title">选机助手 · 向导模式</div>
+            <div class="we-title">向导模式</div>
             <div class="we-desc">不想打字？一步步点选项，引导你说清需求</div>
           </div>
           <div class="we-arrow">→</div>
         </div>
-
-        <!-- 🔴 减法：原来这里还有一段 scope 口径长文 +「展开口径说明」按钮。
-             价格口径该在**回答里**说（已做成一行小字），不需要在首页先讲一遍
-             方法论。删掉。 -->
       </div>
     </div>
 
+    <!-- 底部输入区：向导风的圆角卡片 -->
     <div class="dock">
       <div class="chips" id="demoChips"></div>
       <div id="offlineSlot"></div>
@@ -144,33 +92,23 @@
     </div>
   </section>
 
+  <!-- 右侧数据概览（结构不变） -->
   <aside class="rail" id="rail">
-    <!-- 🔴 2026-11-26 重排（用户反馈）：
-         「收起放在主对话和侧边栏交界会很好」——
-         按钮从右侧挪到最左侧，正好落在两栏分界线上。
-         同时从「收起 ⟩」三个字改成箭头图标，减轻视觉噪音。 -->
     <div class="rail-hd" id="railHd">
       <button id="railBtn" title="收起侧边栏" aria-label="收起侧边栏">›</button>
       <b>数据概览</b>
     </div>
     <div id="railBody">
       <div id="railNow" class="nowbox"></div>
-      <div class="ov">
-        <div class="cap">正在读取数据概览…</div>
-      </div>
     </div>
+    <button id="railTab" title="展开数据概览">数据概览</button>
   </aside>
 </main>
 
-<button id="railTab" title="展开数据概览">数据概览</button>
-
 <div class="toast" id="toast"></div>
 
-<script src="/static/app.js"></script>
-<!-- 🔴 2026-11-26：会话管理。必须在 app.js 之后加载 ——
-     它挂到 window.Sessions，而 app.js 的 window.WB.newSession 会调它；
-     两者通过 window 交互，顺序反了会导致 Sessions 未定义。 -->
-<script src="/static/sessions.js"></script>
-<script src="/static/refresh.js"></script>
+<script src="static/app.js"></script>
+<script src="static/sessions.js"></script>
+<script src="static/refresh.js"></script>
 </body>
 </html>

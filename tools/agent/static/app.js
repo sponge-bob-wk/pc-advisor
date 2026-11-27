@@ -415,6 +415,10 @@ function demo(d){
 /* 行内元素：**粗体** → <b> */
 function inlineMd(s){
   var t = esc(s);
+  // 🔴 2026-11-27：链接渲染 —— 装机单表格的型号列是 ZOL 链接，
+  //    不渲染的话 [名称](URL) 原样显示（向导页已同步此逻辑）
+  t = t.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g,
+    '<a href="$2" target="_blank" rel="noopener">$1</a>');
   t = t.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
   return t;
 }

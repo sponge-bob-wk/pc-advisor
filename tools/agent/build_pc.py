@@ -644,26 +644,40 @@ def build_plan(parts, tier, budget=None, purposes=None, explicit_dgpu=None):
     if explicit_dgpu:
         rule["needDgpu"] = (True,
                             "用户明确要求独显（显式要求优先于用途推断）")
-        # 🔴 2026-11-27 第二轮：**gpu 权重提到 ai 档 + 绝对值硬上限**。
-        #
-        #    第一轮只改 needDgpu → 选出 RTX 3050（dev 的 gpu 权重才 0.55）
-        #    第二轮改权重并重新归一化 → 总价跑到 ¥13,827（超 73%）
-        #
-        #    归一化会失控的原因：ratio 变了，但 pick_near 是"最接近 target"，
-        #    每个件都可能选超，叠加后爆掉。
-        #
-        #    正确做法：
-        #      ① gpu 权重提到 ai 档（1.60）
-        #      ② gpu 的绝对预算封顶 budget × 0.55
-        #         （8000 × 0.55 = 4400，能买 RTX 5060Ti/5070 档）
-        #      ③ 其他件比例不动 → 总价不爆
-        ratio["gpu"] = PURPOSE_TUNING["ai"]["gpu"]
-        total = sum(ratio.values())
-        if total > 0:
-            ratio = {k: v / total for k, v in ratio.items()}
-        _gpu_cap = budget * 0.55
-        issues.append("用户要求独显：显卡按「本地跑模型」档配，"
-                      "预算上限 %s" % fmt_money(_gpu_cap))
+    # 🔴 2026-11-27 第三轮：**gpu 抬档只在「原比例不够」时做**。
+    #
+    #    第一轮只改 needDgpu → dev 选出 RTX 3050（权重 0.24 太低）
+    #    第二轮无条件抬到 1.60 → gaming 场景 gpu 占 77%，CPU target
+    #      剩 ¥620、cap ¥774 → 所有 CPU 被上限排除 → 整单 None！
+    #      （「台式机，八千，打游戏」直接坏了，端到端抓到）
+    #
+    #    教训：**gaming 原本 gpu 就占 0.53，显式独显对它是"确认"，
+    #    不是"抬档"。只有 dev/office 这类原本不打算配独显的用途，
+    #    显式要求才意味着"改预算分配"。**
+    #
+    #    最终逻辑：
+    #      gpu 原比例 < 0.35 → 抬到 0.5（dev/office 场景）
+    #      gpu 原比例 ≥ 0.35 → 完全不动 ratio（gaming/ai/3D 场景）
+    #      gpu 绝对上限 budget × 0.6 仍保留（防单件爆预算）
+    _gpu_cap = None
+    if explicit_dgpu:
+        rule["needDgpu"] = (True,
+                            "用户明确要求独显（显式要求优先于用途推断）")
+        if ratio["gpu"] < 0.35:
+            _gpu_budget = budget * 0.5
+            _rest = budget - _gpu_budget
+            _others = {k: v for k, v in ratio.items() if k != "gpu"}
+            _o_total = sum(_others.values())
+            if _o_total > 0:
+                for k in _others:
+                    ratio[k] = _others[k] / _o_total
+            ratio["gpu"] = _gpu_budget / budget
+            _gpu_cap = _gpu_budget
+            issues.append("用户要求独显：显卡预算提到 %s，"
+                          "其余配件按剩余预算分配" % fmt_money(_gpu_budget))
+        else:
+            # gaming/ai 等本来就重显卡的用途：只设上限，不动比例
+            _gpu_cap = budget * 0.6
 
 
     plan = {}
