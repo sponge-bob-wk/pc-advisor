@@ -1,0 +1,27 @@
+{
+ "route-train.jsonl": {
+  "lines": 1845,
+  "bytes": 3110738,
+  "sha256": "5b0c1ad534389ed5"
+ },
+ "route-eval.jsonl": {
+  "lines": 165,
+  "bytes": 289805,
+  "sha256": "09b5f8ac3cbb2759"
+ },
+ "real-20261127.eval.jsonl": {
+  "lines": 163,
+  "bytes": 217059,
+  "sha256": "47f365b2281bb5ec"
+ },
+ "real-20261127.train.jsonl": {
+  "lines": 182,
+  "bytes": 293586,
+  "sha256": "6cfc110a7db50720"
+ },
+ "sim-20261127.train.jsonl": {
+  "lines": 299,
+  "bytes": 480009,
+  "sha256": "6161294c33565689"
+ }
+}

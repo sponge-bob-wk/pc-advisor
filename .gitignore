@@ -5,7 +5,12 @@ __pycache__/
 
 # 运行期产物
 tools/agent/logs/
-tools/agent/lora_data/
+# 用 /* 而非 / —— 排除目录内容而不是目录本身，
+# 这样下面的 ! 例外才能生效（git 规则：目录被排除后子项无法放行）
+tools/agent/lora_data/*
+# 例外：数据快照（校验和+统计，几 KB）纳入版本控制，
+# 便于追溯「哪天数据变成什么样」。原始 jsonl 仍忽略。
+!tools/agent/lora_data/_snapshots/
 tools/agent/.tmp/
 tools/agent/*.log
 tools/agent/e2e*.log
