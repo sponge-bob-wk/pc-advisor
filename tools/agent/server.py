@@ -75,6 +75,14 @@ def slim_result(r):
     out = {"stage": r.get("stage"), "reply": r.get("reply", ""), "slots": r.get("slots", {}),
            "asked": r.get("asked", []), "focus": r.get("focus"),
            "focusName": r.get("focusName")}
+    # 🔴🔴 2026-11-27 修：**known 必须投影出去**。
+    #    没投影的话前端拿不到累积状态，下一轮 POST 回来 known=null，
+    #    多轮上下文全丢。实测序列：
+    #      「要好点的显卡训练模型」→ RTX 5070 ✓
+    #      「我预算只有8000」      → 走 clarify 又问品类（known 丢了）
+    #    build_pc / clarify 的延续全靠 known 里的 _majorName/_wantDgpu 等。
+    if r.get("known"):
+        out["known"] = r["known"]
     # 🔴 2026-11-17：`seen` 必须投影出去。
     #    原来漏了这一栏，前端只能从 kernel.ranked 自己攒 ——
     #    而 fit / followup 分支没有 kernel.ranked，于是前端 seen 一直是空。

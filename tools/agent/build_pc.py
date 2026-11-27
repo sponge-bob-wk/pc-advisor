@@ -571,16 +571,21 @@ def pick_cooler(pool, cpu_name):
     return None, "没找到合适的散热器"
 
 
-def pick_near(items, target, used=None, key=None):
+def pick_near(items, target, used=None, key=None, max_price=None):
     """从 items 里挑价格最接近 target 的一个。
 
     key: 额外的过滤函数（兼容性约束）
+    max_price: 价格硬上限（超过的不参与）。预算自洽用 ——
+               每个件都"最接近"的话，叠加起来总价会爆
+               （实测预算 8000 的单子跑到 ¥41,731）。
     """
     cand = []
     for it in items:
         if used and it["name"] in used:
             continue
         if key and not key(it):
+            continue
+        if max_price is not None and (it.get("price") or 0) > max_price:
             continue
         cand.append(it)
     if not cand:
@@ -663,8 +668,24 @@ def build_plan(parts, tier, budget=None, purposes=None, explicit_dgpu=None):
 
     plan = {}
 
+    # 🔴 2026-11-27：explicit_dgpu 时所有件都有价格上限。
+    #    预算自洽逻辑：gpu 拿走 0.5，其余件分剩下的 —— 但如果每个件
+    #    都允许"最接近 target"地选超，加起来还是爆
+    #    （实测 8000 的单子跑到 ¥41,731）。
+    #    所以上限 = budget × ratio × 1.25。
+    if explicit_dgpu:
+        _cap = {k: budget * ratio[k] * 1.25 for k in ratio}
+
+        def _pick(k, pool):
+            return pick_near(pool, budget * ratio[k],
+                             max_price=_cap.get(k))
+    else:
+
+        def _pick(k, pool):
+            return pick_near(pool, budget * ratio[k])
+
     # ① CPU
-    cpu = pick_near(parts.get("cpu") or [], budget * ratio["cpu"])
+    cpu = _pick("cpu", parts.get("cpu") or [])
     if not cpu:
         return None
     plan["cpu"] = cpu
@@ -686,7 +707,7 @@ def build_plan(parts, tier, budget=None, purposes=None, explicit_dgpu=None):
         # 🔴 2026-11-27：显式要求独显时，gpu 预算有硬上限
         if _gpu_cap is not None:
             _gpu_target = min(_gpu_target, _gpu_cap)
-        gpu = pick_near(parts.get("gpu") or [], _gpu_target)
+        gpu = _pick("gpu", parts.get("gpu") or []) if _gpu_cap is None else pick_near(parts.get("gpu") or [], _gpu_target)
         if not gpu:
             return None
         plan["gpu"] = gpu
@@ -741,7 +762,9 @@ def build_plan(parts, tier, budget=None, purposes=None, explicit_dgpu=None):
         ok, _ = vrm_rules.check(it["name"], _cpu_w)
         return ok
 
-    mb = pick_near(_mb_pool, budget * ratio["motherboard"], key=_mb_ok)
+    mb = pick_near(_mb_pool, budget * ratio["motherboard"], key=_mb_ok,
+                   max_price=(budget * ratio["motherboard"] * 1.25
+                              if explicit_dgpu else None))
 
     if not mb:
         # 供电够的同插槽板子没有（或太贵）→ 找最接近的，然后明确告警
@@ -809,6 +832,8 @@ def build_plan(parts, tier, budget=None, purposes=None, explicit_dgpu=None):
             return False
         return True
 
+    # ① 内存不设 max_price —— 容量/代数是硬约束（pc_rules），
+    #    预算让位（实测：上限 1.25x 把符合 32G 的全排了，只剩 8G）
     ram = pick_near(parts.get("ram") or [], budget * ratio["ram"], key=ram_ok)
     if not ram:
         # 放宽：只要代数对，容量随便（然后报 warning）
@@ -857,7 +882,9 @@ def build_plan(parts, tier, budget=None, purposes=None, explicit_dgpu=None):
     if not ssd_pool:
         # 固态没抓到 → 退回机械盘，但明确告警
         sto = pick_near(parts.get(HDD_KEY) or [],
-                        budget * ratio["storage"])
+                        budget * ratio["storage"],
+                        max_price=(budget * ratio["storage"] * 1.25
+                                   if explicit_dgpu else None))
         if not sto:
             return None
         plan["storage"] = sto
