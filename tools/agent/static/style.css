@@ -578,3 +578,35 @@ body.rail-mini .railTab{right:0}
   background:var(--line2);font-size:11px;color:var(--ink2);
   font-weight:500;
 }
+
+/* ════════════════ 表格包裹层 + 视觉强化（2026-11-27）════════════════ */
+.md-table-wrap{
+  margin:12px 0;border-radius:12px;overflow:hidden;
+  border:1px solid var(--line);
+  box-shadow:var(--shadow);
+  background:var(--surface);
+}
+.md-table-wrap .md-table{margin:0;border:none;border-radius:0;box-shadow:none}
+.md-table th,table.mdt th{
+  background:linear-gradient(180deg,var(--accent-soft),#f5f7ff);
+  padding:9px 12px;
+}
+/* 表头行不 hover */
+.md-table tr:first-child:hover td{background:none}
+/* 合计行加粗突出 */
+.md-table tr:last-child td{font-weight:700;color:var(--ink);
+  background:var(--accent-soft);border-top:2px solid var(--accent-line)}
+
+/* 每轮回答后的向导入口条（2026-11-27）*/
+.wizard-strip{
+  max-width:640px;margin:0 auto 14px;
+  text-align:right;font-size:11.8px;color:var(--ink3);
+  padding-right:6px;
+}
+.wizard-strip a{
+  color:var(--accent);text-decoration:none;font-weight:600;
+  padding:5px 12px;border-radius:999px;
+  border:1.5px solid var(--accent-line);background:var(--accent-soft);
+  display:inline-block;transition:all .12s;
+}
+.wizard-strip a:hover{background:var(--accent);color:#fff}

@@ -874,6 +874,13 @@ function render(d){
   if((d.suggest||[]).length) h+=chipBox('你可以','',d.suggest,d.slots,d.asked);
 
   t.innerHTML=h;
+  // 🔴 2026-11-27：每轮回答后追加向导入口条 —— 用户反馈
+  //    「这段对话结束了，不能跳转到向导」。开聊后也要随时能切。
+  var wz=document.createElement('div');
+  wz.className='wizard-strip';
+  wz.innerHTML='<span>换种方式？</span>'
+    +'<a href="/wizard.html" target="_blank" rel="noopener">打开选机向导 ↷</a>';
+  stream.appendChild(wz);
   stream.appendChild(t);
   bindChips(t);
   bindCands(t);   /* 🔴 2026-11-26：候选机型点击跳转 */
