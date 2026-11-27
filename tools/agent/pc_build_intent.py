@@ -123,6 +123,71 @@ def budget_of(text, slots=None):
     return None
 
 
+# ── 装机单参数列解析（2026-11-27 用户要求「价格参数细细罗列」）──
+#
+# 配件名里本来就带着关键参数，按类型用正则抠出来。
+# 不新增数据源 —— 从型号名解析，保证和名字一致，不会出现
+# "参数列和型号列对不上"的错位。
+
+
+def _spec_of(part, name):
+    """从型号名解析关键参数。解析不出就返回空串。"""
+    n = name or ""
+    if part == "cpu":
+        m = re.search(r"(i[3579]|Ryzen\s*[3579]|Ultra\s*[579])[^,，]*", n)
+        core = m.group(0).strip() if m else ""
+        tags = []
+        if re.search(r"\bK\b|KF", n): tags.append("可超频")
+        if re.search(r"F\b", n) and "KF" not in n: tags.append("无核显")
+        return core + ("（" + "/".join(tags) + "）" if tags else "")
+    if part == "cooler":
+        if re.search(r"水冷|冷排|AIO|一体式", n, re.I):
+            m = re.search(r"(\d{3})", n)
+            return "水冷 %smm" % (m.group(1) if m else "240")
+        m = re.search(r"(\d)\s*热管", n)
+        return "风冷" + (" %s 热管" % m.group(1) if m else "")
+    if part == "motherboard":
+        m = re.search(r"([BHZXA]\d{3}[M]?|X\d{3}[E]?)", n, re.I)
+        chip = m.group(1).upper() if m else ""
+        size = "MATX" if re.search(r"M\b", n[len(chip):] if chip else n) else "ATX"
+        return "%s · %s" % (chip, size) if chip else ""
+    if part == "ram":
+        m = re.search(r"(\d+G\s*\(?.*?\)?\s*)?(DDR\d)\s*(\d{3,4})?", n)
+        if m:
+            cap = re.search(r"(\d+G)", n)
+            freq = m.group(3) or ""
+            return "%s %s %s" % (cap.group(1) if cap else "",
+                                 m.group(2), freq)
+        return ""
+    if part == "gpu":
+        m = re.search(r"(RTX\s*\d{4}\s*(Ti)?|RX\s*\d{4}|GTX\s*\d{3,4})", n, re.I)
+        vram = re.search(r"(\d+)\s*[Gg][Bb]", n)
+        parts_ = []
+        if m: parts_.append(re.sub(r"\s+", "", m.group(0)).upper())
+        if "Ti" in n or "TI" in n.upper().replace(" ", ""):
+            if parts_ and "TI" not in parts_[0].upper():
+                parts_[0] += " Ti"
+        return " ".join(parts_)
+    if part in ("ssd", "storage"):   # storage=固态主盘（装机单里 ssd 主盘键是 storage）
+        m = re.search(r"(\d+\s*[TtGg][Bb])", n)
+        cap = m.group(1).upper().replace("TB", "T").replace("GB", "G") if m else ""
+        return "%s NVMe" % cap if cap else ""
+    if part == "hdd":
+        m = re.search(r"(\d+\s*[Tt][Bb])", n)
+        cap = m.group(1).upper().replace("TB", "T") if m else ""
+        rpm = re.search(r"(\d{4})\s*转", n)
+        return "%s %s转" % (cap, rpm.group(1) if rpm else "") if cap else ""
+    if part == "psu":
+        m = re.search(r"(\d{3,4})\s*W", n, re.I)
+        cert = re.search(r"(金牌|银牌|铜牌|白金)", n)
+        return "%sW %s" % (m.group(1) if m else "?", cert.group(1) if cert else "")
+    if part == "case":
+        if re.search(r"MATX|M-ATX|紧凑", n, re.I): return "MATX 机箱"
+        if re.search(r"ITX|MINI", n, re.I): return "ITX 机箱"
+        return "ATX 机箱"
+    return ""
+
+
 def render_plan(plan):
     """把装机方案渲染成 markdown（对话里直接能看）。"""
     if not plan:
@@ -131,14 +196,22 @@ def render_plan(plan):
     out = []
     out.append("### %s · %s" % (plan["tierName"], plan["use"]))
     out.append("")
-    out.append("| 配件 | 型号 | 参考价 |")
-    out.append("|---|---|---:|")
+    # 🔴 2026-11-27：**表格加参数列 + 占比列**（用户要求「价格参数细细罗列」）
+    #    装机动辄上万，用户关心每件钱花在哪、买到什么规格。
+    _total = plan["total"] or 1
+    out.append("| 配件 | 型号 | 关键参数 | 占预算 | 参考价 |")
+    out.append("|---|---|---|---:|---:|")
     for r in plan["rows"]:
-        out.append("| %s | %s | ¥%s |"
-                   % (r["label"], r["name"],
+        pct = 100.0 * (r["price"] or 0) / _total
+        _link = r.get("url")
+        _name = ("[%s](%s)" % (r["name"], _link)) if _link else r["name"]
+        out.append("| %s | %s | %s | %.0f%% | ¥%s |"
+                   % (r["label"], _name,
+                      _spec_of(r["part"], r["name"]) or "—",
+                      pct,
                       format(int(round(r["price"])), ",")))
-    out.append("| **合计** | | **¥%s** |"
-               % format(int(round(plan["total"])), ","))
+    out.append("| **合计** | | | **100%%** | **¥%s** |")
+    out[-1] = out[-1] % format(int(round(float(plan["total"]) or 0)), ",")
     out.append("")
 
     if plan.get("issues"):
