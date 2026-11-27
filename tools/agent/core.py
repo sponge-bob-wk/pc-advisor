@@ -994,6 +994,12 @@ def _pool_to_offer(m, bench):
     return {
         "id": m.get("id"),
         "name": m.get("name"),
+        # 🔴 2026-11-27：**把 url 透传过去**（用户要求笔记本也能点链接跳转）。
+        #    采集池 243 台里 209 台有京东链接，但原来这里没带 ——
+        #    导致 pool_offers() 出来的 223 台 url 全是 None，
+        #    而台式机配件走 parts.json，那边 url 一直在，所以能跳。
+        #    没有 url 的机型返回 None，下游渲染时跳过链接，不给空 href。
+        "url": m.get("url"),
         "cat": cat,
         "spec": _spec_text(m),
         "price": price,
@@ -1422,13 +1428,75 @@ def rank_offers(offers, cat, budget, mode="daily", limit=5, purpose=None):
         # sort=False 的 hard 只负责"必须说出口"，不动排序（见 purpose_blockers 里核显那条）。
         o["_block"] = 1 if any(b.get("level") == "hard" and b.get("sort", True)
                                for b in o["_blockers"]) else 0
-    # 五级排序，按 PRD §7.1 扩展：超预算垫底 → 用途硬伤靠后 → 主维度三档 →
-    # 主维度原始值 → 加权总分 → id 兜底。
-    # `_nodata` 放在第一位：查不到跑分的机型哪怕在预算内，也不能挤掉有据可查的那台。
-    # `_block` 放在 `_over` 之后：超预算的事实优先于用途短板 ——
-    # 预算不够时该说的是「这台超预算」，而不是「这台色域差」。
-    pool.sort(key=lambda o: (o["_nodata"], o["_over"], o["_block"], -o["_tier"],
-                             -(o["_main"] if o["_main"] is not None else 0),
+    # 🔴 2026-11-27：**性能分改成 8 分一档，同档内贵的优先**。
+    #
+    #    用户实测：预算 7000 → 推荐 ¥5,898（84%），
+    #    而同价位有 ¥6,999/¥6,799/¥6,699 的机型。
+    #
+    #    根因：排序用 `-_main`（性能原始分连续值），
+    #    性能高 0.5 分就压过便宜 1000 块 —— 但那 0.5 分用户感受不到，
+    #    1000 块预算没用上他却会立刻发现。
+    #
+    #    改成 8 分一档：同档内按价格从高到低（用满预算），
+    #    跨档才真正按性能排。8% 是体感分不出的差距。
+    # 🔴 2026-11-27 第二轮修（扫出两个排序 bug）：
+    #
+    #  bug1: `-_tier` 排在 `-_main_bucket` 前面 → 低性能机型靠前
+    #        「办公+游戏 7000」首选 perf=26.9 的 ThinkPad，
+    #        而 perf=67 的 MateBook 排第 4。
+    #        _tier 是三分档，算法按池内相对分位 —— 小池子里不稳，
+    #        而且它已经和 bucket 语义重复。**从排序里去掉**。
+    #
+    #  bug2: bucket 宽 8 分，跨一档就让贵的吃亏
+    #        「游戏 8000」首选 ¥6,687(perf78) 利用率 84%，
+    #        ¥8,299(perf71.5) 排第二。
+    #        perf 差 6.5 分用户感知不到，¥1,612 没花掉他立刻发现。
+    #        **bucket 收到 5 分**（差 5 分才跨档）。
+    # 🔴 2026-11-27 第三轮修：**加绝对性能门槛**。
+    #
+    #    实测 bug：「办公+游戏 7000」首选 ThinkPad ¥5,800 perf=26.9
+    #    （i5-10210U + RX625，2019 年配置）。
+    #    它 gpuKind='discrete' 所以避开了核显降权，但性能只有池内最高分
+    #    （67）的 40% —— 用户花 7000 拿到这台是明显的不匹配。
+    #
+    #    门槛按**池内相对值**算（不是绝对 50 分）：
+    #      低于池内最高分 60% → 打上 _weak 标记，排在有分机型之后。
+    #    这样低预算场景（池子里本来就没高分机）不会被误伤。
+    _tops = [o["_main"] for o in pool if o["_main"] is not None]
+    _top = max(_tops) if _tops else 0
+    _floor = _top * 0.60
+    # 🔴 2026-11-27 第四轮修：**利用率在分档临界时能翻盘**。
+    #
+    #    实测：「游戏 8000」首选 ¥6,687(perf78) 利用率 84%，
+    #    次选 ¥8,299(perf71.5) 利用率 104%。
+    #    perf 差 6.5 分（8%）跨了一档 bucket，贵的排不上去。
+    #
+    #    8% 的帧数差距（60fps 上约 5 帧）用户感受不到，
+    #    但 ¥1,600 没用上他立刻发现。
+    #
+    #    做法：bucket 加成 —— eff_bucket = bucket + (util-1)*K
+    #    K=2.0 → 利用率差 15% 相当于 0.3 档，能翻过一档的 0.2 分差。
+    #    保留分档感（不会退回"性能压一切"的连续值排序）。
+    _K = 2.0
+    for o in pool:
+        _m = o["_main"]
+        _b = int(_m / 5.0) if _m is not None else -1
+        if budget and _m is not None:
+            _util = min((o.get("price") or 0) / budget, 1.0)
+            o["_eff_bucket"] = _b + (_util - 1.0) * _K
+        else:
+            o["_eff_bucket"] = float(_b)
+        o["_main_bucket"] = _b
+        o["_weak"] = 1 if (_m is not None and _top > 0 and _m < _floor) else 0
+
+    # 排序：超预算垫底 → **性能过低靠后** → 用途硬伤靠后 →
+    #       性能分桶（5 分一档）→ 桶内贵的优先 → 加权总分 → id 兜底。
+    #
+    # _weak 放在 _block 之前：性能严重不足比"某用途有短板"更该靠后 ——
+    # 前者是"这台整体不行"，后者是"这台这块不行"。
+    pool.sort(key=lambda o: (o["_nodata"], o["_over"], o["_weak"], o["_block"],
+                             -o["_eff_bucket"],
+                             -(o.get("price") or 0),     # 同档：贵的优先
                              -o["_weight"], o["id"]))
     return pool[:limit]
 

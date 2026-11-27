@@ -629,15 +629,25 @@ function proof(k,d){
    后端怎么给的，这里就怎么显示 —— 前端一旦自己算，就没有审计了。 */
 function ansCard(a){
   var h='<div class="ans">';
+  /* 🔴 2026-11-27：结论**只把第一句加粗**，剩下的降成正文。
+     模型的 headline 经常是「数据不足，判断不了。因为没说用途……要问具体做什么的才能判。」
+     这种三四句的段落，整段塞进 <h3> 就是一大块粗黑字，读起来像吵架。
+     （用户截图反馈：「跳转到对话里文字排版太丑了」） */
+  var _hd = String(a.headline || '');
+  var _m = _hd.match(/^([\s\S]{4,60}?[。！？])([\s\S]+)$/);
+  var _hl = _m ? _m[1] : _hd;
+  var _rest = _m ? _m[2].replace(/^\s+/,'') : '';
   h+='<div class="ans-hd"><div class="lbl">'+(a.inline?'回答':'结论')+'</div><h3>'
-   + esc(a.headline).replace(/\n/g,'<br>')+'</h3></div>';
+   + inlineMd(_hl).replace(/\n/g,'<br>')+'</h3>'
+   + (_rest ? '<div class="ans-body">'+inlineMd(_rest).replace(/\n/g,'<br>')+'</div>' : '')
+   + '</div>';
 
   h+='<div class="ans-kv">';
   (a.rows||[]).forEach(function(r){
     // 到手价和机型这两行给专门的类：价格是选机第一信息，不能跟"评价""重量"一个字号。
     // （原来首选卡上有 30px 的衬线价，换成字段卡后这个视觉锚点丢了。）
     var cls = r.k==='到手价' ? 'rv pr' : (r.k==='机型' ? 'rv nm' : 'rv');
-    h+='<div class="rk">'+esc(r.k)+'</div><div class="'+cls+'">'+esc(r.v)+'</div>';
+    h+='<div class="rk">'+esc(r.k)+'</div><div class="'+cls+'">'+inlineMd(r.v)+'</div>';
   });
   h+='</div>';
 
@@ -1197,7 +1207,11 @@ if(!isTouch()) inp.focus();
   // ?id= 按机型 id 直接问这台（后端 run(text, focus=id)）
   if(mid){
     S.focus=mid;
-    send('这台怎么样');
+    /* 🔴 2026-11-27：「这台怎么样」会被判成 fit（拿用途问这台行不行），
+       而这句里根本没有用途 → 回一句「数据不足，判断不了」，
+       从向导点进来的人第一眼看到的就是这句废话。
+       改成「介绍一下这台」，落在 followup，给配置和价格。 */
+    send('介绍一下这台');
     return;
   }
   if(q){ inp.value=q; autoGrow(); send(q); }

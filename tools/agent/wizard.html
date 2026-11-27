@@ -87,6 +87,50 @@ body{background:var(--bg);color:var(--ink);
   /* ── 手机端（2026-11-27）────────────────────────────────────
      原来一个断点都没有。390 宽下能用，但标题和卡片留白偏大，
      一屏只装得下 4 个选项就得滚。 */
+
+  /* ══ 结果卡片：结构化（2026-11-27）════════════════════════════
+     原来只把 reply 那段话渲染出来 —— 笔记本这条路 reply 是一段散文，
+     没有价格拆解、没有配置表、没有备选，看着比装机单差一大截。
+     现在直接吃 /api/chat 的 answer.rows / gaps / candidates：
+     主推一台给完整参数，下面列其余推荐，点哪台就换哪台。 */
+  .res-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+  .res-name{font-size:19px;font-weight:600;line-height:1.3}
+  .res-price{font-size:17px;font-weight:700;color:var(--accent);margin-left:auto}
+  .res-rank{font-size:11px;color:var(--accent);background:var(--accent-soft);
+    border:1px solid var(--accent-line);border-radius:20px;padding:2px 9px;font-weight:600}
+  .res-sub{font-size:12px;color:var(--ink3);margin-bottom:14px}
+
+  .kv{width:100%;border-collapse:collapse;font-size:13px;margin:2px 0 12px}
+  .kv tr{border-bottom:1px solid var(--line)}
+  .kv tr:last-child{border-bottom:none}
+  .kv td{padding:8px 0;vertical-align:top;line-height:1.55}
+  .kv td.k{width:76px;color:var(--ink3);white-space:nowrap;font-size:12.5px}
+  .kv td.v{color:var(--ink)}
+
+  .res-tag{margin:0 0 12px;padding:10px 12px;border-radius:10px;
+    background:var(--accent-soft);border:1px solid var(--accent-line);
+    font-size:12.8px;color:var(--accent);line-height:1.55}
+  .res-warn{margin:0 0 8px;padding:9px 12px;border-radius:10px;
+    background:#FAF3E3;border:1px solid #EFDCB4;font-size:12.4px;color:#8A5B0B;line-height:1.55}
+  .res-ok{margin:0 0 8px;font-size:12.4px;color:var(--ink3);line-height:1.55}
+
+  .res-more{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+  .res-more-h{font-size:11.5px;color:var(--ink3);letter-spacing:.06em;margin-bottom:9px}
+  .cand{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+    padding:11px 13px;margin-bottom:8px;border-radius:11px;cursor:pointer;
+    background:var(--surface);border:1.5px solid var(--line);
+    font-family:inherit;transition:all .15s}
+  .cand:hover{border-color:var(--accent-line);background:var(--accent-soft)}
+  .cand.cur{border-color:var(--accent);background:var(--accent-soft)}
+  .cand-main{flex:1;min-width:0}
+  .cand-name{display:block;font-size:13.5px;font-weight:600;color:var(--ink)}
+  .cand-spec{display:block;font-size:11.5px;color:var(--ink3);margin-top:2px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cand-price{font-size:13.5px;font-weight:700;color:var(--accent);flex:none}
+  .cand-go{font-size:12px;color:var(--ink3);flex:none}
+
+  .res-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+
   @media (max-width:480px){
     body{padding:20px 12px 28px}
     .top h1{font-size:19px;line-height:1.35}
@@ -331,6 +375,131 @@ function buildSentence(){
   return parts.join("，");
 }
 
+
+/* ══ 结构化结果渲染（2026-11-27）══════════════════════════════════════
+   数据全部来自 /api/chat 的 answer / kernel.ranked，不再是从 reply 里抠。
+   点备选机 → 本地切数据重绘，不发请求（ranked 里已经有每台的配置和卖点）。 */
+var RESULT = null;
+
+function money(v){
+  if(v===null || v===undefined || v==="") return "—";
+  var n = Number(v);
+  if(isNaN(n)) return String(v);
+  return "¥" + n.toLocaleString("zh-CN");
+}
+
+/* 主推那台：直接用后端给的 rows（最全，含价格拆解和价格口径）
+   其他机型：用 ranked 里的字段拼出同构的 k/v */
+function modelRows(m, isTop){
+  var a = RESULT.answer || {};
+  if(isTop && (a.rows || []).length) return a.rows;
+  var r = [{k:"机型", v:m.name}, {k:"到手价", v:money(m.price)}];
+  if(m.original && Number(m.original) > Number(m.price)){
+    var s = "页面价 " + money(m.original);
+    if(m.subsidy) s += " · 含国补 " + money(m.subsidy);
+    r.push({k:"价格拆解", v:s});
+  }
+  if(m.spec) r.push({k:"配置", v:m.spec});
+  if(m.perf !== null && m.perf !== undefined && !m.noPerfData)
+    r.push({k:"性能分", v:m.perf + " / 100"});
+  if(m.ram) r.push({k:"内存", v:(/^\d+$/.test(String(m.ram)) ? m.ram + "G" : m.ram)});
+  r.push({k:"重量", v:(m.weightKg ? (m.weightKg + " kg") : "库里没记实测重量")});
+  return r;
+}
+
+function renderResult(){
+  if(!RESULT) return;
+  var a = RESULT.answer || {}, ranked = RESULT.ranked || [];
+  var cur = null, idx = -1, i;
+  for(i = 0; i < ranked.length; i++){
+    if(ranked[i].id === RESULT.curId){ cur = ranked[i]; idx = i; }
+  }
+  if(!cur && ranked.length){ cur = ranked[0]; idx = 0; }
+  if(!cur){ RESULT = null; return; }
+
+  var isTop = (idx === 0);
+  var rows = modelRows(cur, isTop);
+  var rowName = "";
+  for(i = 0; i < rows.length; i++) if(rows[i].k === "机型") rowName = rows[i].v;
+  var title = cur.name || rowName;
+
+  var h = '';
+  h += '<div class="card fade-in result">';
+  h += '<div class="step-eyebrow">RESULT</div>';
+  h += '<div class="res-head">';
+  h += '<span class="res-rank">' + (isTop ? '首选' : ('备选 ' + idx)) + '</span>';
+  h += '<span class="res-name">' + esc(title) + '</span>';
+  h += '<span class="res-price">' + money(cur.price) + '</span>';
+  h += '</div>';
+  h += '<div class="res-sub">需求：' + esc(RESULT.q) + '</div>';
+
+  h += '<table class="kv">';
+  for(i = 0; i < rows.length; i++){
+    if(rows[i].k === "机型") continue;      // 标题已经显示过了
+    if(rows[i].k === "到手价") continue;    // 价格在标题右边
+    h += '<tr><td class="k">' + esc(rows[i].k) + '</td><td class="v">' + esc(rows[i].v) + '</td></tr>';
+  }
+  h += '</table>';
+
+  if(cur.tag) h += '<div class="res-tag">' + esc(cur.tag) + '</div>';
+
+  /* 短板 / 数据缺口：主推用后端算的 gaps，备选用它自己的 blockers+caution */
+  if(isTop){
+    var gaps = a.gaps || [];
+    for(i = 0; i < gaps.length; i++){
+      var g = gaps[i];
+      h += '<div class="' + (g.level && g.level !== "none" ? "res-warn" : "res-ok") + '">'
+         + (g.level && g.level !== "none" ? "⚠ " : "") + esc(g.text) + '</div>';
+    }
+    var blocks = a.blocks || [];
+    for(i = 0; i < blocks.length; i++){
+      if(!blocks[i] || !blocks[i].why) continue;
+      h += '<div class="res-warn">⚠ ' + esc(blocks[i].why) + '</div>';
+    }
+  } else {
+    if(cur.caution) h += '<div class="res-warn">⚠ ' + esc(cur.caution) + '</div>';
+    var bl = cur.blockers || [];
+    for(i = 0; i < bl.length; i++){
+      if(!bl[i] || !bl[i].why) continue;
+      h += '<div class="res-warn">⚠ ' + esc(bl[i].why) + '</div>';
+    }
+  }
+
+  /* 备选清单：点哪台换哪台 */
+  if(ranked.length > 1){
+    h += '<div class="res-more"><div class="res-more-h">其他推荐 · 点一下换这台</div>';
+    for(i = 0; i < ranked.length; i++){
+      var m = ranked[i];
+      h += '<button class="cand' + (m.id === cur.id ? ' cur' : '') + '" '
+         + 'onclick="showModel(\'' + esc(m.id) + '\')">'
+         + '<span class="cand-main">'
+         + '<span class="cand-name">' + esc(m.name) + '</span>'
+         + '<span class="cand-spec">' + esc(m.spec || "") + '</span>'
+         + '</span>'
+         + '<span class="cand-price">' + money(m.price) + '</span>'
+         + '<span class="cand-go">' + (m.id === cur.id ? '当前' : '→') + '</span>'
+         + '</button>';
+    }
+    h += '</div>';
+  }
+
+  h += '<div class="res-acts">';
+  h += '<button class="btn btn-primary" onclick="location.href=\'/?id=' + esc(cur.id) + '\'">在对话里细聊这台 →</button>';
+  h += '<button class="btn btn-ghost" onclick="location.reload()">↻ 重新选</button>';
+  h += '</div>';
+  h += '</div>';
+
+  stage.innerHTML = h;
+}
+
+function showModel(id){
+  if(!RESULT) return;
+  RESULT.curId = id;
+  renderResult();
+  try{ stage.scrollIntoView({behavior:"smooth", block:"start"}); }catch(e){}
+}
+window.showModel = showModel;
+
 function submit(){
   renderDots();
   lbl.textContent = "正在为你挑选…";
@@ -345,14 +514,34 @@ function submit(){
   })
   .then(function(r){ return r.json(); })
   .then(function(o){
-    var rep = o.reply || "";
-    stage.innerHTML = '<div class="card fade-in result">'+
-      '<div class="step-eyebrow">RESULT</div>'+
-      '<div class="step-q">按你的需求，推荐如下</div>'+
-      '<div style="font-size:12px;color:var(--ink3);margin-bottom:12px">需求：'+esc(q)+'</div>'+
-      '<div id="mdOut">'+renderSimpleMd(rep)+'</div>'+
-      '<div class="actions"><button class="btn btn-ghost" onclick="location.reload()">↻ 重新选</button></div>'+
-      '</div>';
+    /* 🔴 2026-11-27：**笔记本这条路不再渲染 reply 那段散文**。
+       原来只吃 o.reply —— 装机（台式）那条 reply 里带整张配件表，看着很专业；
+       笔记本这条 reply 就一段话「推荐 X，这台是……」，价格拆解、配置、
+       备选全丢了，用户的原话是「笔记本的输出太烂了，要和台式一样」。
+
+       现在直接吃结构化字段：
+         answer.headline  一句话结论
+         answer.rows      主推那台的全部参数（机型/到手价/价格拆解/配置/性能分/内存/重量）
+         answer.gaps      短板 / 数据缺口
+         answer.blocks    硬伤
+         kernel.ranked    全部候选（含 spec/tag/caution/weightKg），点哪台换哪台
+       没有 answer 的（装机单、clarify 等）仍然走 markdown 渲染。 */
+    if(o && o.answer && (o.answer.rows || []).length){
+      RESULT = {q:q, answer:o.answer, ranked:(o.kernel && o.kernel.ranked) || [],
+                curId:(o.focus || (o.answer.rows[0] || {}).v || "")};
+      lbl.textContent = "挑好了 · 点下面的备选可以换台对比";
+      renderResult();
+    } else {
+      var rep = o.reply || "";
+      lbl.textContent = "";
+      stage.innerHTML = '<div class="card fade-in result">'+
+        '<div class="step-eyebrow">RESULT</div>'+
+        '<div class="step-q">按你的需求，推荐如下</div>'+
+        '<div style="font-size:12px;color:var(--ink3);margin-bottom:12px">需求：'+esc(q)+'</div>'+
+        '<div id="mdOut">'+renderSimpleMd(rep)+'</div>'+
+        '<div class="res-acts"><button class="btn btn-ghost" onclick="location.reload()">↻ 重新选</button></div>'+
+        '</div>';
+    }
   })
   .catch(function(e){
     stage.innerHTML = '<div class="card"><div class="loading">出错了：'+esc(String(e))+'</div></div>';

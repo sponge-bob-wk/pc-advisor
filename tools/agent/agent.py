@@ -1776,7 +1776,23 @@ CARRY_ONLY = re.compile(
 
 # 用户**明确**点品类的时候，上面那条"别换品类"的护栏必须让路。
 # 「我要轻薄本，能带就行」是在点品类；「我要带去教室」只是在说携带 —— 两者不能混。
-CAT_EXPLICIT = re.compile(r"(轻薄本|超极本|游戏本|笔记本|手提|台式机?|整机|主机|内存条?|固态|硬盘|配件)")
+# 🔴 2026-11-27 修：**「笔记本」不算品类明确指定**。
+#
+#    「笔记本」是**形态**（laptop），「游戏本 / 轻薄本」才是**品类**。
+#    把「笔记本」放进来导致：
+#        「要笔记本，预算7000元，主要用来打游戏」
+#        → cat=thin → 下面 L6430 的「gaming 覆盖 thin」判断被
+#          `not _cat_from_user` 挡住 → 推了核显轻薄本，打不了游戏。
+#
+#    用户说「笔记本」只说明要便携，没说清是轻薄还是性能。
+CAT_EXPLICIT = re.compile(
+    r"(轻薄本|超极本|游戏本|台式机?|整机|主机|内存条?|固态|硬盘|配件)")
+
+# 形态词：只说明"要便携"（笔记本形态），不说明轻薄还是性能。
+# 用途：
+#   · L6389「从台式机切回笔记本」要算数 —— 否则切不回来（attack2 K17）
+#   · L6430「gaming 覆盖 thin」不能算数 —— 否则打游戏推核显（今天实测）
+CAT_FORM_EXPLICIT = re.compile(r"(笔记本|手提电脑|手提)")
 # 🔴 「笔记本」原本漏掉了 —— 实测 2026-11-12（attack2 K17）：
 #   「7000 的台式机」→「还是买笔记本吧，要带教室」，品类没切回，
 #   模型只好顺着 desktop 槽位编出「库里没有笔记本数据」（库里明明有 50 台）。
@@ -2282,7 +2298,7 @@ def _intro_model(user_text, o):
                       num_predict=220).strip()
         if _bad(reply2):
             # 模板兜底：全是库里原文，一个字不生成
-            parts = ["%s，%s，现在到手 ¥%s。" % (b["name"], b["spec"], b["price"])]
+            parts = ["%s，%s，现在到手 ¥%s。" % (_name_link(b), b["spec"], b["price"])]
             if b["tag"]:
                 parts.append(b["tag"].rstrip("。") + "。")
             if b["pros"]:
@@ -3450,10 +3466,17 @@ def _leak_marker(text):
     t = text or ""
     LEAK = (
         r"系统会自动|系统会补|会自动补上|系统将自动|"
+        # 🔴 2026-11-27 实测补：模型写成「系统会在末尾补上…」
+        r"系统会在|系统会加|系统会写|系统会说明|"
         r"（系统|\(系统|【系统|"
         r"注意：这句|这句没有说|那是用户的事|不是我的事|"
         r"按规则|根据判据|判据是|我只陈述|我只报|"
-        r"由代码|交给代码|代码会"
+        r"由代码|交给代码|代码会|"
+        # 🔴 2026-11-27 实测补：模型把字段名和命令念出来
+        #    「『要提醒的坑』是空的，也不许编」/「你不要重复」
+        r"是空的[，,]?也?不许编|不许编|不要编|不能编|不准编|"
+        r"你不要重复|不要重复|别重复|不要再说一遍|"
+        r"「[^」]{2,12}」是空的"
     )
     m = re.search(LEAK, t)
     return m.start() if m else None
@@ -4611,7 +4634,7 @@ def template_reply(m):
     还会冒出库外品牌。这类回答数据是现成的，稳定比文采重要。
     缺点优先挑「封装/板载」这类决定性信息 —— 之前只挑第一条，
     结果漏掉了「内存板载」，用户看到前后矛盾。"""
-    parts = ["%s，%s，到手 ¥%s。" % (m["name"], m.get("spec") or "", m.get("price"))]
+    parts = ["%s，%s，到手 ¥%s。" % (_name_link(m), m.get("spec") or "", m.get("price"))]
     pros = [p for p in (m.get("pros") or []) if p]
     if pros:
         parts.append(pros[0].rstrip("。") + "。")
@@ -4637,6 +4660,109 @@ def _money(x):
     return ("%d" % v) if v.is_integer() else ("%.2f" % v)
 
 
+
+def _linkify_models(text, models=None):
+    """把回答里的机型名换成 markdown 链接（2026-11-27）。
+
+    用户要求：「笔记本也能像台式机一样点链接跳转」。
+    笔记本推荐的回答是模型自由生成的，模板里插不进链接，
+    所以在他输出之后做一次「机型名 → [名称](京东链接)」的替换。
+
+    models 为 None 时自动从**全池**取 —— 不依赖调用方的局部变量
+    （踩过坑：eval("m") 在某些分支拿不到，候选数一直是 0）。
+
+    ⚠️ 按名字长度降序替换：「暗影精灵11 锐龙版」要先于「暗影精灵11」，
+       否则短名先匹配，长名就接不上了。
+    ⚠️ 机型名后面紧跟数字/字母时不替换（防「幻16」吃掉「幻165」）。
+    """
+    if not text:
+        return text
+
+    src = models
+    if not src:
+        try:
+            import core as _core
+            src = _core.pool_offers()
+        except Exception:
+            return text
+    if not src:
+        return text
+
+    pairs = []
+    for m_ in src:
+        if not isinstance(m_, dict):
+            continue
+        n_ = (m_.get("name") or "").strip()
+        u_ = (m_.get("url") or "").strip()
+        if not (n_ and u_ and len(n_) >= 4):
+            continue
+        # 🔴 2026-11-27：池子里名字常带括号规格后缀，回答里用短名：
+        #    池子「暗影精灵11 锐龙版（R9-8945HX/16G/1T/RTX5060/2.5K 240Hz）」
+        #    回答「暗影精灵11 锐龙版」
+        #    精确匹配失败 → 同时登记「去掉括号后的短名」作为别名。
+        pairs.append((n_, u_))
+        _short = re.sub(r"[（(][^）)]*[）)]", "", n_).strip()
+        if _short and len(_short) >= 4 and _short != n_:
+            pairs.append((_short, u_))
+    if not pairs:
+        return text
+    # 去重（同一机型可能出现多次）
+    _seen = set()
+    uniq = []
+    for n_, u_ in pairs:
+        if n_ in _seen:
+            continue
+        _seen.add(n_)
+        uniq.append((n_, u_))
+    uniq.sort(key=lambda x: -len(x[0]))
+
+    # 🔴 2026-11-27 修嵌套：按 url 分组，**每个 url 只替换一次**。
+    #
+    #    踩坑：全名和短名都登记了，短名替换后回答里出现
+    #    「[暗影精灵11 锐龙版](url)（R9-8945HX...）」，
+    #    全名的正则又把整段（含已替换的链接）当全名匹配，
+    #    结果变成 [[短名](url)（规格）](url) 嵌套。
+    #
+    #    修法：替换过的 url 记下来，同一台机器不再替换第二次。
+    out = text
+    _done_urls = set()
+    for name, url in uniq:
+        if url in _done_urls:
+            continue
+        if ("[%s](" % name) in out:
+            _done_urls.add(url)
+            continue
+        # 🔴 2026-11-27 修贪心吃前缀：
+        #    「联想小新 16」被替换成「[联想小新](url) 16」——
+        #    池子里那台叫「联想小新」（无后缀），不代表用户说的是它。
+        #
+        #    判据：名字后面 1-3 字符内出现数字 → 这是更长型号的前缀，跳过。
+        #          「联想小新 16」 → 后面是 " 16" → 跳过
+        #          「联想小新，16 寸屏」 → 后面是 "，" → 正常替换
+        pat = (r"(?<![\]\[()])" + re.escape(name)
+               + r"(?![0-9A-Za-z\u4e00-\u9fff\]\[()])"
+               + r"(?!\s{0,2}\d)")
+        new = re.sub(pat, "[%s](%s)" % (name, url), out, count=1)
+        if new != out:
+            out = new
+            _done_urls.add(url)
+    return out
+
+
+def _name_link(m):
+    """机型名带链接（有京东 url 时）。
+
+    2026-11-27：用户要求「笔记本也能像台式机一样点链接跳转」。
+    台式机配件走 parts.json 的 url，一直能跳；笔记本池原来没透传 url。
+
+    没有 url 的机型原样返回名称 —— 前端 inlineMd 只认 [x](url) 语法，
+    不给空 href，避免渲染出死链。
+    """
+    n = (m.get("name") if isinstance(m, dict) else None) or ""
+    u = (m.get("url") if isinstance(m, dict) else None) or ""
+    if n and u:
+        return "[%s](%s)" % (n, u)
+    return n
 def _list_others_reply(rest, slots):
     """把第 2 名之后的候选逐台写出来。**全部由代码生成**，不经过模型。
 
@@ -4915,7 +5041,7 @@ def answer_card(result, slots=None, note="", carry="", mnote=""):
     # ⚠️ 原来写的是「首选 X」—— 被 test_answer 逮住：「首选」本身就在
     #   宪法第 7 条的禁用词表里（无人评价的机器不许说"首选/值得买"）。
     #   改成陈述排序结果："按你给的条件，排第 1 的是 X"，这是内核给的事实。
-    head = "按你给的条件，排第 1 的是 %s，到手 ¥%s" % (top["name"], _money(top.get("price")))
+    head = "按你给的条件，排第 1 的是 %s，到手 ¥%s" % (_name_link(top), _money(top.get("price")))
     if top.get("overBudget"):
         head += "（超预算）"
     if hard:
@@ -4985,8 +5111,7 @@ def answer_card(result, slots=None, note="", carry="", mnote=""):
             "hasReview": bool(x.get("hasReview")),
             "note": "只报参数" if not x.get("hasReview") else "",
         })
-
-    return {
+    _card = {
         "headline": head,
         "rows": rows,
         "gaps": gaps,
@@ -4999,6 +5124,19 @@ def answer_card(result, slots=None, note="", carry="", mnote=""):
         "poolHint": ("这一轮的排序池是 %d 台" % (result.get("pool", {}).get("total") or 0))
                     if result.get("pool") else "",
     }
+    # 🔴 2026-11-27：结构化卡片里的机型名加京东链接（用户要求笔记本可跳转）。
+    #    前端渲染的是 headline + rows，不是 reply。
+    try:
+        if _card.get("headline"):
+            _card["headline"] = _linkify_models(_card["headline"])
+        for _r in (_card.get("rows") or []):
+            if isinstance(_r, dict):
+                for _k in ("v", "value", "text"):
+                    if isinstance(_r.get(_k), str):
+                        _r[_k] = _linkify_models(_r[_k])
+    except Exception:
+        pass
+    return _card
 
 
 def compose(user_text, result):
@@ -6376,7 +6514,8 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
         # 采纳它会把游戏本换成轻薄本（M08 回归，2026-11-11）。
         mobility_ask = bool(MOBILITY_ASK.search(user_text) or CARRY_ONLY.search(user_text))
         # 「要带去教室」是携带约束，不是换品类 —— 但用户明确点名品类时，必须听他的
-        if CAT_EXPLICIT.search(user_text):
+        # 2026-11-27：加了形态词 —— 「还是买笔记本吧」要能切品类
+        if CAT_EXPLICIT.search(user_text) or CAT_FORM_EXPLICIT.search(user_text):
             mobility_ask = False
         # 🔴 2026-11-12（乱测夹具抓到）：品类只许在**用户真的说了品类或用途**时改变。
         #   实测原文：「那换台 RTX4060 的，稳点别跳闸就行」
@@ -6426,10 +6565,6 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
         #
         #    判据：只在**本轮没抽到 cat**（或抽到 None）时才按 purpose 推；
         #    本轮明确抽到 cat 就以用户说的为准 —— 用户明说 > 用途推断。
-        _cat_from_user = bool(CAT_EXPLICIT.search(user_text or ""))
-        if "gaming" in _purpose_now and slots.get("cat") == "thin" \
-                and not _cat_from_user:
-            slots["cat"] = "gaming"
         # purpose 是累加的：用户补充"偶尔打游戏"不等于放弃"学设计"。
         # 只有明确否掉才移除（"我不玩游戏了"）。
         merged = list(known.get("purpose") or [])
@@ -6468,8 +6603,27 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
             slots["_build"] = known["_build"]
 
     # 5. 隐含推导：说打游戏但没明确品类 → 按游戏本走（PRD §8.4）
-    #    但已经定了轻薄本、用户只是问"能不能打游戏"时不能改品类 —— 那是追问。
+    #
+    # 🔴 2026-11-27 大修（用户实测）：
+    #    「要笔记本，预算7000元，主要用来打游戏」→ 推荐了核显轻薄本
+    #
+    #    根因有两层：
+    #      ① 模型首轮就抽到 cat=thin（因为"笔记本"这词）
+    #      ② 「gaming 覆盖 thin」的判据原来写在 `if known:` 块内 ——
+    #         **首轮 known 为空 → 整段跳过 → 覆盖根本没执行**
+    #
+    #    现在把判据提到这里（块外），与下面两条隐含推导并列。
+    #
+    #    判据：purpose 含 gaming + cat 是 thin + 用户没明确点品类
+    #      → 用户说"笔记本"只表示要便携，说了"打游戏"就该配游戏本
+    #      → 但用户明说"轻薄本"时不许改（那是他真的要轻薄）
+    _cat_from_user = bool(CAT_EXPLICIT.search(user_text or ""))
     if not slots.get("cat") and "gaming" in (slots.get("purpose") or []):
+        slots["cat"] = "gaming"
+    elif (slots.get("cat") == "thin"
+          and "gaming" in (slots.get("purpose") or [])
+          and not _cat_from_user):
+        # 首轮直接抽到 thin + 要打游戏 + 没点名品类 → 改游戏本
         slots["cat"] = "gaming"
     # 「背去教室」「带去图书馆」这类隐含说明是笔记本，不是台式。
     # 实测：用户说「学设计的，五千，要用四年，平时背去教室」，模型没抽 cat，
@@ -7281,6 +7435,27 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
                 reply = reply.rstrip() + (
                     "\n（这个价是平台标价快照，不含国补和平台券，"
                     "不是到手价；实际到手可能更低。）")
+    except Exception:
+        pass
+
+    # 2026-11-27：给回答里的机型名加京东链接（用户要求「笔记本也能跳转」）。
+    # 不传候选变量 —— 直接从全池建映射，避免依赖分支内的局部变量。
+    #
+    # ⚠️ 必须同时处理 reply 和 answer.headline：
+    #    前端渲染的是结构化卡片（answer.headline + rows），
+    #    只改 reply 用户看不到链接。
+    try:
+        reply = _linkify_models(reply)
+        if isinstance(locals().get("answer"), dict):
+            _ans = locals()["answer"]
+            if _ans.get("headline"):
+                _ans["headline"] = _linkify_models(_ans["headline"])
+            # rows 里如果有「机型」行也补上
+            for _row in (_ans.get("rows") or []):
+                if isinstance(_row, dict):
+                    for _fk in ("v", "value", "text"):
+                        if _row.get(_fk) and isinstance(_row[_fk], str):
+                            _row[_fk] = _linkify_models(_row[_fk])
     except Exception:
         pass
 

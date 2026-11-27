@@ -194,15 +194,51 @@ body{
 .bubble a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-line)}
 .bubble a:hover{border-bottom-width:2px}
 
-/* 键值表（结构化参数卡） */
-.ans-kv{
-  display:table;width:100%;border-collapse:collapse;
-  font-size:12.8px;margin:8px 0;
-}
-.ans-kv .k{width:96px;color:var(--ink3);padding:6px 8px 6px 0;
-  vertical-align:top;white-space:nowrap}
-.ans-kv .v{padding:6px 0;font-weight:500}
-.ans-kv .price{color:var(--price);font-weight:700}
+/* ══════════════ 固定字段版回答卡（.ans）══════════════════════════
+   🔴 2026-11-27：app.js 的 ansCard() 一直在生成这套结构，
+   但那次 CSS 重构把它的样式**整块丢了** —— .ans / .ans-hd / .lbl /
+   .ans-sec / .gap / .blk 一个都不剩；而且 .ans-kv 的子元素选择器
+   写的是 .k/.v，JS 实际输出的是 .rk/.rv，根本对不上。
+
+   后果（用户截图）：「结论」那一段十几句话整段加粗，糊成一堵墙；
+   「机型」「数据快照」两行叠成一列文字，价格也不突出。
+
+   ⚠️ 这套结构影响的不止是深链接，recommend / followup 的卡片都走它。 */
+.ans{font-size:13.6px;line-height:1.7;color:var(--ink)}
+
+.ans-hd{margin:0 0 12px}
+.ans-hd .lbl{font-size:10.5px;letter-spacing:.1em;color:var(--ink3);
+  font-weight:600;margin-bottom:5px}
+.ans-hd h3{font-size:15.5px;font-weight:600;line-height:1.6;
+  color:var(--ink);letter-spacing:0;margin:0}
+/* 结论只留第一句加粗，后面的话降到正文 —— 模型的 verdict 常常三四句，
+   整段加粗读起来像吵架 */
+.ans-body{margin-top:6px;font-size:13.2px;line-height:1.8;color:var(--ink2)}
+
+.ans-kv{display:grid;grid-template-columns:84px minmax(0,1fr);
+  margin:2px 0 12px;font-size:12.8px;border-top:1px solid var(--line2)}
+.ans-kv .rk,.ans-kv .rv{padding:8px 0;border-bottom:1px solid var(--line2)}
+.ans-kv .rk{color:var(--ink3);white-space:nowrap;padding-right:10px}
+.ans-kv .rv{color:var(--ink);font-weight:500;overflow-wrap:anywhere}
+.ans-kv .rv.nm{font-weight:600;font-size:14px}
+.ans-kv .rv.pr{color:var(--price);font-weight:700;font-size:14.5px}
+
+.ans-sec{margin:14px 0 4px}
+.ans-sec .st{font-size:11px;color:var(--ink3);letter-spacing:.06em;margin-bottom:7px}
+.gap{display:flex;gap:8px;align-items:flex-start;
+  padding:8px 10px;border-radius:9px;margin-bottom:6px;
+  font-size:12.4px;line-height:1.6;background:var(--line2);color:var(--ink2)}
+.gap i{font-style:normal;font-size:10.5px;font-weight:600;flex:none;
+  padding:1px 6px;border-radius:5px;background:var(--surface);color:var(--ink3);
+  border:1px solid var(--line)}
+.gap.hard{background:var(--warn-bg)}
+.gap.hard i{color:var(--warn);border-color:var(--amber-line)}
+.gap.soft{background:var(--amber-soft)}
+.gap.soft i{color:var(--amber);border-color:var(--amber-line)}
+
+.blk{margin:0 0 8px;font-size:12.6px;line-height:1.7;color:var(--ink2)}
+.blk b{display:block;color:var(--ink);font-size:12.8px;margin-bottom:2px}
+.blk p{margin:0}
 
 /* markdown 表格（装机单/参数表） */
 .md-table,table.mdt{
@@ -755,6 +791,12 @@ body.rail-mini .railTab{right:0}
          padding-bottom:2px;margin-bottom:7px;scrollbar-width:none}
   .chips::-webkit-scrollbar{display:none}
   .chips button{flex:none}
+
+  /* 对比表（.cmp）首列是字段名，窄屏会被挤成一字一行（「到/手/价」）。
+     锁住首列不换行，整表降字号腾空间。 */
+  .cmp{font-size:11.5px}
+  .cmp th,.cmp td{padding:6px 7px}
+  .cmp tr>*:first-child{white-space:nowrap;color:var(--ink3);font-weight:500}
 
   /* 宽表格横向滚，别把列压成竖排。
      右侧加一条内阴影 —— 不然表格被硬切一刀，用户以为列丢了。 */
