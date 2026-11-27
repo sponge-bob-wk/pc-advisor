@@ -21,11 +21,11 @@
   --line-strong:#D6D8DE;
 
   /* 主色：交互与主结构 */
-  --accent:#2D6CDF;
-  --accent-hover:#1E57C0;
-  --accent-2:#1E57C0;
-  --accent-soft:#EEF3FE;
-  --accent-line:#C9D9F8;
+  --accent:#3d5afe;
+  --accent-hover:#3049e0;
+  --accent-2:#3049e0;
+  --accent-soft:#eef1ff;
+  --accent-line:#c5cdfd;
 
   /* 第二身份色：品类/对比 */
   --teal:#0F8B8D;
@@ -1142,3 +1142,18 @@
   .rf-group-hd span{
     font-size:10.4px;color:var(--ink3);
   }
+
+  /* 🔴 2026-11-27 向导入口卡（hero 里，跳 /wizard.html）*/
+  .wizard-entry{
+    display:flex;align-items:center;gap:14px;
+    margin-top:18px;padding:14px 18px;
+    border:1.5px solid var(--accent-line);border-radius:12px;
+    background:var(--accent-soft);cursor:pointer;
+    transition:all .15s;
+  }
+  .wizard-entry:hover{transform:translateY(-1px);box-shadow:var(--sh-1)}
+  .we-emoji{font-size:24px}
+  .we-main{flex:1}
+  .we-title{font-size:14px;font-weight:600;color:var(--accent)}
+  .we-desc{font-size:12.5px;color:var(--ink2);margin-top:2px}
+  .we-arrow{font-size:16px;color:var(--accent);font-weight:600}
