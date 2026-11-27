@@ -19,7 +19,15 @@ SLOT_SYS = """你是购买电脑需求的解析器。从用户的话中抽取槽
 字段：
 - cat: "thin"(轻薄本) / "gaming"(游戏本) / "desktop"(台式) / "upgrade"(内存固态) / null
 - budget: 预算整数元。"五千"→5000，"一万"→10000。没提→null
-- purpose: 数组，可选 "office" "gaming" "dev" "video" "design"。没提→[]
+- purpose: 数组，可选值和判定关键词：
+    "office"  办公/网课/写文档/浏览网页
+    "gaming"  游戏/3A/网游/永劫/吃鸡/原神/LOL
+    "dev"     写代码/编程/开发/虚拟机/docker（❌ 不含训练模型）
+    "video"   剪视频/剪辑/PR/渲染/后期
+    "design"  设计/PS/修图/调色/插画
+    "ai"      训练模型/微调/跑大模型/本地部署模型/炼丹/深度学习
+    "threeD"  3D建模/渲染/SU/CAD/UG
+    没提→[]。一句话涉及多个用途就都写进数组。
 - years: 打算用几年，整数。没提→null
 - carry: 是否经常携带，布尔。没提→null
 - dormWatt: 宿舍限电功率，整数瓦。没提→null
@@ -2084,8 +2092,14 @@ def _asked_purpose(text):
         hits.append("design")
     if any(w in text for w in ["剪视频", "剪辑", "PR", "Pr", "pr", "渲染", "后期"]):
         hits.append("video")
-    if any(w in text for w in ["写代码", "编程", "开发", "虚拟机", "docker", "跑模型"]):
+    if any(w in text for w in ["写代码", "编程", "开发", "虚拟机", "docker"]):
         hits.append("dev")
+    # 🔴 2026-11-27 修：「跑模型」原来归 dev，但它指本地跑大模型，
+    #    显存是硬门槛，应该归 ai。实测用户说「训练模型」「微调」被标成 dev，
+    #    而 dev 在 pc_rules 里 needDgpu=False → 配了核显，无视独显要求。
+    if any(w in text for w in ["跑模型", "训练模型", "微调", "炼丹", "深度学习",
+                                "本地部署", "大模型"]):
+        hits.append("ai")
     return hits
 
 
@@ -6599,12 +6613,31 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
                                   "fetch_parts.py，我才有配件价格能拼配置。"),
                         "known": slots, "questions": [], "warnings": []}
             _purposes = list(slots.get("purpose") or [])
+
+            # 🔴🔴 2026-11-27：**用户显式要求独显 → 传给 build_plan 强制配**。
+            #
+            #    事故（真实用户反馈）：
+    #      「我要配一台台式，8000预算，要有好点的显卡来训练模型」
+    #      「我要独显，没听明白我要显卡？」
+    #    purpose 被标成 dev（训练模型不在 SLOT_SYS 枚举里）
+    #    → dev 的 needDgpu=False → 配了核显，完全无视显式要求。
+    #
+    #    用户嘴里说出来的「独显/显卡」是最高优先级信号，
+    #    比 purpose 推断可靠 —— 检测到就强制配。
+            _explicit_dgpu = bool(re.search(
+                r"独显|显卡|好点的显卡|独立显卡", user_text or ""))
+            # 「游戏」也视作需要独显的信号（核显跑不了 3A）
+            if not _explicit_dgpu and re.search(r"游戏|3A|吃鸡|永劫",
+                                                user_text or ""):
+                _explicit_dgpu = True
+
             if _budget:
                 _best = min(_bpc.TIERS, key=lambda t: min(
                     abs(_budget - t["budget"][0]),
                     abs(_budget - t["budget"][1])))
                 _one = _bpc.build_plan(_parts, _best, _budget,
-                                        purposes=_purposes)
+                                        purposes=_purposes,
+                                        explicit_dgpu=_explicit_dgpu)
                 _plans = [_one] if _one else []
             else:
                 _plans = []

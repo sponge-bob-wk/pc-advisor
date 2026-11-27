@@ -588,13 +588,20 @@ def pick_near(items, target, used=None, key=None):
     return min(cand, key=lambda x: abs(x["price"] - target))
 
 
-def build_plan(parts, tier, budget=None, purposes=None):
+def build_plan(parts, tier, budget=None, purposes=None, explicit_dgpu=None):
     """按档位 + 用途生成一套配置。
 
     🔴 2026-11-26 加 purposes 参数（用户要求）：
         「台式机是要按照装机标准，根据用户需求你去推荐」
         —— 同一预算下，打游戏和剪视频的钱该花在不同地方：
            游戏 → 显卡吃大头；剪辑 → CPU+内存+大容量；办公 → 不要独显。
+
+    🔴 2026-11-27 加 explicit_dgpu（真实用户反馈）：
+        用户说「要独显」「要有好点的显卡训练模型」，purpose 被标成 dev，
+        dev 在 pc_rules 里 needDgpu=False → 配了核显，无视显式要求。
+
+        explicit_dgpu=True 时强制配独显，覆盖 purpose 的自动判断。
+        agent.py 从用户文本检测「独显/显卡/玩游戏/训练模型」等信号传入。
 
     返回 {"tier":..., "rows":[...], "total":..., "issues":[...]}
     """
@@ -619,6 +626,41 @@ def build_plan(parts, tier, budget=None, purposes=None):
     for line in pc_rules.explain(rule, purposes):
         issues.append(line)
 
+    # 🔴 2026-11-27：**用户显式要求独显 → 强制配 + 预算提到 ai 档**。
+    #    purpose 的自动判断可能判错（比如「训练模型」被标成 dev），
+    #    但用户嘴里说出来的"要独显"是最高优先级的信号。
+    #    放在 rule_for 之后，直接改写 rule["needDgpu"]。
+    #
+    #    ⚠️ 光改 needDgpu 还不够（第二轮实测）：
+    #       dev 的 gpu 权重只有 0.55，强制配独显后选出的是 RTX 3050（¥1899）
+    #       —— 训练模型 4G 显存根本不够。用户说"要有好点的显卡"，
+    #       预算也得跟着提。所以把 gpu 权重提到 ai 档（1.60）再重新归一化。
+    _gpu_cap = None
+    if explicit_dgpu:
+        rule["needDgpu"] = (True,
+                            "用户明确要求独显（显式要求优先于用途推断）")
+        # 🔴 2026-11-27 第二轮：**gpu 权重提到 ai 档 + 绝对值硬上限**。
+        #
+        #    第一轮只改 needDgpu → 选出 RTX 3050（dev 的 gpu 权重才 0.55）
+        #    第二轮改权重并重新归一化 → 总价跑到 ¥13,827（超 73%）
+        #
+        #    归一化会失控的原因：ratio 变了，但 pick_near 是"最接近 target"，
+        #    每个件都可能选超，叠加后爆掉。
+        #
+        #    正确做法：
+        #      ① gpu 权重提到 ai 档（1.60）
+        #      ② gpu 的绝对预算封顶 budget × 0.55
+        #         （8000 × 0.55 = 4400，能买 RTX 5060Ti/5070 档）
+        #      ③ 其他件比例不动 → 总价不爆
+        ratio["gpu"] = PURPOSE_TUNING["ai"]["gpu"]
+        total = sum(ratio.values())
+        if total > 0:
+            ratio = {k: v / total for k, v in ratio.items()}
+        _gpu_cap = budget * 0.55
+        issues.append("用户要求独显：显卡按「本地跑模型」档配，"
+                      "预算上限 %s" % fmt_money(_gpu_cap))
+
+
     plan = {}
 
     # ① CPU
@@ -640,7 +682,11 @@ def build_plan(parts, tier, budget=None, purposes=None):
     #       显卡 4199 而 CPU 只有 1280，游戏时 CPU 会成瓶颈，
     #       那张显卡的钱发挥不出来。
     if rule["needDgpu"][0]:
-        gpu = pick_near(parts.get("gpu") or [], budget * ratio["gpu"])
+        _gpu_target = budget * ratio["gpu"]
+        # 🔴 2026-11-27：显式要求独显时，gpu 预算有硬上限
+        if _gpu_cap is not None:
+            _gpu_target = min(_gpu_target, _gpu_cap)
+        gpu = pick_near(parts.get("gpu") or [], _gpu_target)
         if not gpu:
             return None
         plan["gpu"] = gpu
@@ -990,6 +1036,7 @@ def build_plan(parts, tier, budget=None, purposes=None):
             "url": it.get("url"),
         })
         total += it["price"]
+
 
     return {
         "tier": tier["id"],
