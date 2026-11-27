@@ -1,0 +1,233 @@
+[
+ {
+  "id": "thin-wujie14x",
+  "name": "机械革命 无界 14X",
+  "spec": "R7 H255 · 16G + 512G",
+  "price": 3000,
+  "cat": "thin"
+ },
+ {
+  "id": "thin-air15",
+  "name": "联想小新 Air15 2026",
+  "spec": "酷睿5 320 · 16G + 512G",
+  "price": 3786,
+  "cat": "thin"
+ },
+ {
+  "id": "thin-inspiron15",
+  "name": "戴尔灵越 15 2026",
+  "spec": "Ultra 5-225H · 16G",
+  "price": 4164,
+  "cat": "thin"
+ },
+ {
+  "id": "thin-vivobook16se",
+  "name": "华硕无畏 16SE 2026",
+  "spec": "酷睿5 320 · 16G + 512G",
+  "price": 4249,
+  "cat": "thin"
+ },
+ {
+  "id": "thin-matebookd16",
+  "name": "华为 MateBook D16",
+  "spec": "i5-13420H · 16G + 1TB",
+  "price": 4589,
+  "cat": "thin"
+ },
+ {
+  "id": "thin-honorx14",
+  "name": "荣耀 X14 战斗版 2026",
+  "spec": "酷睿5 320 · 16G + 512G",
+  "price": 4607,
+  "cat": "thin"
+ },
+ {
+  "id": "thin-zhan66",
+  "name": "惠普战 66 八代锐龙版",
+  "spec": "R7 H255 · 16G + 512G",
+  "price": 5009,
+  "cat": "thin"
+ },
+ {
+  "id": "thin-air14",
+  "name": "联想小新 Air14 柔光版",
+  "spec": "Ultra 5 226V · 16G + 512G（原价 6799）",
+  "price": 5100,
+  "cat": "thin"
+ },
+ {
+  "id": "thin-xiaoxin16",
+  "name": "联想小新 16",
+  "spec": "R7 H255 · 16G + 512G（页面 6689）",
+  "price": 5192,
+  "cat": "thin"
+ },
+ {
+  "id": "thin-redmibookpro14",
+  "name": "Redmi Book Pro 14",
+  "spec": "U5-338H · 32G + 1TB（首销 7999）",
+  "price": 6799,
+  "cat": "thin"
+ },
+ {
+  "id": "gaming-tianxuan7",
+  "name": "华硕天选 7",
+  "spec": "R7 H260 · 16G + 512G · RTX 5050 · 2.5K 165Hz OLED",
+  "price": 6799,
+  "cat": "gaming"
+ },
+ {
+  "id": "gaming-yinxing",
+  "name": "隐星 P16 Pro",
+  "spec": "Ultra 7 251HX · 16G + 1TB · RTX 5060 · 2.5K 180Hz",
+  "price": 8237,
+  "cat": "gaming"
+ },
+ {
+  "id": "gaming-omen15",
+  "name": "暗影精灵 Pro 15",
+  "spec": "Ultra 7 255HX · 16G + 512G · RTX 5060 · 15.3 寸 180Hz",
+  "price": 8698,
+  "cat": "gaming"
+ },
+ {
+  "id": "gaming-yaoshi18",
+  "name": "机械革命 耀世 18 Pro",
+  "spec": "Ultra 7 251HX · 16G + 1TB · RTX 5060 · 18 寸 180Hz",
+  "price": 10299,
+  "cat": "gaming"
+ },
+ {
+  "id": "gaming-canglong18",
+  "name": "机械革命 苍龙 18 Pro",
+  "spec": "R9-9955HX · 16G + 1TB · RTX 5070 12G · 2.5K 180Hz",
+  "price": 12124,
+  "cat": "gaming"
+ },
+ {
+  "id": "desktop-diy14600",
+  "name": "DIY 整机 i5-14600KF + RTX5060 + 32G",
+  "spec": "i5-14600KF + 桌面版 RTX 5060 · 32G + 1TB",
+  "price": 6720,
+  "cat": "desktop"
+ },
+ {
+  "id": "desktop-banu",
+  "name": "只换板 U：9800X3D + B850M",
+  "spec": "9800X3D + B850M · 沿用旧机箱、电源、显卡、内存",
+  "price": 3699,
+  "cat": "desktop"
+ },
+ {
+  "id": "upgrade-ddr5-16g",
+  "name": "DDR5 16G 单条（就近买）",
+  "spec": "16GB SO-DIMM · 插槽机专用",
+  "price": 1400,
+  "cat": "upgrade"
+ },
+ {
+  "id": "upgrade-ddr5-32g",
+  "name": "DDR5 32G 套条",
+  "spec": "2×16GB 套条",
+  "price": 3600,
+  "cat": "upgrade"
+ },
+ {
+  "id": "upgrade-ssd-1t",
+  "name": "1TB PCIe4.0 固态",
+  "spec": "1TB · M.2",
+  "price": 950,
+  "cat": "upgrade"
+ },
+ {
+  "id": "upgrade-old-keep",
+  "name": "旧机加内存 / 换固态（不换整机）",
+  "spec": "沿用旧机，只动存储",
+  "price": 950,
+  "cat": "upgrade"
+ },
+ {
+  "id": "phone-yijia-turbo6",
+  "name": "一加 Turbo6",
+  "spec": "12G + 256G",
+  "price": 2299,
+  "cat": "phone"
+ },
+ {
+  "id": "phone-iqoo-z11turbo",
+  "name": "iQOO Z11 Turbo",
+  "spec": "12G + 256G",
+  "price": 2399,
+  "cat": "phone"
+ },
+ {
+  "id": "phone-realme-neo8",
+  "name": "真我 Neo8",
+  "spec": "12G + 256G",
+  "price": 2599,
+  "cat": "phone"
+ },
+ {
+  "id": "phone-honor-power2",
+  "name": "荣耀 Power2",
+  "spec": "12G + 256G",
+  "price": 2699,
+  "cat": "phone"
+ },
+ {
+  "id": "phone-redmi-k90",
+  "name": "红米 K90",
+  "spec": "12G + 256G（国补后）",
+  "price": 2799,
+  "cat": "phone"
+ },
+ {
+  "id": "phone-oppo-reno16",
+  "name": "OPPO Reno16",
+  "spec": "12G + 256G（国补后）",
+  "price": 2999,
+  "cat": "phone"
+ },
+ {
+  "id": "phone-moto-x70airpro",
+  "name": "摩托罗拉 X70 Air Pro",
+  "spec": "12G + 256G",
+  "price": 4499,
+  "cat": "phone"
+ },
+ {
+  "id": "phone-honor-magic8proair",
+  "name": "荣耀 Magic8 Pro Air",
+  "spec": "12G + 256G",
+  "price": 4999,
+  "cat": "phone"
+ },
+ {
+  "id": "phone-vivo-x300",
+  "name": "vivo X300",
+  "spec": "12G + 256G",
+  "price": 4999,
+  "cat": "phone"
+ },
+ {
+  "id": "phone-iphone17",
+  "name": "iPhone 17",
+  "spec": "128G（双11 立减 1000 后）",
+  "price": 5999,
+  "cat": "phone"
+ },
+ {
+  "id": "phone-xiaomi17ultra",
+  "name": "小米 17 Ultra",
+  "spec": "12G + 256G",
+  "price": 7999,
+  "cat": "phone"
+ },
+ {
+  "id": "phone-huawei-mate80",
+  "name": "华为 Mate80",
+  "spec": "12G + 256G",
+  "price": 5499,
+  "cat": "phone"
+ }
+]

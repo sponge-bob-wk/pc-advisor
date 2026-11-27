@@ -393,7 +393,11 @@ function money(v){
 function modelRows(m, isTop){
   var a = RESULT.answer || {};
   if(isTop && (a.rows || []).length) return a.rows;
-  var r = [{k:"机型", v:m.name}, {k:"到手价", v:money(m.price)}];
+  // 🔴 2026-11-27：候选的机型名也带链接 —— 用户要求「推荐机型也能跳转，
+  //    和首选页面设置一样」。首选用后端 answer.rows（已含链接），
+  //    候选走这里自己拼，所以要在 m.url 存在时构造同样的 markdown。
+  var _mname = (m.url && m.name) ? ("[" + m.name + "](" + m.url + ")") : m.name;
+  var r = [{k:"机型", v:_mname}, {k:"到手价", v:money(m.price)}];
   if(m.original && Number(m.original) > Number(m.price)){
     var s = "页面价 " + money(m.original);
     if(m.subsidy) s += " · 含国补 " + money(m.subsidy);
@@ -421,14 +425,17 @@ function renderResult(){
   var rows = modelRows(cur, isTop);
   var rowName = "";
   for(i = 0; i < rows.length; i++) if(rows[i].k === "机型") rowName = rows[i].v;
-  var title = cur.name || rowName;
+  // 🔴 2026-11-27：标题优先用 rowName（来自 answer.rows 的「机型」行，
+  //    后端已在里面放了 [名称](url) 链接）；没有才退回 cur.name（纯文本）。
+  //    原来用 cur.name，导致链接数据存在但显示不出来。
+  var title = rowName || cur.name;
 
   var h = '';
   h += '<div class="card fade-in result">';
   h += '<div class="step-eyebrow">RESULT</div>';
   h += '<div class="res-head">';
   h += '<span class="res-rank">' + (isTop ? '首选' : ('备选 ' + idx)) + '</span>';
-  h += '<span class="res-name">' + esc(title) + '</span>';
+  h += '<span class="res-name">' + inlineMd(title) + '</span>';
   h += '<span class="res-price">' + money(cur.price) + '</span>';
   h += '</div>';
   h += '<div class="res-sub">需求：' + esc(RESULT.q) + '</div>';
@@ -437,7 +444,7 @@ function renderResult(){
   for(i = 0; i < rows.length; i++){
     if(rows[i].k === "机型") continue;      // 标题已经显示过了
     if(rows[i].k === "到手价") continue;    // 价格在标题右边
-    h += '<tr><td class="k">' + esc(rows[i].k) + '</td><td class="v">' + esc(rows[i].v) + '</td></tr>';
+    h += '<tr><td class="k">' + esc(rows[i].k) + '</td><td class="v">' + inlineMd(rows[i].v) + '</td></tr>';
   }
   h += '</table>';
 
@@ -473,7 +480,7 @@ function renderResult(){
       h += '<button class="cand' + (m.id === cur.id ? ' cur' : '') + '" '
          + 'onclick="showModel(\'' + esc(m.id) + '\')">'
          + '<span class="cand-main">'
-         + '<span class="cand-name">' + esc(m.name) + '</span>'
+         + '<span class="cand-name">' + inlineMd(m.name) + '</span>'
          + '<span class="cand-spec">' + esc(m.spec || "") + '</span>'
          + '</span>'
          + '<span class="cand-price">' + money(m.price) + '</span>'
@@ -552,6 +559,7 @@ function submit(){
 function inlineMd(s){
   // 🔴 2026-11-27：加链接渲染 —— 装机单表格里型号是 ZOL 链接，
   //    不渲染的话 [名称](URL) 原样显示，用户点不了
+  s = esc(String(s == null ? '' : s));
   s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g,
     '<a href="$2" target="_blank" rel="noopener">$1</a>');
   s = s.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");

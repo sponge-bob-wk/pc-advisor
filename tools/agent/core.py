@@ -2010,6 +2010,11 @@ def build_recommendation(slots, data=None, exclude=None):
         b = brand_info(o)
         out["ranked"].append({
             "id": o["id"], "name": o["name"], "price": o.get("price"),
+            # 🔴 2026-11-27：带 url —— 前端候选列表/推荐机型要能点开详情。
+            #    这个投影是逐字段复制的，L2040 那条注释早就预警过：
+            #    「凡是上游加了标记、下游要用的字段，都得在这里加一行」。
+            #    今天补了 pool_offers 的 url，忘了这层，所以前端一直拿不到。
+            "url": o.get("url"),
             "spec": o.get("spec"), "perf": o.get("perf"),
             "upgrade": o.get("upgrade"), "portable": o.get("portable"),
             "tag": o.get("tag"),

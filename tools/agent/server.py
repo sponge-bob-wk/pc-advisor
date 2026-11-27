@@ -111,6 +111,8 @@ def slim_result(r):
             "fabricated": r.get("fabricated_words", []),
             "ranked": [{
                 "id": x.get("id"), "name": x["name"], "price": x["price"], "spec": x["spec"],
+                # 2026-11-27：带 url，前端候选列表要能点开详情
+                "url": x.get("url"),
                 "perf": x["perf"], "upgrade": x["upgrade"], "portable": x["portable"],
                 "tag": x["tag"], "caution": x["caution"],
                 "original": (x["subsidy"] or {}).get("original"),
