@@ -610,3 +610,49 @@ body.rail-mini .railTab{right:0}
   display:inline-block;transition:all .12s;
 }
 .wizard-strip a:hover{background:var(--accent);color:#fff}
+
+/* ════════════════ 推荐卡片结构（2026-11-27 补）════════════════
+   app.js 生成的 .ubb/.bd/.sec/.head/.cnt/.cmp/.det —— 新 CSS 之前全没样式 */
+
+/* 用户消息气泡 */
+.ubb{
+  background:var(--accent);color:#fff;
+  padding:10px 16px;border-radius:14px 14px 4px 14px;
+  display:inline-block;margin-left:auto;
+  font-size:13.6px;line-height:1.6;white-space:pre-wrap;
+  max-width:85%;
+}
+.turn:has(.ubb){background:none;border:none;box-shadow:none;padding:0;text-align:right}
+
+/* 推荐卡内的分区标题（「读到的条件」「校验」「数据」） */
+.sec{
+  font-size:11.5px;font-weight:700;color:var(--accent);
+  letter-spacing:.06em;
+  margin:16px 0 6px;padding-bottom:5px;
+  border-bottom:1px solid var(--line2);
+  display:flex;align-items:center;gap:6px;
+}
+.sec:first-child{margin-top:0}
+
+/* 卡片头部（机型名 + 价格） */
+.head{
+  padding:12px 16px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(180deg,var(--accent-soft),var(--surface));
+}
+.head b{font-size:15px;color:var(--ink)}
+.cnt{font-size:11px;color:var(--ink3)}
+
+/* 对比表 */
+.cmp{width:100%;border-collapse:separate;border-spacing:0;
+  font-size:12.4px;margin:8px 0;
+  border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.cmp th{background:var(--accent-soft);color:var(--accent);
+  padding:8px 10px;text-align:left;font-weight:600}
+.cmp td{border-top:1px solid var(--line);padding:7px 10px;color:var(--ink2)}
+.cmp tr:hover td{background:var(--accent-soft)}
+
+/* 详细说明折叠 */
+.det{margin-top:10px;border:1px solid var(--line);border-radius:10px;
+  padding:8px 12px;font-size:12px;color:var(--ink3)}
+.det summary{cursor:pointer;font-weight:600;color:var(--ink2)}
