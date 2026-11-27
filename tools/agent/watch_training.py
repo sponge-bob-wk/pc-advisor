@@ -89,8 +89,13 @@ def find_log():
     return logs[-1] if logs else None
 
 
-def parse(txt):
-    """从日志文本抽所有指标。"""
+def parse(txt, log_path=None):
+    """从日志文本抽所有指标。
+
+    2026-11-27：加了 log_path —— 无 tqdm 进度条时要用文件时间算已用/剩余，
+    而那个路径原来在函数里拿不到（作用域里没有 log 变量），
+    导致 used 永远 "0:00"、eta 永远 "—"。异常还被 except 吞了。
+    """
     d = {"ok": False}
     if not txt:
         return d
@@ -135,6 +140,30 @@ def parse(txt):
     prog = re.findall(
         r"(\d+)%\|[^|]*\|\s*(\d+)/(\d+)\s*\[([\d:]+)<([\d:]+),\s*([\d.]+)s/it\]",
         _body)
+
+    # 🔴 2026-11-27 兜底：transformers 5.x **不再打印 tqdm 进度条**。
+    #    实测 v9 日志只有 {'loss': ..., 'epoch': '0.284'} 这种 dict，
+    #    没有 "26%|██▋ | 50/189 [05:52<17:34, 7.59s/it]"。
+    #    原解析器认不到 → 看板显示"训练还没开始"。
+    #    兜底用 epoch 字段算：pct = epoch / total_epochs。
+    _fallback_epoch = None
+    _epochs_fb = re.findall(r"'epoch':\s*'([\d.]+)'", txt)
+    if _epochs_fb:
+        _ep_fb = float(_epochs_fb[-1])
+        _ts_m = re.search(r"总步数约\s*(\d+)", txt)
+        _total_steps = int(_ts_m.group(1)) if _ts_m else 0
+        _ne = re.search(r"num_train_epochs[=:\s]+([\d.]+)", txt)
+        _total_ep = float(_ne.group(1)) if _ne else 3.0
+        if _total_steps and _total_ep > 0:
+            _frac = min(_ep_fb / _total_ep, 1.0)
+            _fallback_epoch = {
+                "pct": int(_frac * 100),
+                "cur": int(_total_steps * _frac),
+                "total": _total_steps,
+                "epoch": _ep_fb,
+                "total_epoch": _total_ep,
+            }
+
     if prog:
         # 🔴 2026-11-22 第四次修：**取最后一条**，不是分母最大那条。
         #
@@ -160,6 +189,42 @@ def parse(txt):
         d["ok"] = True
         # eval 次数 = 非训练组的条数（按组算，不按条算）
         d["eval_passes"] = len(_by_tot) - 1
+
+    # 兜底生效（tqdm 解析不到时才用）
+    if not d.get("ok") and _fallback_epoch:
+        d["pct"] = _fallback_epoch["pct"]
+        d["cur"] = _fallback_epoch["cur"]
+        d["total"] = _fallback_epoch["total"]
+        d["ok"] = True
+        d["epoch"] = _fallback_epoch["epoch"]
+        d["total_epoch"] = _fallback_epoch["total_epoch"]
+        # 用日志文件时间算已用时长和速度（没有 tqdm 进度条时的唯一来源）
+        try:
+            import os as _os
+            import time as _t
+            _path = log_path if isinstance(log_path, str) else ""
+            if _path and _os.path.exists(_path):
+                _elapsed = _t.time() - _os.path.getctime(_path)
+                _m = int(_elapsed // 60)
+                _sec = int(_elapsed % 60)
+                d["used"] = "%d:%02d" % (_m, _sec)
+                # 剩余 = 已用 * (剩余比例 / 已完成比例)
+                _frac = _fallback_epoch["epoch"] / _fallback_epoch["total_epoch"]
+                if _frac > 0.01:
+                    _remain = _elapsed * (1 - _frac) / _frac
+                    _rm = int(_remain // 60)
+                    _rs = int(_remain % 60)
+                    d["eta"] = "%d:%02d" % (_rm, _rs)
+                if d.get("cur"):
+                    d["speed"] = _elapsed / d["cur"]
+        except Exception:
+            pass
+        if not d.get("used") or not re.match(r"^[\d:]+$", str(d.get("used"))):
+            d["used"] = "0:00"
+        if not d.get("eta") or not re.match(r"^[\d:]+$", str(d.get("eta"))):
+            d["eta"] = "—"
+        if not d.get("speed"):
+            d["speed"] = 0.0
 
     # ── loss 记录 ──
     losses = re.findall(r"'loss':\s*'([\d.]+)'", txt)
@@ -240,13 +305,26 @@ def _hms(s):
 
 
 def _parse_hms(t):
-    """'24:12' 或 '1:02:33' → 秒。"""
-    parts = [int(x) for x in str(t).split(":")]
-    if len(parts) == 3:
-        return parts[0] * 3600 + parts[1] * 60 + parts[2]
-    if len(parts) == 2:
-        return parts[0] * 60 + parts[1]
-    return parts[0] if parts else 0
+    """把 "H:MM:SS" / "M:SS" 解析成秒。**解析不了返回 None**。
+
+    🔴 2026-11-27：原来遇到 "—"（未知）会 int() 崩掉。
+       现在统一返回 None，调用方据此显示 "—" 而不是崩。
+    """
+    if t is None:
+        return None
+    txt = str(t).strip()
+    if not txt or not re.fullmatch(r"[\d:]+", txt):
+        return None
+    try:
+        parts = [int(x) for x in txt.split(":")]
+    except ValueError:
+        return None
+    if not parts:
+        return None
+    sec = 0
+    for x in parts:
+        sec = sec * 60 + x
+    return sec
 
 
 def render(d, log_path):
@@ -271,13 +349,15 @@ def render(d, log_path):
     L.append("%s %3d%%   %d/%d 步" % (_bar(pct), pct, cur, tot))
 
     # 时间
-    used = _parse_hms(d.get("used", "0"))
+    used = _parse_hms(d.get("used", "0")) or 0
     eta = _parse_hms(d.get("eta", "0"))
     if d.get("done") or d.get("interrupted"):
         L.append("已用 %s" % _hms(used))
+    elif eta is None:
+        # 2026-11-27：eta 未知（无 tqdm 进度条时）→ 不算完成时间
+        L.append("已用 %s / 剩余 计算中" % _hms(used))
     else:
         finish = datetime.now() + timedelta(seconds=eta)
-        # 只显示时:分 —— 秒对"心里有准"没帮助，反而显得啰嗦
         L.append("已用 %s / 剩余 %s / 预计 %s 完成"
                  % (_hms(used), _hms(eta), finish.strftime("%H:%M")))
 
@@ -345,7 +425,7 @@ def main():
         return 1
 
     if not args.follow:
-        print(render(parse(read_text(log)), log))
+        print(render(parse(read_text(log), log), log))
         return 0
 
     # 持续刷新：清屏 + 重绘。用 ANSI 而不是 os.system('cls')，
@@ -353,7 +433,7 @@ def main():
     try:
         while True:
             txt = read_text(log)
-            d = parse(txt)
+            d = parse(txt, log)
             sys.stdout.write("\033[2J\033[H")     # 清屏 + 光标归位
             sys.stdout.write(render(d, log))
             sys.stdout.write("\n\n（每 %.0fs 刷新，Ctrl+C 退出）" % args.interval)

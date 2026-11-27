@@ -198,6 +198,26 @@ def main():
     # ═══════════════════════════════════════════════════════════
     try:
         import intent_layer as _il
+
+        # 🔴 2026-11-27 修：**判据从"整串相等"改成"模板骨架相等"**。
+        #
+        #    原判据要求训练集第一条 == SYS_TMPL.format(ctx="（当前讨论：zol-2103842）")，
+        #    但 build_route_lora._sys_prompt 是**按每行 focus 状态**生成 ctx 的：
+        #        focus=True  → 「当前正在讨论这台：联想拯救者，i7 14650HX · 32G…，到手 8099 元」
+        #        focus=False → 「（当前没有在讨论任何机器）」
+        #    所以训练集 system 天然有多种合法变体（实测 806 / 728 字符两种），
+        #    硬要求等于某一个固定渲染结果 → 必然不相等 → 误报拒绝训练。
+        #
+        #    要防的真正风险是「训练和推理用了完全不同的**版本**」（那次差 39 倍），
+        #    所以比「ctx 之前那段模板」是否一致就够了 —— 那才是版本标识。
+        # 🔴 2026-11-27 二次修：**必须用「渲染后」的模板头**。
+        #    SYS_TMPL 里 JSON 写的是 {{"intent":...}}（format 双大括号转义），
+        #    format() 之后才变单大括号。直接 split("{ctx}") 拿到的是未渲染串，
+        #    含双大括号，和训练集里渲染后的单大括号对不上 → 永远不相等。
+        #    做法：先渲染一个固定 ctx，再从渲染结果里切出 ctx 前的头部。
+        _SENTINEL = "【CTX_SENTINEL】"
+        _rendered = _il.SYS_TMPL.format(ctx=_SENTINEL)
+        _tpl_head = _rendered.split(_SENTINEL)[0]
         _infer_sys = _il.SYS_TMPL.format(ctx="（当前讨论：zol-2103842）")
         _train_sys = ""
         for _m in train[0].get("messages") or []:
@@ -208,12 +228,24 @@ def main():
             print()
             print("✗ 训练集第一条没有 system message —— 训练/推理必然不一致")
             return 1
-        if _train_sys != _infer_sys:
+        _head_ok = _train_sys.startswith(_tpl_head)
+        # ctx 部分必须是两种合法形态之一
+        _ctx_part = _train_sys[len(_tpl_head):] if _head_ok else ""
+        _ctx_ok = bool(
+            _ctx_part.startswith("当前正在讨论这台：")
+            or _ctx_part.startswith("（当前没有在讨论任何机器）")
+        )
+        if not (_head_ok and _ctx_ok):
             print()
             print("✗ **system prompt 和推理时不一致，拒绝训练**")
             print()
-            print("  训练用: %d 字符" % len(_train_sys))
+            print("  训练用: %d 字符（模板头%s，ctx%s）"
+                  % (len(_train_sys),
+                     "✓" if _head_ok else "✗",
+                     "✓" if _ctx_ok else "✗"))
             print("  推理用: %d 字符" % len(_infer_sys))
+            print()
+            print("  模板头（ctx 之前那段）应为 %d 字符" % len(_tpl_head))
             print()
             print("  这是 2026-11-22 那次事故的根因：")
             print("  训练用 56 字符极简版、推理用 2170 字符详细版，差 39 倍。")

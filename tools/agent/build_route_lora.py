@@ -166,6 +166,22 @@ _BALANCED = os.path.join(LORA_DIR, "route-balanced.jsonl")
 _NEW_EXTRA = [
     ("real-20261127.train.jsonl", "真实提问（抓取+人工标注）"),
     ("sim-20261127.train.jsonl", "模拟补缺（对话内意图）"),
+    # 🔴 2026-11-27：**unknown 类扩充**（60 条手写）。
+    #
+    #    背景：v8 在保持集上 unknown 是 0/6 —— 一条都判不出来，
+    #    只会硬塞 state_new_need / state_range。
+    #    根因：训练集 unknown 只有 87 条，其他类 200+。
+    #
+    #    为什么手写而不抓：真实用户不发帖说「嗯」「在吗」，
+    #    这类句子只存在于多轮对话里，网页上物理性没有。
+    #
+    #    为什么不走 seed_rebalance：这批的价值在**形态**
+    #    （单字语气词、双字应答、延后决策），不在数量。
+    #    重采样会随机丢，正好把要补的形态丢掉。
+    #
+    #    ⚠️ 踩过的坑：上一版我直接把它追加进 route-train.jsonl（产物文件），
+    #       跑 --write 重新生成时被覆盖 → 白丢一次。
+    ("unknown-expand-20261127.jsonl", "unknown 扩充"),
 ]
 
 if os.path.exists(_BALANCED):
