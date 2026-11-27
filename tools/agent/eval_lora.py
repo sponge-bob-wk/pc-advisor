@@ -201,8 +201,10 @@ def main():
     model.eval()
 
     # 用和推理时一样的 system prompt
+    # 🔴 2026-11-27：ctx 不能再手写。生产是 _ctx_of(焦点) 的描述式，
+    #    手写 "（当前讨论：id）" 是降级分支，评出来的分不代表线上表现。
     import intent_layer as il
-    sysmsg = il.SYS_TMPL.format(ctx="（当前讨论：zol-2103842）")
+    sysmsg = il.SYS_TMPL.format(ctx=il._ctx_of("zol-2103842"))
 
     results = {}
     for name in names:

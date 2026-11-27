@@ -119,6 +119,23 @@ SOURCES = [
     #      analyze ↔ state_range（「性能最强的五台」vs「8000以内」）
     #    每对都给了正例和对照负例，教模型区分边界。
     ("boundary-seed.jsonl", "意图边界专项"),
+    # 🔴🔴 2026-11-27 新增：**真实用户提问**（网上抓的，人工标注）。
+    #
+    #    补的缺口：老 1381 条用户句长度中位数只有 **7 个字**，≥20 字的仅 5 条。
+    #    真实用户写的是「预算七千出头，主要打永劫和吃鸡，偶尔剪点视频，
+    #    台式机，机箱别太吵」这种 20-40 字、多条件连写的句子。
+    #    实测后果：真实首句集上 state_new_need 被整句当"报价位"吃掉 41 次。
+    #
+    #    ⚠️ 这批里 205 条是**无焦点**的（meta.focus=False），
+    #       老数据一条都没有 —— _sys_prompt() 会按 meta.focus 分别给 ctx。
+    #
+    #    ⚠️ 已切出 63 条保持集（real-20261127.eval.jsonl），**不进训练**，
+    #       否则重训后拿它评就是拿训练集考自己。
+    ("real-20261127.train.jsonl", "真实提问（抓取+人工标注）"),
+    # 🔴 2026-11-27 新增：**模拟补充集**（手写，补网页上抓不到的意图）。
+    #    list_others / refuse_switch / analyze 在论坛标题里几乎不出现
+    #    （那是对话内话术），只能靠人写。204 条覆盖全部七类。
+    ("sim-20261127.train.jsonl", "模拟补缺（对话内意图）"),
 ]
 
 # 🔴🔴 2026-11-26：**均衡数据优先**。
@@ -137,8 +154,22 @@ SOURCES = [
 #   route-balanced.jsonl 已经包含了全部原始数据（去重后按比例采样）。
 #   同时加会导致：① 重复样本 ② 分布被原始失衡数据破坏。
 _BALANCED = os.path.join(LORA_DIR, "route-balanced.jsonl")
+
+# 🔴 2026-11-27：新增的「真实提问 + 模拟补缺」**不过 seed_rebalance**。
+#
+#    为什么不走重采样：
+#      rebalance 是按意图比例**随机降采样**。我这批数据的价值在"句子形态"
+#      （20-40 字、多条件连写），不在数量；随机丢正好会把要补的形态丢掉。
+#      而且它不是"同类堆量"，是补分布缺口（无焦点、对话内意图），不需要削。
+#
+#    去重仍然生效（下面按 norm 后的句子去重），已核验与老集 0 重叠。
+_NEW_EXTRA = [
+    ("real-20261127.train.jsonl", "真实提问（抓取+人工标注）"),
+    ("sim-20261127.train.jsonl", "模拟补缺（对话内意图）"),
+]
+
 if os.path.exists(_BALANCED):
-    SOURCES = [("route-balanced.jsonl", "均衡成品（含全部扩充）")]
+    SOURCES = [("route-balanced.jsonl", "均衡成品（含全部扩充）")] + _NEW_EXTRA
 
 
 OUT_TRAIN = os.path.join(LORA_DIR, "route-train.jsonl")
@@ -155,33 +186,63 @@ def norm(s):
     return re.sub(r"[\s，。？！、；：,.?!;:]+", "", str(s or "")).lower()
 
 
-def _sys_prompt():
-    """返回**和推理时完全相同**的 system prompt。
+# 老样本没写 meta.focus，它们都是"已经推荐过一台"之后的话
+DEFAULT_FOCUS = "zol-2103842"
+_CTX_CACHE = {}
 
-    🔴🔴 2026-11-23：这是本轮最严重的发现。
 
-      训练用 system:  56 字符（"你是选机助手的路由器。只输出 JSON：…"）
-      推理用 system: 2170 字符（intent_layer.SYS_TMPL，含七类意图定义）
-      **差 39 倍，根本不是同一个 prompt**
+def _ctx_for(focus_id):
+    """取这一条的「当前讨论」串，**必须和生产同一个来源**。
 
-      实测后果：v3 adapter 对「好的」输出 1219 字符的思维链死循环，
-      一个 JSON 都没有。同一个 adapter 换成 56 字符的极简 system
-      就正常输出 JSON。
+    🔴🔴 2026-11-27：第二次同类事故。
 
-      为什么之前两版能 work：基座模型够强，能忽略这种不一致 ——
-      但它一直在"猜"任务是什么，恰好猜对了。**这是运气，不是设计。**
+      `_ctx_of()` 有两条分支：
+        焦点机型不在池里 → "（当前讨论：zol-2103842）"      ← 降级分支
+        焦点机型在池里   → "当前正在讨论这台：联想拯救者，i7…，到手 8099 元"
+                                                          ↑ 生产天天走这条
 
-    做法：直接从 intent_layer 取，不在这里另写一份 ——
-    **判据抄两遍一定会漂**（这个项目已经复现过 9 次）。
+      而 1381 条训练样本**全部**写的是降级分支那个形态。
+      也就是说线上真正送给模型的那 806 字符 prompt，
+      模型在训练里一次都没见过。
+
+      和 11-23 那次「训练 56 字符 / 推理 2170 字符，差 39 倍」是同一类错：
+      **不是写错了常量，是取值的地方和生产不是同一个函数。**
+
+      所以这里不再手写字符串，直接调 intent_layer._ctx_of() 取真值。
     """
-    try:
-        import intent_layer as il
-        # 训练时用一个固定的占位 ctx（真实推理时 ctx 是当前讨论的机型）
-        return il.SYS_TMPL.format(ctx="（当前讨论：zol-2103842）")
-    except Exception:
-        # 退化：至少保证有 JSON 格式说明
-        return ('你是选机助手的路由器。只输出 JSON：'
-                '{"intent":...,"topic":...,"fit":...}')
+    key = focus_id or "__none__"
+    if key not in _CTX_CACHE:
+        try:
+            import intent_layer as il
+            _CTX_CACHE[key] = il._ctx_of(focus_id)
+        except Exception:                          # noqa: BLE001
+            _CTX_CACHE[key] = ("（当前没有在讨论任何机器）" if not focus_id
+                               else "（当前讨论：%s）" % focus_id)
+    return _CTX_CACHE[key]
+
+
+def _sys_prompt(row=None):
+    """返回**和推理时完全相同**的 system prompt（按这一条的焦点状态）。
+
+    🔴 2026-11-23：system prompt 必须和推理时一模一样。
+
+      那次的发现：训练用 56 字符，推理用 2170 字符，差 39 倍，
+      后果是 v3 adapter 对「好的」输出 1219 字符思维链死循环。
+
+    2026-11-27 补：光"用同一个模板"不够，**ctx 也得是真值**。
+      · meta.focus 为 True  → 用焦点机型的描述式 ctx（生产形态）
+      · meta.focus 为 False → "（当前没有在讨论任何机器）"（真实首句）
+      · meta 没这个字段     → 老样本，按"已推荐过一台"处理
+    """
+    import intent_layer as il
+    meta = (row or {}).get("meta") or {}
+    if meta.get("focus") is False:
+        focus_id = None
+    elif meta.get("focus"):
+        focus_id = meta.get("focus_id") or DEFAULT_FOCUS
+    else:
+        focus_id = DEFAULT_FOCUS
+    return il.SYS_TMPL.format(ctx=_ctx_for(focus_id))
 
 
 def load_route_file(path):
@@ -428,7 +489,7 @@ def main():
                             #    ⚠️ 现在直接用 intent_layer.SYS_TMPL，
                             #    而不是在这里另写一份。**判据抄两遍一定会漂**
                             #    （这个项目已经复现过 9 次）。
-                            {"role": "system", "content": _sys_prompt()},
+                            {"role": "system", "content": _sys_prompt(r)},
                             {"role": "user", "content": r["user"]},
                             {"role": "assistant", "content": content},
                         ],

@@ -360,6 +360,22 @@ var HERO_HTML = '<div class="eyebrow">选机助手</div>'
   + '<b>在你这个用途下的短板</b>。库里没有的，明说没有。</p>'
   + '<div class="acts" id="acts"></div>';
 
+/* 🔴🔴 2026-11-27：首屏只认 index.html 那一份，这里抓快照复用。
+   事故（用户截图）：点「新对话」之后**向导入口不见了**。
+   根因：renderHero() 用的是上面这个 HERO_HTML，而它是照着 index.html
+   手抄的，**抄漏了 .wizard-entry 那一块**。
+   判据写两遍一定会漂 —— 这次漂掉的正好是入口本身。
+
+   做法：脚本在 body 末尾执行，#hero 已经在 DOM 里，
+   直接把它的 innerHTML 存下来。以后 index.html 改首屏，
+   这里自动跟着变，不会再漂。
+   HERO_HTML 只作为「#hero 不存在」时的兜底。 */
+var HERO_LOCKED = null;
+try{
+  var _hz = document.getElementById('hero');
+  if(_hz && _hz.innerHTML) HERO_LOCKED = _hz.innerHTML;
+}catch(e){}
+
 var demoCache = null;
 
 /* 重建首屏（hero + 示例按钮） */
@@ -367,7 +383,7 @@ function renderHero(){
   var h = document.createElement('div');
   h.className = 'hero';
   h.id = 'hero';
-  h.innerHTML = HERO_HTML;
+  h.innerHTML = HERO_LOCKED || HERO_HTML;
   stream.appendChild(h);
   /* 有缓存就把示例按钮填回去 */
   if(demoCache) demo(demoCache);
@@ -1104,6 +1120,23 @@ function setRail(mini){
 }
 $('#railBtn').onclick=function(){ setRail(true) };
 $('#railTab').onclick=function(){ setRail(false) };
+
+/* 🔴 2026-11-27：**手机上一进来必须把右侧抽屉收起来**。
+   右侧「数据概览」在窄屏是抽屉，默认展开的话会盖住大半个屏幕。
+   这里直接挂 class，不走 setRail() —— 走了会写 localStorage，
+   用户在桌面端存过「展开」，回头手机一点就把桌面偏好覆盖成「收起」。 */
+function _railByViewport(){
+  if(window.matchMedia('(max-width:900px)').matches){
+    document.body.classList.add('rail-mini');
+  }
+}
+_railByViewport();
+window.addEventListener('resize', function(){
+  // 只处理「变窄」这一侧：变宽时交回 localStorage 的偏好，不硬拉回来
+  if(window.matchMedia('(max-width:900px)').matches){
+    document.body.classList.add('rail-mini');
+  }
+});
   // 🔴 2026-11-26：侧栏滚动后给 header 打 .is-stuck，显示一条细分割线。
   //    为什么需要：`.rail-hd` 是 sticky 且背景 = --bg，滚动时
   //    内容和 header 黏在一起，没有分隔感，看起来像"文字被压住了"。

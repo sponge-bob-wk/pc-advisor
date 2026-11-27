@@ -83,6 +83,22 @@ body{background:var(--bg);color:var(--ink);
 .switch a{color:var(--accent);cursor:pointer;text-decoration:none}
 .fade-in{animation:fade .3s ease}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* ── 手机端（2026-11-27）────────────────────────────────────
+     原来一个断点都没有。390 宽下能用，但标题和卡片留白偏大，
+     一屏只装得下 4 个选项就得滚。 */
+  @media (max-width:480px){
+    body{padding:20px 12px 28px}
+    .top h1{font-size:19px;line-height:1.35}
+    .top p{font-size:12.5px;line-height:1.6}
+    .card{padding:18px 14px 16px;border-radius:12px}
+    .opt{padding:12px 13px;gap:10px}
+    .opt-emoji{font-size:19px;width:26px}
+    .opt-name{font-size:14px}
+    .opt-desc{font-size:11.5px}
+    .btns{gap:8px}
+    .btns button{padding:11px 16px;font-size:13.5px}
+  }
 </style>
 </head>
 <body>

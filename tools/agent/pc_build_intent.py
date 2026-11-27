@@ -196,6 +196,11 @@ def render_plan(plan):
     out = []
     out.append("### %s · %s" % (plan["tierName"], plan["use"]))
     out.append("")
+    # 2026-11-27：方案特点说明（用户要求「简要说明方案特点」）
+    # 由 build_pc._variant_desc 按实际配置生成，不是模型编的
+    if plan.get("variantNote"):
+        out.append("> %s" % plan["variantNote"])
+        out.append("")
     # 🔴 2026-11-27：**表格加参数列 + 占比列**（用户要求「价格参数细细罗列」）
     #    装机动辄上万，用户关心每件钱花在哪、买到什么规格。
     _total = plan["total"] or 1

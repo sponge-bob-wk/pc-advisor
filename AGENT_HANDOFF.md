@@ -176,10 +176,33 @@ markdown md-h md-h1-4 / md-hr / md-quote / md-table / md-table-wrap
 ```
 
 **布局关键**：
-- `.dock` 里所有元素包在 `.dock-inner`（640px 居中）——不包的话 chips 会贴到 x=0 被侧栏挡住
-- `.turn/.hero` 也是 640px 居中 —— 三者必须同宽对齐
-- rail 收起挂 `body.rail-mini`，样式在 style.css 末尾
+- 内容列宽是 `--col`（640px）一个 token：`.hero/.msg/.turn/.dock-inner/.hint/.wizard-strip`
+  全用它，**别在这里写死 640** —— 改一处全变
+- `.dock` 里所有元素包在 `.dock-inner` —— 不包的话 chips 会贴到 x=0
+- `.turn/.hero/.dock-inner` 必须同宽对齐（有回归脚本可量：取三者 boundingClientRect 比 left/width）
+- **`.app` 有 `margin-left:var(--side-w)`**：左侧栏是 `position:fixed`，主区不让位就会
+  被压住（2026-11-27 修过一次，1280 宽压 24px、1080 压 124px）
+- rail 收起挂 `body.rail-mini`；左抽屉挂 **`body.side-open`**（不是 `.side.open`，
+  类名对不上过一次，手机上点 ☰ 没反应）
+- `#railTab` 必须带 `class="railTab"`，漏了整条样式不生效（2026-11-27 就是这个 bug）
 - textarea 高度=行高（padding:0）才是光标垂直居中
+
+**响应式（2026-11-27 补，全部在 style.css 末尾）**：
+
+```
+>1200        三栏：侧栏 212 + 内容 640 + 右栏 264
+900–1200     内容列自动收窄（min(--col,100%)），不压侧栏
+<=900        左栏/右栏都变抽屉；顶栏给 ☰ 留 54px；textarea 16px 防 iOS 聚焦缩放；
+             chips 横向滚动；dock 加 env(safe-area-inset-bottom)
+<=420        字号与留白再收一档
+```
+
+⚠️ 手机端右侧「数据概览」抽屉**不能用 transform 位移**：把手 `.railTab` 在 `.rail` 内部，
+祖先一旦有 transform，`position:fixed` 就相对祖先定位，把手会跟着一起滑走。
+现在用的是 `right:-320px` + `right:0`。
+
+⚠️ 宽表格（装机单）在手机上靠 `overflow-x:auto` 横滑；inset 阴影提示试过，
+被表格背景盖住，不生效。
 
 ---
 

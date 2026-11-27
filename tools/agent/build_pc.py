@@ -401,25 +401,39 @@ def tune_ratio(base, purposes):
     purposes: 用途列表，如 ['gaming'] 或 ['design','video']
     返回：归一化后的比例字典 + 调整说明
     """
-    ratio = dict(base)
-    notes = []
+    # 🔴🔴 2026-11-27：**多用途改加权平均，不连乘**。
+    #    连乘语义是错的 —— 6 个用途把 gpu 权重缩到 0.52 倍、cpu 放大 2.2 倍，
+    #    实测「预算9000 六用途」推荐出 ¥12,000（超 33%）。
+    #    改成：每个用途各算一份完整 ratio（内部归一化），再等权平均。
+    ps = [p for p in (purposes or []) if PURPOSE_TUNING.get(p)]
+    notes = [PURPOSE_TUNING[p]["label"] for p in ps]
 
-    for p in (purposes or []):
-        t = PURPOSE_TUNING.get(p)
-        if not t:
-            continue
-        notes.append(t["label"])
+    if not ps:
+        return dict(base), []
+
+    n = len(ps)
+    acc = {k: 0.0 for k in base}
+    for p in ps:
+        t = PURPOSE_TUNING[p]
+        one = dict(base)
         for k, mul in t.items():
-            if k == "label" or k not in ratio:
+            if k == "label" or k not in one:
                 continue
-            ratio[k] = ratio[k] * mul
+            one[k] = one[k] * mul
+        _t = sum(one.values())
+        if _t > 0:
+            one = {k: v / _t for k, v in one.items()}
+        for k in acc:
+            acc[k] += one.get(k, 0) / n
 
-    # 归一化：保证加起来还是 100%
-    total = sum(ratio.values())
-    if total > 0:
-        ratio = {k: v / total for k, v in ratio.items()}
+    _tot = sum(acc.values())
+    if _tot > 0:
+        acc = {k: v / _tot for k, v in acc.items()}
 
-    return ratio, notes
+    if len(notes) > 1:
+        notes = ["多用途折中（%s）" % " / ".join(notes[:4])]
+
+    return acc, notes
 
 
 def purpose_tier(base_tier, purposes):
@@ -687,16 +701,12 @@ def build_plan(parts, tier, budget=None, purposes=None, explicit_dgpu=None):
     #    都允许"最接近 target"地选超，加起来还是爆
     #    （实测 8000 的单子跑到 ¥41,731）。
     #    所以上限 = budget × ratio × 1.25。
-    if explicit_dgpu:
-        _cap = {k: budget * ratio[k] * 1.25 for k in ratio}
+    # 🔴 2026-11-27：**所有场景都给价格上限**（不只 explicit_dgpu）。
+    #    pick_near 是"最接近 target"，每件都可能选超，叠加就爆。
+    _cap = {k: budget * ratio[k] * 1.3 for k in ratio}
 
-        def _pick(k, pool):
-            return pick_near(pool, budget * ratio[k],
-                             max_price=_cap.get(k))
-    else:
-
-        def _pick(k, pool):
-            return pick_near(pool, budget * ratio[k])
+    def _pick(k, pool):
+        return pick_near(pool, budget * ratio[k], max_price=_cap.get(k))
 
     # ① CPU
     cpu = _pick("cpu", parts.get("cpu") or [])
@@ -743,13 +753,30 @@ def build_plan(parts, tier, budget=None, purposes=None, explicit_dgpu=None):
         # ⚠️ 局部变量 gpu 也要赋值 —— 下面的电源计算要用到它
         #    （靠 gpu["price"]==0 判断是不是核显方案）。
         #    原来只写了 plan["gpu"]，导致 UnboundLocalError。
+        # 🔴 2026-11-27：**把 gpu 预算重新分配给其他件**。
+        #    原来只写 plan["gpu"]=核显 就结束 —— gpu 那部分权重凭空消失，
+        #    实测「预算8000 写代码」只配出 ¥6,442（浪费 1558 元）。
+        _freed = ratio.get("gpu", 0)
+        if _freed > 0:
+            for _k, _share in (("cpu", 0.40), ("ram", 0.25),
+                               ("storage", 0.20), ("motherboard", 0.15)):
+                if _k in ratio:
+                    ratio[_k] += _freed * _share
+            ratio["gpu"] = 0
+            _t2 = sum(ratio.values())
+            if _t2 > 0:
+                ratio = {k: v / _t2 for k, v in ratio.items()}
+            issues.append("这个用途不需要独立显卡，"
+                          "显卡预算已转给 CPU / 内存 / 固态")
+        else:
+            issues.append("这个用途不需要独立显卡，用 CPU 核显即可")
+
         gpu = {
             "name": "核显（不配独立显卡）",
             "price": 0,
             "url": None,
         }
         plan["gpu"] = gpu
-        issues.append("这个用途不需要独立显卡，用 CPU 核显即可")
 
     # 🔴 2026-11-26 重排：主板/内存的选型**必须在显卡平衡之后**。
     #    原因：CPU 的最终型号要到显卡选完才确定（平衡检查可能换芯），
@@ -1063,6 +1090,41 @@ def build_plan(parts, tier, budget=None, purposes=None, explicit_dgpu=None):
         else:
             issues.append("尺寸：%s" % _msg)
 
+    # 🔴 2026-11-27：**总价超预算时降档，顺序是先降大头**。
+    #    原来只降 storage/hdd/ram/cooler/case（省几百块），
+    #    但 CPU+显卡 占 65%，不降它们永远超。
+    #    CPU/显卡有用途门槛（minCpuRatio / 15%），不能无限降。
+    _budget_cap = budget * 1.15
+    _cur = sum(x["price"] for x in plan.values() if x.get("price"))
+    _cpu_floor = budget * max(0.12, rule["minCpuRatio"][0] * 0.8)
+    _gpu_floor = budget * 0.15
+    _guard = 0
+    while _cur > _budget_cap and _guard < 15:
+        _guard += 1
+        _changed = False
+        for _k in ("gpu", "cpu", "storage", "hdd", "ram", "cooler", "case"):
+            if _k not in plan:
+                continue
+            _it = plan[_k]
+            if _k == "cpu" and (_it["price"] or 0) <= _cpu_floor:
+                continue
+            if _k == "gpu" and (_it["price"] or 0) <= _gpu_floor:
+                continue
+            _pool = parts.get(_k) or []
+            _cheaper = [x for x in _pool
+                        if x.get("price") and x["price"] < _it["price"]]
+            if not _cheaper:
+                continue
+            plan[_k] = max(_cheaper, key=lambda x: x["price"])
+            _cur = sum(x["price"] for x in plan.values() if x.get("price"))
+            _changed = True
+            if _cur <= _budget_cap:
+                break
+        if not _changed:
+            break
+    if _guard > 0:
+        issues.append("总价超出预算，已把部分配件降到预算内")
+
     rows = []
     total = 0
     for k in ORDER:
@@ -1089,6 +1151,122 @@ def build_plan(parts, tier, budget=None, purposes=None, explicit_dgpu=None):
         "priceType": "zol-reference",
         "note": "价格是 ZOL 参考价（媒体价），不是电商到手价，实际可能更低。",
     }
+
+
+def _variant_plan(parts, tier, budget, purposes, explicit_dgpu,
+                  cpu_mul=1.0, gpu_mul=1.0):
+    """生成变体方案：在 base 比例上调整 CPU/显卡分配。
+
+    ⚠️ 只是"预算分配倾向"，不是替用户做选择 —— 三个方案都给出，
+       让用户自己挑（符合项目「不替用户做价值判断」原则）。
+    """
+    _orig = tune_ratio
+
+    def _patched(base, ps):
+        r, notes = _orig(base, ps)
+        if cpu_mul != 1.0:
+            r["cpu"] = r.get("cpu", 0) * cpu_mul
+        if gpu_mul != 1.0 and r.get("gpu", 0) > 0:
+            r["gpu"] = r["gpu"] * gpu_mul
+        _t = sum(r.values())
+        if _t > 0:
+            r = {k: v / _t for k, v in r.items()}
+        return r, notes
+
+    globals()["tune_ratio"] = _patched
+    try:
+        return build_plan(parts, tier, budget, purposes=purposes,
+                          explicit_dgpu=explicit_dgpu)
+    finally:
+        globals()["tune_ratio"] = _orig
+
+
+def _variant_desc(plan, kind):
+    """按方案实际组成生成特点说明（规则生成，不让模型编）。"""
+    rows = {r["part"]: r for r in plan.get("rows", [])}
+    cpu = rows.get("cpu") or {}
+    gpu = rows.get("gpu") or {}
+    total = plan.get("total") or 1
+    cpu_pct = int(100 * (cpu.get("price") or 0) / total)
+    gpu_pct = int(100 * (gpu.get("price") or 0) / total)
+    has_dgpu = (gpu.get("price") or 0) > 0
+
+    if kind == "gpu":
+        return ("显卡占 %d%%（%s），游戏/AI 性能优先；CPU 够用即可"
+                % (gpu_pct, (gpu.get("name") or "")[:16]))
+    if kind == "cpu":
+        return ("CPU 占 %d%%（%s），编译/剪辑/多任务优先；显卡让位"
+                % (cpu_pct, (cpu.get("name") or "")[:16]))
+    if has_dgpu:
+        return ("CPU %d%% + 显卡 %d%%，两头均衡，说不准侧重时的稳妥选"
+                % (cpu_pct, gpu_pct))
+    return ("不配独显，预算集中 CPU（%d%%）和内存，纯办公/写代码够用"
+            % cpu_pct)
+
+
+def build_variants(parts, tier, budget, purposes=None, explicit_dgpu=None):
+    """生成对比方案，**A 位是按用途最贴合的那个**。
+
+    🔴 2026-11-27 用户要求：「打游戏一般是显卡优先，写代码是 cpu 优先」
+
+        gaming / ai / threeD  → A 显卡优先  B 均衡  C CPU 优先
+        dev / video           → A CPU 优先  B 均衡  C 显卡优先(有独显才出)
+        office / 其他          → A 均衡      B CPU 优先（不出显卡优先）
+    """
+    ps = set(purposes or [])
+    _gpu_first = bool(ps & {"gaming", "ai", "threeD"})
+    _cpu_first = bool(ps & {"dev", "video"}) and not _gpu_first
+
+    def _mk(cm, gm, kind):
+        p = _variant_plan(parts, tier, budget, purposes, explicit_dgpu,
+                          cpu_mul=cm, gpu_mul=gm)
+        if p:
+            p["variantKind"] = kind
+        return p
+
+    p_cpu = _mk(1.45, 0.70, "cpu")
+    p_bal = _mk(1.0, 1.0, "balanced")
+    p_gpu = _mk(0.80, 1.45, "gpu")
+
+    # 只有真配了独显才保留显卡优先
+    if p_gpu and not any(r["part"] == "gpu" and (r["price"] or 0) > 0
+                         for r in p_gpu["rows"]):
+        p_gpu = None
+    # 🔴 2026-11-27：**不需要独显的用途，不出显卡优先方案**。
+    #    判据两条（任一成立就不出）：
+    #      ① explicit_dgpu 为假（用户没说要独显）
+    #      ② 基准方案本身没配独显
+    #    实测：写代码场景出了「显卡优先」配 RTX 5060（32%），
+    #    用户只写代码，这笔钱是浪费。
+    if p_gpu:
+        if not explicit_dgpu:
+            p_gpu = None
+        elif p_bal:
+            _b = [r for r in p_bal["rows"] if r["part"] == "gpu"]
+            if _b and (_b[0]["price"] or 0) == 0:
+                p_gpu = None
+
+    if _gpu_first:
+        order = [p_gpu, p_bal, p_cpu]
+    elif _cpu_first:
+        order = [p_cpu, p_bal, p_gpu]
+    else:
+        order = [p_bal, p_cpu, None]
+
+    out, seen = [], set()
+    for p in order:
+        if not p or p["total"] in seen:
+            continue
+        seen.add(p["total"])
+        out.append(p)
+
+    for i, p in enumerate(out):
+        _lbl = {"balanced": "均衡", "cpu": "CPU 优先",
+                "gpu": "显卡优先"}[p["variantKind"]]
+        _base = p["tierName"].split(" · 方案")[0]
+        p["tierName"] = "%s · 方案 %s · %s" % (_base, "ABC"[i], _lbl)
+        p["variantNote"] = _variant_desc(p, p["variantKind"])
+    return out
 
 
 def fmt_money(v):

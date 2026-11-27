@@ -4066,7 +4066,21 @@ def extract_slots(user_text):
 # 于是品类校验失败，用户看到"品类不在覆盖范围"这种莫名其妙的回答。
 # 枚举字段必须白名单，不许模型发明。
 VALID_CAT = {"thin", "gaming", "desktop", "upgrade"}
-VALID_PURPOSE = {"office", "gaming", "dev", "video", "design"}
+
+# 🔴🔴 2026-11-27：这里原来写的是 {"office","gaming","dev","video","design"}，
+#    只有 5 个 —— 但 SLOT_SYS 让模型输出 7 个，pc_rules.RULES 也是 7 个。
+#    缺的 `ai` `threeD` 会被下面 normalize_slots 的列表推导**静默丢掉**。
+#
+#    症状（真实日志 11:16 / 11:11）：
+#      「还要微调一些小模型」→ purpose=['dev']        （ai 没了）
+#      「主要用来写代码、训练模型」→ purpose=['dev','video','design']
+#    后果：dev 在 pc_rules 里 needDgpu=False → **给要跑模型的用户配了核显**。
+#    用户只能自己补一句「需要独显」，这正是那句「没听明白我要显卡？」的来源。
+#
+#    修法：白名单不再手写，直接取内核认的键 —— 判据只写一遍。
+#    （pc_rules 只 import sys，无循环依赖）
+import pc_rules as _pcrules                                # noqa: E402
+VALID_PURPOSE = set(_pcrules.RULES)
 
 # 硬约束（过滤条件，不是权重）。这些键跨轮必须继承，
 # 否则「不要封装内存」「要 32G」「不要荣耀」会在下一轮悄悄失效。
@@ -5745,6 +5759,29 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
     except Exception:
         _LAST_ROUTE[0] = None      # 意图层挂了 → 全词表兜底，系统必须还能跑
 
+    # 6a0. 🔴🔴 2026-11-27：**刚出过装机单，这句话是不是在问那张单子**。
+    #
+    #    放在所有路由分支**之前**，实测位置很关键：
+    #      「这套配置有什么问题」→ 被更早的 followup 分支吃掉，
+    #        答成了某台整机的「质保 1 年 / 占地方、不能带走」；
+    #      「电源够吗」→ 同一类问题；
+    #      「固态换成1T」→ 被 fit 分支吃掉，答了一堆「换的前提是有空位」。
+    #    这些分支都比装机分支早，所以判断只能放在这儿。
+    #
+    #    判据在 build_followup.is_followup()：问「够不够/怎么样/能玩吗」是追问；
+    #    「换固态/加内存」是动作请求 → 不算，让它继续往下重算单子。
+    #
+    #    用 known（上一轮回传的槽位）而不是 slots —— 这个位置还没合并本轮槽位。
+    _bl0 = (known or {}).get("_build")
+    if _bl0:
+        import build_followup as _bfu
+        if _bfu.is_followup(user_text or "", _bl0):
+            _st = dict(known or {})
+            return {"stage": "build_followup", "slots": _st,
+                    "reply": _bfu.answer(user_text or "", _bl0),
+                    "known": _st, "focus": None,
+                    "questions": [], "warnings": []}
+
     outside_scope = check_scope(user_text)
     if outside_scope:
         return {"stage": "refuse", "slots": dict(known or {}), "picked": None,
@@ -6421,6 +6458,15 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
             if slots.get(k) is None and known.get(k) is not None:
                 slots[k] = known[k]
 
+        # 🔴 2026-11-27：装机单句柄 `_build` 也要跨轮继承。
+        #    它不是过滤条件，所以**不放进 HARD_KEYS**（那组的语义是"筛机器的硬约束"）。
+        #    但继承规则一样：本轮没给就沿用上一轮的；
+        #    品类变了（台式 → 笔记本）就丢掉，那张单子不再作数。
+        if cat_changed:
+            slots.pop("_build", None)
+        elif slots.get("_build") is None and known.get("_build"):
+            slots["_build"] = known["_build"]
+
     # 5. 隐含推导：说打游戏但没明确品类 → 按游戏本走（PRD §8.4）
     #    但已经定了轻薄本、用户只是问"能不能打游戏"时不能改品类 —— 那是追问。
     if not slots.get("cat") and "gaming" in (slots.get("purpose") or []):
@@ -6635,10 +6681,12 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
                 _best = min(_bpc.TIERS, key=lambda t: min(
                     abs(_budget - t["budget"][0]),
                     abs(_budget - t["budget"][1])))
-                _one = _bpc.build_plan(_parts, _best, _budget,
-                                        purposes=_purposes,
-                                        explicit_dgpu=_explicit_dgpu)
-                _plans = [_one] if _one else []
+                # 🔴 2026-11-27：**出 3 个对比方案**（用户要求
+                #    「台式机也能像笔记本一样多组合推荐，一键切换」）。
+                #    A 均衡 / B CPU 优先 / C 显卡优先（仅配独显时）。
+                _plans = _bpc.build_variants(
+                    _parts, _best, _budget,
+                    purposes=_purposes, explicit_dgpu=_explicit_dgpu)
             else:
                 _plans = []
                 for _t in _bpc.TIERS:
@@ -6648,9 +6696,33 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
                         _plans.append(_p)
             if _plans:
                 _md = "\n\n".join(_pbi.render_plan(p) for p in _plans)
-                _md = ("按你的预算和用途，这几个组合能装起来。"
-                       "每个配件都列了型号和参考价，最后是整机合计：\n\n"
-                       + _md)
+                _md = ("按你的预算和用途，给你 %d 个方案对比 —— "
+                       "同样的钱，侧重点不同：\n\n" % len(_plans)) + _md
+
+                # 🔴🔴 2026-11-27：**给这张单子留个句柄**。
+                #
+                #    事故（真实日志 11:16 会话）：
+                #      出完单子 → 用户问「电源够吗」→ 又出了一份新单子
+                #      出完单子 → 用户问「这套配置能玩黑神话吗」→ 又出一份
+                #    根因：装机单出完就没了，focus 一直是 None，
+                #    下一句只要沾到「台式」就 build_plan 重算，
+                #    用户问的那张单子等于不存在。这就是「上下文状态丢失」。
+                #
+                #    存进 slots 的 `_build`（下划线开头 = 内部字段，
+                #    不会被当成槽位喂给模型，也不会被当成硬约束）。
+                #    slots 会原样作为 known 回传给前端、下一轮再带回来，
+                #    所以跨轮存活，不需要单独做会话存储。
+                _p0 = _plans[0]
+                slots["_build"] = {
+                    "tier": _p0.get("tier"),
+                    "tierName": _p0.get("tierName"),
+                    "use": _p0.get("use"),
+                    "total": _p0.get("total"),
+                    "issues": _p0.get("issues") or [],
+                    "rows": [{"label": r.get("label"), "name": r.get("name"),
+                              "price": r.get("price")}
+                             for r in (_p0.get("rows") or [])],
+                }
                 return {"stage": "build_pc", "slots": slots,
                         "reply": _md, "known": slots,
                         "questions": ["想要 Intel 还是 AMD 平台？",
