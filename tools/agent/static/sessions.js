@@ -76,7 +76,10 @@
   function makeTitle(text){
     var t = (text || '').replace(/\s+/g, ' ').trim();
     if(!t) return '新对话';
-    return t.length > 18 ? t.slice(0, 18) + '…' : t;
+    // 🔴 2026-11-27 修：slice 按 UTF-16 码元切，emoji 是双码元，
+    //    切在中间产生孤代理 → 渲染成 �。Array.from 按码点切。
+    var chars = Array.from(t);
+    return chars.length > 18 ? chars.slice(0, 18).join('') + '…' : t;
   }
 
   /* ── 当前会话 id ── */

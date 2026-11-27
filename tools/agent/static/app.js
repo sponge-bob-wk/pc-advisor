@@ -197,7 +197,7 @@ function facts(ov){
   //    set() 有空值保护，找不到元素会静默跳过，所以不需要额外判空。
   set('asof','数据快照 '+ov.dataAsOf);
   set('pool','库内 '+ov.total+' 台');
-  set('hintRight','数据截至 '+ov.dataAsOf+' · 只做 Windows 笔记本 / 台式整机 / 内存固态');
+  set('hintRight','只做 Windows 笔记本 / 台式整机 / 内存固态');
 }
 
 /* ── 右栏图表：每个数都直接取 /api/overview，不在前端做统计 ── */
