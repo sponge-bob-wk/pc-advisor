@@ -246,8 +246,7 @@ body{
 }
 .dock-inner{max-width:640px;margin:0 auto}
 .field{
-  display:flex;align-items:flex-end;gap:10px;
-  max-width:640px;margin:0 auto;
+  display:flex;align-items:center;gap:10px;
   background:var(--surface);border:1.5px solid var(--line);
   border-radius:14px;padding:10px 12px;
   transition:border-color .15s,box-shadow .15s;
@@ -258,6 +257,7 @@ body{
   flex:1;border:none;outline:none;resize:none;
   font-size:14px;font-family:var(--serif);line-height:1.5;
   max-height:120px;background:transparent;color:var(--ink);
+  padding:0;margin:0;display:block;
 }
 .field textarea::placeholder{color:var(--ink3)}
 .field button{
