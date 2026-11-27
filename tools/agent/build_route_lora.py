@@ -298,6 +298,23 @@ def main():
         print("  %-26s %4d 条（跳过 %d）  ← %s" % (name, len(rows), skipped, desc))
         all_rows.extend(rows)
 
+    # 🔴 2026-11-27：**保持集防护**。
+    #
+    #    real-20261127.eval.jsonl 里有 60 条手写补充样本（src 含
+    #    "holdout"），它们**绝不能进训练集** —— 否则评估分数虚高。
+    #
+    #    如果哪天有人把这些样本误加进 SOURCES，这里直接拦下报错，
+    #    而不是静默训练出一个"看起来很好"的模型。
+    _holdout_guard = [r for r in all_rows
+                      if "holdout" in str(r.get("src") or "").lower()]
+    if _holdout_guard:
+        print()
+        print("🔴 发现 %d 条保持集样本混进了训练数据：" % len(_holdout_guard))
+        for _r in _holdout_guard[:5]:
+            print("     %s" % str(_r.get("user"))[:60])
+        print("   这些是评测用的，必须从 SOURCES 移除后再训练。")
+        raise SystemExit("保持集样本不能进训练集")
+
     # 去重：同一句只留第一次出现的（按 SOURCES 顺序 = 手写模板优先）
     seen, uniq = {}, []
     for r in all_rows:
