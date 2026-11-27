@@ -607,6 +607,127 @@ def pick_near(items, target, used=None, key=None, max_price=None):
     return min(cand, key=lambda x: abs(x["price"] - target))
 
 
+def _pick_psu(parts, ratio, budget, cpu, gpu):
+    """按 CPU+GPU 实际功耗选电源（不按预算比例）。
+
+    🔴 2026-11-27 从 build_plan 拆出（原内联 35 行）。
+
+       电源不是"越贵越好"，够用就行 —— 多余的钱给 CPU/显卡。
+       核显方案不能按 150W 算（实测出现过「办公配置 + 1250W 电源」）。
+
+    ⚠️ 顺手修了一个重复 bug：原代码里 `if psu: issues.append(...)`
+       写了两遍（"这台只有" 和 "这台" 两版），用户会看到两条
+       几乎一样的警告。这里只保留一条。
+    """
+    gpu_w = gpu_watt(gpu["name"]) if gpu.get("price") else 0
+    need_w = int((cpu_watt(cpu["name"]) + gpu_w + pc_rules.PSU_BASE_LOAD)
+                 * pc_rules.PSU_HEADROOM)
+
+    def psu_ok(it):
+        w = psu_watt(it["name"])
+        return w is not None and w >= need_w
+
+    pool = [x for x in (parts.get("psu") or []) if psu_ok(x)]
+    if pool:
+        # 够用的里面选最便宜的 —— 电源不是越贵越好
+        return min(pool, key=lambda x: x["price"]), []
+
+    # 库里没有够功率的：退到最接近的，并告警
+    psu = pick_near(parts.get("psu") or [], budget * ratio["psu"])
+    if not psu:
+        return None, []
+    have = psu_watt(psu["name"]) or 0
+    return psu, ["电源可能不够：需要约 %dW，这台只有 %s"
+                 % (need_w, ("%dW" % have) if have else "未知")]
+
+
+
+def _pick_case(parts, ratio, budget, gpu, cooler, mb):
+    """选机箱 —— 必须装得下显卡、散热器、主板。
+
+    🔴 2026-11-27 从 build_plan 拆出（原内联 66 行）。
+
+       机箱的约束是"装得下前面所有东西"，所以必须在显卡/散热器/主板
+       都定了之后才能选（今天第四次踩顺序坑）。
+
+       三项校验：
+         ① 显卡长度 ≤ 机箱显卡限长（留 10mm 给供电线）
+         ② 散热器：风冷验高度 / 水冷验冷排尺寸
+         ③ 主板板型 ∈ 机箱适用主板
+
+    返回 (case, issues)。
+    """
+    _iss = []
+    _case = None
+    # ⑦ 机箱：**必须装得下显卡、散热器、主板**
+    #
+    # 🔴 2026-11-26 新增（用户要求）
+    #
+    #    原来机箱只按价格选，完全不看尺寸。实际会配出这种：
+    #      显卡 340mm + 限长 320mm 的机箱 → 装不进去
+    #      360 水冷 + 只支持 240 的机箱 → 装不上
+    #      ATX 主板 + MATX 机箱 → 放不下
+    #
+    #    ⚠️ 顺序：机箱必须在显卡/散热器/主板都定了之后才能选 ——
+    #       它的约束就是"装得下这些东西"。今天第四次踩顺序坑。
+    _fits = load_fits()
+    _gpu_size = (fit_of("gpu", gpu["name"]).get("params") or {}).get(
+        "产品尺寸", "")
+    # 散热器参数要**整个传**给 fit_rules —— 判水冷/风冷要靠「散热方式」字段，
+    # 只传「产品尺寸」的话会把它当风冷（实测瓦尔基里B360 名字里没有「水冷」二字，
+    # 但参数里写着 散热方式=水冷）。
+    cooler_params = (fit_of("cooler", cooler["name"]).get("params") or {}) \
+        if cooler else {}
+    cooler_size = "；".join("%s%s" % (k2, v2)
+                             for k2, v2 in cooler_params.items())
+
+    def _case_ok(it):
+        spec = case_spec_of(it["name"])
+        if not spec:
+            return True     # 机箱参数没抓到 → 不筛（宁可选便宜也别全排除）
+        bad = fit_rules.check(
+            _gpu_size, spec,
+            cooler_name=(cooler["name"] if cooler else None),
+            board_name=mb["name"], cooler_spec=cooler_size)
+        return not any(lv == "hard" for lv, _ in bad)
+
+    case = pick_near(parts.get("case") or [], budget * ratio["case"],
+                     key=_case_ok)
+
+    if not case:
+        # 装得下的机箱里没有价格合适的 → 放宽价格，但必须装得下
+        _ok_cases = [x for x in (parts.get("case") or []) if _case_ok(x)]
+        if _ok_cases:
+            case = min(_ok_cases, key=lambda x: x["price"] or 0)
+            _iss.append(
+                "机箱放宽了价格（装得下的最便宜是 %s ¥%d）"
+                % (case["name"][:22], case["price"]))
+        else:
+            # 一个都装不下 → 退回原逻辑，但明确告警
+            case = pick_near(parts.get("case") or [],
+                             budget * ratio["case"])
+            if case:
+                _iss.append(
+                    "⚠️ 没有尺寸合适的机箱：库里装得下这套配置的机箱为 0，"
+                    "已选 %s，需人工确认能否装下" % case["name"][:24])
+    if not case:
+        return None, _iss
+    _case =  case
+
+    # ⑦b 最终整体校验：把剩下的尺寸问题都报出来
+    _final = fit_rules.check(
+        _gpu_size, case_spec_of(case["name"]),
+        cooler_name=(cooler["name"] if cooler else None),
+        board_name=mb["name"], cooler_spec=cooler_size)
+    for _lv, _msg in _final:
+        if _lv == "hard":
+            _iss.append("⚠️ 尺寸问题：%s" % _msg)
+        else:
+            _iss.append("尺寸：%s" % _msg)
+    return _case, _iss
+
+
+
 def build_plan(parts, tier, budget=None, purposes=None, explicit_dgpu=None):
     """按档位 + 用途生成一套配置。
 
@@ -989,106 +1110,21 @@ def build_plan(parts, tier, budget=None, purposes=None, explicit_dgpu=None):
         if hdd:
             plan["hdd"] = hdd
 
-    # ⑥ 电源：按 CPU+GPU 功耗 × 1.5 留余量
-    #
-    # 🔴 2026-11-26 实测发现两个问题：
-    #    ① 不配独显时 gpu["price"]==0，不能按 150W 算 ——
-    #       核显整机满载也就 200W，按价格比例会选到 1250W 的电源，
-    #       实测出现过「办公配置 + 1250W 电源」这种离谱组合。
-    #    ② **电源不能按预算比例选，要按实际功率选** ——
-    #       电源不是"越贵越好"，够用就行，多余的钱应该给 CPU/显卡。
-    #       所以这里改成：先算 need_w，再选**能带得动的最便宜那档**。
-    _gpu_w = gpu_watt(gpu["name"]) if gpu.get("price") else 0
-    need_w = int((cpu_watt(cpu["name"]) + _gpu_w + pc_rules.PSU_BASE_LOAD) * pc_rules.PSU_HEADROOM)
-
-    def psu_ok(it):
-        w = psu_watt(it["name"])
-        return w is not None and w >= need_w
-
-    _psu_pool = [x for x in (parts.get("psu") or []) if psu_ok(x)]
-    if _psu_pool:
-        # 够用的里面选最便宜的 —— 电源不是越贵越好
-        psu = min(_psu_pool, key=lambda x: x["price"])
-    else:
-        # 库里没有够功率的：退到最接近的，并告警
-        psu = pick_near(parts.get("psu") or [], budget * ratio["psu"])
-        if psu:
-            have = psu_watt(psu["name"]) or 0
-            issues.append("电源可能不够：需要约 %dW，这台只有 %s"
-                          % (need_w, ("%dW" % have) if have else "未知"))
-        if psu:
-            have = psu_watt(psu["name"]) or 0
-            issues.append("电源可能不够：需要约 %dW，这台 %s"
-                          % (need_w, ("%dW" % have) if have else "未知"))
+    # ⑥ 电源：按 CPU+GPU 功耗选（已拆为 _pick_psu）
+    psu, _iss_psu = _pick_psu(parts, ratio, budget, cpu, gpu)
+    issues.extend(_iss_psu)
     if not psu:
         return None
     plan["psu"] = psu
 
-    # ⑦ 机箱：**必须装得下显卡、散热器、主板**
-    #
-    # 🔴 2026-11-26 新增（用户要求）
-    #
-    #    原来机箱只按价格选，完全不看尺寸。实际会配出这种：
-    #      显卡 340mm + 限长 320mm 的机箱 → 装不进去
-    #      360 水冷 + 只支持 240 的机箱 → 装不上
-    #      ATX 主板 + MATX 机箱 → 放不下
-    #
-    #    ⚠️ 顺序：机箱必须在显卡/散热器/主板都定了之后才能选 ——
-    #       它的约束就是"装得下这些东西"。今天第四次踩顺序坑。
-    _fits = load_fits()
-    _gpu_size = (fit_of("gpu", gpu["name"]).get("params") or {}).get(
-        "产品尺寸", "")
-    # 散热器参数要**整个传**给 fit_rules —— 判水冷/风冷要靠「散热方式」字段，
-    # 只传「产品尺寸」的话会把它当风冷（实测瓦尔基里B360 名字里没有「水冷」二字，
-    # 但参数里写着 散热方式=水冷）。
-    _cooler_params = (fit_of("cooler", _cooler["name"]).get("params") or {}) \
-        if _cooler else {}
-    _cooler_size = "；".join("%s%s" % (k2, v2)
-                             for k2, v2 in _cooler_params.items())
 
-    def _case_ok(it):
-        spec = case_spec_of(it["name"])
-        if not spec:
-            return True     # 机箱参数没抓到 → 不筛（宁可选便宜也别全排除）
-        bad = fit_rules.check(
-            _gpu_size, spec,
-            cooler_name=(_cooler["name"] if _cooler else None),
-            board_name=mb["name"], cooler_spec=_cooler_size)
-        return not any(lv == "hard" for lv, _ in bad)
-
-    case = pick_near(parts.get("case") or [], budget * ratio["case"],
-                     key=_case_ok)
-
-    if not case:
-        # 装得下的机箱里没有价格合适的 → 放宽价格，但必须装得下
-        _ok_cases = [x for x in (parts.get("case") or []) if _case_ok(x)]
-        if _ok_cases:
-            case = min(_ok_cases, key=lambda x: x["price"] or 0)
-            issues.append(
-                "机箱放宽了价格（装得下的最便宜是 %s ¥%d）"
-                % (case["name"][:22], case["price"]))
-        else:
-            # 一个都装不下 → 退回原逻辑，但明确告警
-            case = pick_near(parts.get("case") or [],
-                             budget * ratio["case"])
-            if case:
-                issues.append(
-                    "⚠️ 没有尺寸合适的机箱：库里装得下这套配置的机箱为 0，"
-                    "已选 %s，需人工确认能否装下" % case["name"][:24])
+    # ⑦ 机箱：必须装得下一切（已拆为 _pick_case）
+    case, _iss_cas = _pick_case(parts, ratio, budget, gpu, _cooler, mb)
+    issues.extend(_iss_cas)
     if not case:
         return None
     plan["case"] = case
 
-    # ⑦b 最终整体校验：把剩下的尺寸问题都报出来
-    _final = fit_rules.check(
-        _gpu_size, case_spec_of(case["name"]),
-        cooler_name=(_cooler["name"] if _cooler else None),
-        board_name=mb["name"], cooler_spec=_cooler_size)
-    for _lv, _msg in _final:
-        if _lv == "hard":
-            issues.append("⚠️ 尺寸问题：%s" % _msg)
-        else:
-            issues.append("尺寸：%s" % _msg)
 
     # 🔴 2026-11-27：**总价超预算时降档，顺序是先降大头**。
     #    原来只降 storage/hdd/ram/cooler/case（省几百块），
