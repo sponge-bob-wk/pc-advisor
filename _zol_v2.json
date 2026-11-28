@@ -1,0 +1,372 @@
+{
+ "jd-mechrevo-jiaolong15k-r57640h-3050-16g-512g-20261109": {
+  "name": "机械革命 蛟龙 15K（R5-7640H/16G/512G）",
+  "match": [
+   "机械革命蛟龙15K",
+   "https://detail.zol.com.cn/series/16/10859755_1.html"
+  ],
+  "score": 1.0,
+  "tried": [
+   "机械革命 蛟龙 15K"
+  ]
+ },
+ "jd-hasee-zhanshen-t8-i713650hx-16g-1t-5060-20261109": {
+  "name": "神舟 战神T8（i7-13650HX/16G/1T/RTX5060/2.5K 180Hz）",
+  "match": null,
+  "score": 0.0,
+  "tried": [
+   "神舟 战神T8",
+   "神舟 神舟战神T8"
+  ]
+ },
+ "jd-xiaomi-redmibookpro16-u5338h-32g-1t-20261109": {
+  "name": "REDMI Book Pro 16 2026（Ultra5-338H/32G/1T）",
+  "match": [
+   "红米Book Pro 16 2026",
+   "https://detail.zol.com.cn/series/16/10925966_1.html"
+  ],
+  "score": 1.0,
+  "tried": [
+   "REDMI Book Pro 16 2026"
+  ]
+ },
+ "jd-honor-magicbookpro16-u5338h-32g-1t-20261109": {
+  "name": "荣耀 MagicBook Pro 16 2026（Ultra5-338H/32G/1T）",
+  "match": [
+   "荣耀MagicBook Pro 16 2026",
+   "https://detail.zol.com.cn/series/16/10926025_1.html"
+  ],
+  "score": 1.0,
+  "tried": [
+   "荣耀 MagicBook Pro 16 2026"
+  ]
+ },
+ "jd-huawei-matebookd16-i513420h-16g-1t-20261109": {
+  "name": "华为 MateBook D 16（i5-13420H/16G/1T，店铺预装 Win 未激活）",
+  "match": null,
+  "score": 0.0,
+  "tried": [
+   "华为 MateBook D 16",
+   "华为 华为MateBook D 16"
+  ]
+ },
+ "jd-colorful-jiangxingx16pro-i514450hx-16g-512g-5050-20261109": {
+  "name": "七彩虹 将星 X16 Pro（i5-14450HX/16G/512G/RTX5050/2.5K 180Hz）",
+  "match": [
+   "七彩虹将星X16 Pro 14代酷睿",
+   "https://detail.zol.com.cn/series/16/10920035_1.html"
+  ],
+  "score": 1.0,
+  "tried": [
+   "七彩虹 将星 X16 Pro",
+   "七彩虹 七彩虹将星 X16 Pro",
+   "七彩虹 将星 X16"
+  ]
+ },
+ "add-wuwei14se-2026": {
+  "name": "无畏14 SE 2026",
+  "match": [
+   "华硕无畏14 酷睿版 2026",
+   "https://detail.zol.com.cn/series/16/10927048_1.html"
+  ],
+  "score": 0.75,
+  "tried": [
+   "无畏14 SE 2026",
+   "华硕无畏14 SE 2026",
+   "无畏14",
+   "无畏 14"
+  ]
+ },
+ "add-xingbookplus14": {
+  "name": "星Book Plus 14",
+  "match": [
+   "惠普星 Book 14",
+   "https://detail.zol.com.cn/series/16/10741690_1.html"
+  ],
+  "score": 1.0,
+  "tried": [
+   "星Book Plus 14"
+  ]
+ },
+ "add-honorx14-amd": {
+  "name": "荣耀 X14 锐龙版",
+  "match": [
+   "荣耀MagicBook 14 2021 锐龙版",
+   "https://detail.zol.com.cn/series/16/34808_1.html"
+  ],
+  "score": 0.67,
+  "tried": [
+   "荣耀 X14 锐龙版"
+  ]
+ },
+ "add-matebook14-2026": {
+  "name": "MateBook 14 2026",
+  "match": [
+   "华为MateBook Fold 非凡大师 2026",
+   "https://detail.zol.com.cn/series/16/10928970_1.html"
+  ],
+  "score": 1.0,
+  "tried": [
+   "MateBook 14 2026",
+   "华为MateBook 14 2026"
+  ]
+ },
+ "add-magicbookpro14": {
+  "name": "荣耀 MagicBook Pro 14 2026",
+  "match": [
+   "荣耀MagicBook Pro 14",
+   "https://detail.zol.com.cn/series/16/10910726_1.html"
+  ],
+  "score": 1.0,
+  "tried": [
+   "荣耀 MagicBook Pro 14 2026"
+  ]
+ },
+ "add-laikuair16": {
+  "name": "联想来酷 Air16 2026",
+  "match": null,
+  "score": 0.0,
+  "tried": [
+   "联想来酷 Air16 2026",
+   "联想来酷 16"
+  ]
+ },
+ "add-xingbookproair14": {
+  "name": "星Book Pro Air 14",
+  "match": null,
+  "score": 0.0,
+  "tried": [
+   "星Book Pro Air 14",
+   "惠普星Book Pro Air 14",
+   "星Book 14"
+  ]
+ },
+ "add-adou14air": {
+  "name": "a豆 14 Air 2026",
+  "match": null,
+  "score": 0.0,
+  "tried": [
+   "a豆 14 Air 2026",
+   "华硕a豆 14 Air 2026",
+   "a豆 14"
+  ]
+ },
+ "add-tianxuan6pro": {
+  "name": "天选6 Pro 锐龙版",
+  "match": [
+   "华硕天选6 Pro 锐龙版",
+   "https://detail.zol.com.cn/series/16/10918739_1.html"
+  ],
+  "score": 1.0,
+  "tried": [
+   "天选6 Pro 锐龙版"
+  ]
+ },
+ "add-canglong16pro": {
+  "name": "苍龙16 Pro",
+  "match": [
+   "机械革命苍龙16 Ultra",
+   "https://detail.zol.com.cn/series/16/10914800_1.html"
+  ],
+  "score": 0.67,
+  "tried": [
+   "苍龙16 Pro",
+   "机械革命苍龙16 Pro",
+   "苍龙16",
+   "苍龙 16"
+  ]
+ },
+ "add-laiku-zhan7000": {
+  "name": "联想来酷 斗战者 战7000",
+  "match": null,
+  "score": 0.0,
+  "tried": [
+   "联想来酷 斗战者 战7000"
+  ]
+ },
+ "add-legion-r7000x-2026": {
+  "name": "拯救者 R7000X 2026",
+  "match": [
+   "联想拯救者Y7000X 2026",
+   "https://detail.zol.com.cn/series/16/10926973_1.html"
+  ],
+  "score": 1.0,
+  "tried": [
+   "拯救者 R7000X 2026"
+  ]
+ },
+ "add-thunde-renjian16-13650": {
+  "name": "雷神 猎刃16",
+  "match": null,
+  "score": 0.0,
+  "tried": [
+   "雷神 猎刃16",
+   "雷神 雷神猎刃16"
+  ]
+ },
+ "add-acer-predator-helios9": {
+  "name": "宏碁 掠夺者 战斧9 Neo S",
+  "match": [
+   "Acer宏碁掠夺者· 战斧9 Neo S",
+   "https://detail.zol.com.cn/series/16/10925400_1.html"
+  ],
+  "score": 1.0,
+  "tried": [
+   "宏碁 掠夺者 战斧9 Neo S"
+  ]
+ },
+ "add-yaoshi16-ultra": {
+  "name": "机械革命 耀世16 Ultra",
+  "match": [
+   "机械革命耀世16 Ultra",
+   "https://detail.zol.com.cn/series/16/10920788_1.html"
+  ],
+  "score": 1.0,
+  "tried": [
+   "机械革命 耀世16 Ultra"
+  ]
+ },
+ "add-tianxuan-air-2026": {
+  "name": "天选 Air 2026",
+  "match": [
+   "华硕天选Air 2026 锐龙AI Max版",
+   "https://detail.zol.com.cn/series/16/10923262_1.html"
+  ],
+  "score": 1.0,
+  "tried": [
+   "天选 Air 2026"
+  ]
+ },
+ "add-thunde-renjian-s": {
+  "name": "雷神 猎刃S",
+  "match": null,
+  "score": 0.0,
+  "tried": [
+   "雷神 猎刃S",
+   "雷神 雷神猎刃S"
+  ]
+ },
+ "add-canglong18pro-jd": {
+  "name": "苍龙 18 Pro",
+  "match": null,
+  "score": 0.0,
+  "tried": [
+   "苍龙 18 Pro",
+   "机械革命苍龙 18 Pro",
+   "苍龙 18"
+  ]
+ },
+ "add-omen-pro15-jd": {
+  "name": "暗影精灵 Pro 15",
+  "match": [
+   "惠普HyperX 暗影精灵 Pro 15酷睿版",
+   "https://detail.zol.com.cn/series/16/10926228_1.html"
+  ],
+  "score": 1.0,
+  "tried": [
+   "暗影精灵 Pro 15"
+  ]
+ },
+ "add-y9000x-2026": {
+  "name": "拯救者 Y9000X 2026（Ultra9-290HX Plus/RTX5060/32G/1T）",
+  "match": [
+   "联想拯救者Y9000P 2026 至尊版",
+   "https://detail.zol.com.cn/series/16/10927004_1.html"
+  ],
+  "score": 1.0,
+  "tried": [
+   "拯救者 Y9000X 2026"
+  ]
+ },
+ "add-redmibookpro14-2026": {
+  "name": "REDMI Book Pro 14 2026（Ultra5-338H/32G/1T）",
+  "match": [
+   "小米Book Pro 14 2026",
+   "https://detail.zol.com.cn/series/16/10924937_1.html"
+  ],
+  "score": 1.0,
+  "tried": [
+   "REDMI Book Pro 14 2026"
+  ]
+ },
+ "add-magicbookpro16-2026": {
+  "name": "荣耀 MagicBook Pro 16 2026（Ultra5-338H/32G/1T）",
+  "match": [
+   "荣耀MagicBook Pro 16 2026",
+   "https://detail.zol.com.cn/series/16/10926025_1.html"
+  ],
+  "score": 1.0,
+  "tried": [
+   "荣耀 MagicBook Pro 16 2026"
+  ]
+ },
+ "add-tianxuan6pro-intel": {
+  "name": "天选6 Pro 酷睿版（U9-275HX/RTX5070/16G/2T）",
+  "match": [
+   "华硕天选6 Pro 酷睿版",
+   "https://detail.zol.com.cn/series/16/10918738_1.html"
+  ],
+  "score": 1.0,
+  "tried": [
+   "天选6 Pro 酷睿版"
+  ]
+ },
+ "add-wuwei16pro-2026": {
+  "name": "华硕 无畏Pro16 锐龙版 2026（锐龙AI 9 H465/16G/512G）",
+  "match": null,
+  "score": 0.0,
+  "tried": [
+   "华硕 无畏Pro16 锐龙版 2026",
+   "华硕 华硕无畏Pro16 锐龙版 2026",
+   "华硕 无畏 16 锐龙版"
+  ]
+ },
+ "add-yinxing-p16pro-xingfeng": {
+  "name": "七彩虹 隐星P16 Pro 星风版 2026（U7-251HX/RTX5060/32G/1T）",
+  "match": null,
+  "score": 0.0,
+  "tried": [
+   "七彩虹 隐星P16 Pro 星风版 2026",
+   "七彩虹 七彩虹隐星P16 Pro 星风版 2026",
+   "七彩虹 隐星P16 星风版"
+  ]
+ },
+ "add-r9000p-2026-32g": {
+  "name": "拯救者 R9000P 2026 32G版（R9-8945HX/RTX5060/32G/1T）",
+  "match": [
+   "联想拯救者Y9000P 2026 至尊版",
+   "https://detail.zol.com.cn/series/16/10927004_1.html"
+  ],
+  "score": 1.0,
+  "tried": [
+   "拯救者 R9000P 2026 32G版",
+   "联想拯救者 R9000P 2026 32G版",
+   "拯救者 R9000P 32G版"
+  ]
+ },
+ "add-thinkbook16p-2026": {
+  "name": "ThinkBook 16p 2026（U7-255HX/RTX5060/32G/1T）",
+  "match": [
+   "ThinkBook 16p 2025 锐龙版",
+   "https://detail.zol.com.cn/series/16/10914785_1.html"
+  ],
+  "score": 0.67,
+  "tried": [
+   "ThinkBook 16p 2026",
+   "联想ThinkBook 16p 2026",
+   "ThinkBook 16p",
+   "ThinkBook 16"
+  ]
+ },
+ "add-jiaolong16pro-5070ti": {
+  "name": "蛟龙16 Pro 2026 旗舰版（R9-8945HX/RTX5070Ti/32G/1T）",
+  "match": null,
+  "score": 0.0,
+  "tried": [
+   "蛟龙16 Pro 2026 旗舰版",
+   "机械革命蛟龙16 Pro 2026 旗舰版",
+   "蛟龙16 旗舰版",
+   "蛟龙 16"
+  ]
+ }
+}

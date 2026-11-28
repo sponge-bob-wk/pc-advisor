@@ -1,0 +1,42 @@
+[
+ {
+  "name": "苍龙16 Pro",
+  "zol_name": "机械革命苍龙16 Ultra",
+  "url": "https://detail.zol.com.cn/series/16/10914800_1.html",
+  "evidence": {
+   "cpu": true,
+   "gpu": true,
+   "size": true
+  }
+ },
+ {
+  "name": "宏碁 掠夺者 战斧9 Neo S",
+  "zol_name": "Acer宏碁掠夺者· 战斧9 Neo S",
+  "url": "https://detail.zol.com.cn/series/16/10925400_1.html",
+  "evidence": {
+   "cpu": true,
+   "gpu": true,
+   "size": true
+  }
+ },
+ {
+  "name": "暗影精灵 Pro 15",
+  "zol_name": "惠普HyperX 暗影精灵 Pro 15酷睿版",
+  "url": "https://detail.zol.com.cn/series/16/10926228_1.html",
+  "evidence": {
+   "cpu": true,
+   "gpu": true,
+   "size": true
+  }
+ },
+ {
+  "name": "REDMI Book Pro 14 2026（Ultra5-338H/32G/1T）",
+  "zol_name": "小米Book Pro 14 2026",
+  "url": "https://detail.zol.com.cn/series/16/10924937_1.html",
+  "evidence": {
+   "cpu": true,
+   "gpu": true,
+   "size": true
+  }
+ }
+]

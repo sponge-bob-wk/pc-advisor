@@ -3331,6 +3331,70 @@ CROSS_CAT = ["台式机能给你", "台式机的配置", "同价位台式", "换
              "台式机可以给", "台式的显卡", "桌面版显卡", "台式机至少要"]
 
 
+def _crosscat_value_hint(result, slots, user_text):
+    """同预算下别的品类有显著更强选择 → 给用户一个知情提示。
+
+    🔴 2026-11-28 新加（质量审计发现）。
+
+    事故：「预算10000，剪视频」推了 MateBook 14（¥6299, perf=67），
+    但同价位游戏本 perf 能到 94 —— 用户损失 30% 性能而不自知。
+    视频剪辑吃 GPU 加速（NVENC/CUDA），这个差距是实质的。
+
+    为什么不直接换品类：用户说「要笔记本」可能真的不想要厚重游戏本，
+    替用户做决定是错的（和 upgrade 那个问题同类）。
+
+    所以：**推荐不变，但把权衡摆出来。**
+
+    判据（三条同时成立才提示，避免噪音）：
+      ① 同预算区间的异品类最高 perf 比当前推荐高 ≥15%
+      ② 用户没明确说要轻/便携
+      ③ 异品类确实有货
+    """
+    try:
+        import core as _core
+        cat = (slots or {}).get("cat")
+        budget = (slots or {}).get("budget")
+        if cat not in ("thin", "gaming") or not budget:
+            return None
+        # 用户明确要轻便 → 不提（他已经在做权衡了）
+        if re.search(r"轻便|便携|轻一点|不要太重|经常带|天天带|背着", 
+                     user_text or ""):
+            return None
+        rk = result.get("ranked") or []
+        if not rk:
+            return None
+        cur = rk[0].get("perf") or 0
+        if cur <= 0:
+            return None
+        # 找异品类同价位最强的
+        other = "gaming" if cat == "thin" else "thin"
+        pool = _core.pool_offers()
+        cand = [o for o in pool
+                if o.get("cat") == other
+                and (o.get("price") or 0) <= budget * 1.05
+                and (o.get("perf") or 0) > 0]
+        if not cand:
+            return None
+        best = max(cand, key=lambda o: o.get("perf") or 0)
+        bp = best.get("perf") or 0
+        if bp < cur * 1.15:            # 差距不够大，不提
+            return None
+        cn_other = "游戏本" if other == "gaming" else "轻薄本"
+        cn_cur = "轻薄本" if cat == "thin" else "游戏本"
+        gain = int(round(100 * (bp / cur - 1)))
+        # ⚠️ 不能裸读 weightKg（W8：判据漂移已发生 9 次）
+        #    统一走 core.effective_weight()，它会从
+        #    weightKg 字段 + pros/cons 文本两个源取值。
+        w = _core.effective_weight(best)
+        wtxt = ("，但重量约 %.1fkg" % w) if w else ""
+        return ("同预算下%s更强：%s（¥%s，性能高约 %d%%%s）。"
+                "你现在这台更适合携带。"
+                % (cn_other, best.get("name"), 
+                   int(best.get("price") or 0), gain, wtxt))
+    except Exception:
+        return None
+
+
 def _cross_cat(text, result):
     """用户没问台式机，回答却拿台式机做比较 → 越界。
     只有本轮结果里确实带上了台式机条目时才放行。"""
@@ -6905,6 +6969,30 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
                                                 user_text or ""):
                 _explicit_dgpu = True
 
+            # 🔴 2026-11-28：**没预算就先问，别硬出方案**。
+            #
+            #    事故：「要台式」→ 出了 2 套方案（2695 字），
+            #    默认标签是「主流游戏」「高端全能」。
+            #    用户连预算都没说，可能想 3000 办公机，也可能 3 万工作站。
+            #
+            #    原逻辑（L6918 else 分支）是"没预算就把所有档位都生成一遍"，
+            #    用户拿到一堆用不上的方案，还觉得系统在瞎猜。
+            #
+            #    对比：「想买个笔记本」→ clarify 问用途和预算（20 字，干净）。
+            #    台式机也该这样 —— 装机本来就该先问清楚。
+            _need_budget_first = not _budget and not _purposes
+            _need_budget_use = not _budget and _purposes
+            if _need_budget_first or _need_budget_use:
+                if _need_budget_first:
+                    _q = ("装台式机得知道两件事：**预算多少**、**主要干什么**"
+                          "（办公 / 游戏 / 剪辑 / 写代码 / 跑模型）。")
+                else:
+                    _q = ("知道了用途，还差预算 —— **大概多少**？"
+                          "给个上限就行（比如 6000 / 一万）。")
+                return {"stage": "clarify", "slots": slots,
+                        "reply": _q, "known": slots,
+                        "questions": [], "warnings": []}
+
             if _budget:
                 _best = min(_bpc.TIERS, key=lambda t: min(
                     abs(_budget - t["budget"][0]),
@@ -7557,10 +7645,24 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
     except Exception:
         pass
 
+    # 🔴 2026-11-28：**同预算跨品类性能提示**（质量审计发现）。
+    #
+    #    事故：「预算10000，剪视频」推 MateBook 14（¥6299, perf=67），
+    #    同价位游戏本 perf 能到 94 —— 用户损失 30% 性能而不自知。
+    #
+    #    推荐结果**不变**（尊重用户的品类选择），只在 warnings 里
+    #    把权衡摆出来：要性能还是要便携。
+    #    数据是代码算的（_crosscat_value_hint），不是模型编的，
+    #    所以不会被 _cross_cat 判成越界。
+    _warns = list(result["warnings"])
+    _cc_hint = _crosscat_value_hint(result, slots, user_text)
+    if _cc_hint:
+        _warns.append(_cc_hint)
+
     out = {"stage": "recommend", "slots": slots, "reply": reply,
            # 固定字段版回答（前端主展示）。正文不再当主视图 —— 见 answer_card 的说明。
            "answer": answer_card(result, slots, note=note, carry=carry, mnote=mnote),
-           "questions": result["questions"], "warnings": result["warnings"],
+           "questions": result["questions"], "warnings": _warns,
            "dataAsOf": result["dataAsOf"], "mode": result["mode"],
            "top": [r["name"] for r in result["ranked"]],
            "untraceable_numbers": untraceable,

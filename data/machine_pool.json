@@ -4284,7 +4284,7 @@
    "priceCapturedAt": "2026-11-10T01:10:00+08:00",
    "shopType": "self",
    "shopName": "机械革命京东自营旗舰店",
-   "url": null,
+   "url": "https://detail.zol.com.cn/series/16/10859755_1.html",
    "energyModel": "机械革命蛟龙15K-08047A118",
    "platformSkuId": "10163791852963",
    "dataFrom": {
@@ -4308,7 +4308,9 @@
    ],
    "backfilled": [
     "derivedNotes"
-   ]
+   ],
+   "urlSource": "zol-series-search",
+   "zolName": "机械革命蛟龙15K"
   },
   {
    "id": "jd-mechrevo-jiguangx-cw-i714650hx-32g-1t-5060-20261109",
@@ -4919,7 +4921,7 @@
    "priceCapturedAt": "2026-11-10T01:00:00+08:00",
    "shopType": "self",
    "shopName": "七彩虹电脑京东自营旗舰店",
-   "url": null,
+   "url": "https://detail.zol.com.cn/series/16/10920035_1.html",
    "energyModel": "将星 X16 Pro",
    "platformSkuId": null,
    "dataFrom": {
@@ -4949,7 +4951,9 @@
    ],
    "backfilled": [
     "derivedNotes"
-   ]
+   ],
+   "urlSource": "zol-series-search",
+   "zolName": "七彩虹将星X16 Pro 14代酷睿"
   },
   {
    "id": "jd-lenovo-r9000p2026-r98945hx-16g-1t-5060-20261110",
@@ -5859,7 +5863,10 @@
    ],
    "backfilled": [
     "derivedNotes"
-   ]
+   ],
+   "url": "https://detail.zol.com.cn/series/16/10927048_1.html",
+   "urlSource": "zol-series-search",
+   "zolName": "华硕无畏14 酷睿版 2026"
   },
   {
    "id": "add-xingbookplus14",
@@ -6293,7 +6300,10 @@
    ],
    "backfilled": [
     "derivedNotes"
-   ]
+   ],
+   "url": "https://detail.zol.com.cn/series/16/10910726_1.html",
+   "urlSource": "zol-series-search",
+   "zolName": "荣耀MagicBook Pro 14"
   },
   {
    "id": "add-laikuair16",
@@ -6734,7 +6744,10 @@
    ],
    "backfilled": [
     "derivedNotes"
-   ]
+   ],
+   "url": "https://detail.zol.com.cn/series/16/10918739_1.html",
+   "urlSource": "zol-series-search",
+   "zolName": "华硕天选6 Pro 锐龙版"
   },
   {
    "id": "add-canglong16pro",
@@ -7291,7 +7304,10 @@
    ],
    "backfilled": [
     "derivedNotes"
-   ]
+   ],
+   "url": "https://detail.zol.com.cn/series/16/10925400_1.html",
+   "urlSource": "zol-series-verified",
+   "zolName": "Acer宏碁掠夺者· 战斧9 Neo S"
   },
   {
    "id": "add-acer-predator-helios10",
@@ -7514,7 +7530,10 @@
    ],
    "backfilled": [
     "derivedNotes"
-   ]
+   ],
+   "url": "https://detail.zol.com.cn/series/16/10920788_1.html",
+   "urlSource": "zol-series-search",
+   "zolName": "机械革命耀世16 Ultra"
   },
   {
    "id": "add-tianxuan-air-2026",
@@ -7948,7 +7967,10 @@
     "portsSpec": "https://www.hpstore.cn/hyperx-omen-15-inch-gaming-laptop-pc-15-ga0143tx-dc2k1pa.html",
     "portsSpecQuote": "端口：1 个全功能 USB Type-C 端口，10Gbps（USB 功率输出、DisplayPort 1.4、惠普睡眠充电端口）；2 个 USB Type-A 端口，10Gbps；1 个交流智能插孔；1 个 HDMI 2.1 端口；1 个耳机/麦克风组合插孔；1 个千兆 RJ45 网络端口",
     "portsSpecNote": "官方页为同系列 15-ga0000 的 ga0143TX（RTX5070 版），本记录为同模具 RTX5060 版；接口为机身模具级配置，按同系列套用"
-   }
+   },
+   "url": "https://detail.zol.com.cn/series/16/10926228_1.html",
+   "urlSource": "zol-series-verified",
+   "zolName": "惠普HyperX 暗影精灵 Pro 15酷睿版"
   },
   {
    "id": "add-y9000x-2026",
@@ -8268,7 +8290,10 @@
    ],
    "backfilled": [
     "derivedNotes"
-   ]
+   ],
+   "url": "https://detail.zol.com.cn/series/16/10926025_1.html",
+   "urlSource": "zol-series-search",
+   "zolName": "荣耀MagicBook Pro 16 2026"
   },
   {
    "id": "add-tianxuan6pro-intel",
@@ -8365,7 +8390,10 @@
    ],
    "backfilled": [
     "derivedNotes"
-   ]
+   ],
+   "url": "https://detail.zol.com.cn/series/16/10918738_1.html",
+   "urlSource": "zol-series-search",
+   "zolName": "华硕天选6 Pro 酷睿版"
   },
   {
    "id": "add-wuwei16pro-2026",
