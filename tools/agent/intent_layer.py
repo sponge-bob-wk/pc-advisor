@@ -685,7 +685,11 @@ def classify(text, focus=None, allow_model=True):
     # 「价位 + 要成品」：配/装/组 + 电脑/主机/配置单
     _WANT_BUILD = re.search(
         r"(配|装|组)[^。！？，,]{0,6}(电脑|主机|整机|机子|配置)|"
-        r"配置单|配置清单|推荐配置|电脑配置|主机配置|装机", t)
+        r"配置单|配置清单|推荐配置|电脑配置|主机配置|装机|"
+        # 🔴 2026-11-28 补：可能补语形态。「预算8000有几台能配」
+        #    「8000配得下几台」—— 这里"配"后面跟的是能/得/下，
+        #    不是具体型号词，但语义就是"这个预算能配出什么"。
+        r"(配|装)[得能下起出]|能(配|装)|配得出|装得下", t)
     if _HAS_PRICE and _WANT_BUILD:
         return agent.INTENT_STATE_NEW_NEED, "rule:价位+要成品（配/装/主机）"
 
@@ -756,9 +760,16 @@ def classify(text, focus=None, allow_model=True):
     if _ASK_REPLACE_PART:
         return agent.INTENT_ASK_CURRENT, "rule:问配件要不要换（指当前这台）"
     # 统计问法优先：问"有多少台"是统计全库，不是要清单。
-    # 🔴 但要排除「还有几个能选」—— 这里的"还/再"是索取语气，不是统计。
+    #
+    # 🔴 2026-11-28 修：**两种否决**。
+    #    ① 「还有几个能选」—— "还/再"是索取语气，不是统计
+    #    ② 「预算8000有几台能配」—— "能配"是装机意图，
+    #       "有几台"在这里是"能配几套"，不是问库容量。
+    #       交叉测试发现的：_COUNT_ASK 抢走了装机意图。
+    #       判据：句中有「配/装/组」动作词 → 是装机，不是统计。
     _MORE_HINT = re.search(r"(还|再|多)[^。！？]{0,3}(几|些)", t)
-    if _COUNT_ASK and not _MORE_HINT:
+    _BUILD_HINT = re.search(r"(配|装|组)", t)
+    if _COUNT_ASK and not _MORE_HINT and not _BUILD_HINT:
         return agent.INTENT_ANALYZE, "rule:问数量（统计全库）"
     if _WANT_MANY:
         return agent.INTENT_LIST_OTHERS, "rule:复数词（要多台）"

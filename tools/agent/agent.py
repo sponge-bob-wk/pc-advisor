@@ -3476,10 +3476,51 @@ def _leak_marker(text):
         #    「『要提醒的坑』是空的，也不许编」/「你不要重复」
         r"是空的[，,]?也?不许编|不许编|不要编|不能编|不准编|"
         r"你不要重复|不要重复|别重复|不要再说一遍|"
-        r"「[^」]{2,12}」是空的"
+        r"「[^」]{2,12}」是空的|"
+        # 🔴 2026-11-28 实测补：**整段讲授式泄漏**。
+        #    「我要跑大模型，预算一万」的回答是整段提示词原文，
+        #    开头就是「这句在问…不是在问…「你该做的，是等系统把…」
+        #    这是 ANSWER_SYS 里的**解释性说明**被当正文输出了。
+        r"你该做的|你该拿|你该等|你不能拿|你不能把|你不要把|"
+        r"犯了第\s*\d+\s*条的错|不是在问|只是.{0,4}陈述|"
+        r"等系统把|你不该|你要记住|记住：|第\s*\d+\s*条"
     )
     m = re.search(LEAK, t)
     return m.start() if m else None
+
+
+
+def _is_pure_leak(text):
+    """整段回答看起来像提示词（不是给用户的内容）。
+
+    🔴 2026-11-28 新加。事故：「我要跑大模型，预算一万」返回了
+       ANSWER_SYS 的整段解释性文字（"这句在问…你该做的…"）。
+
+    _leak_marker 是位置检测（截断前面的），
+    但这次泄漏**从第一个字开始**，前面没有正常内容可保留。
+
+    判据（三条同时成立才算纯泄漏，避免误杀正常回答）：
+      ① 有明显的第二人称祈使语气（你该/你不能/你要）
+      ② 没有任何数码产品名（机型/品牌/配件）
+      ③ 没有价格数字
+    正常回答三条都命中不了 —— 它必然提到机型或价格。
+    """
+    t = (text or "").strip()
+    if len(t) < 30:
+        return False
+    you = len(re.findall(r"你该|你不能|你要|你不要|你不该|你必须", t))
+    if you < 2:                      # 单次出现可能是正常措辞
+        return False
+    has_product = re.search(
+        r"RTX|GTX|锐龙|酷睿|Ultra|i[3579]-|Ryzen|拯救者|小新|暗影|天选|"
+        r"MateBook|MacBook|轻薄本|游戏本|台式机|内存|固态|显卡|CPU|"
+        r"联想|华为|华硕|惠普|戴尔|荣耀|小米|机械革命|神舟", t, re.I)
+    if has_product:
+        return False
+    has_price = re.search(r"\d{3,}\s*元|¥\s*\d|\d{4,}", t)
+    if has_price:
+        return False
+    return True
 
 
 def _vague_praise(text):
@@ -6045,10 +6086,18 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
             r"多少台|几台|平均|中位数|分布|各品牌|各品类|按品牌|"
             r"最强|最弱|最贵|最便宜|排行|排名|占比|统计|对比一下各", _t))
         # 「推荐几台」「换个几台」里的「几台」是量词，不是统计
+        #
+        # 🔴 2026-11-28 补：**装机动作也要否决**。
+        #    「预算8000有几台能配」→ _hit_stat 命中「几台」，
+        #    但用户要的是装机方案（"能配"），不是统计库容量。
+        #    这和 2026-11-23 修「推荐几台」是同一类问题的延伸 ——
+        #    当时只想到"推荐"，没想到"装机"。
         _is_recommend = bool(re.search(
             r"推荐|推几台|给几台|来几台|看几台|挑几台|选几台|"
             r"换[一台两三四五六七八九十]|再来|再给|放宽|"
-            r"帮我找|给我找|列几台|来几款|推荐几款", _t))
+            r"帮我找|给我找|列几台|来几款|推荐几款|"
+            r"(配|装)[得能下起出]|能(配|装)|配得出|装得下|"
+            r"配[^。！？，,]{0,4}(电脑|主机|整机|机子|一套)|装机|组装", _t))
         _want_analyze = _hit_stat and not _is_recommend
     if _want_analyze:
         try:
@@ -6601,6 +6650,31 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
             slots.pop("_build", None)
         elif slots.get("_build") is None and known.get("_build"):
             slots["_build"] = known["_build"]
+
+    # 4c. 🔴 2026-11-28：**修「跑大模型」被判成 upgrade（内存升级）**。
+    #
+    #    事故：「我要跑大模型，预算一万」→ cat=upgrade
+    #    → 推荐了「DDR5 32G 套条」。用户要整机，系统推了内存条。
+    #
+    #    根因：模型把「跑大模型」关联到「加内存」，判成 upgrade。
+    #    但 upgrade 只适用于**已有机器、只想换配件**的场景：
+    #        「加条内存」「换个固态」「硬盘不够了」
+    #    而「跑大模型」是**用途**，不能反推品类。
+    #
+    #    判据：cat=upgrade 但句子有整机意图、没有升级信号 → 改成 None
+    #    （None 会触发"笔记本还是台式"的追问，这是正确行为）。
+    #    ⚠️ 不直接猜 thin/desktop —— 那是替用户做决定。
+    _UPGRADE_SIGNAL = re.search(
+        r"(加|换|升级|加装|扩容|再加|换上).{0,4}(内存|固态|硬盘|条|盘)|"
+        r"内存不够|硬盘不够|容量不够|已有的?机器|现有|我这台|我手上", user_text or "")
+    _WHOLE_MACHINE = re.search(
+        r"(配|买|装|攒)[^。！？]{0,4}(一台|个|套)|"
+        r"什么电脑|哪台|哪款|整机|一台电脑|要一台|想买台|买一台|"
+        # 2026-11-28 补：**「要X，预算Y」这种省略了量词的说法**。
+        #   「我要跑大模型，预算一万」—— 没说"一台"，但"要+用途+预算"就是要整机。
+        r"要[^。！？]{0,8}预算|预算[^。！？]{0,8}要", user_text or "")
+    if slots.get("cat") == "upgrade" and _WHOLE_MACHINE and not _UPGRADE_SIGNAL:
+        slots["cat"] = None
 
     # 5. 隐含推导：说打游戏但没明确品类 → 按游戏本走（PRD §8.4）
     #
@@ -7395,12 +7469,36 @@ def _run(user_text, known=None, asked=None, last_stage=None, seen=None,
     #    ⚠️ 截断后如果太短（<40 字），说明主要内容就是泄漏，
     #       保留原文交给下游 `_too_thin` 处理更安全。
     # ═══════════════════════════════════════════════════════════
+    # 🔴 2026-11-28：**整段泄漏先拦**。
+    #    事故：「我要跑大模型，预算一万」返回 ANSWER_SYS 的整段
+    #    解释性文字（"这句在问…你该做的…"），从第一个字就泄漏，
+    #    _leak_marker 的"截断前面"救不了（前面没内容可保留）。
+    #    这种情况改用**纯数据陈述**，不再让模型措辞。
+    _pure_leak_handled = False
     try:
-        _lp = _leak_marker(reply)
-        if _lp is not None and _lp >= 40:
-            reply = reply[:_lp].rstrip()
+        if _is_pure_leak(reply):
+            _pure_leak_handled = True
+            _top = (result.get("ranked") or [None])[0]
+            if _top:
+                _nm = _top.get("name") or ""
+                _pr = _top.get("price")
+                _sp = _top.get("spec") or ""
+                _pt = ("，到手 ¥%s" % money(_pr)) if _pr else ""
+                reply = (("这台是 %s%s。配置是 %s。" % (_nm, _pt, _sp))
+                         if _sp else ("这台是 %s%s。" % (_nm, _pt)))
+            else:
+                reply = ("这个条件我暂时匹配不到合适的机型。"
+                         "你补充一下用途或放宽预算，我再找。")
     except Exception:
         pass
+
+    if not _pure_leak_handled:
+        try:
+            _lp = _leak_marker(reply)
+            if _lp is not None and _lp >= 40:
+                reply = reply[:_lp].rstrip()
+        except Exception:
+            pass
 
     # ═══════════════════════════════════════════════════════════
     # 🔴🔴 2026-11-26：**价格口径补全**（用户反馈"价格很不准确"）
