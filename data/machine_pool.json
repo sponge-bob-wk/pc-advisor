@@ -699,7 +699,7 @@
   },
   {
    "id": "spec-xiaoxin-pro14-2026-amd",
-   "name": "小新 Pro 14 2026（锐龙版）",
+   "name": "小新 Pro 14 2026（锐龙版）（Ryzen7H255/24G/Radeon780M/14\"）",
    "brand": "联想",
    "cat": "thin",
    "cpu": {
@@ -1234,7 +1234,7 @@
   },
   {
    "id": "spec-parsed-jd-lenovo-xiaoxinpro16-r7h255-24g-1t-yih",
-   "name": "小新 Pro 16 超能本（锐龙版）",
+   "name": "小新 Pro 16 超能本（锐龙版）（R7-H255/24G/核显/16.0\"）",
    "brand": "联想",
    "cat": "thin",
    "cpu": {
@@ -4619,7 +4619,7 @@
   },
   {
    "id": "jd-honor-magicbookpro16-u5338h-32g-1t-20261109",
-   "name": "荣耀 MagicBook Pro 16 2026（Ultra5-338H/32G/1T）",
+   "name": "荣耀 MagicBook Pro 16 2026（Ultra5-338H/32G/1T/京东/¥8455）",
    "brand": "荣耀",
    "cat": "thin",
    "cpu": {
@@ -8191,7 +8191,7 @@
   },
   {
    "id": "add-magicbookpro16-2026",
-   "name": "荣耀 MagicBook Pro 16 2026（Ultra5-338H/32G/1T）",
+   "name": "荣耀 MagicBook Pro 16 2026（Ultra5-338H/32G/1T/京东/¥6969）",
    "brand": "荣耀",
    "cat": "thin",
    "cpu": {
@@ -8920,7 +8920,7 @@
   },
   {
    "id": "zol-2164759",
-   "name": "惠普HyperX 暗影精灵 Pro",
+   "name": "惠普HyperX 暗影精灵 Pro（Ultra7255HX/16G/RTX5060/16.0\"）",
    "skuLabel": "Ultra7 255HX/16G/1T/RTX5060",
    "source": "zol",
    "brand": "惠普",
@@ -9152,7 +9152,7 @@
   },
   {
    "id": "zol-2128664",
-   "name": "惠普暗影精灵11",
+   "name": "惠普暗影精灵11（i914900HX/32G/RTX5070/16.0\"）",
    "skuLabel": "i9 14900HX/32G/1T/RTX5070",
    "source": "zol",
    "brand": "惠普",
@@ -9364,7 +9364,7 @@
   },
   {
    "id": "zol-2139965",
-   "name": "华硕天选6 Pro 酷睿版",
+   "name": "华硕天选6 Pro 酷睿版（U7-255HX/16G/RTX5060/16.0\"）",
    "skuLabel": "U7-255HX/16G/1T/RTX5060",
    "source": "zol",
    "brand": "华硕",
@@ -9937,7 +9937,7 @@
   },
   {
    "id": "zol-2164280",
-   "name": "华硕天选6 Pro 酷睿版",
+   "name": "华硕天选6 Pro 酷睿版（U5-235HX/16G/RTX5060/16.0\"）",
    "skuLabel": "U5-235HX/16G/1T/RTX5060",
    "source": "zol",
    "brand": "华硕",
@@ -10143,7 +10143,7 @@
   },
   {
    "id": "zol-2164279",
-   "name": "华硕天选6 Pro 酷睿版",
+   "name": "华硕天选6 Pro 酷睿版（U5-235HX/16G/RTX5060/16.0\"/¥11799）",
    "skuLabel": "U5-235HX/16G/512G/RTX5060",
    "source": "zol",
    "brand": "华硕",
@@ -10354,7 +10354,7 @@
   },
   {
    "id": "zol-2127515",
-   "name": "联想拯救者R9000P",
+   "name": "联想拯救者R9000P（Ryzen98945HX/32G/RTX5070/16.0\"）",
    "skuLabel": "Ryzen 9 8945HX/32G/1T/RTX5070",
    "source": "zol",
    "brand": "联想",
@@ -10577,7 +10577,7 @@
   },
   {
    "id": "zol-2128381",
-   "name": "华为MateBook Fold 非凡大师",
+   "name": "华为MateBook Fold 非凡大师（32G）",
    "skuLabel": "32G",
    "source": "zol",
    "brand": "华为",
@@ -10740,7 +10740,7 @@
   },
   {
    "id": "zol-2137389",
-   "name": "机械革命蛟龙16Pro",
+   "name": "机械革命蛟龙16Pro（R9-7845HX/16G/RTX5050/16.0\"）",
    "skuLabel": "R9-7845HX/16G/512G/RTX5050",
    "source": "zol",
    "brand": "机械革命",
@@ -11136,7 +11136,7 @@
   },
   {
    "id": "zol-2168160",
-   "name": "荣耀MagicBook Pro",
+   "name": "荣耀MagicBook Pro（U5-225H/32G/Arc130TGPU/14.6\"）",
    "skuLabel": "U5-225H/32G/1T",
    "source": "zol",
    "brand": "荣耀",
@@ -11372,7 +11372,7 @@
   },
   {
    "id": "zol-2121879",
-   "name": "荣耀MagicBook Pro",
+   "name": "荣耀MagicBook Pro（U5-225H/32G/Arc130TGPU/14.6\"/¥6299）",
    "skuLabel": "U5-225H/32G",
    "source": "zol",
    "brand": "荣耀",
@@ -11606,7 +11606,7 @@
   },
   {
    "id": "zol-2173486",
-   "name": "戴尔XPS",
+   "name": "戴尔XPS（5320/16G/13.4\"）",
    "skuLabel": "英特尔 酷睿5 3代系列/16G",
    "source": "zol",
    "brand": "戴尔",
@@ -11822,7 +11822,7 @@
   },
   {
    "id": "zol-2165374",
-   "name": "ThinkPad",
+   "name": "ThinkPad（UltraX7358H/64G/ArcB390GPU/14.0\"）",
    "skuLabel": "英特尔 酷睿Ultra 3代系列/64G/2T",
    "source": "zol",
    "brand": "联想",
@@ -12028,7 +12028,7 @@
   },
   {
    "id": "zol-2165373",
-   "name": "ThinkPad",
+   "name": "ThinkPad（Ultra7356H/32G/14.0\"）",
    "skuLabel": "Ultra 7 356H/32G/1T",
    "source": "zol",
    "brand": "联想",
@@ -12233,7 +12233,7 @@
   },
   {
    "id": "zol-2165372",
-   "name": "ThinkPad",
+   "name": "ThinkPad（Ultra5325/32G/14.0\"）",
    "skuLabel": "Ultra 5 325/32G/1T",
    "source": "zol",
    "brand": "联想",
@@ -12650,7 +12650,7 @@
   },
   {
    "id": "zol-2128706",
-   "name": "联想拯救者Y7000P",
+   "name": "联想拯救者Y7000P（i914900HX/16G/RTX5060/16.0\"）",
    "skuLabel": "i9 14900HX/16G/1T/RTX5060",
    "source": "zol",
    "brand": "联想",
@@ -13091,7 +13091,7 @@
   },
   {
    "id": "zol-2168787",
-   "name": "联想小新Air",
+   "name": "联想小新Air（5320/16G/15.3\"）",
    "skuLabel": "英特尔 酷睿5 3代系列/16G",
    "source": "zol",
    "brand": "联想",
@@ -13289,7 +13289,7 @@
   },
   {
    "id": "zol-2165482",
-   "name": "惠普暗影精灵11",
+   "name": "惠普暗影精灵11（i714650HX/16G/RTX5050/16.0\"）",
    "skuLabel": "i7 14650HX/16G/1T/RTX5050",
    "source": "zol",
    "brand": "惠普",
@@ -13498,7 +13498,7 @@
   },
   {
    "id": "zol-2165481",
-   "name": "惠普暗影精灵11",
+   "name": "惠普暗影精灵11（i714650HX/16G/16.0\"）",
    "skuLabel": "i7 14650HX/16G/512G",
    "source": "zol",
    "brand": "惠普",
@@ -13707,7 +13707,7 @@
   },
   {
    "id": "zol-2165480",
-   "name": "惠普暗影精灵11",
+   "name": "惠普暗影精灵11（i714650HX/32G/RTX5060/16.0\"）",
    "skuLabel": "i7 14650HX/32G/1T/RTX5060",
    "source": "zol",
    "brand": "惠普",
@@ -13920,7 +13920,7 @@
   },
   {
    "id": "zol-2165479",
-   "name": "惠普暗影精灵11",
+   "name": "惠普暗影精灵11（i714650HX/32G/RTX5070/16.0\"）",
    "skuLabel": "i7 14650HX/32G/1T/RTX5070",
    "source": "zol",
    "brand": "惠普",
@@ -14311,7 +14311,7 @@
   },
   {
    "id": "zol-2167818",
-   "name": "联想拯救者Y9000P",
+   "name": "联想拯救者Y9000P（i9-14900HX/16G/RTX5060/16.0\"）",
    "skuLabel": "i9-14900HX/16G/1T/RTX5060",
    "source": "zol",
    "brand": "联想",
@@ -14734,7 +14734,7 @@
   },
   {
    "id": "zol-2137419",
-   "name": "联想拯救者R7000P",
+   "name": "联想拯救者R7000P（98945HX/16G/RTX5070/16.0\"）",
    "skuLabel": "锐龙9 8945HX/16G/1T/RTX5070",
    "source": "zol",
    "brand": "联想",
@@ -14962,7 +14962,7 @@
   },
   {
    "id": "zol-2137418",
-   "name": "联想拯救者R7000P",
+   "name": "联想拯救者R7000P（98945HX/16G/RTX5060/16.0\"）",
    "skuLabel": "锐龙9 8945HX/16G/1T/RTX5060",
    "source": "zol",
    "brand": "联想",
@@ -15190,7 +15190,7 @@
   },
   {
    "id": "zol-2137417",
-   "name": "联想拯救者R7000P",
+   "name": "联想拯救者R7000P（98940HX/16G/RTX5050/16.0\"）",
    "skuLabel": "锐龙9 8940HX/16G/1T/RTX5050",
    "source": "zol",
    "brand": "联想",
@@ -15420,7 +15420,7 @@
   },
   {
    "id": "zol-2137416",
-   "name": "联想拯救者R7000P",
+   "name": "联想拯救者R7000P（98940HX/16G/RTX5060/16.0\"）",
    "skuLabel": "锐龙9 8940HX/16G/1T/RTX5060",
    "source": "zol",
    "brand": "联想",
@@ -15648,7 +15648,7 @@
   },
   {
    "id": "zol-1295682",
-   "name": "ThinkPad",
+   "name": "ThinkPad（i510210U/8G/RadeonRX640/14.0\"）",
    "skuLabel": "英特尔 酷睿i5 10代系列",
    "source": "zol",
    "brand": "联想",
@@ -15873,7 +15873,7 @@
   },
   {
    "id": "zol-1289748",
-   "name": "联想小新 Air",
+   "name": "联想小新 Air（i510210U/12G/GeforceMX250/14.0\"）",
    "skuLabel": "i5 10210U/12G/512G",
    "source": "zol",
    "brand": "联想",
@@ -16070,7 +16070,7 @@
   },
   {
    "id": "zol-2127545",
-   "name": "联想拯救者Y9000P",
+   "name": "联想拯救者Y9000P（Ultra9275HX/32G/RTX5070TI/16.0\"）",
    "skuLabel": "Ultra 9 275HX/32G/1T/RTX5070TI",
    "source": "zol",
    "brand": "联想",
@@ -16298,7 +16298,7 @@
   },
   {
    "id": "zol-2125908",
-   "name": "联想拯救者Y9000P",
+   "name": "联想拯救者Y9000P（Ultra9275HX/64G/RTX5090/16.0\"）",
    "skuLabel": "Ultra 9 275HX/64G/2T/RTX5090",
    "source": "zol",
    "brand": "联想",
@@ -16910,7 +16910,7 @@
   },
   {
    "id": "zol-2175978",
-   "name": "联想小新Pro14",
+   "name": "联想小新Pro14（锐龙200/24G/Radeon780M/14.0\"）",
    "skuLabel": "AMD 锐龙 200/24G",
    "source": "zol",
    "brand": "联想",
@@ -17150,7 +17150,7 @@
   },
   {
    "id": "zol-2175977",
-   "name": "联想小新Pro14",
+   "name": "联想小新Pro14（锐龙200/32G/Radeon780M/14.0\"）",
    "skuLabel": "AMD 锐龙 200/32G",
    "source": "zol",
    "brand": "联想",
@@ -18452,7 +18452,7 @@
   },
   {
    "id": "zol-2167677",
-   "name": "联想拯救者 创世 Ultra",
+   "name": "联想拯救者 创世 Ultra（Ultra9290HX/92G/RTX5090/18.0\"）",
    "skuLabel": "Ultra 9 290HX/92G/192G/RTX5090",
    "source": "zol",
    "brand": "联想",
@@ -18698,7 +18698,7 @@
   },
   {
    "id": "zol-2167676",
-   "name": "联想拯救者 创世 Ultra",
+   "name": "联想拯救者 创世 Ultra（Ultra9290HX/64G/RTX5090/18.0\"）",
    "skuLabel": "Ultra 9 290HX/64G/2T/RTX5090",
    "source": "zol",
    "brand": "联想",
@@ -19063,7 +19063,7 @@
   },
   {
    "id": "zol-1970828",
-   "name": "vivo",
+   "name": "vivo（56G）",
    "skuLabel": "56G/256G",
    "source": "zol",
    "brand": "vivo",
@@ -19793,7 +19793,7 @@
   },
   {
    "id": "zol-2002133",
-   "name": "vivo",
+   "name": "vivo（56G/¥2499）",
    "skuLabel": "56G/256G",
    "source": "zol",
    "brand": "vivo",
@@ -19913,7 +19913,7 @@
   },
   {
    "id": "zol-1577878",
-   "name": "戴尔XPS",
+   "name": "戴尔XPS（i71360P/16G/IrisXeGraphics/13.4\"）",
    "skuLabel": "英特尔 酷睿i7 13代系列",
    "source": "zol",
    "brand": "戴尔",
@@ -20936,7 +20936,7 @@
   },
   {
    "id": "zol-1284609",
-   "name": "ThinkPad",
+   "name": "ThinkPad（i78565/16G/RadeonRX550X/14.0\"）",
    "skuLabel": "i7 8565/16G/512G",
    "source": "zol",
    "brand": "联想",
@@ -21166,7 +21166,7 @@
   },
   {
    "id": "zol-1210926",
-   "name": "戴尔XPS",
+   "name": "戴尔XPS（i77700HQ/8G/GeForceGTX1050/15.6\"）",
    "skuLabel": "英特尔 酷睿i7 7代系列",
    "source": "zol",
    "brand": "戴尔",
@@ -24445,7 +24445,7 @@
   },
   {
    "id": "zol-2164772",
-   "name": "惠普HyperX 暗影精灵 Pro",
+   "name": "惠普HyperX 暗影精灵 Pro（R99955HX/16G/RTX5060/16.0\"）",
    "skuLabel": "R9 9955HX/16G/1T/RTX5060",
    "source": "zol",
    "brand": "惠普",
@@ -24680,7 +24680,7 @@
   },
   {
    "id": "zol-1412659",
-   "name": "ThinkBook",
+   "name": "ThinkBook（i512500H/16G/16.0\"）",
    "skuLabel": "英特尔 酷睿i5 12代系列",
    "source": "zol",
    "brand": "联想",
@@ -24874,7 +24874,7 @@
   },
   {
    "id": "zol-2122121",
-   "name": "ROG 幻X",
+   "name": "ROG 幻X（RyzenAIMax+395/64G/Radeon8060S/13.4\"）",
    "skuLabel": "AMD Ryzen AI Max 300系列/1T",
    "source": "zol",
    "brand": "华硕",
@@ -25084,7 +25084,7 @@
   },
   {
    "id": "zol-2122120",
-   "name": "ROG 幻X",
+   "name": "ROG 幻X（RyzenAIMax+395/32G/Radeon8060S/13.4\"）",
    "skuLabel": "AMD Ryzen AI Max 300系列/1T",
    "source": "zol",
    "brand": "华硕",
@@ -25294,7 +25294,7 @@
   },
   {
    "id": "zol-2122119",
-   "name": "ROG 幻X",
+   "name": "ROG 幻X（RyzenAIMax390/32G/Radeon8050S/13.4\"）",
    "skuLabel": "AMD Ryzen AI Max 300系列/32G/1T",
    "source": "zol",
    "brand": "华硕",
@@ -25503,7 +25503,7 @@
   },
   {
    "id": "zol-1313463",
-   "name": "ThinkPad",
+   "name": "ThinkPad（i510210U/8G/13.3\"）",
    "skuLabel": "英特尔 酷睿i5 10代系列",
    "source": "zol",
    "brand": "联想",
@@ -25703,7 +25703,7 @@
   },
   {
    "id": "zol-1396293",
-   "name": "联想拯救者",
+   "name": "联想拯救者（i512500H/16G/RTX3050/15.6\"）",
    "skuLabel": "i5 12500H/16G/512G/RTX3050",
    "source": "zol",
    "brand": "联想",
@@ -26102,7 +26102,7 @@
   },
   {
    "id": "zol-1322032",
-   "name": "联想拯救者",
+   "name": "联想拯救者（R54600H/16G/GTX1650/15.6\"）",
    "skuLabel": "R5 4600H/16G/512G/GTX1650",
    "source": "zol",
    "brand": "联想",
@@ -26329,7 +26329,7 @@
   },
   {
    "id": "zol-1313461",
-   "name": "ThinkPad",
+   "name": "ThinkPad（i710510U/8G/GeForceMX330/14.0\"）",
    "skuLabel": "英特尔 酷睿i7 10代系列",
    "source": "zol",
    "brand": "联想",
@@ -26531,7 +26531,7 @@
   },
   {
    "id": "zol-1357313",
-   "name": "联想拯救者R9000P",
+   "name": "联想拯救者R9000P（R75800H/16G/RTX3060/16.0\"）",
    "skuLabel": "R7 5800H/16G/512G/RTX3060",
    "source": "zol",
    "brand": "联想",
@@ -26968,7 +26968,7 @@
   },
   {
    "id": "zol-1339320",
-   "name": "ThinkPad",
+   "name": "ThinkPad（i510210U/8G/RadeonRX625/14.0\"）",
    "skuLabel": "英特尔 酷睿i5 10代系列",
    "source": "zol",
    "brand": "联想",
@@ -27397,7 +27397,7 @@
   },
   {
    "id": "zol-2128701",
-   "name": "联想拯救者Y9000P",
+   "name": "联想拯救者Y9000P（Ultra9275HX/32G/RTX5060/16.0\"）",
    "skuLabel": "Ultra 9 275HX/32G/1T/RTX5060",
    "source": "zol",
    "brand": "联想",
@@ -27627,7 +27627,7 @@
   },
   {
    "id": "zol-2127514",
-   "name": "联想拯救者Y9000P",
+   "name": "联想拯救者Y9000P（Ultra9275HX/32G/RTX5070/16.0\"）",
    "skuLabel": "Ultra 9 275HX/32G/1T/RTX5070",
    "source": "zol",
    "brand": "联想",
@@ -28090,7 +28090,7 @@
   },
   {
    "id": "zol-2165377",
-   "name": "ThinkPad",
+   "name": "ThinkPad（UltraX7358H/32G/ArcB390GPU/14.0\"）",
    "skuLabel": "英特尔 酷睿Ultra 3代系列/32G/1T",
    "source": "zol",
    "brand": "联想",
@@ -28298,7 +28298,7 @@
   },
   {
    "id": "zol-1371997",
-   "name": "联想拯救者Y7000P",
+   "name": "联想拯救者Y7000P（i711800H/16G/RTX3060/15.6\"）",
    "skuLabel": "i7 11800H/16G/512G/RTX3060",
    "source": "zol",
    "brand": "联想",
@@ -28513,7 +28513,7 @@
   },
   {
    "id": "zol-2103849",
-   "name": "联想拯救者",
+   "name": "联想拯救者（i714700HX/32G/RTX4060/16.0\"）",
    "skuLabel": "i7 14700HX/32G/2T/RTX4060",
    "source": "zol",
    "brand": "联想",
@@ -28699,7 +28699,7 @@
   },
   {
    "id": "zol-2103848",
-   "name": "联想拯救者",
+   "name": "联想拯救者（i714700HX/32G/RTX4060/16.0\"/¥9299）",
    "skuLabel": "i7 14700HX/32G/1T/RTX4060",
    "source": "zol",
    "brand": "联想",
@@ -28885,7 +28885,7 @@
   },
   {
    "id": "zol-2103847",
-   "name": "联想拯救者",
+   "name": "联想拯救者（i714700HX/16G/RTX4060/16.0\"）",
    "skuLabel": "i7 14700HX/16G/2T/RTX4060",
    "source": "zol",
    "brand": "联想",
@@ -29071,7 +29071,7 @@
   },
   {
    "id": "zol-2103846",
-   "name": "联想拯救者",
+   "name": "联想拯救者（i714650HX/32G/RTX4060/16.0\"）",
    "skuLabel": "i7 14650HX/32G/2T/RTX4060",
    "source": "zol",
    "brand": "联想",
@@ -29257,7 +29257,7 @@
   },
   {
    "id": "zol-2103845",
-   "name": "联想拯救者",
+   "name": "联想拯救者（i714650HX/32G/RTX4060/16.0\"/¥8799）",
    "skuLabel": "i7 14650HX/32G/1T/RTX4060",
    "source": "zol",
    "brand": "联想",
@@ -29443,7 +29443,7 @@
   },
   {
    "id": "zol-2103844",
-   "name": "联想拯救者",
+   "name": "联想拯救者（i714650HX/16G/RTX4060/16.0\"）",
    "skuLabel": "i7 14650HX/16G/2T/RTX4060",
    "source": "zol",
    "brand": "联想",
@@ -29629,7 +29629,7 @@
   },
   {
    "id": "zol-2103843",
-   "name": "联想拯救者",
+   "name": "联想拯救者（i714650HX/32G/RTX4050/16.0\"）",
    "skuLabel": "i7 14650HX/32G/2T/RTX4050",
    "source": "zol",
    "brand": "联想",
@@ -29815,7 +29815,7 @@
   },
   {
    "id": "zol-2103842",
-   "name": "联想拯救者",
+   "name": "联想拯救者（i714650HX/32G/RTX4050/16.0\"/¥8099）",
    "skuLabel": "i7 14650HX/32G/1T/RTX4050",
    "source": "zol",
    "brand": "联想",
@@ -30001,7 +30001,7 @@
   },
   {
    "id": "zol-2103841",
-   "name": "联想拯救者",
+   "name": "联想拯救者（i714650HX/16G/RTX4050/16.0\"）",
    "skuLabel": "i7 14650HX/16G/2T/RTX4050",
    "source": "zol",
    "brand": "联想",
@@ -30187,7 +30187,7 @@
   },
   {
    "id": "zol-1974296",
-   "name": "联想拯救者",
+   "name": "联想拯救者（i714650HX/16G/RTX4050/16.0\"/¥7499）",
    "skuLabel": "i7 14650HX/16G/1T/RTX4050",
    "source": "zol",
    "brand": "联想",
@@ -30373,7 +30373,7 @@
   },
   {
    "id": "zol-2167227",
-   "name": "联想小新 Air",
+   "name": "联想小新 Air（Ultra5226V/16G/Arc130VGPU/14.0\"）",
    "skuLabel": "Ultra 5 226V/16G",
    "source": "zol",
    "brand": "联想",
@@ -30554,7 +30554,7 @@
   },
   {
    "id": "zol-2106505",
-   "name": "机械革命极光X",
+   "name": "机械革命极光X（i7-14650HX/16G/RTX4070/16.0\"）",
    "skuLabel": "i7-14650HX/RTX4070",
    "source": "zol",
    "brand": "机械革命",
@@ -30731,7 +30731,7 @@
   },
   {
    "id": "zol-2106504",
-   "name": "机械革命极光X",
+   "name": "机械革命极光X（i7-14650HX/16G/RTX4060/16.0\"）",
    "skuLabel": "i7-14650HX/RTX4060",
    "source": "zol",
    "brand": "机械革命",
@@ -30908,7 +30908,7 @@
   },
   {
    "id": "zol-2106503",
-   "name": "机械革命极光X",
+   "name": "机械革命极光X（i7-14650HX/32G/RTX4070/16.0\"）",
    "skuLabel": "i7-14650HX/RTX4070",
    "source": "zol",
    "brand": "机械革命",
@@ -31085,7 +31085,7 @@
   },
   {
    "id": "zol-2106502",
-   "name": "机械革命极光X",
+   "name": "机械革命极光X（i7-14650HX/32G/RTX4060/16.0\"）",
    "skuLabel": "i7-14650HX/RTX4060",
    "source": "zol",
    "brand": "机械革命",
@@ -31262,7 +31262,7 @@
   },
   {
    "id": "zol-2066357",
-   "name": "机械革命极光X",
+   "name": "机械革命极光X（i7-12800HX/16G/RTX4060/16.0\"）",
    "skuLabel": "i7-12800HX/RTX4060",
    "source": "zol",
    "brand": "机械革命",
@@ -31678,7 +31678,7 @@
   },
   {
    "id": "zol-1412507",
-   "name": "ThinkBook",
+   "name": "ThinkBook（i512500H/16G/14.0\"）",
    "skuLabel": "英特尔 酷睿i5 12代系列",
    "source": "zol",
    "brand": "联想",
@@ -32116,7 +32116,7 @@
   },
   {
    "id": "zol-2103827",
-   "name": "联想拯救者R7000",
+   "name": "联想拯救者R7000（R78745H/16G/RTX4050/15.6\"）",
    "skuLabel": "R7 8745H/1T/RTX4050",
    "source": "zol",
    "brand": "联想",
@@ -32326,7 +32326,7 @@
   },
   {
    "id": "zol-2103826",
-   "name": "联想拯救者R7000",
+   "name": "联想拯救者R7000（R78745H/16G/RTX4060/15.6\"）",
    "skuLabel": "R7 8745H/1T/RTX4060",
    "source": "zol",
    "brand": "联想",
@@ -32539,7 +32539,7 @@
   },
   {
    "id": "zol-1990873",
-   "name": "联想拯救者R7000",
+   "name": "联想拯救者R7000（R77840H/16G/RTX4060/15.6\"）",
    "skuLabel": "R7 7840H/RTX4060",
    "source": "zol",
    "brand": "联想",
@@ -33523,7 +33523,7 @@
   },
   {
    "id": "zol-2164771",
-   "name": "惠普HyperX 暗影精灵 Pro",
+   "name": "惠普HyperX 暗影精灵 Pro（Ultra9290HX/16G/RTX5060/15.3\"）",
    "skuLabel": "Ultra9 290HX/16G/1T/RTX5060",
    "source": "zol",
    "brand": "惠普",
@@ -33755,7 +33755,7 @@
   },
   {
    "id": "zol-2164770",
-   "name": "惠普HyperX 暗影精灵 Pro",
+   "name": "惠普HyperX 暗影精灵 Pro（Ultra7255HX/16G/RTX5070/15.3\"）",
    "skuLabel": "Ultra7 255HX/16G/1T/RTX5070",
    "source": "zol",
    "brand": "惠普",
@@ -33987,7 +33987,7 @@
   },
   {
    "id": "zol-2164768",
-   "name": "惠普HyperX 暗影精灵 Pro",
+   "name": "惠普HyperX 暗影精灵 Pro（Ultra7255HX/16G/RTX5050/15.3\"）",
    "skuLabel": "Ultra7 255HX/16G/1T/RTX5050",
    "source": "zol",
    "brand": "惠普",
@@ -34220,7 +34220,7 @@
   },
   {
    "id": "zol-1473942",
-   "name": "惠普星 Book Pro",
+   "name": "惠普星 Book Pro（i513500H/16G/集显/14.0\"）",
    "skuLabel": "i5 13500H/16G/1T",
    "source": "zol",
    "brand": "惠普",
@@ -34846,7 +34846,7 @@
   },
   {
    "id": "zol-2175194",
-   "name": "msi微星微星神影16 魔龙姬限定款",
+   "name": "msi微星微星神影16 魔龙姬限定款（i714700HX/16G/RTX5060/16.0\"）",
    "skuLabel": "i7 14700HX/16G/1T/RTX5060",
    "source": "zol",
    "brand": "微星",
@@ -35056,7 +35056,7 @@
   },
   {
    "id": "zol-2175193",
-   "name": "msi微星微星神影16 魔龙姬限定款",
+   "name": "msi微星微星神影16 魔龙姬限定款（i914900HX/16G/RTX5060/16.0\"）",
    "skuLabel": "i9 14900HX/16G/1T/RTX5060",
    "source": "zol",
    "brand": "微星",
@@ -35269,7 +35269,7 @@
   },
   {
    "id": "zol-2165920",
-   "name": "惠普星Book Pro",
+   "name": "惠普星Book Pro（Ultra5338H/32G/ArcB370GPU/16.0\"）",
    "skuLabel": "Ultra 5 338H/32G",
    "source": "zol",
    "brand": "惠普",
@@ -35455,7 +35455,7 @@
   },
   {
    "id": "zol-2165919",
-   "name": "惠普星Book Pro",
+   "name": "惠普星Book Pro（Ultra5338H/16G/ArcB370GPU/16.0\"）",
    "skuLabel": "Ultra 5 338H/16G",
    "source": "zol",
    "brand": "惠普",
@@ -35639,7 +35639,7 @@
   },
   {
    "id": "zol-2165918",
-   "name": "惠普星Book Pro",
+   "name": "惠普星Book Pro（UltraX7358H/32G/ArcB390GPU/16.0\"）",
    "skuLabel": "英特尔 酷睿Ultra 3代系列/32G",
    "source": "zol",
    "brand": "惠普",
@@ -36036,7 +36036,7 @@
   },
   {
    "id": "zol-1842754",
-   "name": "机械革命蛟龙16 Pro",
+   "name": "机械革命蛟龙16 Pro（R77745HX/16G/RTX4060/16.0\"）",
    "skuLabel": "R7 7745HX/16G/1T/RTX4060",
    "source": "zol",
    "brand": "机械革命",
@@ -36927,7 +36927,7 @@
   },
   {
    "id": "zol-2142787",
-   "name": "ROG 枪神9 Plus Ultra",
+   "name": "ROG 枪神9 Plus Ultra（Ultra9275HX/32G/RTX5060/18.0\"）",
    "skuLabel": "Ultra 9 275HX/32G/1T/RTX5060",
    "source": "zol",
    "brand": "华硕",
@@ -37162,7 +37162,7 @@
   },
   {
    "id": "zol-2142786",
-   "name": "ROG 枪神9 Plus Ultra",
+   "name": "ROG 枪神9 Plus Ultra（Ultra9275HX/16G/RTX5070/18.0\"）",
    "skuLabel": "Ultra 9 275HX/16G/1T/RTX5070",
    "source": "zol",
    "brand": "华硕",
@@ -37395,7 +37395,7 @@
   },
   {
    "id": "zol-2142785",
-   "name": "ROG 枪神9 Plus Ultra",
+   "name": "ROG 枪神9 Plus Ultra（Ultra9275HX/16G/RTX5060/18.0\"）",
    "skuLabel": "Ultra 9 275HX/16G/1T/RTX5060",
    "source": "zol",
    "brand": "华硕",
@@ -37628,7 +37628,7 @@
   },
   {
    "id": "zol-2142784",
-   "name": "ROG 枪神9 Plus Ultra",
+   "name": "ROG 枪神9 Plus Ultra（Ultra9275HX/16G/RTX5070TI/18.0\"）",
    "skuLabel": "Ultra 9 275HX/16G/1T/RTX5070TI",
    "source": "zol",
    "brand": "华硕",
@@ -37861,7 +37861,7 @@
   },
   {
    "id": "zol-2122134",
-   "name": "ROG 枪神9 Plus Ultra",
+   "name": "ROG 枪神9 Plus Ultra（Ultra9275HX/16G/RTX5080/18.0\"）",
    "skuLabel": "Ultra 9 275HX/16G/1T/RTX5080",
    "source": "zol",
    "brand": "华硕",
@@ -38290,7 +38290,7 @@
   },
   {
    "id": "zol-2173892",
-   "name": "华为MateBook Fold 非凡大师",
+   "name": "华为MateBook Fold 非凡大师（KirinX90Plus/24G/18.0\"）",
    "skuLabel": "Kirin X90 Plus/24G",
    "source": "zol",
    "brand": "华为",
@@ -38718,7 +38718,7 @@
   },
   {
    "id": "zol-2103835",
-   "name": "联想拯救者",
+   "name": "联想拯救者（i914900HX/32G/RTX4090/16.0\"）",
    "skuLabel": "i9 14900HX/32G/2T/RTX4090",
    "source": "zol",
    "brand": "联想",
@@ -38912,7 +38912,7 @@
   },
   {
    "id": "zol-2103834",
-   "name": "联想拯救者",
+   "name": "联想拯救者（i914900HX/32G/RTX4070/16.0\"）",
    "skuLabel": "i9 14900HX/32G/2T/RTX4070",
    "source": "zol",
    "brand": "联想",
@@ -39106,7 +39106,7 @@
   },
   {
    "id": "zol-2103833",
-   "name": "联想拯救者",
+   "name": "联想拯救者（i914900HX/32G/RTX4060/16.0\"）",
    "skuLabel": "i9 14900HX/32G/2T/RTX4060",
    "source": "zol",
    "brand": "联想",
@@ -39300,7 +39300,7 @@
   },
   {
    "id": "zol-1974294",
-   "name": "联想拯救者",
+   "name": "联想拯救者（i914900HX/16G/RTX4060/16.0\"）",
    "skuLabel": "i9 14900HX/16G/1T/RTX4060",
    "source": "zol",
    "brand": "联想",
@@ -40823,7 +40823,7 @@
   },
   {
    "id": "zol-2167298",
-   "name": "华硕无畏14 酷睿版",
+   "name": "华硕无畏14 酷睿版（Ultra5-325/32G/14.0\"）",
    "skuLabel": "Ultra5-325/32G",
    "source": "zol",
    "brand": "华硕",
@@ -41021,7 +41021,7 @@
   },
   {
    "id": "zol-2167297",
-   "name": "华硕无畏14 酷睿版",
+   "name": "华硕无畏14 酷睿版（Ultra5-325/16G/14.0\"）",
    "skuLabel": "Ultra5-325/16G",
    "source": "zol",
    "brand": "华硕",
@@ -42126,7 +42126,7 @@
   },
   {
    "id": "zol-2104505",
-   "name": "华硕a豆14 Air",
+   "name": "华硕a豆14 Air（R98945H/16G/14.0\"）",
    "skuLabel": "R9 8945H/16G",
    "source": "zol",
    "brand": "华硕",
@@ -42317,7 +42317,7 @@
   },
   {
    "id": "zol-1982184",
-   "name": "华硕a豆14 Air",
+   "name": "华硕a豆14 Air（R78845H/32G/14.0\"）",
    "skuLabel": "R7 8845H/32G",
    "source": "zol",
    "brand": "华硕",
